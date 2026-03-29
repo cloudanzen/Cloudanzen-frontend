@@ -288,6 +288,10 @@ class AdminService {
     return apiClient.put(`/api/admin/organizations/${orgId}/allowed-frameworks`, { frameworkIds });
   }
 
+  async deleteOrganization(orgId: string, confirmName: string): Promise<{ success: boolean; message: string }> {
+    return apiClient.delete(`/api/admin/organizations/${orgId}`, { confirmName });
+  }
+
   // Frameworks
   async listFrameworks(): Promise<{ success: boolean; data: FrameworkListDto[] }> {
     return apiClient.get('/api/admin/frameworks');

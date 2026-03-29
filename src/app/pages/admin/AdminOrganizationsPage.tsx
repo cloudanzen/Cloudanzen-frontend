@@ -15,8 +15,9 @@ import {
 } from '@/app/components/ui/dialog';
 import { useHasRole } from '@/hooks/useCurrentUser';
 import { adminService, OrgListDto, OrgDetailDto } from '@/services/api/admin';
-import { Search, Plus, Building2, Users, Shield, ChevronRight, Loader2, Eye } from 'lucide-react';
+import { Search, Plus, Building2, Users, Shield, ChevronRight, Loader2, Eye, Trash2 } from 'lucide-react';
 import { fmtDate } from '@/lib/format-date';
+import { toast } from 'sonner';
 
 export function AdminOrganizationsPage() {
   const isSuperAdmin = useHasRole('SUPER_ADMIN');
@@ -167,6 +168,8 @@ function OrgDetailDialog({
 }) {
   const [editingAllowed, setEditingAllowed] = useState(false);
   const [selectedFwIds, setSelectedFwIds] = useState<Set<string>>(new Set());
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteConfirmName, setDeleteConfirmName] = useState('');
 
   // Fetch all frameworks for the edit picker
   const { data: allFwRes } = useQuery({
@@ -181,6 +184,20 @@ function OrgDetailDialog({
     onSuccess: () => {
       setEditingAllowed(false);
       onMutated();
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: () => adminService.deleteOrganization(detail!.id, deleteConfirmName),
+    onSuccess: () => {
+      toast.success(`Organization "${detail!.name}" deleted`);
+      setShowDeleteConfirm(false);
+      setDeleteConfirmName('');
+      onClose();
+      onMutated();
+    },
+    onError: (err: any) => {
+      toast.error(err?.message || 'Failed to delete organization');
     },
   });
 
@@ -331,6 +348,53 @@ function OrgDetailDialog({
                 )}
               </div>
             </div>
+
+            {/* Delete section */}
+            {!showDeleteConfirm ? (
+              <div className="border-t pt-4 mt-2">
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => setShowDeleteConfirm(true)}
+                >
+                  <Trash2 className="h-3.5 w-3.5 mr-1" />
+                  Delete Organization
+                </Button>
+              </div>
+            ) : (
+              <div className="border-t pt-4 mt-2 space-y-2">
+                <p className="text-sm text-destructive font-medium">
+                  This will permanently delete all data for this organization.
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Type <span className="font-mono font-bold">{detail.name}</span> to confirm:
+                </p>
+                <Input
+                  value={deleteConfirmName}
+                  onChange={(e) => setDeleteConfirmName(e.target.value)}
+                  placeholder={detail.name}
+                  className="max-w-xs"
+                />
+                <div className="flex gap-2">
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    disabled={deleteConfirmName !== detail.name || deleteMutation.isPending}
+                    onClick={() => deleteMutation.mutate()}
+                  >
+                    {deleteMutation.isPending && <Loader2 className="h-3 w-3 mr-1 animate-spin" />}
+                    Confirm Delete
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmName(''); }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
 
             <DialogFooter>
               <Button variant="outline" onClick={onClose}>Close</Button>
