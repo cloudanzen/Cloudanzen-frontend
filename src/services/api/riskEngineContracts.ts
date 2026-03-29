@@ -10,7 +10,7 @@ import {
   type RunEvaluationResponseDto,
   type ScanRunDto,
   type TestResultDto,
-} from '@/server/risk-engine/contracts';
+} from '@/shared/riskEngine/contracts';
 
 export {
   riskEngineContracts,

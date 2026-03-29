@@ -5,9 +5,9 @@ import {
   getNotificationEventLabel,
   groupPreferences,
 } from '@/app/features/notifications/notificationHelpers';
-import { NOTIFICATION_EVENT_DEFINITIONS } from '@/domain/notifications/eventTypes';
+import { NOTIFICATION_EVENT_DEFINITIONS } from '@/shared/notifications/eventTypes';
 import type { NotificationDto, NotificationPreferenceDto, NotificationSeverity } from '@/services/api/notifications';
-import type { NotificationEventType } from '@/domain/notifications/eventTypes';
+import type { NotificationEventType } from '@/shared/notifications/eventTypes';
 
 // ── getNotificationSeverityMeta ───────────────────────────────────────────────
 

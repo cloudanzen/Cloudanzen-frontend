@@ -1,5 +1,5 @@
 import { AlertCircle, AlertTriangle, Bell, FileCheck, Info, ShieldAlert } from 'lucide-react';
-import { NOTIFICATION_EVENT_DEFINITIONS, getNotificationEventDefinition } from '@/domain/notifications/eventTypes';
+import { NOTIFICATION_EVENT_DEFINITIONS, getNotificationEventDefinition } from '@/shared/notifications/eventTypes';
 import type { NotificationDto, NotificationPreferenceDto, NotificationSeverity } from '@/services/api/notifications';
 
 export const notificationEventDefinitions = NOTIFICATION_EVENT_DEFINITIONS;

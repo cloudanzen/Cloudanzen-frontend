@@ -1,4 +1,4 @@
-import { NOTIFICATION_EVENT_DEFINITIONS, type NotificationEventType } from '@/domain/notifications/eventTypes';
+import { NOTIFICATION_EVENT_DEFINITIONS, type NotificationEventType } from '@/shared/notifications/eventTypes';
 import { apiClient } from './client';
 
 export type NotificationSeverity = 'info' | 'warning' | 'critical';
