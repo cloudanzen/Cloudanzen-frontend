@@ -5,10 +5,10 @@
  * Single scrollable page replacing the previous 8-tab layout.
  * Structure:
  *   - Coverage tiles strip
+ *   - Readiness over time chart (when ≥2 snapshots)
  *   - Filter bar (All / Gaps / Excluded) + search
  *   - Collapsible domain sections → expandable requirement rows
  *     → nested Controls, Tests, Policies, Risks
- *   - Coverage trend chart at bottom
  */
 
 import { useState, useMemo, lazy, Suspense } from 'react';
@@ -1047,6 +1047,26 @@ export function FrameworkDetailPage() {
         {/* Coverage tiles */}
         <CoverageTiles snap={snap} />
 
+        {/* Coverage trend chart — placed near tiles for visibility */}
+        {history.length > 1 && snap && (
+          <Card className="border-gray-100">
+            <CardContent className="py-5 px-5">
+              <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-3">
+                Readiness over time
+              </p>
+              <Suspense
+                fallback={
+                  <div className="h-64 flex items-center justify-center text-xs text-gray-400">
+                    Loading chart…
+                  </div>
+                }
+              >
+                <CoverageChart history={history} openGaps={snap.openGaps} />
+              </Suspense>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Filter bar */}
         <FilterBar
           filter={filter}
@@ -1109,25 +1129,6 @@ export function FrameworkDetailPage() {
           ))
         )}
 
-        {/* Coverage trend chart */}
-        {history.length > 1 && snap && (
-          <Card className="border-gray-100">
-            <CardContent className="py-5 px-5">
-              <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-3">
-                Readiness over time
-              </p>
-              <Suspense
-                fallback={
-                  <div className="h-64 flex items-center justify-center text-xs text-gray-400">
-                    Loading chart…
-                  </div>
-                }
-              >
-                <CoverageChart history={history} openGaps={snap.openGaps} />
-              </Suspense>
-            </CardContent>
-          </Card>
-        )}
       </div>
 
       {/* Owner assignment dialog */}
