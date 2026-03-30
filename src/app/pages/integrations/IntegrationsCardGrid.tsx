@@ -136,7 +136,7 @@ export function IntegrationsCardGrid({
   activeTab,
   visibleEngineerACount,
   setVisibleEngineerACount,
-  engineerAConnectionCounts: _engineerAConnectionCounts,
+  engineerAConnectionCounts,
   setEngineerAConnectionCounts,
 }: IntegrationsCardGridProps) {
   const isConnected = !!githubIntegration;
@@ -770,21 +770,30 @@ export function IntegrationsCardGrid({
       </div>
 
       {/* ── Show more (pagination for engineer-a cards) ──────────────────────── */}
-      {visibleEngineerACount < ENGINEER_A_CARDS.length && (
-        <div className="flex justify-center pt-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() =>
-              setVisibleEngineerACount((prev) => prev + PAGE_SIZE)
-            }
-            className="gap-1.5 text-sm"
-          >
-            Show more integrations (
-            {ENGINEER_A_CARDS.length - visibleEngineerACount} remaining)
-          </Button>
-        </div>
-      )}
+      {(() => {
+        if (visibleEngineerACount >= ENGINEER_A_CARDS.length) return null;
+        // On connected tab, only show "show more" if there are connected cards beyond the visible slice
+        if (activeTab === 'connected') {
+          const connectedBeyond = ENGINEER_A_CARDS.slice(visibleEngineerACount)
+            .filter((c) => (engineerAConnectionCounts[c.key] ?? 0) > 0).length;
+          if (connectedBeyond === 0) return null;
+        }
+        const remaining = ENGINEER_A_CARDS.length - visibleEngineerACount;
+        return (
+          <div className="flex justify-center pt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                setVisibleEngineerACount((prev) => prev + PAGE_SIZE)
+              }
+              className="gap-1.5 text-sm"
+            >
+              Show more integrations ({remaining} remaining)
+            </Button>
+          </div>
+        );
+      })()}
     </>
   );
 }
