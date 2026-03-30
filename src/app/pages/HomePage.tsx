@@ -184,7 +184,7 @@ export function HomePage() {
       change: null,
       icon: Clock,
       color: 'text-orange-600',
-      path: '/tests',
+      path: '/my-security-tasks',
     },
   ];
 
