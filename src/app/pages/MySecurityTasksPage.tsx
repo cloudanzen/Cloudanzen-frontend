@@ -148,7 +148,9 @@ function Task1Policies({
       .finally(() => setLoading(false));
   }, []);
 
-  if (status.policyAccepted) {
+  const hasPending = (status.pendingPolicyIds ?? []).length > 0;
+
+  if (status.policyAccepted && !hasPending) {
     const ids: string[] = (() => {
       try {
         return JSON.parse(status.policyVersionAccepted ?? '[]');
@@ -172,13 +174,34 @@ function Task1Policies({
   }
 
   const publishedPolicies = policies.filter((p) => p.status === 'PUBLISHED');
+  const pendingSet = new Set(status.pendingPolicyIds ?? []);
+
+  // If reopened due to new policies, pre-check already-accepted ones
+  useEffect(() => {
+    if (hasPending && publishedPolicies.length > 0) {
+      const alreadyAccepted = publishedPolicies
+        .filter((p) => !pendingSet.has(p.id))
+        .map((p) => p.id);
+      if (alreadyAccepted.length > 0) {
+        setChecked(new Set(alreadyAccepted));
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasPending, policies.length]);
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">
-        You must digitally acknowledge all active organisation policies below.
-        Read each policy before accepting.
-      </p>
+      {hasPending && status.policyAcceptedAt ? (
+        <div className="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-700">
+          <strong>{pendingSet.size} new polic{pendingSet.size === 1 ? 'y has' : 'ies have'} been published</strong> since your last acceptance on {fmtDateTime(status.policyAcceptedAt)}.
+          Please review and accept all policies below.
+        </div>
+      ) : (
+        <p className="text-sm text-muted-foreground">
+          You must digitally acknowledge all active organisation policies below.
+          Read each policy before accepting.
+        </p>
+      )}
 
       {loading ? (
         <div className="flex items-center gap-2 text-sm text-muted-foreground/70">
@@ -190,36 +213,46 @@ function Task1Policies({
         </div>
       ) : (
         <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
-          {publishedPolicies.map((p) => (
-            <label
-              key={p.id}
-              className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted cursor-pointer"
-            >
-              <input
-                type="checkbox"
-                checked={checked.has(p.id)}
-                onChange={(e) => {
-                  setChecked((prev) => {
-                    const next = new Set(prev);
-                    if (e.target.checked) {
-                      next.add(p.id);
-                    } else {
-                      next.delete(p.id);
-                    }
-                    return next;
-                  });
-                }}
-                className="w-4 h-4 rounded border-border text-blue-600 focus:ring-blue-500"
-              />
-              <FileText className="w-4 h-4 text-muted-foreground/70 flex-shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground truncate">
-                  {p.name}
-                </p>
-                <p className="text-xs text-muted-foreground/70">v{p.version}</p>
-              </div>
-            </label>
-          ))}
+          {publishedPolicies.map((p) => {
+            const isNew = pendingSet.has(p.id);
+            return (
+              <label
+                key={p.id}
+                className={`flex items-center gap-3 p-3 rounded-lg border hover:bg-muted cursor-pointer ${isNew ? 'border-amber-300 bg-amber-50/50' : 'border-border'}`}
+              >
+                <input
+                  type="checkbox"
+                  checked={checked.has(p.id)}
+                  onChange={(e) => {
+                    setChecked((prev) => {
+                      const next = new Set(prev);
+                      if (e.target.checked) {
+                        next.add(p.id);
+                      } else {
+                        next.delete(p.id);
+                      }
+                      return next;
+                    });
+                  }}
+                  className="w-4 h-4 rounded border-border text-blue-600 focus:ring-blue-500"
+                />
+                <FileText className="w-4 h-4 text-muted-foreground/70 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-medium text-foreground truncate">
+                      {p.name}
+                    </p>
+                    {isNew && (
+                      <span className="inline-flex px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-700 border border-amber-200">
+                        NEW
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground/70">v{p.version}</p>
+                </div>
+              </label>
+            );
+          })}
         </div>
       )}
 
@@ -700,6 +733,7 @@ export function MySecurityTasksPage() {
           title="Accept All Organisation Policies"
           description="Digitally acknowledge every active policy in the organisation."
           done={status.policyAccepted}
+          inProgress={!status.policyAccepted && (status.pendingPolicyIds ?? []).length > 0 && !!status.policyAcceptedAt}
         >
           <Task1Policies status={status} onDone={setStatus} />
         </TaskCard>

@@ -9,6 +9,7 @@ export interface OnboardingStatus {
   policyAccepted: boolean;
   policyAcceptedAt: string | null;
   policyVersionAccepted: string | null; // JSON-serialised array of policy ids
+  pendingPolicyIds: string[];           // published policies not yet accepted
   // Task 2
   mdmEnrolled: boolean;
   mdmEnrolledAt: string | null;
