@@ -618,7 +618,7 @@ function EvidenceCoverageView() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b sticky top-0">
               <tr>
-                {['ISO Ref', 'Title', 'Status', 'Evidence'].map((h) => (
+                {['Reference', 'Title', 'Status', 'Evidence'].map((h) => (
                   <th
                     key={h}
                     className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase"

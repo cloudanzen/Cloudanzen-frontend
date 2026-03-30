@@ -285,7 +285,7 @@ export function ActivationSummaryPage() {
               stepNum={2}
               icon={Link2}
               title="Review suggested control mappings"
-              description="We've pre-suggested control mappings based on ISO references. Confirm or dismiss each mapping."
+              description="We've pre-suggested control mappings based on control references. Confirm or dismiss each mapping."
               actionLabel="Review"
               onAction={() =>
                 navigate(`/compliance/frameworks/${slug}`, {

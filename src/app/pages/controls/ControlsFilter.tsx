@@ -98,13 +98,13 @@ export function ControlsFilter({ filter, onFilterChange, onClearFilters, mobileD
           </select>
         </div>
 
-        {/* ISO Reference */}
+        {/* Reference */}
         <div>
           <label
             htmlFor="ctrl-iso"
             className="block text-xs font-medium text-gray-600 mb-1.5 uppercase tracking-wide"
           >
-            ISO Reference
+            Reference
           </label>
           <input
             id="ctrl-iso"

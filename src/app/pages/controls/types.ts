@@ -55,7 +55,7 @@ export interface ColumnConfig {
 }
 
 export const DEFAULT_COLUMNS: ColumnConfig[] = [
-  { id: 'isoReference', label: 'ISO Reference', visible: true, minWidth: 120, sortable: true },
+  { id: 'isoReference', label: 'Reference', visible: true, minWidth: 120, sortable: true },
   { id: 'title', label: 'Title', visible: true, minWidth: 200, sortable: true },
   { id: 'description', label: 'Description', visible: true, minWidth: 300 },
   { id: 'status', label: 'Status', visible: true, minWidth: 120, sortable: true },

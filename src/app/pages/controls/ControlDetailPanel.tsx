@@ -244,7 +244,7 @@ export function ControlDetailPanel({
                 <dl className="grid grid-cols-2 gap-3 text-sm">
                   <div>
                     <dt className="text-xs font-medium text-gray-400 uppercase tracking-wide">
-                      ISO Reference
+                      Reference
                     </dt>
                     <dd className="mt-1 font-mono font-semibold text-blue-700">
                       {control.isoReference}

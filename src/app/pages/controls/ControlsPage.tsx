@@ -165,7 +165,7 @@ export function ControlsPage() {
       ? [
           {
             key: 'isoReference',
-            label: `ISO: ${filter.isoReference.trim()}`,
+            label: `Ref: ${filter.isoReference.trim()}`,
             onRemove: () => update({ isoReference: '' }),
           },
         ]
@@ -242,7 +242,7 @@ export function ControlsPage() {
             {
               key: 'isoReference',
               value: filter.isoReference,
-              placeholder: 'ISO Reference',
+              placeholder: 'Reference',
               onChange: (value) => update({ isoReference: value }),
               options: [{ value: '', label: 'All references' }],
             },
