@@ -452,7 +452,7 @@ export function HomePage() {
               <Button
                 variant="outline"
                 className="h-auto py-4 flex flex-col gap-2"
-                onClick={() => navigate('/reports')}
+                onClick={() => navigate('/risk/risks')}
               >
                 <AlertTriangle className="w-5 h-5" />
                 <span className="text-sm">Report Risk</span>
