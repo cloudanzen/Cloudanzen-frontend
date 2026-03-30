@@ -194,11 +194,6 @@ export function TestsPage() {
   });
 
 
-  // ── Seed mutation (admin only) ──
-  const seedMutation = useMutation({
-    mutationFn: () => testsService.seedTests(),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['tests'] }),
-  });
 
   const bulkCompleteMutation = useMutation({
     mutationFn: (testIds: string[]) => testsService.bulkComplete({ testIds }),
@@ -625,7 +620,7 @@ export function TestsPage() {
           ) : isError ? (
             <ErrorState onRetry={() => qc.invalidateQueries({ queryKey: ['tests'] })} />
           ) : sorted.length === 0 ? (
-            <EmptyState hasFilters={hasActiveFilters} onClear={clearFilters} onSeed={isAdmin ? () => seedMutation.mutate() : undefined} />
+            <EmptyState hasFilters={hasActiveFilters} onClear={clearFilters} />
           ) : (
             <>
               <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">

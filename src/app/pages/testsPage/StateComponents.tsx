@@ -1,4 +1,4 @@
-import { AlertTriangle, CheckCircle, Database } from 'lucide-react';
+import { AlertTriangle, CheckCircle } from 'lucide-react';
 
 export function LoadingState() {
   return (
@@ -23,7 +23,7 @@ export function ErrorState({ onRetry }: { onRetry: () => void }) {
   );
 }
 
-export function EmptyState({ hasFilters, onClear, onSeed }: { hasFilters: boolean; onClear: () => void; onSeed?: () => void }) {
+export function EmptyState({ hasFilters, onClear }: { hasFilters: boolean; onClear: () => void }) {
   return (
     <div className="flex-1 flex flex-col items-center justify-center py-20 bg-card rounded-xl border border-border shadow-sm">
       <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-4">
@@ -31,24 +31,13 @@ export function EmptyState({ hasFilters, onClear, onSeed }: { hasFilters: boolea
       </div>
       <p className="text-base font-medium text-foreground mb-1">No tests found</p>
       <p className="text-sm text-muted-foreground mb-4">
-        {hasFilters ? 'No tests match your current filters.' : 'No tests have been created yet.'}
+        {hasFilters ? 'No tests match your current filters.' : 'Activate a framework to create tests automatically.'}
       </p>
-      <div className="flex gap-2">
-        {hasFilters && (
-          <button onClick={onClear} className="px-4 py-2 rounded-lg border border-border text-foreground text-sm font-medium hover:bg-muted">
-            Clear filters
-          </button>
-        )}
-        {onSeed && !hasFilters && (
-          <button
-            onClick={onSeed}
-            className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 shadow-sm flex items-center gap-2"
-          >
-            <Database className="w-4 h-4" />
-            Seed 14 Policy Tests
-          </button>
-        )}
-      </div>
+      {hasFilters && (
+        <button onClick={onClear} className="px-4 py-2 rounded-lg border border-border text-foreground text-sm font-medium hover:bg-muted">
+          Clear filters
+        </button>
+      )}
     </div>
   );
 }
