@@ -374,7 +374,10 @@ export function RiskDetailPage() {
   // Fetch users for owner assignment
   const { data: usersData } = useQuery({
     queryKey: QK.users(),
-    queryFn: () => usersService.listUsers(),
+    queryFn: async () => {
+      const res = await usersService.listUsers();
+      return Array.isArray(res) ? res : [];
+    },
     staleTime: STALE.USERS,
     enabled: Boolean(data),
   });
@@ -384,7 +387,11 @@ export function RiskDetailPage() {
     queryKey: QK.riskMappings(riskId),
     queryFn: async () => {
       const res = await riskLibraryService.getRiskMappings(riskId);
-      return res.data;
+      const d = res.data ?? { controls: [], frameworks: [] };
+      return {
+        controls: Array.isArray(d.controls) ? d.controls : [],
+        frameworks: Array.isArray(d.frameworks) ? d.frameworks : [],
+      };
     },
     staleTime: STALE.RISKS,
     enabled: Boolean(riskId),
@@ -395,7 +402,8 @@ export function RiskDetailPage() {
     queryKey: QK.controls(),
     queryFn: async () => {
       const res = await controlsService.getControls();
-      return res.data ?? [];
+      const arr = res.data;
+      return Array.isArray(arr) ? arr : [];
     },
     staleTime: STALE.CONTROLS,
     enabled: Boolean(data),
@@ -406,7 +414,8 @@ export function RiskDetailPage() {
     queryKey: QK.frameworkCatalog(),
     queryFn: async () => {
       const res = await frameworksService.listCatalog();
-      return res.data ?? [];
+      const arr = res.data;
+      return Array.isArray(arr) ? arr : [];
     },
     staleTime: STALE.CONTROLS,
     enabled: Boolean(data),

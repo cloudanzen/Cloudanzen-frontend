@@ -278,7 +278,8 @@ export function TestDetailPanel({
     queryKey: ['tests', 'unified-evidence', testId],
     queryFn: async () => {
       const res = await testsService.listUnifiedEvidence();
-      return (res.data ?? []).filter((item) => item.testId === testId);
+      const arr = Array.isArray(res.data) ? res.data : [];
+      return arr.filter((item) => item.testId === testId);
     },
     staleTime: STALE.TESTS,
     enabled: !!test && test.type !== 'Document',
@@ -288,7 +289,8 @@ export function TestDetailPanel({
     queryKey: ['tests', 'security-events', testId],
     queryFn: async () => {
       const res = await testsService.listSecurityEvents();
-      return (res.data ?? []).filter((item) => item.testId === testId);
+      const arr = Array.isArray(res.data) ? res.data : [];
+      return arr.filter((item) => item.testId === testId);
     },
     staleTime: STALE.TESTS,
     enabled: !!test && test.type !== 'Document',
