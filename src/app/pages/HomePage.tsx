@@ -17,7 +17,7 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { controlsService } from '@/services/api/controls';
-import { risksService } from '@/services/api/risks';
+import { riskLibraryService } from '@/services/api/risk-library';
 import { testsService, type TestSummary } from '@/services/api/tests';
 import {
   activityLogsService,
@@ -76,7 +76,7 @@ export function HomePage() {
   const { data: riskRaw, isLoading: loadingRisks } = useQuery({
     queryKey: QK.riskOverview(),
     queryFn: async () => {
-      const res = await risksService.getRisksOverview();
+      const res = await riskLibraryService.getRegisterOverview();
       return ((res as { data?: RiskOverview })?.data ?? res) as RiskOverview;
     },
     staleTime: STALE.DASHBOARD,
