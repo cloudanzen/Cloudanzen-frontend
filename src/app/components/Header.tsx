@@ -42,6 +42,12 @@ const searchablePages: SearchResult[] = [
   { title: "Commitments", path: "/customer-trust/commitments", category: "Customer Trust" },
   { title: "Knowledge Base", path: "/customer-trust/knowledge-base", category: "Customer Trust" },
   
+  // Personnel
+  { title: "Linked Accounts", path: "/personnel/access", category: "Personnel" },
+  { title: "Access Management", path: "/personnel/access", category: "Personnel" },
+  { title: "Access Reviews", path: "/personnel/access", category: "Personnel" },
+  { title: "Computers", path: "/personnel/computers", category: "Personnel" },
+
   // Other
   { title: "Vendors", path: "/vendors", category: "Operations" },
   { title: "Data Inventory", path: "/privacy/data-inventory", category: "Privacy" },

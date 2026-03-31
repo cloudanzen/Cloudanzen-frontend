@@ -218,9 +218,9 @@ const ComputersPage = lazy(() =>
     default: m.ComputersPage,
   })),
 );
-const AccessPage = lazy(() =>
-  import('@/app/pages/personnel/AccessPage').then((m) => ({
-    default: m.AccessPage,
+const AccessManagementPage = lazy(() =>
+  import('@/app/pages/personnel/AccessManagementPage').then((m) => ({
+    default: m.AccessManagementPage,
   })),
 );
 const PersonnelSettingsPage = lazy(() =>
@@ -393,7 +393,7 @@ export const router = createBrowserRouter([
 
       // Personnel
       { path: 'personnel/computers', Component: ComputersPage },
-      { path: 'personnel/access', Component: AccessPage },
+      { path: 'personnel/access', Component: AccessManagementPage },
       { path: 'personnel/settings', loader: () => redirect('/settings/personnel') },
 
       // AI
