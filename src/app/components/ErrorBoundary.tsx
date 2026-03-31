@@ -10,6 +10,19 @@ interface State {
   error: Error | null;
 }
 
+/** Detect stale chunk / dynamic import errors that happen after a new deployment. */
+function isChunkLoadError(error: Error): boolean {
+  const msg = error.message || '';
+  return (
+    msg.includes('Failed to fetch dynamically imported module') ||
+    msg.includes('Loading chunk') ||
+    msg.includes('Loading CSS chunk') ||
+    msg.includes('text/html')
+  );
+}
+
+const RELOAD_KEY = '__chunk_reload';
+
 export class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
@@ -22,6 +35,18 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, info: ErrorInfo) {
     console.error('[ErrorBoundary] Uncaught error:', error, info.componentStack);
+
+    // Auto-reload once for stale chunk errors (new deployment invalidated old JS chunks)
+    if (isChunkLoadError(error)) {
+      const lastReload = sessionStorage.getItem(RELOAD_KEY);
+      const now = Date.now();
+      // Only auto-reload if we haven't reloaded in the last 10 seconds (prevents infinite loop)
+      if (!lastReload || now - Number(lastReload) > 10_000) {
+        sessionStorage.setItem(RELOAD_KEY, String(now));
+        window.location.reload();
+        return;
+      }
+    }
 
     if (import.meta.env.PROD) {
       try {
