@@ -7,6 +7,7 @@ import {
   Shield,
   KeyRound,
   Bot,
+  Sparkles,
   ShieldCheck,
   AlertTriangle,
   Lock,
@@ -73,6 +74,7 @@ const settingsNav: SettingsNavGroup[] = [
     group: "Integrations",
     items: [
       { label: "MCP",             to: "/settings/mcp",             icon: Bot,          roles: ADMIN_ROLES },
+      { label: "AI Settings",     to: "/settings/ai",              icon: Sparkles,     roles: ADMIN_ROLES },
     ],
   },
 ];
