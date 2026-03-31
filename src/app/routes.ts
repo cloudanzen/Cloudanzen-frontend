@@ -173,17 +173,6 @@ const VendorsPage = lazy(() =>
   })),
 );
 
-// Privacy
-const DataInventoryPage = lazy(() =>
-  import('@/app/pages/privacy/DataInventoryPage').then((m) => ({
-    default: m.DataInventoryPage,
-  })),
-);
-const PrivacySettingsPage = lazy(() =>
-  import('@/app/pages/privacy/SettingsPage').then((m) => ({
-    default: m.PrivacySettingsPage,
-  })),
-);
 
 // Assets
 const InventoryPage = lazy(() =>
@@ -385,10 +374,6 @@ export const router = createBrowserRouter([
       // Vendors
       { path: 'vendors', Component: VendorsPage },
 
-      // Privacy
-      { path: 'privacy/data-inventory', Component: DataInventoryPage },
-      { path: 'privacy/settings', loader: () => redirect('/settings/privacy') },
-
       // Assets
       { path: 'assets/inventory', Component: InventoryPage },
       { path: 'assets/code-changes', Component: CodeChangesPage },
@@ -435,7 +420,6 @@ export const router = createBrowserRouter([
           { path: 'access/requests', Component: AccessRequestsPage },
           { path: 'compliance', Component: ComplianceSettingsPage },
           { path: 'risk', Component: RiskSettingsPage },
-          { path: 'privacy', Component: PrivacySettingsPage },
           { path: 'assets', Component: AssetsSettingsPage },
           { path: 'personnel', Component: PersonnelSettingsPage },
           { path: 'customer-trust', Component: CustomerTrustSettingsPage },

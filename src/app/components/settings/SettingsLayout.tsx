@@ -10,7 +10,6 @@ import {
   Sparkles,
   ShieldCheck,
   AlertTriangle,
-  Lock,
   Server,
   UserCheck,
   Globe,
@@ -64,7 +63,6 @@ const settingsNav: SettingsNavGroup[] = [
   {
     group: "Modules",
     items: [
-      { label: "Privacy",         to: "/settings/privacy",         icon: Lock,         roles: ADMIN_ROLES },
       { label: "Assets",          to: "/settings/assets",          icon: Server,       roles: ADMIN_ROLES },
       { label: "Personnel",       to: "/settings/personnel",       icon: UserCheck,    roles: ADMIN_ROLES },
       { label: "Customer Trust",  to: "/settings/customer-trust",  icon: Globe,        roles: ADMIN_ROLES },

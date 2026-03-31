@@ -9,7 +9,6 @@ import {
   Users,
   TrendingUp,
   Building2,
-  Lock,
   Server,
   UserCheck,
   Settings,
@@ -108,14 +107,6 @@ const navigation: NavItem[] = [
     ],
   },
   { title: 'Vendors', href: '/vendors', icon: Building2 },
-  {
-    title: 'Privacy',
-    icon: Lock,
-    children: [
-      { title: 'Data Inventory', href: '/privacy/data-inventory' },
-      { title: 'Settings', href: '/settings/privacy', roles: [...ADMIN_ROLES] },
-    ],
-  },
   {
     title: 'Assets',
     icon: Server,
