@@ -213,11 +213,6 @@ const AssetsSettingsPage = lazy(() =>
 );
 
 // Personnel
-const PeoplePage = lazy(() =>
-  import('@/app/pages/personnel/PeoplePage').then((m) => ({
-    default: m.PeoplePage,
-  })),
-);
 const ComputersPage = lazy(() =>
   import('@/app/pages/personnel/ComputersPage').then((m) => ({
     default: m.ComputersPage,
@@ -397,7 +392,6 @@ export const router = createBrowserRouter([
       { path: 'assets/settings', loader: () => redirect('/settings/assets') },
 
       // Personnel
-      { path: 'personnel/people', Component: PeoplePage },
       { path: 'personnel/computers', Component: ComputersPage },
       { path: 'personnel/access', Component: AccessPage },
       { path: 'personnel/settings', loader: () => redirect('/settings/personnel') },

@@ -48,7 +48,6 @@ const searchablePages: SearchResult[] = [
   { title: "Assets Inventory", path: "/assets/inventory", category: "Assets" },
   { title: "Code Changes", path: "/assets/code-changes", category: "Assets" },
   { title: "Vulnerabilities", path: "/assets/vulnerabilities", category: "Assets" },
-  { title: "People", path: "/personnel/people", category: "Personnel" },
   { title: "Integrations", path: "/integrations", category: "Settings" },
   { title: "Notifications", path: "/notifications", category: "Main" },
 ];

@@ -131,9 +131,8 @@ const navigation: NavItem[] = [
     title: 'Personnel',
     icon: UserCheck,
     children: [
-      { title: 'People', href: '/personnel/people' },
       { title: 'Computers', href: '/personnel/computers' },
-      { title: 'Account Mapping', href: '/personnel/access' },
+      { title: 'Linked Accounts', href: '/personnel/access' },
       {
         title: 'Settings',
         href: '/settings/personnel',

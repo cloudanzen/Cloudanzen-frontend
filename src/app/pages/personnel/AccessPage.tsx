@@ -185,8 +185,8 @@ export function AccessPage() {
 
   return (
     <PageTemplate
-      title="Access Management"
-      description="External accounts connected to this organisation and their ISMS user mappings."
+      title="Linked Accounts"
+      description="Map external service accounts (GitHub, Slack) to organisation members."
       actions={
         <Button variant="outline" size="sm" onClick={fetchData} disabled={loading}>
           <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
