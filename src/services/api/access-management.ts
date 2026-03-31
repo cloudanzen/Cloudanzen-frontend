@@ -152,6 +152,65 @@ export const accessManagementService = {
       evidenceUploaded: boolean;
     }>;
   },
+  async scanImage(serviceId: string, imageFile: File) {
+    const form = new FormData();
+    form.append('image', imageFile);
+
+    const url = `${apiClient.baseURL}${BASE}/services/${serviceId}/scan-image`;
+    const res = await fetch(url, {
+      method: 'POST',
+      credentials: 'include',
+      headers: apiClient.token
+        ? { Authorization: `Bearer ${apiClient.token}` }
+        : undefined,
+      body: form,
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: 'Scan failed' }));
+      throw new Error(err.error ?? 'Image scan failed');
+    }
+    return res.json() as Promise<{
+      accountsImported: number;
+      accounts: Array<{
+        externalAccountId: string;
+        accountName: string;
+        accountEmail: string | null;
+        role: string | null;
+        status: string;
+      }>;
+      provider: string;
+      evidenceUploaded: boolean;
+    }>;
+  },
+  async scanImagePreview(imageFile: File) {
+    const form = new FormData();
+    form.append('image', imageFile);
+
+    const url = `${apiClient.baseURL}${BASE}/scan-image-preview`;
+    const res = await fetch(url, {
+      method: 'POST',
+      credentials: 'include',
+      headers: apiClient.token
+        ? { Authorization: `Bearer ${apiClient.token}` }
+        : undefined,
+      body: form,
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: 'Scan failed' }));
+      throw new Error(err.error ?? 'Image scan failed');
+    }
+    return res.json() as Promise<{
+      accounts: Array<{
+        externalAccountId: string;
+        accountName: string;
+        accountEmail: string | null;
+        role: string | null;
+        status: string;
+      }>;
+      provider: string;
+      error: string | null;
+    }>;
+  },
 
   // Campaigns
   listCampaigns(status?: string) {

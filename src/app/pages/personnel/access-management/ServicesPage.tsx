@@ -139,7 +139,7 @@ export function ServicesPage() {
                   onClick={() => setUploadService(service)}
                 >
                   <Upload className="w-4 h-4 mr-1" />
-                  Upload CSV
+                  Import Accounts
                 </Button>
               )}
             </Card>
