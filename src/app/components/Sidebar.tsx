@@ -53,7 +53,7 @@ const ADMIN_ROLES: AppRole[] = ['SUPER_ADMIN', 'ORG_ADMIN', 'SECURITY_OWNER'];
 
 const navigation: NavItem[] = [
   { title: 'Home', href: '/', icon: Home },
-  { title: 'My Work', href: '/my-work', icon: Briefcase },
+  { title: 'My Tasks', href: '/my-tasks', icon: Briefcase },
   { title: 'Tests', href: '/tests', icon: FileCheck },
   { title: 'Reports', href: '/reports', icon: BarChart3 },
 

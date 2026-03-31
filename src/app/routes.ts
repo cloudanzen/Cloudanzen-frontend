@@ -335,7 +335,7 @@ export const router = createBrowserRouter([
     loader: requireAuth,
     children: [
       { index: true, Component: HomePage },
-      { path: 'my-work', Component: MyWorkPage },
+      { path: 'my-tasks', Component: MyWorkPage },
       { path: 'tests', Component: TestsPage },
       { path: 'tests/:testId', Component: TestDetailPage },
       {

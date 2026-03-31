@@ -15,7 +15,7 @@ interface SearchResult {
 const searchablePages: SearchResult[] = [
   // Main pages
   { title: "Dashboard", path: "/", category: "Main" },
-  { title: "My Work", path: "/my-work", category: "Main" },
+  { title: "My Tasks", path: "/my-tasks", category: "Main" },
   { title: "Tests", path: "/tests", category: "Main" },
   { title: "Reports", path: "/reports", category: "Main" },
   

@@ -120,7 +120,7 @@ export function MyWorkPage() {
 
   return (
     <PageTemplate
-      title="My Work"
+      title="My Tasks"
       description="Your assigned tests and pending security tasks."
     >
       {/* ── Summary strip ── */}
