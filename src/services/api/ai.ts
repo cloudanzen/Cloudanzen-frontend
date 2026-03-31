@@ -101,6 +101,27 @@ export interface AiSettings {
   vectorStoreConfigured: boolean;
   llmProvider: string;
   embeddingModel: string;
+  usingOrgKey?: boolean;
+}
+
+// BYOK AI configuration
+export interface AiConfig {
+  configured: boolean;
+  provider: string;
+  enabled: boolean;
+  keyFingerprint: string | null;
+  completionModel: string | null;
+  embeddingModel: string | null;
+  lastTestedAt: string | null;
+  lastTestResult: string | null;
+}
+
+export interface AiKeyTestResult {
+  success: boolean;
+  provider?: string;
+  model?: string;
+  message?: string;
+  error?: string;
 }
 
 export interface RegisterDocumentRequest {
@@ -224,4 +245,28 @@ export const aiService = {
   /** Check the current AI configuration status (LLM configured, vector store, etc.) */
   getSettings: () =>
     apiClient.get<{ success: boolean; data: AiSettings }>('/api/ai/settings'),
+
+  // ── BYOK AI Configuration ─────────────────────────────────────────────────
+
+  /** Get the org's AI key configuration (never returns the actual key). */
+  getConfig: () =>
+    apiClient.get<AiConfig>('/api/ai/config'),
+
+  /** Update AI settings (provider, apiKey, models, enabled). */
+  updateConfig: (data: {
+    provider?: string;
+    apiKey?: string;
+    completionModel?: string | null;
+    embeddingModel?: string | null;
+    enabled?: boolean;
+  }) =>
+    apiClient.put<AiConfig>('/api/ai/config', data),
+
+  /** Test the configured API key with a minimal LLM call. */
+  testKey: () =>
+    apiClient.post<AiKeyTestResult>('/api/ai/config/test'),
+
+  /** Remove the org's API key and revert to platform default. */
+  removeKey: () =>
+    apiClient.delete('/api/ai/config/key'),
 };

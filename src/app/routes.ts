@@ -284,6 +284,11 @@ const McpSettingsPage = lazy(() =>
     default: m.McpSettingsPage,
   })),
 );
+const AiSettingsPage = lazy(() =>
+  import('@/app/pages/settings/AiSettingsPage').then((m) => ({
+    default: m.AiSettingsPage,
+  })),
+);
 
 // Platform Admin (SUPER_ADMIN only)
 const AdminTemplatesPage = lazy(() =>
@@ -435,6 +440,7 @@ export const router = createBrowserRouter([
           { path: 'personnel', Component: PersonnelSettingsPage },
           { path: 'customer-trust', Component: CustomerTrustSettingsPage },
           { path: 'mcp', Component: McpSettingsPage },
+          { path: 'ai', Component: AiSettingsPage },
         ],
       },
     ],

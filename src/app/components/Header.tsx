@@ -48,6 +48,10 @@ const searchablePages: SearchResult[] = [
   { title: "Access Reviews", path: "/personnel/access", category: "Personnel" },
   { title: "Computers", path: "/personnel/computers", category: "Personnel" },
 
+  // AI
+  { title: "AI Settings", path: "/settings/ai", category: "Settings" },
+  { title: "Questionnaire AI", path: "/ai/questionnaire-assistant", category: "AI" },
+
   // Other
   { title: "Vendors", path: "/vendors", category: "Operations" },
   { title: "Data Inventory", path: "/privacy/data-inventory", category: "Privacy" },

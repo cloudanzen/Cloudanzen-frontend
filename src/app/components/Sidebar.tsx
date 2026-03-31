@@ -182,6 +182,7 @@ const navigation: NavItem[] = [
     children: [
       { title: 'Questionnaire AI', href: '/ai/questionnaire-assistant' },
       { title: 'Knowledge Base', href: '/ai/knowledge-base' },
+      { title: 'AI Settings', href: '/settings/ai', roles: [...ADMIN_ROLES] },
     ],
   },
   {
