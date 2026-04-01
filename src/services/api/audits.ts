@@ -6,6 +6,7 @@ export type AuditType    = 'INTERNAL' | 'EXTERNAL' | 'SURVEILLANCE' | 'RECERTIFI
 export type AuditStatus  = 'DRAFT' | 'PLANNED' | 'IN_PROGRESS' | 'COMPLETED';
 export type AuditControlStatus = 'PENDING' | 'COMPLIANT' | 'NON_COMPLIANT' | 'NOT_APPLICABLE';
 export type FindingSeverity = 'MINOR' | 'MAJOR' | 'OBSERVATION' | 'OFI';
+export type AuditEvidenceStatus = 'PENDING' | 'READY' | 'FLAGGED' | 'APPROVED';
 
 // ── Nested item shapes returned by the API inside control sub-objects ─────────
 
@@ -16,6 +17,28 @@ export interface ControlEvidenceItem {
   fileUrl?: string | null;
   automated?: boolean;
   createdAt: string;
+}
+
+/** Per-audit review record for one evidence item (from AuditEvidence join table). */
+export interface AuditEvidenceReview {
+  id: string;          // AuditEvidence.id
+  evidenceId: string;
+  status: AuditEvidenceStatus;
+  flagReason?: string | null;
+  flaggedAt?: string | null;
+  approvedAt?: string | null;
+}
+
+export interface ControlPolicyItem {
+  id: string;
+  name: string;
+  status: string;
+  approvedAt: string | null;
+  documentUrl: string;
+}
+
+export interface ControlPolicyMappingItem {
+  policy: ControlPolicyItem;
 }
 
 export interface ControlRiskItem {
@@ -98,9 +121,11 @@ export interface AuditControlRecord {
     status:       string;
     description?: string;
     evidence?:    ControlEvidenceItem[];
+    policyMappings?: ControlPolicyMappingItem[];
     riskMappings?: ControlRiskMappingItem[];
     testMappings?: ControlTestMappingItem[];
     findings?:    ControlFindingItem[];
+    auditEvidences?: AuditEvidenceReview[];
   };
 }
 
@@ -278,5 +303,26 @@ export const auditsService = {
 
   deleteComment(auditId: string, commentId: string) {
     return apiClient.delete<{ success: boolean }>(`/api/audits/${auditId}/comments/${commentId}`);
+  },
+
+  // ── Evidence review (approve / flag / ready) ─────────────────────────────
+
+  approveEvidence(auditId: string, auditControlId: string, auditEvidenceId: string) {
+    return apiClient.patch<{ success: boolean; data: AuditEvidenceReview }>(
+      `/api/audits/${auditId}/controls/${auditControlId}/evidence/${auditEvidenceId}/approve`,
+    );
+  },
+
+  flagEvidence(auditId: string, auditControlId: string, auditEvidenceId: string, reason: string) {
+    return apiClient.patch<{ success: boolean; data: AuditEvidenceReview }>(
+      `/api/audits/${auditId}/controls/${auditControlId}/evidence/${auditEvidenceId}/flag`,
+      { reason },
+    );
+  },
+
+  readyEvidence(auditId: string, auditControlId: string, auditEvidenceId: string) {
+    return apiClient.patch<{ success: boolean; data: AuditEvidenceReview }>(
+      `/api/audits/${auditId}/controls/${auditControlId}/evidence/${auditEvidenceId}/ready`,
+    );
   },
 };

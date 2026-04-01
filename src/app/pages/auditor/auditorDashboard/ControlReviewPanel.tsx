@@ -18,12 +18,21 @@ import {
   CheckCheck,
   MessageCircle,
   Send,
+  Flag,
+  CheckSquare,
+  RotateCcw,
+  ShieldCheck,
+  ShieldAlert,
+  ShieldOff,
 } from 'lucide-react';
 import {
   auditsService,
   AuditControlRecord,
   AuditControlStatus,
+  AuditEvidenceStatus,
+  AuditEvidenceReview,
   ControlEvidenceItem,
+  ControlPolicyItem,
   ControlRiskItem,
   ControlTestItem,
   ControlFindingItem,
@@ -370,9 +379,23 @@ export function ControlReviewPanel({
 
   const ctrl = auditControl.control;
   const evidence: ControlEvidenceItem[] = ctrl.evidence ?? [];
+  const auditEvidences: AuditEvidenceReview[] = ctrl.auditEvidences ?? [];
+  const policies: ControlPolicyItem[] = ctrl.policyMappings?.map((p) => p.policy) ?? [];
   const risks: ControlRiskItem[] = ctrl.riskMappings?.map((r) => r.risk) ?? [];
   const tests: ControlTestItem[] = ctrl.testMappings?.map((r) => r.test) ?? [];
   const findings: ControlFindingItem[] = ctrl.findings ?? [];
+
+  // Derived readiness signals
+  const hasFailingTests = tests.some(
+    (t) => t.status === 'Overdue' || t.status === 'Needs_remediation',
+  );
+  const hasFlaggedEvidence = auditEvidences.some((ae) => ae.status === 'FLAGGED');
+  const allEvidenceApproved =
+    auditEvidences.length > 0 && auditEvidences.every((ae) => ae.status === 'APPROVED');
+
+  const [flaggingId, setFlaggingId] = useState<string | null>(null);
+  const [flagReason, setFlagReason] = useState<Record<string, string>>({});
+  const [evidencePending, setEvidencePending] = useState<string | null>(null);
 
   async function handleStatusChange(status: AuditControlStatus) {
     setSavingStatus(true);
@@ -404,6 +427,37 @@ export function ControlReviewPanel({
     } finally {
       setSavingStatus(false);
     }
+  }
+
+  async function handleApproveEvidence(auditEvidenceId: string) {
+    setEvidencePending(auditEvidenceId);
+    try {
+      await auditsService.approveEvidence(auditId, auditControl.id, auditEvidenceId);
+      onUpdated();
+    } catch { toast.error('Failed to approve evidence'); }
+    finally { setEvidencePending(null); }
+  }
+
+  async function handleFlagEvidence(auditEvidenceId: string) {
+    const reason = flagReason[auditEvidenceId]?.trim();
+    if (!reason) return;
+    setEvidencePending(auditEvidenceId);
+    try {
+      await auditsService.flagEvidence(auditId, auditControl.id, auditEvidenceId, reason);
+      setFlaggingId(null);
+      setFlagReason((prev) => { const n = { ...prev }; delete n[auditEvidenceId]; return n; });
+      onUpdated();
+    } catch { toast.error('Failed to flag evidence'); }
+    finally { setEvidencePending(null); }
+  }
+
+  async function handleReadyEvidence(auditEvidenceId: string) {
+    setEvidencePending(auditEvidenceId);
+    try {
+      await auditsService.readyEvidence(auditId, auditControl.id, auditEvidenceId);
+      onUpdated();
+    } catch { toast.error('Failed to mark evidence ready'); }
+    finally { setEvidencePending(null); }
   }
 
   const statusOptions: {
@@ -530,6 +584,26 @@ export function ControlReviewPanel({
               />
             </div>
 
+            {/* Readiness Banner */}
+            {(hasFlaggedEvidence || hasFailingTests || allEvidenceApproved) && (
+              <div className={`mx-5 mt-3 rounded-lg px-3 py-2 text-xs flex items-center gap-2 ${
+                hasFlaggedEvidence || hasFailingTests
+                  ? 'bg-amber-50 text-amber-800 border border-amber-200'
+                  : 'bg-green-50 text-green-800 border border-green-200'
+              }`}>
+                {hasFlaggedEvidence || hasFailingTests ? (
+                  <ShieldAlert className="w-3.5 h-3.5 flex-shrink-0" />
+                ) : (
+                  <ShieldCheck className="w-3.5 h-3.5 flex-shrink-0" />
+                )}
+                <span>
+                  {hasFlaggedEvidence && 'Some evidence has been flagged and needs attention. '}
+                  {hasFailingTests && 'Failing tests — this control is not ready for audit. '}
+                  {!hasFlaggedEvidence && !hasFailingTests && allEvidenceApproved && 'All evidence approved. Control ready for audit.'}
+                </span>
+              </div>
+            )}
+
             {/* Related Evidence */}
             <div className="p-5">
               <SectionHead
@@ -541,31 +615,167 @@ export function ControlReviewPanel({
                   No evidence linked to this control.
                 </p>
               ) : (
+                <div className="space-y-2">
+                  {evidence.map((ev: ControlEvidenceItem) => {
+                    const review = auditEvidences.find((ae) => ae.evidenceId === ev.id);
+                    const isBusy = evidencePending === review?.id;
+                    const isExpanding = flaggingId === review?.id;
+                    return (
+                      <div key={ev.id} className="border border-gray-100 rounded-lg bg-gray-50">
+                        <div className="flex items-center gap-2 text-xs px-3 py-2">
+                          <FileText className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                          <span className="font-medium text-gray-700">{ev.type}</span>
+                          {ev.fileName && (
+                            <span className="text-gray-500 truncate flex-1">{ev.fileName}</span>
+                          )}
+                          {ev.automated && (
+                            <Badge variant="outline" className="text-xs">Automated</Badge>
+                          )}
+                          {/* Status badge */}
+                          {review && (
+                            <span className={`px-1.5 py-0.5 rounded text-xs font-medium flex-shrink-0 ${
+                              review.status === 'APPROVED' ? 'bg-green-50 text-green-700' :
+                              review.status === 'FLAGGED'  ? 'bg-amber-50 text-amber-700' :
+                              review.status === 'READY'    ? 'bg-blue-50 text-blue-700' :
+                              'bg-gray-100 text-gray-500'
+                            }`}>
+                              {review.status === 'APPROVED' ? 'Approved' :
+                               review.status === 'FLAGGED'  ? 'Flagged' :
+                               review.status === 'READY'    ? 'Ready' : 'Pending'}
+                            </span>
+                          )}
+                          {/* Actions */}
+                          {review && !ev.automated && (
+                            <div className="flex items-center gap-1 ml-auto">
+                              {review.status !== 'APPROVED' && (
+                                <button
+                                  onClick={() => handleApproveEvidence(review.id)}
+                                  disabled={isBusy}
+                                  title="Approve"
+                                  className="text-gray-300 hover:text-green-600 disabled:opacity-40"
+                                >
+                                  {isBusy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckSquare className="w-3.5 h-3.5" />}
+                                </button>
+                              )}
+                              {review.status !== 'FLAGGED' && (
+                                <button
+                                  onClick={() => setFlaggingId(isExpanding ? null : review.id)}
+                                  disabled={isBusy}
+                                  title="Flag"
+                                  className="text-gray-300 hover:text-amber-600 disabled:opacity-40"
+                                >
+                                  <Flag className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                              {review.status === 'FLAGGED' && (
+                                <button
+                                  onClick={() => handleReadyEvidence(review.id)}
+                                  disabled={isBusy}
+                                  title="Mark Ready"
+                                  className="text-gray-300 hover:text-blue-600 disabled:opacity-40"
+                                >
+                                  {isBusy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RotateCcw className="w-3.5 h-3.5" />}
+                                </button>
+                              )}
+                              {review.status === 'APPROVED' && (
+                                <button
+                                  onClick={() => setFlaggingId(isExpanding ? null : review.id)}
+                                  disabled={isBusy}
+                                  title="Flag"
+                                  className="text-gray-300 hover:text-amber-600 disabled:opacity-40"
+                                >
+                                  <Flag className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                            </div>
+                          )}
+                          {/* Automated evidence: only approve */}
+                          {review && ev.automated && review.status !== 'APPROVED' && (
+                            <button
+                              onClick={() => handleApproveEvidence(review.id)}
+                              disabled={isBusy}
+                              title="Approve"
+                              className="ml-auto text-gray-300 hover:text-green-600 disabled:opacity-40"
+                            >
+                              {isBusy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckSquare className="w-3.5 h-3.5" />}
+                            </button>
+                          )}
+                        </div>
+                        {/* Flag reason display */}
+                        {review?.status === 'FLAGGED' && review.flagReason && (
+                          <div className="px-3 pb-2 text-xs text-amber-700 bg-amber-50/50">
+                            <span className="font-medium">Flag reason:</span> {review.flagReason}
+                          </div>
+                        )}
+                        {/* Inline flag form */}
+                        {isExpanding && review && (
+                          <div className="px-3 pb-3 pt-1 space-y-1.5">
+                            <textarea
+                              rows={2}
+                              placeholder="Reason for flagging…"
+                              value={flagReason[review.id] ?? ''}
+                              onChange={(e) => setFlagReason((prev) => ({ ...prev, [review.id]: e.target.value }))}
+                              className="w-full text-xs border border-amber-200 rounded px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-amber-400 resize-none bg-amber-50/30"
+                            />
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => handleFlagEvidence(review.id)}
+                                disabled={!(flagReason[review.id]?.trim()) || isBusy}
+                                className="text-xs bg-amber-600 text-white px-2.5 py-1 rounded hover:bg-amber-700 disabled:opacity-40"
+                              >
+                                {isBusy ? 'Flagging…' : 'Submit Flag'}
+                              </button>
+                              <button
+                                onClick={() => setFlaggingId(null)}
+                                className="text-xs text-gray-400 hover:text-gray-600"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Related Policies */}
+            {policies.length > 0 && (
+              <div className="p-5">
+                <SectionHead
+                  icon={<BookOpen className="w-3.5 h-3.5" />}
+                  title={`Policies (${policies.length})`}
+                />
                 <div className="space-y-1.5">
-                  {evidence.map((ev: ControlEvidenceItem) => (
+                  {policies.map((p: ControlPolicyItem) => (
                     <div
-                      key={ev.id}
+                      key={p.id}
                       className="flex items-center gap-2 text-xs border border-gray-100 rounded-lg px-3 py-2 bg-gray-50"
                     >
-                      <FileText className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-                      <span className="font-medium text-gray-700">
-                        {ev.type}
+                      <BookOpen className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                      <span className="font-medium text-gray-700 flex-1 truncate">{p.name}</span>
+                      <span className={`px-1.5 py-0.5 rounded text-xs font-medium flex-shrink-0 ${
+                        p.approvedAt ? 'bg-green-50 text-green-700' : 'bg-amber-50 text-amber-700'
+                      }`}>
+                        {p.approvedAt ? 'Approved' : (p.status || 'Draft')}
                       </span>
-                      {ev.fileName && (
-                        <span className="text-gray-500 truncate">
-                          {ev.fileName}
-                        </span>
-                      )}
-                      {ev.automated && (
-                        <Badge variant="outline" className="text-xs ml-auto">
-                          Automated
-                        </Badge>
+                      {p.documentUrl && (
+                        <a
+                          href={p.documentUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-400 hover:text-blue-600 flex-shrink-0"
+                        >
+                          <LinkIcon className="w-3.5 h-3.5" />
+                        </a>
                       )}
                     </div>
                   ))}
                 </div>
-              )}
-            </div>
+              </div>
+            )}
 
             {/* Related Tests */}
             <div className="p-5">
