@@ -12,7 +12,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Shield,
   AlertTriangle,
-  CheckCircle,
   Clock,
   TrendingUp,
   FileText,
@@ -24,9 +23,11 @@ import {
   ChevronDown,
   ClipboardCheck,
   FileCheck,
+  Building2,
 } from 'lucide-react';
 import { controlsService } from '@/services/api/controls';
 import { riskLibraryService } from '@/services/api/risk-library';
+import { vendorsService } from '@/services/api/vendors';
 import { testsService, type TestSummary } from '@/services/api/tests';
 import {
   frameworksService,
@@ -135,6 +136,12 @@ export function HomePage() {
     staleTime: STALE.DASHBOARD,
   });
 
+  const { data: vendorsRaw, isLoading: loadingVendors } = useQuery({
+    queryKey: QK.vendors(),
+    queryFn: async () => vendorsService.list(),
+    staleTime: STALE.DASHBOARD,
+  });
+
   // ── Derived data ─────────────────────────────────────────────────────────────
 
   const compliance = complianceRaw ?? null;
@@ -143,6 +150,11 @@ export function HomePage() {
   const testSummary = testSummaryRaw ?? null;
   const policies = policiesRaw ?? [];
   const docStats = docsRaw ?? null;
+  const vendors = vendorsRaw ?? [];
+
+  const vendorNeedAttention = vendors.filter(
+    (v) => v.status === 'ASSESSMENT_DUE' || v.status === 'IN_REVIEW' || v.status === 'BLOCKED',
+  ).length;
 
   const policyStats = {
     total: policies.length,
@@ -158,13 +170,12 @@ export function HomePage() {
     qc.invalidateQueries({ queryKey: ['frameworks', 'readiness-summary'] });
     qc.invalidateQueries({ queryKey: QK.policies() });
     qc.invalidateQueries({ queryKey: ['compliance-documents', 'dashboard'] });
+    qc.invalidateQueries({ queryKey: QK.vendors() });
   };
 
-  const complianceScore = loadingCompliance
+  const vendorsAttention = loadingVendors
     ? null
-    : compliance
-      ? `${compliance.compliancePercentage.toFixed(1)}%`
-      : '—';
+    : String(vendorNeedAttention);
 
   const activeControls = loadingCompliance
     ? null
@@ -202,12 +213,12 @@ export function HomePage() {
       path: '/risk/risks',
     },
     {
-      label: 'Compliance Score',
-      value: complianceScore,
-      icon: CheckCircle,
-      color: 'text-green-600',
-      bg: 'bg-green-50 dark:bg-green-950/40',
-      path: '/compliance/frameworks',
+      label: 'Vendors Need Attention',
+      value: vendorsAttention,
+      icon: Building2,
+      color: 'text-purple-600',
+      bg: 'bg-purple-50 dark:bg-purple-950/40',
+      path: '/vendors',
     },
     {
       label: 'Pending Tasks',
@@ -276,27 +287,23 @@ export function HomePage() {
             return (
               <Card
                 key={stat.label}
-                className="p-5 cursor-pointer hover:shadow-md transition-shadow duration-200 group"
+                className="p-5 cursor-pointer hover:shadow-md transition-shadow duration-200"
                 onClick={() => navigate(stat.path)}
               >
-                <div className="flex items-center gap-4">
-                  <div className={`w-12 h-12 rounded-xl ${stat.bg} flex items-center justify-center flex-shrink-0`}>
-                    <Icon className={`w-6 h-6 ${stat.color}`} />
-                  </div>
-                  <div className="min-w-0">
-                    {isLive ? (
-                      <div className="flex items-center h-9">
-                        <Loader2 className="w-5 h-5 animate-spin text-muted-foreground/50" />
-                      </div>
-                    ) : (
-                      <div className="text-3xl font-extrabold text-foreground leading-tight tracking-tight">
-                        {stat.value}
-                      </div>
-                    )}
-                    <div className="text-sm font-medium text-muted-foreground mt-0.5 group-hover:text-foreground transition-colors">
-                      {stat.label}
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className={`w-8 h-8 rounded-lg ${stat.bg} flex items-center justify-center`}>
+                      <Icon className={`w-4 h-4 ${stat.color}`} />
                     </div>
+                    <h3 className="text-sm font-bold text-foreground">{stat.label}</h3>
                   </div>
+                  {isLive ? (
+                    <Loader2 className="w-5 h-5 animate-spin text-muted-foreground/50" />
+                  ) : (
+                    <span className="text-2xl font-extrabold text-foreground tracking-tight">
+                      {stat.value}
+                    </span>
+                  )}
                 </div>
               </Card>
             );
