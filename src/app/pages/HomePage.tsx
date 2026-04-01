@@ -17,7 +17,6 @@ import {
   TrendingUp,
   FileText,
   Users,
-  Activity,
   Loader2,
   RefreshCw,
   ShieldCheck,
@@ -29,10 +28,6 @@ import {
 import { controlsService } from '@/services/api/controls';
 import { riskLibraryService } from '@/services/api/risk-library';
 import { testsService, type TestSummary } from '@/services/api/tests';
-import {
-  activityLogsService,
-  ActivityLogEntry,
-} from '@/services/api/activityLogs';
 import {
   frameworksService,
   type FrameworkReadinessDto,
@@ -100,16 +95,6 @@ export function HomePage() {
     staleTime: STALE.DASHBOARD,
   });
 
-  const { data: activityRaw, isLoading: loadingActivity } = useQuery({
-    queryKey: QK.activityLog(8),
-    queryFn: async () => {
-      const res = await activityLogsService.getRecentActivity(8);
-      return ((res as { data?: ActivityLogEntry[] })?.data ??
-        []) as ActivityLogEntry[];
-    },
-    staleTime: STALE.ACTIVITY,
-  });
-
   const { data: readinessRaw, isLoading: loadingReadiness } = useQuery({
     queryKey: ['frameworks', 'readiness-summary'],
     queryFn: async () => {
@@ -154,7 +139,6 @@ export function HomePage() {
 
   const compliance = complianceRaw ?? null;
   const riskOverview = riskRaw ?? null;
-  const recentActivity = activityRaw ?? [];
   const readiness = readinessRaw ?? [];
   const testSummary = testSummaryRaw ?? null;
   const policies = policiesRaw ?? [];
@@ -171,7 +155,6 @@ export function HomePage() {
     qc.invalidateQueries({ queryKey: QK.complianceStats() });
     qc.invalidateQueries({ queryKey: QK.riskOverview() });
     qc.invalidateQueries({ queryKey: QK.testSummary() });
-    qc.invalidateQueries({ queryKey: QK.activityLog(8) });
     qc.invalidateQueries({ queryKey: ['frameworks', 'readiness-summary'] });
     qc.invalidateQueries({ queryKey: QK.policies() });
     qc.invalidateQueries({ queryKey: ['compliance-documents', 'dashboard'] });
@@ -245,7 +228,7 @@ export function HomePage() {
       actions={
         <div className="flex items-center gap-2">
           <DropdownMenu>
-            <DropdownMenuTrigger className="inline-flex items-center gap-1.5 h-8 rounded-md px-3 text-sm font-medium border bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-colors">
+            <DropdownMenuTrigger className="inline-flex items-center gap-1.5 h-8 rounded-md px-3 text-sm font-semibold border bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-colors">
               <Zap className="w-4 h-4" />
               <span className="hidden sm:inline">Quick Actions</span>
               <ChevronDown className="w-3 h-3 opacity-60" />
@@ -284,7 +267,7 @@ export function HomePage() {
         </div>
       }
     >
-      <div className="space-y-6">
+      <div className="space-y-8">
         {/* ── KPI Stats ── */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {stats.map((stat) => {
@@ -302,15 +285,15 @@ export function HomePage() {
                   </div>
                   <div className="min-w-0">
                     {isLive ? (
-                      <div className="flex items-center h-8">
+                      <div className="flex items-center h-9">
                         <Loader2 className="w-5 h-5 animate-spin text-muted-foreground/50" />
                       </div>
                     ) : (
-                      <div className="text-2xl font-bold text-foreground leading-tight">
+                      <div className="text-3xl font-extrabold text-foreground leading-tight tracking-tight">
                         {stat.value}
                       </div>
                     )}
-                    <div className="text-xs text-muted-foreground mt-0.5 group-hover:text-foreground transition-colors">
+                    <div className="text-sm font-medium text-muted-foreground mt-0.5 group-hover:text-foreground transition-colors">
                       {stat.label}
                     </div>
                   </div>
@@ -322,24 +305,24 @@ export function HomePage() {
 
         {/* ── Progress Overview ── */}
         <div>
-          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+          <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-3">
             Progress Overview
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Tests */}
             <Card
-              className="p-4 cursor-pointer hover:shadow-md transition-shadow duration-200"
+              className="p-5 cursor-pointer hover:shadow-md transition-shadow duration-200"
               onClick={() => navigate('/tests')}
             >
               <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 flex items-center justify-center">
-                    <ClipboardCheck className="w-3.5 h-3.5 text-emerald-600" />
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 flex items-center justify-center">
+                    <ClipboardCheck className="w-4 h-4 text-emerald-600" />
                   </div>
-                  <h3 className="text-sm font-semibold text-foreground">Tests</h3>
+                  <h3 className="text-sm font-bold text-foreground">Tests</h3>
                 </div>
                 {!loadingTests && testSummary && (
-                  <span className="text-lg font-bold text-foreground">
+                  <span className="text-2xl font-extrabold text-foreground tracking-tight">
                     {testSummary.passPercentage}%
                   </span>
                 )}
@@ -347,21 +330,21 @@ export function HomePage() {
               {loadingTests ? (
                 <LoadingSkeleton />
               ) : !testSummary ? (
-                <EmptyState label="No tests" />
+                <EmptyState label="No tests yet" />
               ) : (
                 <>
-                  <div className="w-full bg-muted rounded-full h-2 mb-3">
+                  <div className="w-full bg-muted rounded-full h-2.5 mb-3">
                     <div
-                      className="bg-emerald-500 h-2 rounded-full transition-all"
+                      className="bg-emerald-500 h-2.5 rounded-full transition-all"
                       style={{ width: `${testSummary.passPercentage}%` }}
                     />
                   </div>
-                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                  <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
                     <StatDot color="bg-emerald-500" label="Done" count={testSummary.completed} />
                     <StatDot color="bg-red-500" label="Overdue" count={testSummary.overdue} />
                     <StatDot color="bg-amber-400" label="Due soon" count={testSummary.dueSoon} />
                   </div>
-                  <p className="text-[11px] text-muted-foreground/50 mt-2">
+                  <p className="text-xs font-medium text-muted-foreground/50 mt-2.5">
                     {testSummary.total} total
                   </p>
                 </>
@@ -370,18 +353,18 @@ export function HomePage() {
 
             {/* Risks */}
             <Card
-              className="p-4 cursor-pointer hover:shadow-md transition-shadow duration-200"
+              className="p-5 cursor-pointer hover:shadow-md transition-shadow duration-200"
               onClick={() => navigate('/risk/risks')}
             >
               <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-red-50 dark:bg-red-950/40 flex items-center justify-center">
-                    <TrendingUp className="w-3.5 h-3.5 text-red-600" />
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-950/40 flex items-center justify-center">
+                    <TrendingUp className="w-4 h-4 text-red-600" />
                   </div>
-                  <h3 className="text-sm font-semibold text-foreground">Risks</h3>
+                  <h3 className="text-sm font-bold text-foreground">Risks</h3>
                 </div>
                 {!loadingRisks && riskOverview && (
-                  <span className="text-lg font-bold text-foreground">
+                  <span className="text-2xl font-extrabold text-foreground tracking-tight">
                     {riskOverview.total}
                   </span>
                 )}
@@ -389,27 +372,26 @@ export function HomePage() {
               {loadingRisks ? (
                 <LoadingSkeleton />
               ) : !riskOverview ? (
-                <EmptyState label="No risks" />
+                <EmptyState label="No risks yet" />
               ) : (
                 <>
-                  {/* Stacked bar */}
-                  <div className="w-full bg-muted rounded-full h-2 mb-3 flex overflow-hidden">
+                  <div className="w-full bg-muted rounded-full h-2.5 mb-3 flex overflow-hidden">
                     {riskOverview.total > 0 && (
                       <>
-                        <div className="bg-red-500 h-2" style={{ width: `${(riskOverview.critical / riskOverview.total) * 100}%` }} />
-                        <div className="bg-orange-500 h-2" style={{ width: `${(riskOverview.high / riskOverview.total) * 100}%` }} />
-                        <div className="bg-yellow-400 h-2" style={{ width: `${(riskOverview.medium / riskOverview.total) * 100}%` }} />
-                        <div className="bg-green-500 h-2" style={{ width: `${(riskOverview.low / riskOverview.total) * 100}%` }} />
+                        <div className="bg-red-500 h-2.5" style={{ width: `${(riskOverview.critical / riskOverview.total) * 100}%` }} />
+                        <div className="bg-orange-500 h-2.5" style={{ width: `${(riskOverview.high / riskOverview.total) * 100}%` }} />
+                        <div className="bg-yellow-400 h-2.5" style={{ width: `${(riskOverview.medium / riskOverview.total) * 100}%` }} />
+                        <div className="bg-green-500 h-2.5" style={{ width: `${(riskOverview.low / riskOverview.total) * 100}%` }} />
                       </>
                     )}
                   </div>
-                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                  <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
                     <StatDot color="bg-red-500" label="Critical" count={riskOverview.critical} />
                     <StatDot color="bg-orange-500" label="High" count={riskOverview.high} />
                     <StatDot color="bg-yellow-400" label="Medium" count={riskOverview.medium} />
                     <StatDot color="bg-green-500" label="Low" count={riskOverview.low} />
                   </div>
-                  <p className="text-[11px] text-muted-foreground/50 mt-2">
+                  <p className="text-xs font-medium text-muted-foreground/50 mt-2.5">
                     {riskOverview.open} open · {riskOverview.mitigated} mitigated
                   </p>
                 </>
@@ -418,18 +400,18 @@ export function HomePage() {
 
             {/* Policies */}
             <Card
-              className="p-4 cursor-pointer hover:shadow-md transition-shadow duration-200"
+              className="p-5 cursor-pointer hover:shadow-md transition-shadow duration-200"
               onClick={() => navigate('/compliance/policies')}
             >
               <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-950/40 flex items-center justify-center">
-                    <FileText className="w-3.5 h-3.5 text-blue-600" />
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/40 flex items-center justify-center">
+                    <FileText className="w-4 h-4 text-blue-600" />
                   </div>
-                  <h3 className="text-sm font-semibold text-foreground">Policies</h3>
+                  <h3 className="text-sm font-bold text-foreground">Policies</h3>
                 </div>
                 {!loadingPolicies && policyStats.total > 0 && (
-                  <span className="text-lg font-bold text-foreground">
+                  <span className="text-2xl font-extrabold text-foreground tracking-tight">
                     {Math.round((policyStats.published / policyStats.total) * 100)}%
                   </span>
                 )}
@@ -437,21 +419,21 @@ export function HomePage() {
               {loadingPolicies ? (
                 <LoadingSkeleton />
               ) : policyStats.total === 0 ? (
-                <EmptyState label="No policies" />
+                <EmptyState label="No policies yet" />
               ) : (
                 <>
-                  <div className="w-full bg-muted rounded-full h-2 mb-3">
+                  <div className="w-full bg-muted rounded-full h-2.5 mb-3">
                     <div
-                      className="bg-blue-500 h-2 rounded-full transition-all"
+                      className="bg-blue-500 h-2.5 rounded-full transition-all"
                       style={{ width: `${Math.round((policyStats.published / policyStats.total) * 100)}%` }}
                     />
                   </div>
-                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                  <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
                     <StatDot color="bg-blue-500" label="Published" count={policyStats.published} />
                     <StatDot color="bg-gray-400" label="Draft" count={policyStats.draft} />
                     <StatDot color="bg-amber-500" label="Review" count={policyStats.review} />
                   </div>
-                  <p className="text-[11px] text-muted-foreground/50 mt-2">
+                  <p className="text-xs font-medium text-muted-foreground/50 mt-2.5">
                     {policyStats.total} total
                   </p>
                 </>
@@ -460,18 +442,18 @@ export function HomePage() {
 
             {/* Documents */}
             <Card
-              className="p-4 cursor-pointer hover:shadow-md transition-shadow duration-200"
+              className="p-5 cursor-pointer hover:shadow-md transition-shadow duration-200"
               onClick={() => navigate('/compliance/documents')}
             >
               <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-violet-50 dark:bg-violet-950/40 flex items-center justify-center">
-                    <FileCheck className="w-3.5 h-3.5 text-violet-600" />
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-violet-50 dark:bg-violet-950/40 flex items-center justify-center">
+                    <FileCheck className="w-4 h-4 text-violet-600" />
                   </div>
-                  <h3 className="text-sm font-semibold text-foreground">Documents</h3>
+                  <h3 className="text-sm font-bold text-foreground">Documents</h3>
                 </div>
                 {!loadingDocs && docStats && docStats.total > 0 && (
-                  <span className="text-lg font-bold text-foreground">
+                  <span className="text-2xl font-extrabold text-foreground tracking-tight">
                     {Math.round((docStats.current / docStats.total) * 100)}%
                   </span>
                 )}
@@ -479,21 +461,21 @@ export function HomePage() {
               {loadingDocs ? (
                 <LoadingSkeleton />
               ) : !docStats || docStats.total === 0 ? (
-                <EmptyState label="No documents" />
+                <EmptyState label="No documents yet" />
               ) : (
                 <>
-                  <div className="w-full bg-muted rounded-full h-2 mb-3">
+                  <div className="w-full bg-muted rounded-full h-2.5 mb-3">
                     <div
-                      className="bg-violet-500 h-2 rounded-full transition-all"
+                      className="bg-violet-500 h-2.5 rounded-full transition-all"
                       style={{ width: `${Math.round((docStats.current / docStats.total) * 100)}%` }}
                     />
                   </div>
-                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                  <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
                     <StatDot color="bg-violet-500" label="Current" count={docStats.current} />
                     <StatDot color="bg-gray-400" label="Pending" count={docStats.pending} />
                     <StatDot color="bg-amber-500" label="Review" count={docStats.needsReview} />
                   </div>
-                  <p className="text-[11px] text-muted-foreground/50 mt-2">
+                  <p className="text-xs font-medium text-muted-foreground/50 mt-2.5">
                     {docStats.total} total
                   </p>
                 </>
@@ -502,132 +484,83 @@ export function HomePage() {
           </div>
         </div>
 
-        {/* ── Detail Panels ── */}
+        {/* ── Framework Readiness ── */}
         <div>
-          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-            Details
+          <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-3">
+            Framework Readiness
           </h2>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Framework Readiness — spans 2 cols on lg */}
-            <Card
-              className="p-5 flex flex-col min-h-[20rem] lg:col-span-2 cursor-pointer hover:shadow-md transition-shadow duration-200"
-              onClick={() => navigate('/compliance/frameworks')}
-            >
-              <div className="flex items-center justify-between mb-4 shrink-0">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/40 flex items-center justify-center">
-                    <ShieldCheck className="w-4 h-4 text-blue-600" />
-                  </div>
-                  <h3 className="text-base font-semibold text-foreground">
-                    Framework Readiness
-                  </h3>
+          {loadingReadiness ? (
+            <div className="flex items-center gap-3 py-12 justify-center text-sm text-muted-foreground/70">
+              <Loader2 className="w-5 h-5 animate-spin" />
+              <span className="font-medium">Loading frameworks…</span>
+            </div>
+          ) : readiness.length === 0 ? (
+            <Card className="p-8">
+              <div className="flex flex-col items-center justify-center text-center">
+                <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center mb-3">
+                  <ShieldCheck className="w-6 h-6 text-muted-foreground/40" />
                 </div>
-                <span className="text-xs text-muted-foreground/60">
-                  {readiness.length} framework{readiness.length !== 1 ? 's' : ''}
-                </span>
-              </div>
-
-              <div className="flex-1 overflow-y-auto min-h-0">
-                {loadingReadiness ? (
-                  <div className="flex items-center gap-3 py-8 justify-center text-sm text-muted-foreground/70">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Loading framework data…
-                  </div>
-                ) : readiness.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-8 text-center">
-                    <ShieldCheck className="w-8 h-8 text-muted-foreground/30 mb-2" />
-                    <p className="text-sm text-muted-foreground/70">No active frameworks</p>
-                    <p className="text-xs text-muted-foreground/50 mt-1">
-                      Activate a framework to track compliance readiness
-                    </p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {readiness.map((fw) => (
-                      <div key={fw.slug} className="p-3 rounded-lg bg-muted/40 border border-border/50">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm font-medium text-foreground truncate">
-                            {fw.name}
-                          </span>
-                          <span className="text-sm font-bold text-blue-600 ml-2 shrink-0">
-                            {fw.controlCoveragePct != null ? `${fw.controlCoveragePct}%` : '—'}
-                          </span>
-                        </div>
-                        <div className="w-full bg-muted rounded-full h-1.5 mb-2">
-                          <div
-                            className="bg-blue-500 h-1.5 rounded-full transition-all"
-                            style={{ width: `${fw.controlCoveragePct ?? 0}%` }}
-                          />
-                        </div>
-                        <div className="flex justify-between text-[11px] text-muted-foreground/60">
-                          <span>{fw.openGaps ?? 0} open gaps</span>
-                          <span>{fw.covered ?? 0}/{fw.applicable ?? 0} covered</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <p className="text-sm font-semibold text-muted-foreground">No active frameworks</p>
+                <p className="text-xs text-muted-foreground/60 mt-1 max-w-xs">
+                  Activate a compliance framework to start tracking your readiness and coverage
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-4"
+                  onClick={() => navigate('/compliance/frameworks')}
+                >
+                  Browse Frameworks
+                </Button>
               </div>
             </Card>
-
-            {/* Recent Activity — right column */}
-            <Card className="p-5 flex flex-col min-h-[20rem]">
-              <div className="flex items-center justify-between mb-4 shrink-0">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800/60 flex items-center justify-center">
-                    <Activity className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-                  </div>
-                  <h3 className="text-base font-semibold text-foreground">
-                    Recent Activity
-                  </h3>
-                </div>
-              </div>
-
-              <div className="flex-1 overflow-y-auto min-h-0 pr-1">
-                {loadingActivity ? (
-                  <div className="flex items-center gap-3 py-8 justify-center text-sm text-muted-foreground/70">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Loading activity…
-                  </div>
-                ) : recentActivity.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-8 text-center">
-                    <Activity className="w-8 h-8 text-muted-foreground/30 mb-2" />
-                    <p className="text-sm text-muted-foreground/70">No activity yet</p>
-                    <p className="text-xs text-muted-foreground/50 mt-1">
-                      Actions will appear here as you work
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-1">
-                    {recentActivity.map((activity) => (
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {readiness.map((fw) => {
+                const pct = fw.controlCoveragePct ?? 0;
+                const barColor =
+                  pct >= 80 ? 'bg-emerald-500' :
+                  pct >= 50 ? 'bg-blue-500' :
+                  pct >= 25 ? 'bg-amber-500' :
+                  'bg-red-500';
+                return (
+                  <Card
+                    key={fw.slug}
+                    className="p-5 cursor-pointer hover:shadow-md transition-shadow duration-200"
+                    onClick={() => navigate(`/compliance/frameworks/${fw.slug}`)}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 flex items-center justify-center flex-shrink-0">
+                          <ShieldCheck className="w-4 h-4 text-indigo-600" />
+                        </div>
+                        <h3 className="text-sm font-bold text-foreground truncate">
+                          {fw.name}
+                        </h3>
+                      </div>
+                      <span className="text-2xl font-extrabold text-foreground tracking-tight ml-2 shrink-0">
+                        {pct}%
+                      </span>
+                    </div>
+                    <div className="w-full bg-muted rounded-full h-2.5 mb-3">
                       <div
-                        key={activity.id}
-                        className="flex gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors"
-                      >
-                        <div
-                          className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${
-                            activity.status === 'success'
-                              ? 'bg-green-500'
-                              : activity.status === 'warning'
-                                ? 'bg-orange-500'
-                                : 'bg-blue-500'
-                          }`}
-                        />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm text-foreground leading-snug">
-                            {activity.label}
-                          </p>
-                          <p className="text-[11px] text-muted-foreground/60 mt-0.5">
-                            {activity.user.name} · {activity.timeAgo}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </Card>
-          </div>
+                        className={`${barColor} h-2.5 rounded-full transition-all`}
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-muted-foreground">
+                        <span className="font-semibold text-foreground">{fw.openGaps ?? 0}</span> open gaps
+                      </span>
+                      <span className="text-muted-foreground">
+                        <span className="font-semibold text-foreground">{fw.covered ?? 0}</span>/{fw.applicable ?? 0} covered
+                      </span>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     </PageTemplate>
@@ -638,16 +571,16 @@ export function HomePage() {
 
 function StatDot({ color, label, count }: { color: string; label: string; count: number }) {
   return (
-    <span className="flex items-center gap-1">
-      <span className={`w-1.5 h-1.5 rounded-full ${color}`} />
-      <span className="text-foreground font-medium">{count}</span> {label}
+    <span className="flex items-center gap-1 text-muted-foreground">
+      <span className={`w-2 h-2 rounded-full ${color}`} />
+      <span className="font-bold text-foreground">{count}</span> {label}
     </span>
   );
 }
 
 function LoadingSkeleton() {
   return (
-    <div className="flex items-center gap-2 py-4 justify-center text-muted-foreground/50">
+    <div className="flex items-center gap-2 py-6 justify-center text-muted-foreground/50">
       <Loader2 className="w-4 h-4 animate-spin" />
     </div>
   );
@@ -655,6 +588,6 @@ function LoadingSkeleton() {
 
 function EmptyState({ label }: { label: string }) {
   return (
-    <p className="text-xs text-muted-foreground/50 py-4 text-center">{label}</p>
+    <p className="text-xs font-medium text-muted-foreground/50 py-6 text-center">{label}</p>
   );
 }
