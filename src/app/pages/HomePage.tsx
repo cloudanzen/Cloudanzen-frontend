@@ -131,7 +131,9 @@ export function HomePage() {
     queryKey: ['compliance-documents', 'dashboard'],
     queryFn: async () => {
       const res = await complianceDocumentService.list();
-      return (res as unknown as { stats?: ComplianceDocumentStats })?.stats ?? null;
+      return (
+        (res as unknown as { stats?: ComplianceDocumentStats })?.stats ?? null
+      );
     },
     staleTime: STALE.DASHBOARD,
   });
@@ -153,7 +155,10 @@ export function HomePage() {
   const vendors = vendorsRaw ?? [];
 
   const vendorNeedAttention = vendors.filter(
-    (v) => v.status === 'ASSESSMENT_DUE' || v.status === 'IN_REVIEW' || v.status === 'BLOCKED',
+    (v) =>
+      v.status === 'ASSESSMENT_DUE' ||
+      v.status === 'IN_REVIEW' ||
+      v.status === 'BLOCKED',
   ).length;
 
   const policyStats = {
@@ -173,9 +178,7 @@ export function HomePage() {
     qc.invalidateQueries({ queryKey: QK.vendors() });
   };
 
-  const vendorsAttention = loadingVendors
-    ? null
-    : String(vendorNeedAttention);
+  const vendorsAttention = loadingVendors ? null : String(vendorNeedAttention);
 
   const activeControls = loadingCompliance
     ? null
@@ -245,7 +248,9 @@ export function HomePage() {
               <ChevronDown className="w-3 h-3 opacity-60" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem onSelect={() => navigate('/compliance/policies')}>
+              <DropdownMenuItem
+                onSelect={() => navigate('/compliance/policies')}
+              >
                 <FileText className="w-4 h-4 mr-2" />
                 New Policy
               </DropdownMenuItem>
@@ -292,10 +297,14 @@ export function HomePage() {
               >
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2.5">
-                    <div className={`w-8 h-8 rounded-lg ${stat.bg} flex items-center justify-center`}>
+                    <div
+                      className={`w-8 h-8 rounded-lg ${stat.bg} flex items-center justify-center`}
+                    >
                       <Icon className={`w-4 h-4 ${stat.color}`} />
                     </div>
-                    <h3 className="text-sm font-bold text-foreground">{stat.label}</h3>
+                    <h3 className="text-sm font-bold text-foreground">
+                      {stat.label}
+                    </h3>
                   </div>
                   {isLive ? (
                     <Loader2 className="w-5 h-5 animate-spin text-muted-foreground/50" />
@@ -312,7 +321,7 @@ export function HomePage() {
 
         {/* ── Progress Overview ── */}
         <div>
-          <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-3">
+          <h2 className="text-base font-extrabold text-muted-foreground uppercase tracking-[0.18em] mb-3">
             Progress Overview
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -347,9 +356,21 @@ export function HomePage() {
                     />
                   </div>
                   <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
-                    <StatDot color="bg-emerald-500" label="Done" count={testSummary.completed} />
-                    <StatDot color="bg-red-500" label="Overdue" count={testSummary.overdue} />
-                    <StatDot color="bg-amber-400" label="Due soon" count={testSummary.dueSoon} />
+                    <StatDot
+                      color="bg-emerald-500"
+                      label="Done"
+                      count={testSummary.completed}
+                    />
+                    <StatDot
+                      color="bg-red-500"
+                      label="Overdue"
+                      count={testSummary.overdue}
+                    />
+                    <StatDot
+                      color="bg-amber-400"
+                      label="Due soon"
+                      count={testSummary.dueSoon}
+                    />
                   </div>
                   <p className="text-xs font-medium text-muted-foreground/50 mt-2.5">
                     {testSummary.total} total
@@ -385,21 +406,58 @@ export function HomePage() {
                   <div className="w-full bg-muted rounded-full h-2.5 mb-3 flex overflow-hidden">
                     {riskOverview.total > 0 && (
                       <>
-                        <div className="bg-red-500 h-2.5" style={{ width: `${(riskOverview.critical / riskOverview.total) * 100}%` }} />
-                        <div className="bg-orange-500 h-2.5" style={{ width: `${(riskOverview.high / riskOverview.total) * 100}%` }} />
-                        <div className="bg-yellow-400 h-2.5" style={{ width: `${(riskOverview.medium / riskOverview.total) * 100}%` }} />
-                        <div className="bg-green-500 h-2.5" style={{ width: `${(riskOverview.low / riskOverview.total) * 100}%` }} />
+                        <div
+                          className="bg-red-500 h-2.5"
+                          style={{
+                            width: `${(riskOverview.critical / riskOverview.total) * 100}%`,
+                          }}
+                        />
+                        <div
+                          className="bg-orange-500 h-2.5"
+                          style={{
+                            width: `${(riskOverview.high / riskOverview.total) * 100}%`,
+                          }}
+                        />
+                        <div
+                          className="bg-yellow-400 h-2.5"
+                          style={{
+                            width: `${(riskOverview.medium / riskOverview.total) * 100}%`,
+                          }}
+                        />
+                        <div
+                          className="bg-green-500 h-2.5"
+                          style={{
+                            width: `${(riskOverview.low / riskOverview.total) * 100}%`,
+                          }}
+                        />
                       </>
                     )}
                   </div>
                   <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
-                    <StatDot color="bg-red-500" label="Critical" count={riskOverview.critical} />
-                    <StatDot color="bg-orange-500" label="High" count={riskOverview.high} />
-                    <StatDot color="bg-yellow-400" label="Medium" count={riskOverview.medium} />
-                    <StatDot color="bg-green-500" label="Low" count={riskOverview.low} />
+                    <StatDot
+                      color="bg-red-500"
+                      label="Critical"
+                      count={riskOverview.critical}
+                    />
+                    <StatDot
+                      color="bg-orange-500"
+                      label="High"
+                      count={riskOverview.high}
+                    />
+                    <StatDot
+                      color="bg-yellow-400"
+                      label="Medium"
+                      count={riskOverview.medium}
+                    />
+                    <StatDot
+                      color="bg-green-500"
+                      label="Low"
+                      count={riskOverview.low}
+                    />
                   </div>
                   <p className="text-xs font-medium text-muted-foreground/50 mt-2.5">
-                    {riskOverview.open} open · {riskOverview.mitigated} mitigated
+                    {riskOverview.open} open · {riskOverview.mitigated}{' '}
+                    mitigated
                   </p>
                 </>
               )}
@@ -415,11 +473,16 @@ export function HomePage() {
                   <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/40 flex items-center justify-center">
                     <FileText className="w-4 h-4 text-blue-600" />
                   </div>
-                  <h3 className="text-sm font-bold text-foreground">Policies</h3>
+                  <h3 className="text-sm font-bold text-foreground">
+                    Policies
+                  </h3>
                 </div>
                 {!loadingPolicies && policyStats.total > 0 && (
                   <span className="text-2xl font-extrabold text-foreground tracking-tight">
-                    {Math.round((policyStats.published / policyStats.total) * 100)}%
+                    {Math.round(
+                      (policyStats.published / policyStats.total) * 100,
+                    )}
+                    %
                   </span>
                 )}
               </div>
@@ -432,13 +495,27 @@ export function HomePage() {
                   <div className="w-full bg-muted rounded-full h-2.5 mb-3">
                     <div
                       className="bg-blue-500 h-2.5 rounded-full transition-all"
-                      style={{ width: `${Math.round((policyStats.published / policyStats.total) * 100)}%` }}
+                      style={{
+                        width: `${Math.round((policyStats.published / policyStats.total) * 100)}%`,
+                      }}
                     />
                   </div>
                   <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
-                    <StatDot color="bg-blue-500" label="Published" count={policyStats.published} />
-                    <StatDot color="bg-gray-400" label="Draft" count={policyStats.draft} />
-                    <StatDot color="bg-amber-500" label="Review" count={policyStats.review} />
+                    <StatDot
+                      color="bg-blue-500"
+                      label="Published"
+                      count={policyStats.published}
+                    />
+                    <StatDot
+                      color="bg-gray-400"
+                      label="Draft"
+                      count={policyStats.draft}
+                    />
+                    <StatDot
+                      color="bg-amber-500"
+                      label="Review"
+                      count={policyStats.review}
+                    />
                   </div>
                   <p className="text-xs font-medium text-muted-foreground/50 mt-2.5">
                     {policyStats.total} total
@@ -457,7 +534,9 @@ export function HomePage() {
                   <div className="w-8 h-8 rounded-lg bg-violet-50 dark:bg-violet-950/40 flex items-center justify-center">
                     <FileCheck className="w-4 h-4 text-violet-600" />
                   </div>
-                  <h3 className="text-sm font-bold text-foreground">Documents</h3>
+                  <h3 className="text-sm font-bold text-foreground">
+                    Documents
+                  </h3>
                 </div>
                 {!loadingDocs && docStats && docStats.total > 0 && (
                   <span className="text-2xl font-extrabold text-foreground tracking-tight">
@@ -474,13 +553,27 @@ export function HomePage() {
                   <div className="w-full bg-muted rounded-full h-2.5 mb-3">
                     <div
                       className="bg-violet-500 h-2.5 rounded-full transition-all"
-                      style={{ width: `${Math.round((docStats.current / docStats.total) * 100)}%` }}
+                      style={{
+                        width: `${Math.round((docStats.current / docStats.total) * 100)}%`,
+                      }}
                     />
                   </div>
                   <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
-                    <StatDot color="bg-violet-500" label="Current" count={docStats.current} />
-                    <StatDot color="bg-gray-400" label="Pending" count={docStats.pending} />
-                    <StatDot color="bg-amber-500" label="Review" count={docStats.needsReview} />
+                    <StatDot
+                      color="bg-violet-500"
+                      label="Current"
+                      count={docStats.current}
+                    />
+                    <StatDot
+                      color="bg-gray-400"
+                      label="Pending"
+                      count={docStats.pending}
+                    />
+                    <StatDot
+                      color="bg-amber-500"
+                      label="Review"
+                      count={docStats.needsReview}
+                    />
                   </div>
                   <p className="text-xs font-medium text-muted-foreground/50 mt-2.5">
                     {docStats.total} total
@@ -493,7 +586,7 @@ export function HomePage() {
 
         {/* ── Framework Readiness ── */}
         <div>
-          <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-3">
+          <h2 className="text-base font-extrabold text-muted-foreground uppercase tracking-[0.18em] mb-3">
             Framework Readiness
           </h2>
           {loadingReadiness ? (
@@ -507,9 +600,12 @@ export function HomePage() {
                 <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center mb-3">
                   <ShieldCheck className="w-6 h-6 text-muted-foreground/40" />
                 </div>
-                <p className="text-sm font-semibold text-muted-foreground">No active frameworks</p>
+                <p className="text-sm font-semibold text-muted-foreground">
+                  No active frameworks
+                </p>
                 <p className="text-xs text-muted-foreground/60 mt-1 max-w-xs">
-                  Activate a compliance framework to start tracking your readiness and coverage
+                  Activate a compliance framework to start tracking your
+                  readiness and coverage
                 </p>
                 <Button
                   variant="outline"
@@ -526,15 +622,20 @@ export function HomePage() {
               {readiness.map((fw) => {
                 const pct = fw.controlCoveragePct ?? 0;
                 const barColor =
-                  pct >= 80 ? 'bg-emerald-500' :
-                  pct >= 50 ? 'bg-blue-500' :
-                  pct >= 25 ? 'bg-amber-500' :
-                  'bg-red-500';
+                  pct >= 80
+                    ? 'bg-emerald-500'
+                    : pct >= 50
+                      ? 'bg-blue-500'
+                      : pct >= 25
+                        ? 'bg-amber-500'
+                        : 'bg-red-500';
                 return (
                   <Card
                     key={fw.slug}
                     className="p-5 cursor-pointer hover:shadow-md transition-shadow duration-200"
-                    onClick={() => navigate(`/compliance/frameworks/${fw.slug}`)}
+                    onClick={() =>
+                      navigate(`/compliance/frameworks/${fw.slug}`)
+                    }
                   >
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2.5 min-w-0">
@@ -557,10 +658,16 @@ export function HomePage() {
                     </div>
                     <div className="flex justify-between text-xs">
                       <span className="text-muted-foreground">
-                        <span className="font-semibold text-foreground">{fw.openGaps ?? 0}</span> open gaps
+                        <span className="font-semibold text-foreground">
+                          {fw.openGaps ?? 0}
+                        </span>{' '}
+                        open gaps
                       </span>
                       <span className="text-muted-foreground">
-                        <span className="font-semibold text-foreground">{fw.covered ?? 0}</span>/{fw.applicable ?? 0} covered
+                        <span className="font-semibold text-foreground">
+                          {fw.covered ?? 0}
+                        </span>
+                        /{fw.applicable ?? 0} covered
                       </span>
                     </div>
                   </Card>
@@ -576,7 +683,15 @@ export function HomePage() {
 
 // ── Shared micro-components ──────────────────────────────────────────────────
 
-function StatDot({ color, label, count }: { color: string; label: string; count: number }) {
+function StatDot({
+  color,
+  label,
+  count,
+}: {
+  color: string;
+  label: string;
+  count: number;
+}) {
   return (
     <span className="flex items-center gap-1 text-muted-foreground">
       <span className={`w-2 h-2 rounded-full ${color}`} />
@@ -595,6 +710,8 @@ function LoadingSkeleton() {
 
 function EmptyState({ label }: { label: string }) {
   return (
-    <p className="text-xs font-medium text-muted-foreground/50 py-6 text-center">{label}</p>
+    <p className="text-xs font-medium text-muted-foreground/50 py-6 text-center">
+      {label}
+    </p>
   );
 }
