@@ -1,6 +1,12 @@
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { Card } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from '@/app/components/ui/dropdown-menu';
 import { useNavigate } from 'react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -15,6 +21,10 @@ import {
   Loader2,
   RefreshCw,
   ShieldCheck,
+  Zap,
+  ChevronDown,
+  ClipboardCheck,
+  FileCheck,
 } from 'lucide-react';
 import { controlsService } from '@/services/api/controls';
 import { riskLibraryService } from '@/services/api/risk-library';
@@ -27,6 +37,12 @@ import {
   frameworksService,
   type FrameworkReadinessDto,
 } from '@/services/api/frameworks';
+import { policiesService } from '@/services/api/policies';
+import {
+  complianceDocumentService,
+  type ComplianceDocumentStats,
+} from '@/services/api/compliance-documents';
+import { type Policy } from '@/services/api/types';
 import { QK } from '@/lib/queryKeys';
 import { STALE } from '@/lib/queryClient';
 
@@ -114,11 +130,39 @@ export function HomePage() {
     staleTime: STALE.DASHBOARD,
   });
 
+  const { data: policiesRaw, isLoading: loadingPolicies } = useQuery({
+    queryKey: QK.policies(),
+    queryFn: async () => {
+      const res = await policiesService.getPolicies();
+      return ((res as { data?: Policy[] })?.data ?? []) as Policy[];
+    },
+    staleTime: STALE.DASHBOARD,
+  });
+
+  const { data: docsRaw, isLoading: loadingDocs } = useQuery({
+    queryKey: ['compliance-documents', 'dashboard'],
+    queryFn: async () => {
+      const res = await complianceDocumentService.list();
+      return (res as unknown as { stats?: ComplianceDocumentStats })?.stats ?? null;
+    },
+    staleTime: STALE.DASHBOARD,
+  });
+
   const compliance = complianceRaw ?? null;
   const riskOverview = riskRaw ?? null;
   const recentActivity = activityRaw ?? [];
   const readiness = readinessRaw ?? [];
   const testSummary = testSummaryRaw ?? null;
+  const policies = policiesRaw ?? [];
+  const docStats = docsRaw ?? null;
+
+  // Derived policy stats
+  const policyStats = {
+    total: policies.length,
+    published: policies.filter((p) => p.status === 'PUBLISHED').length,
+    draft: policies.filter((p) => p.status === 'DRAFT').length,
+    review: policies.filter((p) => p.status === 'REVIEW').length,
+  };
 
   const handleRefresh = () => {
     qc.invalidateQueries({ queryKey: QK.complianceStats() });
@@ -126,6 +170,8 @@ export function HomePage() {
     qc.invalidateQueries({ queryKey: QK.testSummary() });
     qc.invalidateQueries({ queryKey: QK.activityLog(8) });
     qc.invalidateQueries({ queryKey: ['frameworks', 'readiness-summary'] });
+    qc.invalidateQueries({ queryKey: QK.policies() });
+    qc.invalidateQueries({ queryKey: ['compliance-documents', 'dashboard'] });
   };
 
   // Derived display values — fall back to skeleton dashes while loading
@@ -193,17 +239,48 @@ export function HomePage() {
       title="Dashboard"
       description="Welcome back! Here's an overview of your security posture."
       actions={
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleRefresh}
-          disabled={fetchingCompliance}
-        >
-          <RefreshCw
-            className={`w-4 h-4 mr-2 ${fetchingCompliance ? 'animate-spin' : ''}`}
-          />
-          Refresh
-        </Button>
+        <div className="flex items-center gap-2">
+          {/* Quick Actions dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Zap className="w-4 h-4 mr-2" />
+                Quick Actions
+                <ChevronDown className="w-3 h-3 ml-1" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => navigate('/compliance/policies')}>
+                <FileText className="w-4 h-4" />
+                New Policy
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/tests')}>
+                <Shield className="w-4 h-4" />
+                Run Test
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/risk/risks')}>
+                <AlertTriangle className="w-4 h-4" />
+                Report Risk
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/vendors')}>
+                <Users className="w-4 h-4" />
+                Add Vendor
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefresh}
+            disabled={fetchingCompliance}
+          >
+            <RefreshCw
+              className={`w-4 h-4 mr-2 ${fetchingCompliance ? 'animate-spin' : ''}`}
+            />
+            Refresh
+          </Button>
+        </div>
       }
     >
       <div className="space-y-6">
@@ -241,132 +318,208 @@ export function HomePage() {
           })}
         </div>
 
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          {/* ── Recent Activity ── */}
-          <Card className="p-6 flex flex-col h-72">
-            {/* fixed header */}
-            <div className="flex items-center justify-between mb-4 shrink-0">
-              <h2 className="text-lg font-semibold text-foreground">
-                Recent Activity
-              </h2>
-              <Activity className="w-5 h-5 text-muted-foreground/70" />
+        {/* ── Progress Tiles (mid row) ── */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Tests Progress */}
+          <Card
+            className="p-4 cursor-pointer hover:shadow-md transition-shadow duration-200"
+            onClick={() => navigate('/tests')}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-foreground">Tests</h3>
+              <ClipboardCheck className="w-4 h-4 text-muted-foreground/70" />
             </div>
-
-            {/* scrollable body — only this area scrolls */}
-            <div className="flex-1 overflow-y-auto min-h-0 pr-1 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
-              {loadingActivity ? (
-                <div className="flex items-center gap-3 py-6 text-sm text-muted-foreground/70">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Loading activity…
+            {loadingTests ? (
+              <div className="flex items-center gap-2 py-3 text-sm text-muted-foreground/70">
+                <Loader2 className="w-4 h-4 animate-spin" />
+              </div>
+            ) : !testSummary ? (
+              <p className="text-xs text-muted-foreground/70">No data</p>
+            ) : (
+              <>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="flex-1 bg-muted rounded-full h-2">
+                    <div
+                      className="bg-green-500 h-2 rounded-full transition-all"
+                      style={{ width: `${testSummary.passPercentage}%` }}
+                    />
+                  </div>
+                  <span className="text-xs font-semibold text-foreground w-9 text-right">
+                    {testSummary.passPercentage}%
+                  </span>
                 </div>
-              ) : recentActivity.length === 0 ? (
-                <p className="text-sm text-muted-foreground/70 py-6 text-center">
-                  No activity yet. Actions like creating risks, policies, or
-                  uploading files will appear here.
+                <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                    {testSummary.completed} done
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                    {testSummary.overdue} overdue
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-orange-400" />
+                    {testSummary.dueSoon} due soon
+                  </span>
+                </div>
+                <p className="text-[11px] text-muted-foreground/60 mt-1">
+                  {testSummary.total} total tests
                 </p>
-              ) : (
-                <div className="space-y-4">
-                  {recentActivity.map((activity) => (
-                    <div key={activity.id} className="flex gap-3">
-                      <div
-                        className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${
-                          activity.status === 'success'
-                            ? 'bg-green-500'
-                            : activity.status === 'warning'
-                              ? 'bg-orange-500'
-                              : 'bg-blue-500'
-                        }`}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm text-foreground leading-snug">
-                          {activity.label}
-                        </p>
-                        <p className="text-xs text-muted-foreground/70 mt-0.5">
-                          {activity.user.name} · {activity.timeAgo}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+              </>
+            )}
           </Card>
 
-          {/* ── Risk Distribution ── */}
+          {/* Risk Distribution */}
           <Card
-            className="p-6 flex flex-col h-72 cursor-pointer hover:shadow-md transition-shadow duration-200"
+            className="p-4 cursor-pointer hover:shadow-md transition-shadow duration-200"
             onClick={() => navigate('/risk/risks')}
           >
-            {/* fixed header */}
-            <div className="flex items-center justify-between mb-4 shrink-0">
-              <h2 className="text-lg font-semibold text-foreground">
-                Risk Distribution
-              </h2>
-              <TrendingUp className="w-5 h-5 text-muted-foreground/70" />
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-foreground">Risks</h3>
+              <TrendingUp className="w-4 h-4 text-muted-foreground/70" />
             </div>
-
-            {/* body */}
-            <div className="flex-1 overflow-y-auto min-h-0">
-              {loadingRisks ? (
-                <div className="flex items-center gap-3 py-6 text-sm text-muted-foreground/70">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Loading risk data…
-                </div>
-              ) : !riskOverview ? (
-                <p className="text-sm text-muted-foreground/70 py-6">
-                  Could not load risk data.
-                </p>
-              ) : (
-                <div className="space-y-3">
+            {loadingRisks ? (
+              <div className="flex items-center gap-2 py-3 text-sm text-muted-foreground/70">
+                <Loader2 className="w-4 h-4 animate-spin" />
+              </div>
+            ) : !riskOverview ? (
+              <p className="text-xs text-muted-foreground/70">No data</p>
+            ) : (
+              <>
+                <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground mb-2">
                   {[
-                    {
-                      level: 'Critical',
-                      count: riskOverview.critical,
-                      color: 'bg-red-500',
-                    },
-                    {
-                      level: 'High',
-                      count: riskOverview.high,
-                      color: 'bg-orange-500',
-                    },
-                    {
-                      level: 'Medium',
-                      count: riskOverview.medium,
-                      color: 'bg-yellow-500',
-                    },
-                    {
-                      level: 'Low',
-                      count: riskOverview.low,
-                      color: 'bg-green-500',
-                    },
-                  ].map((risk) => (
-                    <div key={risk.level} className="flex items-center gap-3">
-                      <div className={`w-3 h-3 rounded-full ${risk.color}`} />
-                      <span className="text-sm text-foreground flex-1">
-                        {risk.level}
-                      </span>
-                      <span className="text-sm font-semibold text-foreground">
-                        {risk.count}
-                      </span>
-                    </div>
+                    { label: 'Critical', count: riskOverview.critical, color: 'bg-red-500' },
+                    { label: 'High', count: riskOverview.high, color: 'bg-orange-500' },
+                    { label: 'Medium', count: riskOverview.medium, color: 'bg-yellow-500' },
+                    { label: 'Low', count: riskOverview.low, color: 'bg-green-500' },
+                  ].map((r) => (
+                    <span key={r.label} className="flex items-center gap-1">
+                      <span className={`w-1.5 h-1.5 rounded-full ${r.color}`} />
+                      {r.label} <strong className="text-foreground">{r.count}</strong>
+                    </span>
                   ))}
-                  <div className="pt-2 border-t text-xs text-muted-foreground flex justify-between">
-                    <span>{riskOverview.open} open</span>
-                    <span>{riskOverview.mitigated} mitigated</span>
-                    <span>{riskOverview.total} total</span>
-                  </div>
                 </div>
-              )}
-            </div>
+                <div className="text-[11px] text-muted-foreground/60 flex gap-2">
+                  <span>{riskOverview.open} open</span>
+                  <span>·</span>
+                  <span>{riskOverview.mitigated} mitigated</span>
+                  <span>·</span>
+                  <span>{riskOverview.total} total</span>
+                </div>
+              </>
+            )}
           </Card>
 
-          {/* ── Framework Readiness ── */}
+          {/* Policy Progress */}
+          <Card
+            className="p-4 cursor-pointer hover:shadow-md transition-shadow duration-200"
+            onClick={() => navigate('/compliance/policies')}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-foreground">Policies</h3>
+              <FileText className="w-4 h-4 text-muted-foreground/70" />
+            </div>
+            {loadingPolicies ? (
+              <div className="flex items-center gap-2 py-3 text-sm text-muted-foreground/70">
+                <Loader2 className="w-4 h-4 animate-spin" />
+              </div>
+            ) : policyStats.total === 0 ? (
+              <p className="text-xs text-muted-foreground/70">No policies yet</p>
+            ) : (
+              <>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="flex-1 bg-muted rounded-full h-2">
+                    <div
+                      className="bg-blue-500 h-2 rounded-full transition-all"
+                      style={{
+                        width: `${Math.round((policyStats.published / policyStats.total) * 100)}%`,
+                      }}
+                    />
+                  </div>
+                  <span className="text-xs font-semibold text-foreground w-9 text-right">
+                    {Math.round((policyStats.published / policyStats.total) * 100)}%
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                    {policyStats.published} published
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
+                    {policyStats.draft} draft
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                    {policyStats.review} review
+                  </span>
+                </div>
+                <p className="text-[11px] text-muted-foreground/60 mt-1">
+                  {policyStats.total} total policies
+                </p>
+              </>
+            )}
+          </Card>
+
+          {/* Document Progress */}
+          <Card
+            className="p-4 cursor-pointer hover:shadow-md transition-shadow duration-200"
+            onClick={() => navigate('/compliance/documents')}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-foreground">Documents</h3>
+              <FileCheck className="w-4 h-4 text-muted-foreground/70" />
+            </div>
+            {loadingDocs ? (
+              <div className="flex items-center gap-2 py-3 text-sm text-muted-foreground/70">
+                <Loader2 className="w-4 h-4 animate-spin" />
+              </div>
+            ) : !docStats ? (
+              <p className="text-xs text-muted-foreground/70">No documents yet</p>
+            ) : (
+              <>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="flex-1 bg-muted rounded-full h-2">
+                    <div
+                      className="bg-green-500 h-2 rounded-full transition-all"
+                      style={{
+                        width: `${docStats.total > 0 ? Math.round((docStats.current / docStats.total) * 100) : 0}%`,
+                      }}
+                    />
+                  </div>
+                  <span className="text-xs font-semibold text-foreground w-9 text-right">
+                    {docStats.total > 0 ? Math.round((docStats.current / docStats.total) * 100) : 0}%
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                    {docStats.current} current
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
+                    {docStats.pending} pending
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                    {docStats.needsReview} review
+                  </span>
+                </div>
+                <p className="text-[11px] text-muted-foreground/60 mt-1">
+                  {docStats.total} total documents
+                </p>
+              </>
+            )}
+          </Card>
+        </div>
+
+        {/* ── Bottom Row ── */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          {/* ── Framework Readiness (bottom-left) ── */}
           <Card
             className="p-6 flex flex-col h-72 cursor-pointer hover:shadow-md transition-shadow duration-200"
             onClick={() => navigate('/compliance/frameworks')}
           >
-            {/* fixed header */}
             <div className="flex items-center justify-between mb-4 shrink-0">
               <h2 className="text-lg font-semibold text-foreground">
                 Framework Readiness
@@ -374,7 +527,6 @@ export function HomePage() {
               <ShieldCheck className="w-5 h-5 text-muted-foreground/70" />
             </div>
 
-            {/* body */}
             <div className="flex-1 overflow-y-auto min-h-0">
               {loadingReadiness ? (
                 <div className="flex items-center gap-3 py-6 text-sm text-muted-foreground/70">
@@ -422,49 +574,51 @@ export function HomePage() {
             </div>
           </Card>
 
-          {/* ── Quick Actions ── */}
+          {/* ── Recent Activity (bottom-right) ── */}
           <Card className="p-6 flex flex-col h-72">
-            {/* fixed header */}
-            <div className="shrink-0 mb-4">
+            <div className="flex items-center justify-between mb-4 shrink-0">
               <h2 className="text-lg font-semibold text-foreground">
-                Quick Actions
+                Recent Activity
               </h2>
+              <Activity className="w-5 h-5 text-muted-foreground/70" />
             </div>
 
-            {/* body — fills remaining height, grid centres itself naturally */}
-            <div className="flex-1 grid grid-cols-2 gap-3 content-start">
-              <Button
-                variant="outline"
-                className="h-auto py-4 flex flex-col gap-2"
-                onClick={() => navigate('/compliance/policies')}
-              >
-                <FileText className="w-5 h-5" />
-                <span className="text-sm">New Policy</span>
-              </Button>
-              <Button
-                variant="outline"
-                className="h-auto py-4 flex flex-col gap-2"
-                onClick={() => navigate('/tests')}
-              >
-                <Shield className="w-5 h-5" />
-                <span className="text-sm">Run Test</span>
-              </Button>
-              <Button
-                variant="outline"
-                className="h-auto py-4 flex flex-col gap-2"
-                onClick={() => navigate('/risk/risks')}
-              >
-                <AlertTriangle className="w-5 h-5" />
-                <span className="text-sm">Report Risk</span>
-              </Button>
-              <Button
-                variant="outline"
-                className="h-auto py-4 flex flex-col gap-2"
-                onClick={() => navigate('/vendors')}
-              >
-                <Users className="w-5 h-5" />
-                <span className="text-sm">Add Vendor</span>
-              </Button>
+            <div className="flex-1 overflow-y-auto min-h-0 pr-1 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
+              {loadingActivity ? (
+                <div className="flex items-center gap-3 py-6 text-sm text-muted-foreground/70">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Loading activity…
+                </div>
+              ) : recentActivity.length === 0 ? (
+                <p className="text-sm text-muted-foreground/70 py-6 text-center">
+                  No activity yet. Actions like creating risks, policies, or
+                  uploading files will appear here.
+                </p>
+              ) : (
+                <div className="space-y-4">
+                  {recentActivity.map((activity) => (
+                    <div key={activity.id} className="flex gap-3">
+                      <div
+                        className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${
+                          activity.status === 'success'
+                            ? 'bg-green-500'
+                            : activity.status === 'warning'
+                              ? 'bg-orange-500'
+                              : 'bg-blue-500'
+                        }`}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-foreground leading-snug">
+                          {activity.label}
+                        </p>
+                        <p className="text-xs text-muted-foreground/70 mt-0.5">
+                          {activity.user.name} · {activity.timeAgo}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </Card>
         </div>
