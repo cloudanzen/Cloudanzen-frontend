@@ -9,6 +9,35 @@ import {
   RiskTreatment,
 } from './types';
 
+// ── Risk Snapshot types ───────────────────────────────────────────────────────
+
+export interface RiskSnapshotItem {
+  id: string;
+  title: string;
+  description: string;
+  impact: string;
+  likelihood: string;
+  riskScore: number;
+  status: string;
+  assetTitle: string;
+  treatments: Array<{
+    controlId: string;
+    isoReference: string;
+    title: string;
+    notes: string | null;
+  }>;
+}
+
+export interface RiskSnapshotRecord {
+  id: string;
+  name: string;
+  createdAt: string;
+  createdById: string;
+  sharedWithAuditor: boolean;
+  riskCount: number;
+  items?: RiskSnapshotItem[];
+}
+
 export class RisksService {
   // Get all risks
   async getRisks(params?: {
@@ -151,6 +180,24 @@ export class RisksService {
     }
 
     return response.blob();
+  }
+
+  // ── Snapshots ──────────────────────────────────────────────────────────────
+
+  listSnapshots(): Promise<ApiResponse<RiskSnapshotRecord[]>> {
+    return apiClient.get('/api/risks/snapshots');
+  }
+
+  createSnapshot(name: string): Promise<ApiResponse<RiskSnapshotRecord>> {
+    return apiClient.post('/api/risks/snapshots', { name });
+  }
+
+  getSnapshotDetail(id: string): Promise<ApiResponse<RiskSnapshotRecord>> {
+    return apiClient.get(`/api/risks/snapshots/${id}`);
+  }
+
+  toggleSnapshotShare(id: string): Promise<ApiResponse<RiskSnapshotRecord>> {
+    return apiClient.patch(`/api/risks/snapshots/${id}/share`);
   }
 
   // Bulk risk assessment
