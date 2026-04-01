@@ -173,7 +173,11 @@ const VendorsPage = lazy(() =>
     default: m.VendorsPage,
   })),
 );
-
+const VendorDetailPage = lazy(() =>
+  import('@/app/pages/vendors/VendorDetailPage').then((m) => ({
+    default: m.VendorDetailPage,
+  })),
+);
 
 // Assets
 const InventoryPage = lazy(() =>
@@ -375,6 +379,7 @@ export const router = createBrowserRouter([
 
       // Vendors
       { path: 'vendors', Component: VendorsPage },
+      { path: 'vendors/:vendorId', Component: VendorDetailPage },
 
       // Assets
       { path: 'assets/inventory', Component: InventoryPage },

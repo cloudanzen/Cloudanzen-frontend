@@ -21,6 +21,7 @@ export interface VendorRecord {
   dataClass: 'PII' | 'Sensitive' | 'Internal' | 'Public';
   lastAssessmentAt: string;
   nextAssessmentAt: string;
+  contractEndDate?: string | null;
   notes?: string | null;
   createdAt: string;
   updatedAt: string;
@@ -38,6 +39,11 @@ export interface CreateVendorInput {
 type ApiResp<T> = { success: boolean; data: T };
 
 export const vendorsService = {
+  async get(id: string): Promise<VendorRecord | null> {
+    const res = await apiClient.get<ApiResp<VendorRecord>>(`/api/vendors/${id}`);
+    return res?.data ?? null;
+  },
+
   async list(params?: { search?: string; status?: VendorStatus; tier?: VendorTier }): Promise<VendorRecord[]> {
     const res = await apiClient.get<ApiResp<VendorRecord[]>>('/api/vendors', params as any);
     return res?.data ?? [];
