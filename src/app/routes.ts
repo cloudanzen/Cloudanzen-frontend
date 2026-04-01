@@ -1,8 +1,9 @@
 import { createBrowserRouter, redirect } from 'react-router';
-import { lazy, Suspense } from 'react';
+import { createElement, lazy, Suspense } from 'react';
 import { Layout } from '@/app/components/Layout';
 import { SettingsLayout } from '@/app/components/settings/SettingsLayout';
 import { requireAuth } from '@/app/authGuard';
+import { NotFoundPage, RouteErrorBoundary } from '@/app/pages/NotFoundPage';
 
 // ── Eager imports (needed immediately on load) ────────────────────────────────
 import { LoginPage } from '@/app/pages/auth/LoginPage';
@@ -322,6 +323,7 @@ export const router = createBrowserRouter([
     path: '/',
     Component: Layout,
     loader: requireAuth,
+    ErrorBoundary: RouteErrorBoundary,
     children: [
       { index: true, Component: HomePage },
       { path: 'my-tasks', Component: MyWorkPage },
@@ -427,8 +429,14 @@ export const router = createBrowserRouter([
           { path: 'ai', Component: AiSettingsPage },
         ],
       },
+
+      // Catch-all 404
+      { path: '*', Component: NotFoundPage },
     ],
   },
+
+  // Global catch-all for unmatched routes outside the layout
+  { path: '*', Component: NotFoundPage },
 ]);
 
 // Re-export Suspense for convenience (used in Layout to wrap <Outlet />)
