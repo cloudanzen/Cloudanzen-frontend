@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- legacy: to be typed progressively */
 import { useState } from 'react';
+import { useNavigate } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { PageTemplate } from '@/app/components/PageTemplate';
@@ -7,7 +8,8 @@ import { PageFilterBar } from '@/app/components/filters/PageFilterBar';
 import { useUrlFilterState } from '@/app/hooks/useUrlFilterState';
 import { Button } from '@/app/components/ui/button';
 import { Card } from '@/app/components/ui/card';
-import { Plus, ChevronRight, Shield } from 'lucide-react';
+import { Progress } from '@/app/components/ui/progress';
+import { Plus, Shield } from 'lucide-react';
 import {
   auditsService,
   AuditRecord,
@@ -16,7 +18,6 @@ import {
 } from '@/services/api/audits';
 import { ScheduleAuditModal } from './ScheduleAuditModal';
 import {
-  AuditDetailPanel,
   AUDIT_TYPE_LABELS,
   StatusBadge,
   fmt,
@@ -35,8 +36,8 @@ const STATUS_FILTERS: { value: '' | AuditStatus; label: string }[] = [
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function AuditsPage() {
+  const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
-  const [selected, setSelected] = useState<AuditRecord | null>(null);
   const { filters, update, reset } = useUrlFilterState({
     defaults: { search: '', status: '', type: '' },
   });
@@ -206,7 +207,7 @@ export function AuditsPage() {
                     'Status',
                     'Auditor',
                     'Findings',
-                    '',
+                    'Progress',
                   ].map((h) => (
                     <th
                       key={h}
@@ -232,11 +233,18 @@ export function AuditsPage() {
                       ? 'Internal'
                       : '—';
 
+                  const auditControls = audit.auditControls ?? [];
+                  const totalControls = auditControls.length || audit._count?.auditControls || 0;
+                  const reviewedControls = auditControls.filter(
+                    (c) => c.reviewStatus !== 'PENDING',
+                  ).length;
+                  const progressPct = totalControls > 0 ? Math.round((reviewedControls / totalControls) * 100) : 0;
+
                   return (
                     <tr
                       key={audit.id}
                       className="hover:bg-muted cursor-pointer"
-                      onClick={() => setSelected(audit)}
+                      onClick={() => navigate(`/compliance/audits/${audit.id}`)}
                     >
                       <td className="px-4 py-3 font-medium text-foreground max-w-[200px] truncate">
                         {audit.name}
@@ -276,8 +284,17 @@ export function AuditsPage() {
                           <span className="text-muted-foreground/70 text-xs">—</span>
                         )}
                       </td>
-                      <td className="px-4 py-3">
-                        <ChevronRight className="w-4 h-4 text-muted-foreground/70" />
+                      <td className="px-4 py-3 w-[120px]">
+                        {totalControls > 0 ? (
+                          <div className="space-y-1">
+                            <Progress value={progressPct} className="h-1.5" />
+                            <p className="text-xs text-muted-foreground/70">
+                              {reviewedControls}/{totalControls}
+                            </p>
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground/70 text-xs">—</span>
+                        )}
                       </td>
                     </tr>
                   );
@@ -293,16 +310,6 @@ export function AuditsPage() {
         <ScheduleAuditModal
           onClose={() => setShowModal(false)}
           onCreated={onCreated}
-        />
-      )}
-      {selected && (
-        <AuditDetailPanel
-          audit={selected}
-          onClose={() => setSelected(null)}
-          onRefresh={() => {
-            refetch();
-            setSelected(null);
-          }}
         />
       )}
     </PageTemplate>

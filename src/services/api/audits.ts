@@ -177,6 +177,21 @@ export interface CreateFindingPayload {
   status?:      string;
 }
 
+export interface AuditComment {
+  id:         string;
+  auditId:    string;
+  controlId?: string | null;
+  authorId:   string;
+  text:       string;
+  createdAt:  string;
+  author: {
+    id:    string;
+    name?: string | null;
+    email: string;
+    role:  string;
+  };
+}
+
 // ── Service ───────────────────────────────────────────────────────────────────
 
 export const auditsService = {
@@ -248,5 +263,20 @@ export const auditsService = {
   /** Sign & complete — locks audit, captures snapshot, → COMPLETED */
   signAndComplete(auditId: string) {
     return apiClient.post<{ success: boolean; data: AuditRecord }>(`/api/audits/${auditId}/sign-and-complete`);
+  },
+
+  // ── Comments ────────────────────────────────────────────────────────────────
+
+  listComments(auditId: string, controlId?: string) {
+    const params = controlId ? { controlId } : undefined;
+    return apiClient.get<{ success: boolean; data: AuditComment[] }>(`/api/audits/${auditId}/comments`, params as any);
+  },
+
+  postComment(auditId: string, payload: { text: string; controlId?: string | null }) {
+    return apiClient.post<{ success: boolean; data: AuditComment }>(`/api/audits/${auditId}/comments`, payload);
+  },
+
+  deleteComment(auditId: string, commentId: string) {
+    return apiClient.delete<{ success: boolean }>(`/api/audits/${auditId}/comments/${commentId}`);
   },
 };

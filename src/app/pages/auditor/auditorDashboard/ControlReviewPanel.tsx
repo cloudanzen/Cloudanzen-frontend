@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useConfirmDialog } from '@/app/hooks/useConfirmDialog';
+import { toast } from 'sonner';
 import {
   X,
   FileText,
@@ -15,6 +16,8 @@ import {
   Sparkles,
   Loader2,
   CheckCheck,
+  MessageCircle,
+  Send,
 } from 'lucide-react';
 import {
   auditsService,
@@ -24,6 +27,7 @@ import {
   ControlRiskItem,
   ControlTestItem,
   ControlFindingItem,
+  AuditComment,
 } from '@/services/api/audits';
 import { Button } from '@/app/components/ui/button';
 import { Badge } from '@/app/components/ui/badge';
@@ -31,6 +35,7 @@ import { ReviewBadge } from './helpers';
 import { AddFindingModal } from './AddFindingModal';
 import { aiService, AuditorNoteResult } from '@/services/api/ai';
 import { CitationViewer } from '@/app/components/CitationViewer';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 // ── Auditor Note AI Panel (AI-4) ─────────────────────────────────────────────
 
@@ -238,6 +243,108 @@ export function FindingRow({
           Remediation: {finding.remediation}
         </p>
       )}
+    </div>
+  );
+}
+
+// ── Control Comments Section ──────────────────────────────────────────────────
+
+function ControlCommentsSection({ auditId, controlId }: { auditId: string; controlId: string }) {
+  const me = useCurrentUser();
+  const confirm = useConfirmDialog();
+  const [text, setText] = useState('');
+  const [posting, setPosting] = useState(false);
+
+  const { data, refetch } = useQuery<{ success: boolean; data: AuditComment[] }>({
+    queryKey: ['audit-comments', auditId, controlId],
+    queryFn: () => auditsService.listComments(auditId, controlId),
+  });
+
+  const comments = data?.data ?? [];
+
+  async function handlePost() {
+    if (!text.trim()) return;
+    setPosting(true);
+    try {
+      await auditsService.postComment(auditId, { text: text.trim(), controlId });
+      setText('');
+      refetch();
+    } catch {
+      toast.error('Failed to post comment');
+    } finally {
+      setPosting(false);
+    }
+  }
+
+  async function handleDelete(commentId: string) {
+    const ok = await confirm({
+      title: 'Delete Comment',
+      description: 'Delete this comment?',
+      confirmLabel: 'Delete',
+      variant: 'destructive',
+    });
+    if (!ok) return;
+    try {
+      await auditsService.deleteComment(auditId, commentId);
+      refetch();
+    } catch {
+      toast.error('Failed to delete comment');
+    }
+  }
+
+  function initials(name: string | null | undefined, email: string): string {
+    if (name) return name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
+    return email.slice(0, 2).toUpperCase();
+  }
+
+  return (
+    <div className="p-5">
+      <SectionHead icon={<MessageCircle className="w-3.5 h-3.5" />} title={`Comments (${comments.length})`} />
+      <div className="space-y-3 mb-3">
+        {comments.length === 0 ? (
+          <p className="text-xs text-gray-400">No comments on this control yet.</p>
+        ) : (
+          comments.map((c) => (
+            <div key={c.id} className="flex gap-2.5">
+              <div className="w-7 h-7 rounded-full bg-blue-50 text-blue-700 text-xs font-bold flex items-center justify-center flex-shrink-0">
+                {initials(c.author?.name, c.author?.email ?? '')}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
+                  <span className="text-xs font-semibold text-gray-800">{c.author?.name ?? c.author?.email}</span>
+                  {c.author?.role === 'AUDITOR' && (
+                    <span className="text-xs px-1 py-0 rounded bg-violet-50 text-violet-700">Auditor</span>
+                  )}
+                  <span className="text-xs text-gray-400">{new Date(c.createdAt).toLocaleDateString()}</span>
+                  {me?.id === c.authorId && (
+                    <button onClick={() => handleDelete(c.id)} className="ml-auto text-gray-300 hover:text-red-400">
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  )}
+                </div>
+                <p className="text-xs text-gray-700">{c.text}</p>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+      <div className="flex gap-2">
+        <textarea
+          rows={2}
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Add a comment…"
+          className="flex-1 text-xs border border-gray-200 rounded px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
+        />
+        <button
+          type="button"
+          onClick={handlePost}
+          disabled={!text.trim() || posting}
+          className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-800 disabled:opacity-40 self-end"
+        >
+          {posting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+        </button>
+      </div>
     </div>
   );
 }
@@ -567,6 +674,9 @@ export function ControlReviewPanel({
                 </div>
               )}
             </div>
+
+            {/* Comments */}
+            <ControlCommentsSection auditId={auditId} controlId={ctrl.id} />
           </div>
         </div>
       </div>
