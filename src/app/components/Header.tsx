@@ -1,10 +1,11 @@
-import { Search, Settings, HelpCircle, LogOut, User, Menu, Sun, Moon } from "lucide-react";
+import { Search, Settings, HelpCircle, LogOut, User, Menu, Sun, Moon, Sparkles } from "lucide-react";
 import { Input } from "@/app/components/ui/input";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router";
 import { authService } from "@/services/api/auth";
 import { useSidebar } from "@/app/components/Layout";
 import { NotificationBell } from "@/app/components/notifications/NotificationBell";
+import { AiAssistantChat } from "@/app/components/AiAssistantChat";
 
 interface SearchResult {
   title: string;
@@ -49,6 +50,7 @@ const searchablePages: SearchResult[] = [
   { title: "Computers", path: "/personnel/computers", category: "Personnel" },
 
   // AI
+  { title: "AI Chat Assistant", path: "/ai/chat", category: "AI" },
   { title: "AI Settings", path: "/settings/ai", category: "Settings" },
   { title: "Questionnaire AI", path: "/ai/questionnaire-assistant", category: "AI" },
 
@@ -69,6 +71,7 @@ export function Header() {
   const searchRef = useRef<HTMLDivElement>(null);
   const { toggle: toggleSidebar, collapsed } = useSidebar();
 
+  const [aiChatOpen, setAiChatOpen] = useState(false);
   const [isDark, setIsDark] = useState(() =>
     document.documentElement.classList.contains("dark")
   );
@@ -180,6 +183,19 @@ export function Header() {
         </div>
 
         <div className="flex items-center gap-1 sm:gap-2 ml-auto flex-shrink-0">
+          <button
+            onClick={() => setAiChatOpen((prev) => !prev)}
+            className="relative p-2 text-muted-foreground hover:bg-accent rounded-md"
+            title="AI Assistant"
+            aria-label="Toggle AI Assistant"
+          >
+            <Sparkles className="w-5 h-5" />
+            <span className="absolute top-1 right-1 flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" />
+            </span>
+          </button>
+
           <button className="hidden sm:flex relative p-2 text-muted-foreground hover:bg-accent rounded-md" title="Help">
             <HelpCircle className="w-5 h-5" />
           </button>
@@ -226,6 +242,8 @@ export function Header() {
           </div>
         </div>
       </div>
+
+      <AiAssistantChat open={aiChatOpen} onClose={() => setAiChatOpen(false)} />
     </header>
   );
 }

@@ -171,6 +171,7 @@ const navigation: NavItem[] = [
     icon: Sparkles,
     roles: [...ADMIN_ROLES],
     children: [
+      { title: 'AI Chat', href: '/ai/chat' },
       { title: 'Questionnaire AI', href: '/ai/questionnaire-assistant' },
       { title: 'Knowledge Base', href: '/ai/knowledge-base' },
       { title: 'AI Settings', href: '/settings/ai', roles: [...ADMIN_ROLES] },

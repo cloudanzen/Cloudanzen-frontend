@@ -239,6 +239,11 @@ const AiDocumentsPage = lazy(() =>
     default: m.AiDocumentsPage,
   })),
 );
+const AiChatPage = lazy(() =>
+  import('@/app/pages/ai/AiChatPage').then((m) => ({
+    default: m.AiChatPage,
+  })),
+);
 
 // Other
 const IntegrationsPage = lazy(() =>
@@ -400,6 +405,10 @@ export const router = createBrowserRouter([
       { path: 'personnel/settings', loader: () => redirect('/settings/personnel') },
 
       // AI
+      {
+        path: 'ai/chat',
+        Component: AiChatPage,
+      },
       {
         path: 'ai/questionnaire-assistant',
         Component: QuestionnaireAssistantPage,

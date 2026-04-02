@@ -132,6 +132,18 @@ export interface RegisterDocumentRequest {
   storageUrl: string;
 }
 
+// AI Chat Assistant
+export interface ChatMessage {
+  role: 'user' | 'assistant';
+  text: string;
+}
+
+export interface ChatResponse {
+  reply: string;
+  model?: string;
+  source: 'llm' | 'fallback';
+}
+
 // ── AI Service ────────────────────────────────────────────────────────────────
 
 export const aiService = {
@@ -269,4 +281,13 @@ export const aiService = {
   /** Remove the org's API key and revert to platform default. */
   removeKey: () =>
     apiClient.delete('/api/ai/config/key'),
+
+  // ── AI Chat Assistant ───────────────────────────────────────────────────
+
+  /** Send a chat message to the AI assistant and get a response. */
+  chat: (messages: ChatMessage[]) =>
+    apiClient.post<{ success: boolean; data: ChatResponse }>(
+      '/api/ai/assistant/chat',
+      { messages },
+    ),
 };
