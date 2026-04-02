@@ -556,7 +556,7 @@ export function PolicyDetailPanel({
                       )}
                       {downloading ? 'Downloading…' : 'Download'}
                     </button>
-                    {!currentPolicy.documentUrl.startsWith('/files/') && (
+                    {!currentPolicy.documentUrl.startsWith('/files/') && !currentPolicy.documentUrl.startsWith('s3://') && (
                       <a
                         href={currentPolicy.documentUrl}
                         target="_blank"

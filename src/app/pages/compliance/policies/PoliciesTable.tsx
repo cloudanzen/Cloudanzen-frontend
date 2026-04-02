@@ -187,8 +187,8 @@ export function PoliciesTable({
                         </button>
                       )}
 
-                      {/* View in new tab — for external URLs */}
-                      {hasFile && policy.documentUrl && !policy.documentUrl.startsWith('/files/') && (
+                      {/* View in new tab — for external URLs (not local disk or S3 keys) */}
+                      {hasFile && policy.documentUrl && !policy.documentUrl.startsWith('/files/') && !policy.documentUrl.startsWith('s3://') && (
                         <a
                           href={policy.documentUrl}
                           target="_blank"
