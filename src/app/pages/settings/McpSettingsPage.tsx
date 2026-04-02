@@ -6,6 +6,7 @@ import {
   Eye,
   EyeOff,
   Key,
+  Link,
   Loader2,
   Plus,
   ScrollText,
@@ -119,8 +120,44 @@ export function McpSettingsPage() {
     );
   }
 
+  const MCP_SERVER_URL = 'https://api.cloudanzen.com/api/mcp';
+
   return (
     <div className="max-w-4xl mx-auto p-4 sm:p-6 space-y-6">
+      {/* ── Connection Info ───────────────────────────────────────────────── */}
+      <Card>
+        <CardHeader className="pb-4">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Link className="w-4 h-4 text-blue-600" />
+            MCP Server URL
+          </CardTitle>
+          <CardDescription>
+            Point your AI agent (Claude Desktop, Cursor, etc.) at this endpoint
+            and authenticate with an MCP API key.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-2">
+            <code className="flex-1 rounded-md bg-gray-100 px-3 py-2 text-sm font-mono text-gray-800 select-all">
+              {MCP_SERVER_URL}
+            </code>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5 shrink-0"
+              onClick={() => copyToClipboard(MCP_SERVER_URL)}
+            >
+              <Copy className="w-3.5 h-3.5" />
+              Copy
+            </Button>
+          </div>
+          <p className="mt-3 text-xs text-gray-500">
+            Use this URL as the MCP server endpoint in your agent configuration,
+            and supply an active API key (created below) as the bearer token.
+          </p>
+        </CardContent>
+      </Card>
+
       {/* ── Enable / Disable ──────────────────────────────────────────────── */}
       <Card>
         <CardHeader className="pb-4">
