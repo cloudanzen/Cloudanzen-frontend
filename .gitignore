@@ -55,3 +55,4 @@ test-results
 # DynamoDB Local files
 .dynamodb/
 .vercel
+.env*.local
