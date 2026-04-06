@@ -8,6 +8,12 @@ updates:
     groups:
       dev-dependencies:
         dependency-type: development
+      production-dependencies:
+        dependency-type: production
+    ignore:
+      # Major version bumps need planned migration — don't auto-PR
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
