@@ -1,0 +1,54 @@
+{
+  "title": "ベンダー",
+  "description": "サードパーティベンダー管理とリスク評価",
+  "addVendor": "ベンダーを追加",
+  "searchPlaceholder": "ベンダーを検索...",
+  "noVendors": "ベンダーなし",
+  "noVendorsDesc": "最初のベンダーを追加してサードパーティリスク管理を開始してください",
+  "noResults": "ベンダーが見つかりません",
+  "status": {
+    "ACTIVE": "アクティブ",
+    "IN_REVIEW": "審査中",
+    "ASSESSMENT_DUE": "評価期限",
+    "BLOCKED": "ブロック済み",
+    "INACTIVE": "非アクティブ",
+    "OFFBOARDED": "オフボード済み"
+  },
+  "riskLevel": {
+    "LOW": "低",
+    "MEDIUM": "中",
+    "HIGH": "高",
+    "CRITICAL": "クリティカル"
+  },
+  "columns": {
+    "name": "ベンダー",
+    "category": "カテゴリー",
+    "riskLevel": "リスクレベル",
+    "status": "ステータス",
+    "lastAssessed": "最終評価日",
+    "nextAssessment": "次回評価日"
+  },
+  "detail": {
+    "overview": "概要",
+    "assessments": "評価",
+    "documents": "ドキュメント",
+    "contacts": "連絡先",
+    "editVendor": "ベンダーを編集",
+    "deleteVendor": "ベンダーを削除",
+    "startAssessment": "評価を開始",
+    "website": "ウェブサイト",
+    "category": "カテゴリー",
+    "description": "説明",
+    "riskLevel": "リスクレベル",
+    "status": "ステータス"
+  },
+  "form": {
+    "nameLabel": "ベンダー名",
+    "namePlaceholder": "ベンダー名を入力",
+    "categoryLabel": "カテゴリー",
+    "descriptionLabel": "説明",
+    "websiteLabel": "ウェブサイト",
+    "riskLevelLabel": "リスクレベル",
+    "statusLabel": "ステータス"
+  }
+}

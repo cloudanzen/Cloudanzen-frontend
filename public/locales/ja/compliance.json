@@ -1,0 +1,174 @@
+{
+  "policies": {
+    "title": "ポリシー",
+    "description": "セキュリティポリシーの管理とライフサイクル追跡",
+    "newPolicy": "新規ポリシー",
+    "useTemplate": "テンプレートを使用",
+    "searchPlaceholder": "ポリシーを検索...",
+    "showing": "{{total}}件中{{count}}件表示",
+    "noResults": "ポリシーが見つかりません",
+    "noPolicies": "ポリシーなし",
+    "noPoliciesDesc": "最初のポリシーを作成するか、テンプレートを使用してください",
+    "stats": {
+      "total": "ポリシー合計",
+      "published": "公開済み",
+      "draft": "ドラフト",
+      "review": "審査中"
+    },
+    "status": {
+      "PUBLISHED": "公開済み",
+      "DRAFT": "ドラフト",
+      "REVIEW": "審査中",
+      "ARCHIVED": "アーカイブ済み",
+      "EXPIRED": "期限切れ"
+    },
+    "columns": {
+      "name": "ポリシー名",
+      "status": "ステータス",
+      "version": "バージョン",
+      "owner": "オーナー",
+      "approvedAt": "承認日",
+      "updatedAt": "更新日"
+    }
+  },
+  "templates": {
+    "title": "ポリシーテンプレート",
+    "subtitle": "事前構築済みテンプレートから始める",
+    "searchPlaceholder": "テンプレートを検索...",
+    "noResults": "テンプレートが見つかりません",
+    "useTemplate": "テンプレートを使用",
+    "categories": {
+      "all": "すべて",
+      "governance": "ガバナンス",
+      "accessControl": "アクセス制御",
+      "assetManagement": "資産管理",
+      "operations": "運用",
+      "businessContinuity": "事業継続",
+      "humanResources": "人的資源",
+      "cryptography": "暗号化",
+      "communications": "通信",
+      "incidentResponse": "インシデント対応",
+      "physicalSecurity": "物理的セキュリティ",
+      "softwareDevelopment": "ソフトウェア開発",
+      "supplierRelations": "サプライヤー関係",
+      "compliance": "コンプライアンス"
+    }
+  },
+  "createPolicy": {
+    "title": "ポリシー作成",
+    "nameLabel": "ポリシー名",
+    "namePlaceholder": "ポリシー名を入力",
+    "descriptionLabel": "説明",
+    "descriptionPlaceholder": "ポリシーの説明を入力",
+    "statusLabel": "ステータス",
+    "versionLabel": "バージョン",
+    "versionPlaceholder": "例: 1.0",
+    "submitButton": "ポリシーを作成",
+    "cancelButton": "キャンセル"
+  },
+  "policyDetail": {
+    "editPolicy": "ポリシーを編集",
+    "deletePolicy": "ポリシーを削除",
+    "downloadPdf": "PDFをダウンロード",
+    "downloadDocx": "DOCXをダウンロード",
+    "approve": "承認",
+    "approvedBy": "承認者",
+    "approvedAt": "承認日時",
+    "version": "バージョン",
+    "owner": "オーナー",
+    "lastUpdated": "最終更新",
+    "noDescription": "説明なし"
+  },
+  "controls": {
+    "title": "管理策",
+    "description": "セキュリティ管理策の実装とコンプライアンス追跡",
+    "searchPlaceholder": "管理策を検索...",
+    "filterByFramework": "フレームワークでフィルター",
+    "showing": "{{total}}件中{{count}}件表示",
+    "noResults": "管理策が見つかりません",
+    "addControl": "管理策を追加",
+    "status": {
+      "IMPLEMENTED": "実装済み",
+      "PARTIALLY_IMPLEMENTED": "部分的に実装",
+      "NOT_IMPLEMENTED": "未実装"
+    },
+    "columns": {
+      "reference": "参照番号",
+      "title": "タイトル",
+      "status": "ステータス",
+      "framework": "フレームワーク",
+      "evidence": "証拠",
+      "updatedAt": "更新日"
+    }
+  },
+  "frameworks": {
+    "title": "フレームワーク",
+    "description": "コンプライアンスフレームワークの管理と対応状況追跡",
+    "availableFrameworks": "利用可能なフレームワーク",
+    "activeFrameworks": "有効なフレームワーク",
+    "activate": "有効化",
+    "deactivate": "無効化",
+    "viewControls": "管理策を表示",
+    "readiness": "対応状況",
+    "coverage": "適用範囲",
+    "controls": "管理策",
+    "gaps": "ギャップ",
+    "noFrameworks": "有効なフレームワークなし",
+    "noFrameworksDesc": "コンプライアンスフレームワークを有効化して対応状況の追跡を開始してください"
+  },
+  "documents": {
+    "title": "ドキュメント",
+    "description": "コンプライアンスドキュメントと証拠管理",
+    "uploadDocument": "ドキュメントをアップロード",
+    "searchPlaceholder": "ドキュメントを検索...",
+    "noDocuments": "ドキュメントなし",
+    "status": {
+      "CURRENT": "最新",
+      "PENDING_REVIEW": "審査待ち",
+      "NEEDS_REVIEW": "要審査",
+      "EXPIRED": "期限切れ"
+    },
+    "columns": {
+      "name": "名前",
+      "type": "種類",
+      "status": "ステータス",
+      "uploadedAt": "アップロード日",
+      "expiresAt": "有効期限"
+    }
+  },
+  "audits": {
+    "title": "監査",
+    "description": "監査管理と発見事項の追跡",
+    "newAudit": "新規監査",
+    "searchPlaceholder": "監査を検索...",
+    "noAudits": "監査なし",
+    "status": {
+      "PLANNED": "計画中",
+      "IN_PROGRESS": "進行中",
+      "COMPLETED": "完了",
+      "CANCELLED": "キャンセル"
+    },
+    "type": {
+      "INTERNAL": "内部",
+      "EXTERNAL": "外部",
+      "SURVEILLANCE": "サーベイランス"
+    }
+  },
+  "findings": {
+    "title": "発見事項",
+    "description": "監査の発見事項と是正措置の追跡",
+    "newFinding": "新規発見事項",
+    "noFindings": "発見事項なし",
+    "severity": {
+      "MINOR": "軽微",
+      "MAJOR": "重大",
+      "OBSERVATION": "観察事項"
+    },
+    "status": {
+      "OPEN": "未対応",
+      "IN_PROGRESS": "対応中",
+      "RESOLVED": "解決済み",
+      "CLOSED": "クローズ"
+    }
+  }
+}

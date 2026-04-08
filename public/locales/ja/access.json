@@ -1,0 +1,47 @@
+{
+  "users": {
+    "title": "ユーザー",
+    "description": "ユーザーとアクセスレベルを管理する",
+    "inviteUser": "ユーザーを招待",
+    "searchPlaceholder": "ユーザーを検索...",
+    "noUsers": "ユーザーが見つかりません",
+    "columns": {
+      "name": "名前",
+      "email": "メールアドレス",
+      "role": "ロール",
+      "status": "ステータス",
+      "createdAt": "参加日",
+      "actions": "操作"
+    },
+    "removeUser": "ユーザーを削除",
+    "confirmRemove": "このユーザーを削除してよろしいですか？",
+    "roles": {
+      "SUPER_ADMIN": "スーパー管理者",
+      "ORG_ADMIN": "組織管理者",
+      "SECURITY_OWNER": "セキュリティオーナー",
+      "AUDITOR": "監査者",
+      "CONTRIBUTOR": "コントリビューター",
+      "VIEWER": "ビューアー"
+    }
+  },
+  "roles": {
+    "title": "ロール",
+    "description": "ロールベースのアクセス制御を定義・管理する",
+    "noRoles": "カスタムロールが定義されていません",
+    "createRole": "ロールを作成",
+    "permissions": "権限"
+  },
+  "requests": {
+    "title": "アクセス申請",
+    "description": "保留中のアクセス申請を確認する",
+    "noRequests": "保留中のアクセス申請なし",
+    "approve": "承認",
+    "deny": "拒否",
+    "columns": {
+      "user": "ユーザー",
+      "requestedRole": "申請ロール",
+      "reason": "理由",
+      "requestedAt": "申請日時"
+    }
+  }
+}

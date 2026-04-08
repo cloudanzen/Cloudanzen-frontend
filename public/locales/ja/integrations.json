@@ -1,0 +1,40 @@
+{
+  "title": "インテグレーション",
+  "description": "ツールを接続して証拠収集を自動化する",
+  "connectedApps": "接続済みアプリ",
+  "availableIntegrations": "利用可能なインテグレーション",
+  "searchPlaceholder": "インテグレーションを検索...",
+  "connected": "接続済み",
+  "notConnected": "未接続",
+  "connect": "接続",
+  "disconnect": "切断",
+  "configure": "設定",
+  "lastSync": "最終同期: {{date}}",
+  "syncNow": "今すぐ同期",
+  "syncing": "同期中...",
+  "requestTool": {
+    "title": "ツールをリクエスト",
+    "description": "必要なインテグレーションが見つかりませんか？リクエストしてください。",
+    "toolNameLabel": "ツール名",
+    "descriptionLabel": "このインテグレーションが必要な理由は？",
+    "submit": "リクエストを送信"
+  },
+  "categories": {
+    "all": "すべて",
+    "cloud": "クラウド",
+    "security": "セキュリティ",
+    "identity": "ID管理",
+    "monitoring": "監視",
+    "development": "開発",
+    "communication": "コミュニケーション"
+  },
+  "partnerApi": {
+    "title": "パートナーAPI",
+    "description": "APIキーとパートナーアクセスを管理する",
+    "createKey": "APIキーを作成",
+    "keyName": "キー名",
+    "created": "作成日",
+    "lastUsed": "最終使用日",
+    "revoke": "失効"
+  }
+}

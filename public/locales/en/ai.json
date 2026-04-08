@@ -1,0 +1,42 @@
+{
+  "chat": {
+    "title": "AI Chat",
+    "description": "Ask questions about compliance, risks, and security workflows",
+    "placeholder": "Ask a question...",
+    "send": "Send",
+    "welcome": "Hi! I'm the CloudAnzen AI assistant. I can help you navigate the platform, explain compliance concepts, and guide you through workflows like setting up frameworks, managing risks, preparing for audits, and more. What can I help with?",
+    "suggestions": {
+      "awsIntegration": "How do I connect an AWS integration?",
+      "frameworks": "What compliance frameworks do you support?",
+      "monitoring": "How does continuous monitoring work?",
+      "soc2Audit": "How do I prepare for a SOC 2 audit?",
+      "vendorRisk": "How do I manage vendor risk assessments?",
+      "riskTreatment": "How do I create a risk treatment plan?",
+      "policyApproval": "How do I set up policy approval workflows?",
+      "trustCenter": "How do I use the Trust Center?"
+    },
+    "errorReply": "I couldn't process that right now. Please try again or contact support.",
+    "thinking": "Thinking..."
+  },
+  "questionnaire": {
+    "title": "Questionnaire AI",
+    "description": "AI-assisted security questionnaire completion",
+    "newQuestionnaire": "New Questionnaire",
+    "searchPlaceholder": "Search questionnaires...",
+    "noQuestionnaires": "No questionnaires yet",
+    "upload": "Upload Questionnaire",
+    "autoFill": "Auto-fill with AI",
+    "status": {
+      "PENDING": "Pending",
+      "IN_PROGRESS": "In Progress",
+      "COMPLETED": "Completed"
+    }
+  },
+  "documents": {
+    "title": "Knowledge Base",
+    "description": "AI-indexed documents for intelligent search and Q&A",
+    "uploadDocument": "Upload Document",
+    "searchPlaceholder": "Search knowledge base...",
+    "noDocuments": "No documents in knowledge base"
+  }
+}

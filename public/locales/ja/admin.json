@@ -1,0 +1,43 @@
+{
+  "controlTemplates": {
+    "title": "管理策テンプレート",
+    "description": "グローバル管理策テンプレートライブラリを管理する",
+    "newTemplate": "新規テンプレート",
+    "searchPlaceholder": "テンプレートを検索...",
+    "noTemplates": "テンプレートが見つかりません"
+  },
+  "testTemplates": {
+    "title": "テストテンプレート",
+    "description": "自動テストテンプレートライブラリを管理する",
+    "newTemplate": "新規テンプレート",
+    "searchPlaceholder": "テストテンプレートを検索...",
+    "noTemplates": "テンプレートが見つかりません"
+  },
+  "policyTemplates": {
+    "title": "ポリシーテンプレート",
+    "description": "グローバルポリシーテンプレートライブラリを管理する",
+    "newTemplate": "新規テンプレート",
+    "searchPlaceholder": "ポリシーテンプレートを検索...",
+    "noTemplates": "テンプレートが見つかりません"
+  },
+  "frameworks": {
+    "title": "フレームワーク",
+    "description": "コンプライアンスフレームワーク定義を管理する",
+    "newFramework": "新規フレームワーク",
+    "searchPlaceholder": "フレームワークを検索...",
+    "noFrameworks": "フレームワークが見つかりません"
+  },
+  "organizations": {
+    "title": "組織",
+    "description": "プラットフォーム全体の組織管理",
+    "newOrganization": "新規組織",
+    "searchPlaceholder": "組織を検索...",
+    "noOrganizations": "組織が見つかりません",
+    "columns": {
+      "name": "名前",
+      "plan": "プラン",
+      "users": "ユーザー数",
+      "createdAt": "作成日"
+    }
+  }
+}

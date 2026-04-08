@@ -1,0 +1,74 @@
+{
+  "people": {
+    "title": "人員",
+    "description": "組織のユーザーとセキュリティオンボーディングを管理する",
+    "inviteUser": "ユーザーを招待",
+    "searchPlaceholder": "人員を検索...",
+    "noUsers": "ユーザーが見つかりません",
+    "onboarding": {
+      "title": "セキュリティオンボーディング",
+      "complete": "完了",
+      "done": "{{count}}/{{total}}件完了",
+      "acceptPolicies": "セキュリティポリシーに同意",
+      "acceptPoliciesDesc": "公開されたすべての組織ポリシーを読んで同意する",
+      "enrollMdm": "MDMにデバイスを登録",
+      "enrollMdmDesc": "MacにManzen MDMエージェントをインストールする",
+      "completedAt": "{{date}}に完了",
+      "completeTraining": "セキュリティトレーニングを完了",
+      "completeTrainingDesc": "インタラクティブなセキュリティ意識向上トレーニングを完了する"
+    },
+    "columns": {
+      "name": "名前",
+      "email": "メールアドレス",
+      "role": "ロール",
+      "onboarding": "オンボーディング",
+      "joinedAt": "参加日",
+      "actions": "操作"
+    },
+    "roles": {
+      "SUPER_ADMIN": "スーパー管理者",
+      "ORG_ADMIN": "組織管理者",
+      "SECURITY_OWNER": "セキュリティオーナー",
+      "AUDITOR": "監査者",
+      "CONTRIBUTOR": "コントリビューター",
+      "VIEWER": "ビューアー"
+    }
+  },
+  "computers": {
+    "title": "コンピューター",
+    "description": "組織のMDM登録済みデバイス",
+    "searchPlaceholder": "コンピューターを検索...",
+    "noComputers": "登録済みコンピューターなし",
+    "noComputersDesc": "MDMエージェントでデバイスを登録してください",
+    "columns": {
+      "name": "デバイス名",
+      "user": "ユーザー",
+      "os": "OS",
+      "lastSeen": "最終確認",
+      "status": "ステータス"
+    },
+    "status": {
+      "ENROLLED": "登録済み",
+      "PENDING": "保留中",
+      "BLOCKED": "ブロック済み"
+    }
+  },
+  "access": {
+    "title": "アクセス管理",
+    "description": "ユーザーアクセスレビューとリンク済みアカウント",
+    "campaigns": {
+      "title": "アクセスレビューキャンペーン",
+      "newCampaign": "新規キャンペーン",
+      "noCampaigns": "キャンペーンなし",
+      "status": {
+        "ACTIVE": "アクティブ",
+        "COMPLETED": "完了",
+        "DRAFT": "ドラフト"
+      }
+    },
+    "services": {
+      "title": "サービス",
+      "addService": "サービスを追加"
+    }
+  }
+}

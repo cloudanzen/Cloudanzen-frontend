@@ -2,6 +2,7 @@ import { createRoot } from 'react-dom/client';
 import * as Sentry from '@sentry/react';
 import App from './app/App';
 import './styles/index.css';
+import './i18n';
 
 // ── Sentry initialisation (no-op when DSN is empty) ──────────────────────────
 const sentryDsn = import.meta.env.VITE_SENTRY_DSN as string | undefined;

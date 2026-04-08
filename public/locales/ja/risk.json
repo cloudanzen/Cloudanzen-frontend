@@ -1,0 +1,137 @@
+{
+  "overview": {
+    "title": "リスク概要",
+    "description": "自動監視、証拠、および是正ワークフローにわたるエンタープライズリスク態勢。",
+    "stats": {
+      "openRisks": "未対応リスク",
+      "overdueDetail": "{{count}}件期限超過",
+      "highRiskAssets": "高リスク資産",
+      "highRiskDetail": "クリティカルまたは高リスクエクスポージャー",
+      "evidenceCoverage": "証拠カバレッジ",
+      "evidenceDetail": "証拠スナップショットを持つリスク",
+      "frameworkCoverage": "フレームワークカバレッジ",
+      "mttrDetail": "MTTR {{days}}日"
+    },
+    "severityPosture": "重大度態勢",
+    "severityDesc": "リスクエンジンにおける現在のエクスポージャー分布。",
+    "tracked": "{{count}}件追跡中",
+    "riskConcentration": "リスク集中",
+    "riskConcentrationDesc": "プラットフォームが最もリスクプレッシャーを検出している箇所。",
+    "mostImpactedFrameworks": "最も影響を受けるフレームワーク",
+    "recentRisks": "最近作成または更新されたリスク",
+    "recentRisksDesc": "自動監視パイプラインからの最新検出結果。",
+    "continuousMonitoring": "継続的監視",
+    "ownerWorkload": "オーナーの作業負荷",
+    "ownerWorkloadDesc": "現在の是正対応を担っているのは誰か。",
+    "autoAssignedOwners": "自動割り当てオーナー",
+    "automatedControls": "自動化された管理策",
+    "acceptedRisks": "受容済みリスク",
+    "transferredRisks": "移転済みリスク",
+    "riskScore": "スコア {{score}}",
+    "evidenceItems": "{{count}}件の証拠"
+  },
+  "register": {
+    "title": "リスク登録簿",
+    "description": "リスクライブラリから選択した組織リスク。リスクを評価し、対処し、監視します。",
+    "browseLibrary": "リスクライブラリを参照",
+    "noRisks": "登録簿にリスクなし",
+    "noRisksDesc": "リスクライブラリを参照して、適用可能なリスクを登録簿に追加してください。",
+    "searchPlaceholder": "リスクを検索...",
+    "allStatuses": "すべてのステータス（{{count}}件）",
+    "noMatch": "フィルターに一致するリスクはありません。",
+    "stats": {
+      "total": "合計",
+      "identified": "識別済み",
+      "assessing": "評価中",
+      "treating": "対処中",
+      "monitoring": "監視中",
+      "closed": "クローズ"
+    },
+    "columns": {
+      "risk": "リスク",
+      "category": "カテゴリー",
+      "inherentRisk": "固有リスク",
+      "residualRisk": "残留リスク",
+      "status": "ステータス",
+      "treatment": "対処方法",
+      "owner": "オーナー"
+    },
+    "notAssessed": "未評価",
+    "unassigned": "未割り当て",
+    "findings_one": "{{count}}件の発見事項",
+    "findings_other": "{{count}}件の発見事項",
+    "assignOwner": {
+      "title": "オーナーを割り当て",
+      "unassignedOption": "— 未割り当て —",
+      "save": "保存",
+      "saving": "保存中...",
+      "cancel": "キャンセル"
+    }
+  },
+  "library": {
+    "title": "リスクライブラリ",
+    "description": "事前構築済みリスクカタログ。リスクを登録簿に追加します。",
+    "searchPlaceholder": "リスクライブラリを検索...",
+    "allCategories": "すべてのカテゴリー",
+    "noResults": "リスクが見つかりません",
+    "addToRegister": "登録簿に追加",
+    "addedToRegister": "追加済み",
+    "alreadyInRegister": "すでに登録済み",
+    "addSuccess": "リスクを登録簿に追加しました",
+    "alreadyAdded": "このリスクはすでに登録簿に存在します",
+    "addFailed": "リスクの追加に失敗しました",
+    "impact": "影響度",
+    "likelihood": "発生可能性"
+  },
+  "actionTracker": {
+    "title": "アクショントラッカー",
+    "description": "リスクの重大度、期日、およびワークフロー自動化によって駆動される是正キュー。",
+    "stats": {
+      "openActions": "未対応アクション",
+      "automatedRouting": "自動ルーティング",
+      "dueThisWeek": "今週期限"
+    },
+    "columns": {
+      "action": "アクション",
+      "owner": "オーナー",
+      "priority": "優先度",
+      "workflow": "ワークフロー",
+      "frameworkImpact": "フレームワークへの影響",
+      "dueDate": "期日",
+      "status": "ステータス"
+    },
+    "playbook": "プレイブック: {{name}}",
+    "noActions": "保留中のアクションなし"
+  },
+  "snapshot": {
+    "title": "リスクスナップショット",
+    "description": "特定時点のリスク態勢サマリー"
+  },
+  "engine": {
+    "title": "リスクエンジン",
+    "description": "自動リスク検出とスコアリング設定"
+  },
+  "status": {
+    "IDENTIFIED": "識別済み",
+    "ASSESSING": "評価中",
+    "TREATING": "対処中",
+    "MONITORING": "監視中",
+    "CLOSED": "クローズ",
+    "OPEN": "未対応",
+    "MITIGATED": "軽減済み",
+    "ACCEPTED": "受容済み",
+    "TRANSFERRED": "移転済み"
+  },
+  "treatment": {
+    "MITIGATE": "軽減",
+    "ACCEPT": "受容",
+    "TRANSFER": "移転",
+    "AVOID": "回避"
+  },
+  "impact": {
+    "CRITICAL": "クリティカル",
+    "HIGH": "高",
+    "MEDIUM": "中",
+    "LOW": "低"
+  }
+}

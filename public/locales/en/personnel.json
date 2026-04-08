@@ -1,0 +1,74 @@
+{
+  "people": {
+    "title": "People",
+    "description": "Manage your organization's users and security onboarding",
+    "inviteUser": "Invite User",
+    "searchPlaceholder": "Search people...",
+    "noUsers": "No users found",
+    "onboarding": {
+      "title": "Security Onboarding",
+      "complete": "Complete",
+      "done": "{{count}}/{{total}} done",
+      "acceptPolicies": "Accept security policies",
+      "acceptPoliciesDesc": "Read and accept all published org policies",
+      "enrollMdm": "Enroll device in MDM",
+      "enrollMdmDesc": "Install the Manzen MDM agent on your Mac",
+      "completedAt": "Completed {{date}}",
+      "completeTraining": "Complete security training",
+      "completeTrainingDesc": "Complete the interactive security awareness training"
+    },
+    "columns": {
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "onboarding": "Onboarding",
+      "joinedAt": "Joined",
+      "actions": "Actions"
+    },
+    "roles": {
+      "SUPER_ADMIN": "Super Admin",
+      "ORG_ADMIN": "Org Admin",
+      "SECURITY_OWNER": "Security Owner",
+      "AUDITOR": "Auditor",
+      "CONTRIBUTOR": "Contributor",
+      "VIEWER": "Viewer"
+    }
+  },
+  "computers": {
+    "title": "Computers",
+    "description": "MDM-enrolled devices in your organization",
+    "searchPlaceholder": "Search computers...",
+    "noComputers": "No computers enrolled",
+    "noComputersDesc": "Enroll devices via the MDM agent",
+    "columns": {
+      "name": "Device Name",
+      "user": "User",
+      "os": "OS",
+      "lastSeen": "Last Seen",
+      "status": "Status"
+    },
+    "status": {
+      "ENROLLED": "Enrolled",
+      "PENDING": "Pending",
+      "BLOCKED": "Blocked"
+    }
+  },
+  "access": {
+    "title": "Access Management",
+    "description": "User access reviews and linked accounts",
+    "campaigns": {
+      "title": "Access Review Campaigns",
+      "newCampaign": "New Campaign",
+      "noCampaigns": "No campaigns yet",
+      "status": {
+        "ACTIVE": "Active",
+        "COMPLETED": "Completed",
+        "DRAFT": "Draft"
+      }
+    },
+    "services": {
+      "title": "Services",
+      "addService": "Add Service"
+    }
+  }
+}

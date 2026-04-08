@@ -1,0 +1,137 @@
+{
+  "overview": {
+    "title": "Risk Overview",
+    "description": "Enterprise risk posture across automated monitoring, evidence, and remediation workflows.",
+    "stats": {
+      "openRisks": "Open risks",
+      "overdueDetail": "{{count}} overdue",
+      "highRiskAssets": "High-risk assets",
+      "highRiskDetail": "Critical or high exposure",
+      "evidenceCoverage": "Evidence coverage",
+      "evidenceDetail": "Risks with evidence snapshots",
+      "frameworkCoverage": "Framework coverage",
+      "mttrDetail": "MTTR {{days}} days"
+    },
+    "severityPosture": "Severity posture",
+    "severityDesc": "Current exposure split across the risk engine.",
+    "tracked": "{{count}} tracked",
+    "riskConcentration": "Risk concentration",
+    "riskConcentrationDesc": "Where the platform is detecting the most risk pressure.",
+    "mostImpactedFrameworks": "Most impacted frameworks",
+    "recentRisks": "Recently created or updated risks",
+    "recentRisksDesc": "Latest detections from the automated monitoring pipeline.",
+    "continuousMonitoring": "Continuous monitoring",
+    "ownerWorkload": "Owner workload",
+    "ownerWorkloadDesc": "Who is carrying current remediation demand.",
+    "autoAssignedOwners": "Auto-assigned owners",
+    "automatedControls": "Automated controls",
+    "acceptedRisks": "Accepted risks",
+    "transferredRisks": "Transferred risks",
+    "riskScore": "Score {{score}}",
+    "evidenceItems": "{{count}} evidence items"
+  },
+  "register": {
+    "title": "Risk Register",
+    "description": "Organization risks selected from the risk library. Assess, treat, and monitor risks.",
+    "browseLibrary": "Browse Risk Library",
+    "noRisks": "No risks in your register",
+    "noRisksDesc": "Browse the Risk Library to find applicable risks and add them to your register.",
+    "searchPlaceholder": "Search risks...",
+    "allStatuses": "All statuses ({{count}})",
+    "noMatch": "No risks match your filters.",
+    "stats": {
+      "total": "Total",
+      "identified": "Identified",
+      "assessing": "Assessing",
+      "treating": "Treating",
+      "monitoring": "Monitoring",
+      "closed": "Closed"
+    },
+    "columns": {
+      "risk": "Risk",
+      "category": "Category",
+      "inherentRisk": "Inherent Risk",
+      "residualRisk": "Residual Risk",
+      "status": "Status",
+      "treatment": "Treatment",
+      "owner": "Owner"
+    },
+    "notAssessed": "Not assessed",
+    "unassigned": "Unassigned",
+    "findings_one": "{{count}} finding",
+    "findings_other": "{{count}} findings",
+    "assignOwner": {
+      "title": "Assign Owner",
+      "unassignedOption": "— Unassigned —",
+      "save": "Save",
+      "saving": "Saving...",
+      "cancel": "Cancel"
+    }
+  },
+  "library": {
+    "title": "Risk Library",
+    "description": "Pre-built risk catalog. Add risks to your register.",
+    "searchPlaceholder": "Search risk library...",
+    "allCategories": "All categories",
+    "noResults": "No risks found",
+    "addToRegister": "Add to Register",
+    "addedToRegister": "Added",
+    "alreadyInRegister": "Already in register",
+    "addSuccess": "Risk added to register",
+    "alreadyAdded": "This risk is already in your register",
+    "addFailed": "Failed to add risk",
+    "impact": "Impact",
+    "likelihood": "Likelihood"
+  },
+  "actionTracker": {
+    "title": "Action Tracker",
+    "description": "Remediation queue driven by risk severity, due dates, and workflow automation.",
+    "stats": {
+      "openActions": "Open actions",
+      "automatedRouting": "Automated routing",
+      "dueThisWeek": "Due this week"
+    },
+    "columns": {
+      "action": "Action",
+      "owner": "Owner",
+      "priority": "Priority",
+      "workflow": "Workflow",
+      "frameworkImpact": "Framework impact",
+      "dueDate": "Due date",
+      "status": "Status"
+    },
+    "playbook": "Playbook: {{name}}",
+    "noActions": "No actions pending"
+  },
+  "snapshot": {
+    "title": "Risk Snapshot",
+    "description": "Point-in-time risk posture summary"
+  },
+  "engine": {
+    "title": "Risk Engine",
+    "description": "Automated risk detection and scoring configuration"
+  },
+  "status": {
+    "IDENTIFIED": "Identified",
+    "ASSESSING": "Assessing",
+    "TREATING": "Treating",
+    "MONITORING": "Monitoring",
+    "CLOSED": "Closed",
+    "OPEN": "Open",
+    "MITIGATED": "Mitigated",
+    "ACCEPTED": "Accepted",
+    "TRANSFERRED": "Transferred"
+  },
+  "treatment": {
+    "MITIGATE": "Mitigate",
+    "ACCEPT": "Accept",
+    "TRANSFER": "Transfer",
+    "AVOID": "Avoid"
+  },
+  "impact": {
+    "CRITICAL": "Critical",
+    "HIGH": "High",
+    "MEDIUM": "Medium",
+    "LOW": "Low"
+  }
+}
