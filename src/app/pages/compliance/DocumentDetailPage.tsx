@@ -18,10 +18,7 @@ import {
   Calendar,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import {
-  complianceDocumentService,
-  ComplianceDocumentDto,
-} from '@/services/api/compliance-documents';
+import { complianceDocumentService } from '@/services/api/compliance-documents';
 import { usersService } from '@/services/api/users';
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: typeof CheckCircle2 }> = {

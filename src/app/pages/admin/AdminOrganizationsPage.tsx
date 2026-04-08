@@ -14,8 +14,8 @@ import {
   DialogFooter,
 } from '@/app/components/ui/dialog';
 import { useHasRole } from '@/hooks/useCurrentUser';
-import { adminService, OrgListDto, OrgDetailDto } from '@/services/api/admin';
-import { Search, Plus, Building2, Users, Shield, ChevronRight, Loader2, Eye, Trash2 } from 'lucide-react';
+import { adminService, OrgDetailDto } from '@/services/api/admin';
+import { Search, Plus, Building2, Users, Shield, ChevronRight, Loader2, Trash2 } from 'lucide-react';
 import { fmtDate } from '@/lib/format-date';
 import { toast } from 'sonner';
 

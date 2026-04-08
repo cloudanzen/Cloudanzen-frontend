@@ -47,18 +47,12 @@ import {
 import {
   riskLibraryService,
   type UpdateRegisterEntryRequest,
-  type RiskMappedControl,
-  type RiskMappedFramework,
 } from '@/services/api/risk-library';
 import { scanFindingsService } from '@/services/api/scan-findings';
 import { usersService } from '@/services/api/users';
 import { controlsService } from '@/services/api/controls';
 import { frameworksService } from '@/services/api/frameworks';
-import {
-  riskLevelVariant,
-  riskStatusVariant,
-  trendLabel,
-} from '@/services/api/riskFormatting';
+import { riskStatusVariant } from '@/services/api/riskFormatting';
 import { useIsAdmin, useCurrentUser } from '@/hooks/useCurrentUser';
 import { QK } from '@/lib/queryKeys';
 import { STALE } from '@/lib/queryClient';
@@ -95,16 +89,6 @@ function scoreBgColor(score: number): string {
   if (score >= 6) return 'bg-amber-50 border-amber-200';
   if (score >= 3) return 'bg-yellow-50 border-yellow-200';
   return 'bg-green-50 border-green-200';
-}
-
-function levelBadgeColor(level: string): string {
-  switch (level) {
-    case 'CRITICAL': return 'bg-red-100 text-red-700';
-    case 'HIGH': return 'bg-orange-100 text-orange-700';
-    case 'MEDIUM': return 'bg-yellow-100 text-yellow-700';
-    case 'LOW': return 'bg-green-100 text-green-700';
-    default: return 'bg-muted text-muted-foreground';
-  }
 }
 
 function statusLabel(s: string): string {

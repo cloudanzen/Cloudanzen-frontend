@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any -- legacy: to be typed progressively */
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { PageTemplate } from '@/app/components/PageTemplate';
@@ -14,7 +13,7 @@ import {
   DialogFooter,
 } from '@/app/components/ui/dialog';
 import { useHasRole } from '@/hooks/useCurrentUser';
-import { adminService, PolicyTemplateDto, PolicyTemplateDetailDto } from '@/services/api/admin';
+import { adminService, PolicyTemplateDetailDto } from '@/services/api/admin';
 import { Search, Loader2, FileText, ChevronRight } from 'lucide-react';
 
 const CATEGORY_COLORS: Record<string, string> = {

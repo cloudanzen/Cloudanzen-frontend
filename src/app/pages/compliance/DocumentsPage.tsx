@@ -120,7 +120,7 @@ function RequiredDocumentsTab() {
     queryFn: () => complianceDocumentService.list(),
   });
 
-  const documents = data?.data ?? [];
+  const documents = useMemo(() => data?.data ?? [], [data]);
   const stats = data?.stats ?? {
     total: 0,
     pending: 0,

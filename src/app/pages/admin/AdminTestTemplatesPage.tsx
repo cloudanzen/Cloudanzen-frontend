@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any -- legacy: to be typed progressively */
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
@@ -14,7 +13,7 @@ import {
   DialogFooter,
 } from '@/app/components/ui/dialog';
 import { useHasRole } from '@/hooks/useCurrentUser';
-import { adminService, TestTemplateDto } from '@/services/api/admin';
+import { adminService } from '@/services/api/admin';
 import { Search, Loader2, FlaskConical, ChevronRight } from 'lucide-react';
 
 const CATEGORY_COLORS: Record<string, string> = {

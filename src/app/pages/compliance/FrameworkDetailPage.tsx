@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any -- legacy: to be typed progressively */
 /**
  * FrameworkDetailPage.tsx
  *
@@ -854,7 +853,7 @@ export function FrameworkDetailPage() {
 
   const fw = fwRes?.data ?? null;
   const snap = covRes?.data ?? null;
-  const allRequirements: RequirementDetailRow[] = detailRes?.data ?? [];
+  const allRequirements: RequirementDetailRow[] = useMemo(() => detailRes?.data ?? [], [detailRes]);
   const history: CoverageSnapshotDto[] = historyRes?.data ?? [];
 
   // Mutations

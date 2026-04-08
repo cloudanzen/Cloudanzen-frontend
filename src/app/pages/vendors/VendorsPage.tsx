@@ -27,11 +27,9 @@ import {
   CalendarClock,
   FileWarning,
   Plus,
-  ShieldCheck,
 } from 'lucide-react';
 import {
   CreateVendorInput,
-  VendorRecord,
   VendorStatus,
   VendorTier,
   vendorsService,

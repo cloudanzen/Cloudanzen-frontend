@@ -13,7 +13,6 @@ import { controlsService } from '@/services/api/controls';
 import { usersService } from '@/services/api/users';
 import type { TestRecord, TestStatus, TestCategory, TestType, ListTestsParams } from '@/services/api/tests';
 import type { Control } from '@/services/api/types';
-import { authService } from '@/services/api/auth';
 import { clearAuthSession } from '@/services/authStorage';
 
 import { STATUS_CONFIG, CATEGORY_OPTIONS, STATUS_OPTIONS, TYPE_OPTIONS, CATEGORY_COLOR, DEFAULT_COLUMNS } from './testsPage/config';
@@ -118,10 +117,6 @@ export function TestsPage() {
     limit: PAGE_SIZE,
   };
 
-  // Current user (for admin check)
-  const cachedUser = authService.getCachedUser();
-  const isAdmin = cachedUser?.role === 'ORG_ADMIN' || cachedUser?.role === 'SUPER_ADMIN';
-
   // ── Tests list query ──
   const { data: testsData, isLoading, isError, isFetching, refetch } = useQuery({
     queryKey: QK.tests(filterKey),
@@ -221,7 +216,7 @@ export function TestsPage() {
     },
   });
 
-  const testsRaw: TestRecord[] = (testsData ?? []) as TestRecord[];
+  const testsRaw = useMemo(() => (testsData ?? []) as TestRecord[], [testsData]);
 
   // Client-side filtering for owner, integration, and control
   const tests = useMemo(() => {

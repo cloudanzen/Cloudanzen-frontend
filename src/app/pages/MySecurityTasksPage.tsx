@@ -149,6 +149,21 @@ function Task1Policies({
   }, []);
 
   const hasPending = (status.pendingPolicyIds ?? []).length > 0;
+  const publishedPolicies = policies.filter((p) => p.status === 'PUBLISHED');
+  const pendingSet = new Set(status.pendingPolicyIds ?? []);
+
+  // If reopened due to new policies, pre-check already-accepted ones
+  useEffect(() => {
+    if (hasPending && publishedPolicies.length > 0) {
+      const alreadyAccepted = publishedPolicies
+        .filter((p) => !pendingSet.has(p.id))
+        .map((p) => p.id);
+      if (alreadyAccepted.length > 0) {
+        setChecked(new Set(alreadyAccepted));
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasPending, policies.length]);
 
   if (status.policyAccepted && !hasPending) {
     const ids: string[] = (() => {
@@ -172,22 +187,6 @@ function Task1Policies({
       </div>
     );
   }
-
-  const publishedPolicies = policies.filter((p) => p.status === 'PUBLISHED');
-  const pendingSet = new Set(status.pendingPolicyIds ?? []);
-
-  // If reopened due to new policies, pre-check already-accepted ones
-  useEffect(() => {
-    if (hasPending && publishedPolicies.length > 0) {
-      const alreadyAccepted = publishedPolicies
-        .filter((p) => !pendingSet.has(p.id))
-        .map((p) => p.id);
-      if (alreadyAccepted.length > 0) {
-        setChecked(new Set(alreadyAccepted));
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasPending, policies.length]);
 
   return (
     <div className="space-y-4">

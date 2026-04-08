@@ -163,13 +163,10 @@ function PasswordField({
 export function RegisterPage() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const [blocked, setBlocked] = useState(false);
-
   // Block registration if system is already set up
   useEffect(() => {
     setupService.getSetupStatus().then((res: any) => {
       if (res?.canSetup !== true) {
-        setBlocked(true);
         toast.error('System already set up. Contact your admin to create new organizations.');
         navigate('/login');
       }

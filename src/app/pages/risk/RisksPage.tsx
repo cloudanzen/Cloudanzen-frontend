@@ -89,7 +89,7 @@ export function RisksPage() {
     },
   });
 
-  const entries = regData?.data ?? [];
+  const entries = useMemo(() => regData?.data ?? [], [regData]);
   const stats = regData?.stats ?? { total: 0, identified: 0, assessing: 0, treating: 0, monitoring: 0, closed: 0 };
 
   const filtered = useMemo(() => {

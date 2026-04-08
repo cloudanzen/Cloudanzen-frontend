@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any -- legacy: to be typed progressively */
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { PageTemplate } from '@/app/components/PageTemplate';
@@ -27,7 +26,7 @@ import {
   RequirementDto,
   RequirementMappingsDto,
 } from '@/services/api/admin';
-import { Search, Loader2, Plus, X, Trash2 } from 'lucide-react';
+import { Search, Loader2, Plus, X } from 'lucide-react';
 
 // ── Color maps ────────────────────────────────────────────────────────────────
 

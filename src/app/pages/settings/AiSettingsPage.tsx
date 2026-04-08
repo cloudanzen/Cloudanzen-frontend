@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Key, Loader2, Trash2, CheckCircle, XCircle, Sparkles } from 'lucide-react';
-import { aiService, type AiConfig } from '@/services/api/ai';
+import { aiService } from '@/services/api/ai';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
