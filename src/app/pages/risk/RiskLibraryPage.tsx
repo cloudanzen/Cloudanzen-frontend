@@ -66,7 +66,7 @@ export function RiskLibraryPage() {
     },
   });
 
-  const items = libData?.data ?? [];
+  const items = useMemo(() => libData?.data ?? [], [libData]);
   const categories = libData?.categories ?? [];
   const registeredIds = new Set(
     (regData?.data ?? []).filter((r) => r.libraryItemId).map((r) => r.libraryItemId),

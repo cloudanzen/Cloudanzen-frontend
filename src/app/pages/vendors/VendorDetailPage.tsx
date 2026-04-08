@@ -347,7 +347,7 @@ export function VendorDetailPage() {
 
   useEffect(() => {
     if (vendor) setNotes(vendor.notes ?? '');
-  }, [vendor?.notes]);
+  }, [vendor]);
 
   async function handleUpdate(patch: Partial<VendorRecord>) {
     if (!vendor) return;

@@ -23,13 +23,11 @@ import {
   RotateCcw,
   ShieldCheck,
   ShieldAlert,
-  ShieldOff,
 } from 'lucide-react';
 import {
   auditsService,
   AuditControlRecord,
   AuditControlStatus,
-  AuditEvidenceStatus,
   AuditEvidenceReview,
   ControlEvidenceItem,
   ControlPolicyItem,

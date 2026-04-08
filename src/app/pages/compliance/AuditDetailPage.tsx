@@ -20,7 +20,6 @@ import {
   ClipboardList,
   FileText,
   AlertCircle,
-  CheckCircle2,
   Clock,
   Building2,
 } from 'lucide-react';
@@ -492,7 +491,6 @@ function CommentsTab({ auditId, controls }: { auditId: string; controls: AuditCo
   const me = useCurrentUser();
   const canAudit = useCanAudit();
   const confirm = useConfirmDialog();
-  const queryClient = useQueryClient();
   const [selectedControlId, setSelectedControlId] = useState<string>('');
   const [text, setText] = useState('');
   const [posting, setPosting] = useState(false);

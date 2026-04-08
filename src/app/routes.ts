@@ -1,5 +1,5 @@
 import { createBrowserRouter, redirect } from 'react-router';
-import { createElement, lazy, Suspense } from 'react';
+import { lazy, Suspense } from 'react';
 import { Layout } from '@/app/components/Layout';
 import { SettingsLayout } from '@/app/components/settings/SettingsLayout';
 import { requireAuth } from '@/app/authGuard';

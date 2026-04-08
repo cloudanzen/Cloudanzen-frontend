@@ -294,7 +294,7 @@ export const auditsService = {
 
   listComments(auditId: string, controlId?: string) {
     const params = controlId ? { controlId } : undefined;
-    return apiClient.get<{ success: boolean; data: AuditComment[] }>(`/api/audits/${auditId}/comments`, params as any);
+    return apiClient.get<{ success: boolean; data: AuditComment[] }>(`/api/audits/${auditId}/comments`, params);
   },
 
   postComment(auditId: string, payload: { text: string; controlId?: string | null }) {

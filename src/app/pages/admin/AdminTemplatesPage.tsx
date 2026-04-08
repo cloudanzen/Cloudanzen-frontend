@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any -- legacy: to be typed progressively */
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { PageTemplate } from '@/app/components/PageTemplate';
-import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
+import { Card, CardContent } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
 import { Badge } from '@/app/components/ui/badge';
 import { Input } from '@/app/components/ui/input';
@@ -14,8 +13,8 @@ import {
   DialogFooter,
 } from '@/app/components/ui/dialog';
 import { useHasRole } from '@/hooks/useCurrentUser';
-import { adminService, ControlTemplateDto, ControlTemplateDetailDto } from '@/services/api/admin';
-import { Search, Plus, Pencil, Trash2, ChevronRight, Loader2, X } from 'lucide-react';
+import { adminService, ControlTemplateDetailDto } from '@/services/api/admin';
+import { Search, Plus, Trash2, ChevronRight, Loader2 } from 'lucide-react';
 
 const DOMAIN_COLORS: Record<string, string> = {
   'Access Control': 'bg-blue-100 text-blue-800',
