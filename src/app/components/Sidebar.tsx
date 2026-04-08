@@ -23,7 +23,8 @@ import {
   Sparkles,
   Crown,
 } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/app/components/ui/utils';
 import { authService } from '@/services/api/auth';
 import { useSidebar } from '@/app/components/Layout';
@@ -36,160 +37,23 @@ type AppRole =
   | 'CONTRIBUTOR'
   | 'VIEWER';
 
+interface NavChild {
+  id: string;
+  title: string;
+  href: string;
+  roles?: AppRole[];
+}
+
 interface NavItem {
+  id: string;
   title: string;
   href?: string;
   icon: any;
   roles?: AppRole[];
-  children?: {
-    title: string;
-    href: string;
-    roles?: AppRole[];
-  }[];
+  children?: NavChild[];
 }
 
 const ADMIN_ROLES: AppRole[] = ['SUPER_ADMIN', 'ORG_ADMIN', 'SECURITY_OWNER'];
-
-const navigation: NavItem[] = [
-  { title: 'Home', href: '/', icon: Home },
-  { title: 'My Tasks', href: '/my-tasks', icon: Briefcase },
-  { title: 'Tests', href: '/tests', icon: FileCheck },
-  { title: 'Reports', href: '/reports', icon: BarChart3 },
-
-  // Auditor-only shortcut
-  {
-    title: 'My Audit',
-    href: '/auditor/dashboard',
-    icon: ClipboardCheck,
-    roles: ['AUDITOR'],
-  },
-
-  {
-    title: 'Compliance',
-    icon: Shield,
-    children: [
-      { title: 'Frameworks', href: '/compliance/frameworks' },
-      { title: 'Controls', href: '/compliance/controls' },
-      { title: 'Policies', href: '/compliance/policies' },
-      { title: 'Documents', href: '/compliance/documents' },
-      { title: 'Audits', href: '/compliance/audits' },
-      { title: 'Findings', href: '/compliance/findings' },
-      {
-        title: 'Settings',
-        href: '/settings/compliance',
-        roles: [...ADMIN_ROLES],
-      },
-    ],
-  },
-  {
-    title: 'Customer Trust',
-    icon: Users,
-    children: [
-      { title: 'Trust Center', href: '/customer-trust/trust-center' },
-      {
-        title: 'Settings',
-        href: '/settings/customer-trust',
-        roles: [...ADMIN_ROLES],
-      },
-    ],
-  },
-  {
-    title: 'Risk',
-    icon: TrendingUp,
-    children: [
-      { title: 'Overview', href: '/risk/overview' },
-      { title: 'Risks', href: '/risk/risks' },
-      { title: 'Risk Library', href: '/risk/library' },
-      { title: 'Action Tracker', href: '/risk/action-tracker' },
-      { title: 'Snapshot', href: '/risk/snapshot' },
-      { title: 'Risk Engine', href: '/risk/engine', roles: [...ADMIN_ROLES] },
-      { title: 'Settings', href: '/settings/risk', roles: [...ADMIN_ROLES] },
-    ],
-  },
-  { title: 'Vendors', href: '/vendors', icon: Building2 },
-  {
-    title: 'Assets',
-    icon: Server,
-    children: [
-      { title: 'Inventory', href: '/assets/inventory' },
-      { title: 'Code changes', href: '/assets/code-changes' },
-      { title: 'Vulnerabilities', href: '/assets/vulnerabilities' },
-      { title: 'Security alerts', href: '/assets/security-alerts' },
-      { title: 'Settings', href: '/settings/assets', roles: [...ADMIN_ROLES] },
-    ],
-  },
-  {
-    title: 'Personnel',
-    icon: UserCheck,
-    children: [
-      { title: 'Computers', href: '/personnel/computers' },
-      { title: 'Access Management', href: '/personnel/access' },
-      {
-        title: 'Settings',
-        href: '/settings/personnel',
-        roles: [...ADMIN_ROLES],
-      },
-    ],
-  },
-  {
-    title: 'Access',
-    icon: KeyRound,
-    children: [
-      {
-        title: 'Users',
-        href: '/settings/access/users',
-        roles: [...ADMIN_ROLES],
-      },
-      {
-        title: 'Roles',
-        href: '/settings/access/roles',
-        roles: [...ADMIN_ROLES],
-      },
-      { title: 'Access Requests', href: '/settings/access/requests' },
-    ],
-  },
-  {
-    title: 'Notifications',
-    href: '/notifications',
-    icon: Bell,
-  },
-  {
-    title: 'Integrations',
-    icon: Settings,
-    children: [
-      { title: 'Connected Apps', href: '/integrations' },
-      {
-        title: 'Partner API',
-        href: '/integrations/partner-api',
-        roles: ['SUPER_ADMIN'],
-      },
-    ],
-  },
-  { title: 'My Security Tasks', href: '/my-security-tasks', icon: CheckSquare },
-  {
-    title: 'AI Assistant',
-    icon: Sparkles,
-    roles: [...ADMIN_ROLES],
-    children: [
-      { title: 'AI Chat', href: '/ai/chat' },
-      { title: 'Questionnaire AI', href: '/ai/questionnaire-assistant' },
-      { title: 'Knowledge Base', href: '/ai/knowledge-base' },
-      { title: 'AI Settings', href: '/settings/ai', roles: [...ADMIN_ROLES] },
-    ],
-  },
-  {
-    title: 'Platform Admin',
-    icon: Crown,
-    roles: ['SUPER_ADMIN'],
-    children: [
-      { title: 'Control Templates', href: '/admin/templates', roles: ['SUPER_ADMIN'] },
-      { title: 'Test Templates', href: '/admin/test-templates', roles: ['SUPER_ADMIN'] },
-      { title: 'Policy Templates', href: '/admin/policy-templates', roles: ['SUPER_ADMIN'] },
-      { title: 'Frameworks', href: '/admin/frameworks', roles: ['SUPER_ADMIN'] },
-      { title: 'Organizations', href: '/admin/organizations', roles: ['SUPER_ADMIN'] },
-    ],
-  },
-];
 
 function getInitials(name?: string | null, email?: string): string {
   if (name && name.trim()) {
@@ -213,7 +77,7 @@ function formatRole(role?: string): string {
 
 interface FlyoutProps {
   item: NavItem;
-  visibleChildren: { title: string; href: string }[];
+  visibleChildren: NavChild[];
   isActive: (href: string) => boolean;
   closeSidebar: () => void;
 }
@@ -310,6 +174,7 @@ function CollapsedFlyoutItem({
 // ── Main Sidebar ───────────────────────────────────────────────────────────────
 
 export function Sidebar({ collapsed = false }: { collapsed?: boolean }) {
+  const { t } = useTranslation('common');
   const location = useLocation();
   const { close: closeSidebar } = useSidebar();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
@@ -326,6 +191,126 @@ export function Sidebar({ collapsed = false }: { collapsed?: boolean }) {
     return () => mq.removeEventListener('change', onChange);
   }, []);
 
+  const navigation = useMemo<NavItem[]>(() => [
+    { id: 'home', title: t('nav.home'), href: '/', icon: Home },
+    { id: 'myTasks', title: t('nav.myTasks'), href: '/my-tasks', icon: Briefcase },
+    { id: 'tests', title: t('nav.tests'), href: '/tests', icon: FileCheck },
+    { id: 'reports', title: t('nav.reports'), href: '/reports', icon: BarChart3 },
+    {
+      id: 'myAudit',
+      title: t('nav.myAudit'),
+      href: '/auditor/dashboard',
+      icon: ClipboardCheck,
+      roles: ['AUDITOR'],
+    },
+    {
+      id: 'compliance',
+      title: t('nav.compliance'),
+      icon: Shield,
+      children: [
+        { id: 'frameworks', title: t('nav.frameworks'), href: '/compliance/frameworks' },
+        { id: 'controls', title: t('nav.controls'), href: '/compliance/controls' },
+        { id: 'policies', title: t('nav.policies'), href: '/compliance/policies' },
+        { id: 'documents', title: t('nav.documents'), href: '/compliance/documents' },
+        { id: 'audits', title: t('nav.audits'), href: '/compliance/audits' },
+        { id: 'findings', title: t('nav.findings'), href: '/compliance/findings' },
+        { id: 'compliance-settings', title: t('nav.settings'), href: '/settings/compliance', roles: [...ADMIN_ROLES] },
+      ],
+    },
+    {
+      id: 'customerTrust',
+      title: t('nav.customerTrust'),
+      icon: Users,
+      children: [
+        { id: 'trustCenter', title: t('nav.trustCenter'), href: '/customer-trust/trust-center' },
+        { id: 'customerTrust-settings', title: t('nav.settings'), href: '/settings/customer-trust', roles: [...ADMIN_ROLES] },
+      ],
+    },
+    {
+      id: 'risk',
+      title: t('nav.risk'),
+      icon: TrendingUp,
+      children: [
+        { id: 'risk-overview', title: t('nav.overview'), href: '/risk/overview' },
+        { id: 'risks', title: t('nav.risks'), href: '/risk/risks' },
+        { id: 'riskLibrary', title: t('nav.riskLibrary'), href: '/risk/library' },
+        { id: 'actionTracker', title: t('nav.actionTracker'), href: '/risk/action-tracker' },
+        { id: 'snapshot', title: t('nav.snapshot'), href: '/risk/snapshot' },
+        { id: 'riskEngine', title: t('nav.riskEngine'), href: '/risk/engine', roles: [...ADMIN_ROLES] },
+        { id: 'risk-settings', title: t('nav.settings'), href: '/settings/risk', roles: [...ADMIN_ROLES] },
+      ],
+    },
+    { id: 'vendors', title: t('nav.vendors'), href: '/vendors', icon: Building2 },
+    {
+      id: 'assets',
+      title: t('nav.assets'),
+      icon: Server,
+      children: [
+        { id: 'inventory', title: t('nav.inventory'), href: '/assets/inventory' },
+        { id: 'codeChanges', title: t('nav.codeChanges'), href: '/assets/code-changes' },
+        { id: 'vulnerabilities', title: t('nav.vulnerabilities'), href: '/assets/vulnerabilities' },
+        { id: 'securityAlerts', title: t('nav.securityAlerts'), href: '/assets/security-alerts' },
+        { id: 'assets-settings', title: t('nav.settings'), href: '/settings/assets', roles: [...ADMIN_ROLES] },
+      ],
+    },
+    {
+      id: 'personnel',
+      title: t('nav.personnel'),
+      icon: UserCheck,
+      children: [
+        { id: 'computers', title: t('nav.computers'), href: '/personnel/computers' },
+        { id: 'accessManagement', title: t('nav.accessManagement'), href: '/personnel/access' },
+        { id: 'personnel-settings', title: t('nav.settings'), href: '/settings/personnel', roles: [...ADMIN_ROLES] },
+      ],
+    },
+    {
+      id: 'access',
+      title: t('nav.access'),
+      icon: KeyRound,
+      children: [
+        { id: 'access-users', title: t('nav.users'), href: '/settings/access/users', roles: [...ADMIN_ROLES] },
+        { id: 'access-roles', title: t('nav.roles'), href: '/settings/access/roles', roles: [...ADMIN_ROLES] },
+        { id: 'accessRequests', title: t('nav.accessRequests'), href: '/settings/access/requests' },
+      ],
+    },
+    { id: 'notifications', title: t('nav.notifications'), href: '/notifications', icon: Bell },
+    {
+      id: 'integrations',
+      title: t('nav.integrations'),
+      icon: Settings,
+      children: [
+        { id: 'connectedApps', title: t('nav.connectedApps'), href: '/integrations' },
+        { id: 'partnerApi', title: t('nav.partnerApi'), href: '/integrations/partner-api', roles: ['SUPER_ADMIN'] },
+      ],
+    },
+    { id: 'mySecurityTasks', title: t('nav.mySecurityTasks'), href: '/my-security-tasks', icon: CheckSquare },
+    {
+      id: 'aiAssistant',
+      title: t('nav.aiAssistant'),
+      icon: Sparkles,
+      roles: [...ADMIN_ROLES],
+      children: [
+        { id: 'aiChat', title: t('nav.aiChat'), href: '/ai/chat' },
+        { id: 'questionnaireAi', title: t('nav.questionnaireAi'), href: '/ai/questionnaire-assistant' },
+        { id: 'knowledgeBase', title: t('nav.knowledgeBase'), href: '/ai/knowledge-base' },
+        { id: 'aiSettings', title: t('nav.aiSettings'), href: '/settings/ai', roles: [...ADMIN_ROLES] },
+      ],
+    },
+    {
+      id: 'platformAdmin',
+      title: t('nav.platformAdmin'),
+      icon: Crown,
+      roles: ['SUPER_ADMIN'],
+      children: [
+        { id: 'controlTemplates', title: t('nav.controlTemplates'), href: '/admin/templates', roles: ['SUPER_ADMIN'] },
+        { id: 'testTemplates', title: t('nav.testTemplates'), href: '/admin/test-templates', roles: ['SUPER_ADMIN'] },
+        { id: 'policyTemplates', title: t('nav.policyTemplates'), href: '/admin/policy-templates', roles: ['SUPER_ADMIN'] },
+        { id: 'admin-frameworks', title: t('nav.frameworks'), href: '/admin/frameworks', roles: ['SUPER_ADMIN'] },
+        { id: 'organizations', title: t('nav.organizations'), href: '/admin/organizations', roles: ['SUPER_ADMIN'] },
+      ],
+    },
+  ], [t]);
+
   const isCompact = collapsed && isDesktop;
 
   const user = authService.getCachedUser();
@@ -339,16 +324,16 @@ export function Sidebar({ collapsed = false }: { collapsed?: boolean }) {
     return roles.includes(userRole);
   };
 
-  const toggleExpanded = (title: string) => {
+  const toggleExpanded = (id: string) => {
     setExpandedItems((prev) =>
-      prev.includes(title)
-        ? prev.filter((item) => item !== title)
-        : [...prev, title],
+      prev.includes(id)
+        ? prev.filter((item) => item !== id)
+        : [...prev, id],
     );
   };
 
   const isActive = (href: string) => location.pathname === href;
-  const isParentActive = (children: { href: string }[]) =>
+  const isParentActive = (children: NavChild[]) =>
     children.some((child) => location.pathname === child.href);
 
   return (
@@ -367,7 +352,7 @@ export function Sidebar({ collapsed = false }: { collapsed?: boolean }) {
             'flex items-center gap-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400',
             collapsed && 'lg:justify-center lg:w-full',
           )}
-          aria-label="Go to home"
+          aria-label={t('sidebar.goToHome')}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -390,7 +375,7 @@ export function Sidebar({ collapsed = false }: { collapsed?: boolean }) {
         <button
           onClick={closeSidebar}
           className="lg:hidden p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-slate-700 transition-colors"
-          aria-label="Close menu"
+          aria-label={t('sidebar.closeMenu')}
         >
           <X className="w-5 h-5" />
         </button>
@@ -403,7 +388,7 @@ export function Sidebar({ collapsed = false }: { collapsed?: boolean }) {
 
           const Icon = item.icon;
           const hasChildren = item.children && item.children.length > 0;
-          const isExpanded = expandedItems.includes(item.title);
+          const isExpanded = expandedItems.includes(item.id);
 
           const visibleChildren = hasChildren
             ? item.children!.filter((c) => canSee(c.roles))
@@ -418,7 +403,7 @@ export function Sidebar({ collapsed = false }: { collapsed?: boolean }) {
           if (hasChildren && isCompact) {
             return (
               <CollapsedFlyoutItem
-                key={item.title}
+                key={item.id}
                 item={item}
                 visibleChildren={visibleChildren}
                 isActive={isActive}
@@ -430,9 +415,9 @@ export function Sidebar({ collapsed = false }: { collapsed?: boolean }) {
           // ── Expanded + has children → inline accordion ───────────────────
           if (hasChildren) {
             return (
-              <div key={item.title}>
+              <div key={item.id}>
                 <button
-                  onClick={() => toggleExpanded(item.title)}
+                  onClick={() => toggleExpanded(item.id)}
                   className={cn(
                     'w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors',
                     parentActive
@@ -484,7 +469,7 @@ export function Sidebar({ collapsed = false }: { collapsed?: boolean }) {
           // ── Leaf item (no children) ───────────────────────────────────────
           return (
             <Link
-              key={item.title}
+              key={item.id}
               to={item.href!}
               onClick={closeSidebar}
               title={item.title}
