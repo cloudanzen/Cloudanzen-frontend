@@ -83,6 +83,16 @@ export class AuthService {
   clearCachedUser(): void {
     clearStoredUser();
   }
+
+  // Update preferred language on the backend and refresh cached user
+  async updateLocale(locale: 'en' | 'ja'): Promise<void> {
+    await apiClient.patch('/api/auth/locale', { locale });
+    // Update the cached user so the preference persists across page reloads
+    const cached = this.getCachedUser();
+    if (cached) {
+      this.cacheUser({ ...cached, preferredLocale: locale });
+    }
+  }
 }
 
 export const authService = new AuthService();

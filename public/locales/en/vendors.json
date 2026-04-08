@@ -1,0 +1,54 @@
+{
+  "title": "Vendors",
+  "description": "Third-party vendor management and risk assessment",
+  "addVendor": "Add Vendor",
+  "searchPlaceholder": "Search vendors...",
+  "noVendors": "No vendors yet",
+  "noVendorsDesc": "Add your first vendor to start managing third-party risk",
+  "noResults": "No vendors found",
+  "status": {
+    "ACTIVE": "Active",
+    "IN_REVIEW": "In Review",
+    "ASSESSMENT_DUE": "Assessment Due",
+    "BLOCKED": "Blocked",
+    "INACTIVE": "Inactive",
+    "OFFBOARDED": "Offboarded"
+  },
+  "riskLevel": {
+    "LOW": "Low",
+    "MEDIUM": "Medium",
+    "HIGH": "High",
+    "CRITICAL": "Critical"
+  },
+  "columns": {
+    "name": "Vendor",
+    "category": "Category",
+    "riskLevel": "Risk Level",
+    "status": "Status",
+    "lastAssessed": "Last Assessed",
+    "nextAssessment": "Next Assessment"
+  },
+  "detail": {
+    "overview": "Overview",
+    "assessments": "Assessments",
+    "documents": "Documents",
+    "contacts": "Contacts",
+    "editVendor": "Edit Vendor",
+    "deleteVendor": "Delete Vendor",
+    "startAssessment": "Start Assessment",
+    "website": "Website",
+    "category": "Category",
+    "description": "Description",
+    "riskLevel": "Risk Level",
+    "status": "Status"
+  },
+  "form": {
+    "nameLabel": "Vendor Name",
+    "namePlaceholder": "Enter vendor name",
+    "categoryLabel": "Category",
+    "descriptionLabel": "Description",
+    "websiteLabel": "Website",
+    "riskLevelLabel": "Risk Level",
+    "statusLabel": "Status"
+  }
+}

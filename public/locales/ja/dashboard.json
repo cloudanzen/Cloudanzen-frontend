@@ -1,0 +1,58 @@
+{
+  "title": "ダッシュボード",
+  "description": "おかえりなさい！セキュリティ態勢の概要です。",
+  "quickActions": "クイックアクション",
+  "newPolicy": "新規ポリシー",
+  "runTest": "テストを実行",
+  "reportRisk": "リスクを報告",
+  "addVendor": "ベンダーを追加",
+  "stats": {
+    "activeControls": "有効な管理策",
+    "openRisks": "未対応リスク",
+    "vendorsNeedAttention": "要対応ベンダー",
+    "pendingTasks": "保留中のタスク"
+  },
+  "progressOverview": "進捗状況",
+  "frameworkReadiness": "フレームワーク対応状況",
+  "noActiveFrameworks": "有効なフレームワークなし",
+  "noActiveFrameworksDesc": "コンプライアンスフレームワークを有効化して、対応状況と適用範囲のトラッキングを開始してください",
+  "browseFrameworks": "フレームワークを参照",
+  "loadingFrameworks": "フレームワークを読み込み中…",
+  "tests": {
+    "title": "テスト",
+    "noTests": "テストなし",
+    "done": "完了",
+    "overdue": "期限超過",
+    "dueSoon": "期限近い",
+    "total": "合計{{count}}件"
+  },
+  "risks": {
+    "title": "リスク",
+    "noRisks": "リスクなし",
+    "critical": "クリティカル",
+    "high": "高",
+    "medium": "中",
+    "low": "低",
+    "openMitigated": "{{open}}件未対応・{{mitigated}}件軽減済み"
+  },
+  "policies": {
+    "title": "ポリシー",
+    "noPolicies": "ポリシーなし",
+    "published": "公開済み",
+    "draft": "ドラフト",
+    "review": "審査中",
+    "total": "合計{{count}}件"
+  },
+  "documents": {
+    "title": "ドキュメント",
+    "noDocuments": "ドキュメントなし",
+    "current": "最新",
+    "pending": "保留中",
+    "review": "審査中",
+    "total": "合計{{count}}件"
+  },
+  "framework": {
+    "openGaps": "{{count}}件のギャップ",
+    "covered": "{{covered}}/{{applicable}}件適用済み"
+  }
+}

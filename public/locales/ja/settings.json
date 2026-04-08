@@ -1,0 +1,86 @@
+{
+  "profile": {
+    "title": "プロフィール設定",
+    "description": "個人アカウント設定を管理する",
+    "nameLabel": "表示名",
+    "emailLabel": "メールアドレス",
+    "saveButton": "変更を保存",
+    "saving": "保存中...",
+    "saved": "変更が保存されました",
+    "changePassword": "パスワードを変更",
+    "currentPasswordLabel": "現在のパスワード",
+    "newPasswordLabel": "新しいパスワード",
+    "confirmPasswordLabel": "新しいパスワードの確認",
+    "updatePassword": "パスワードを更新"
+  },
+  "organization": {
+    "title": "組織設定",
+    "description": "組織の設定を管理する",
+    "nameLabel": "組織名",
+    "save": "保存"
+  },
+  "security": {
+    "title": "セキュリティ設定",
+    "description": "認証とセキュリティの設定を管理する",
+    "mfa": {
+      "title": "二要素認証",
+      "description": "アカウントにセキュリティの追加レイヤーを追加する",
+      "enable": "2FAを有効化",
+      "disable": "2FAを無効化",
+      "enabled": "有効",
+      "disabled": "無効"
+    },
+    "sessions": {
+      "title": "アクティブセッション",
+      "revokeAll": "すべてのセッションを失効"
+    }
+  },
+  "compliance": {
+    "title": "コンプライアンス設定",
+    "description": "コンプライアンスおよび監査設定を構成する"
+  },
+  "risk": {
+    "title": "リスク設定",
+    "description": "リスクスコアリングとしきい値を設定する"
+  },
+  "ai": {
+    "title": "AI設定",
+    "description": "AIアシスタントの設定を構成する"
+  },
+  "billing": {
+    "title": "請求",
+    "description": "サブスクリプションと請求情報を管理する",
+    "currentPlan": "現在のプラン",
+    "upgrade": "アップグレード",
+    "cancelSubscription": "サブスクリプションをキャンセル"
+  },
+  "notifications": {
+    "title": "通知設定",
+    "description": "通知の受け取り方法とタイミングを管理する",
+    "email": "メール通知",
+    "slack": "Slack通知",
+    "save": "設定を保存"
+  },
+  "access": {
+    "users": {
+      "title": "ユーザー",
+      "description": "ユーザーとそのロールを管理する",
+      "inviteUser": "ユーザーを招待",
+      "email": "メールアドレス",
+      "role": "ロール",
+      "status": "ステータス",
+      "actions": "操作",
+      "removeUser": "ユーザーを削除"
+    },
+    "roles": {
+      "title": "ロール",
+      "description": "ロールの権限を管理する"
+    },
+    "requests": {
+      "title": "アクセス申請",
+      "description": "アクセス申請を確認および管理する",
+      "approve": "承認",
+      "deny": "拒否"
+    }
+  }
+}

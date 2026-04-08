@@ -71,6 +71,7 @@ export interface User {
   name?: string;
   role: Role;
   organizationId: string;
+  preferredLocale?: string;
   createdAt: string;
   organization?: Organization;
 }

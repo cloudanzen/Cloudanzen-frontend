@@ -1,0 +1,42 @@
+{
+  "chat": {
+    "title": "AIチャット",
+    "description": "コンプライアンス、リスク、セキュリティワークフローについて質問する",
+    "placeholder": "質問を入力...",
+    "send": "送信",
+    "welcome": "こんにちは！CloudAnzen AIアシスタントです。プラットフォームのナビゲーション、コンプライアンスの概念の説明、フレームワークの設定、リスク管理、監査準備などのワークフローのご案内をサポートします。何かお手伝いできることはありますか？",
+    "suggestions": {
+      "awsIntegration": "AWSインテグレーションを接続するには？",
+      "frameworks": "どのコンプライアンスフレームワークをサポートしていますか？",
+      "monitoring": "継続的監視はどのように機能しますか？",
+      "soc2Audit": "SOC 2監査の準備をするには？",
+      "vendorRisk": "ベンダーリスク評価を管理するには？",
+      "riskTreatment": "リスク対処計画を作成するには？",
+      "policyApproval": "ポリシー承認ワークフローを設定するには？",
+      "trustCenter": "トラストセンターを使用するには？"
+    },
+    "errorReply": "現在処理できませんでした。再度お試しいただくか、サポートにお問い合わせください。",
+    "thinking": "考え中..."
+  },
+  "questionnaire": {
+    "title": "アンケートAI",
+    "description": "AIを活用したセキュリティアンケートの回答支援",
+    "newQuestionnaire": "新規アンケート",
+    "searchPlaceholder": "アンケートを検索...",
+    "noQuestionnaires": "アンケートなし",
+    "upload": "アンケートをアップロード",
+    "autoFill": "AIで自動入力",
+    "status": {
+      "PENDING": "保留中",
+      "IN_PROGRESS": "進行中",
+      "COMPLETED": "完了"
+    }
+  },
+  "documents": {
+    "title": "ナレッジベース",
+    "description": "インテリジェント検索とQ&A向けにAIがインデックス化したドキュメント",
+    "uploadDocument": "ドキュメントをアップロード",
+    "searchPlaceholder": "ナレッジベースを検索...",
+    "noDocuments": "ナレッジベースにドキュメントなし"
+  }
+}

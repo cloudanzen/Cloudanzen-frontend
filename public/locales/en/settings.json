@@ -1,0 +1,86 @@
+{
+  "profile": {
+    "title": "Profile Settings",
+    "description": "Manage your personal account settings",
+    "nameLabel": "Display Name",
+    "emailLabel": "Email Address",
+    "saveButton": "Save Changes",
+    "saving": "Saving...",
+    "saved": "Changes saved",
+    "changePassword": "Change Password",
+    "currentPasswordLabel": "Current Password",
+    "newPasswordLabel": "New Password",
+    "confirmPasswordLabel": "Confirm New Password",
+    "updatePassword": "Update Password"
+  },
+  "organization": {
+    "title": "Organization Settings",
+    "description": "Manage your organization configuration",
+    "nameLabel": "Organization Name",
+    "save": "Save"
+  },
+  "security": {
+    "title": "Security Settings",
+    "description": "Manage authentication and security preferences",
+    "mfa": {
+      "title": "Two-Factor Authentication",
+      "description": "Add an extra layer of security to your account",
+      "enable": "Enable 2FA",
+      "disable": "Disable 2FA",
+      "enabled": "Enabled",
+      "disabled": "Disabled"
+    },
+    "sessions": {
+      "title": "Active Sessions",
+      "revokeAll": "Revoke All Sessions"
+    }
+  },
+  "compliance": {
+    "title": "Compliance Settings",
+    "description": "Configure compliance and audit preferences"
+  },
+  "risk": {
+    "title": "Risk Settings",
+    "description": "Configure risk scoring and thresholds"
+  },
+  "ai": {
+    "title": "AI Settings",
+    "description": "Configure AI assistant preferences"
+  },
+  "billing": {
+    "title": "Billing",
+    "description": "Manage your subscription and billing information",
+    "currentPlan": "Current Plan",
+    "upgrade": "Upgrade",
+    "cancelSubscription": "Cancel Subscription"
+  },
+  "notifications": {
+    "title": "Notification Settings",
+    "description": "Manage how and when you receive notifications",
+    "email": "Email Notifications",
+    "slack": "Slack Notifications",
+    "save": "Save Preferences"
+  },
+  "access": {
+    "users": {
+      "title": "Users",
+      "description": "Manage users and their roles",
+      "inviteUser": "Invite User",
+      "email": "Email",
+      "role": "Role",
+      "status": "Status",
+      "actions": "Actions",
+      "removeUser": "Remove User"
+    },
+    "roles": {
+      "title": "Roles",
+      "description": "Manage role permissions"
+    },
+    "requests": {
+      "title": "Access Requests",
+      "description": "Review and manage access requests",
+      "approve": "Approve",
+      "deny": "Deny"
+    }
+  }
+}

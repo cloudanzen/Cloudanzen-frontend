@@ -1,0 +1,174 @@
+{
+  "policies": {
+    "title": "Policies",
+    "description": "Security policy management and lifecycle tracking",
+    "newPolicy": "New Policy",
+    "useTemplate": "Use Template",
+    "searchPlaceholder": "Search policies...",
+    "showing": "Showing {{count}} of {{total}} policies",
+    "noResults": "No policies found",
+    "noPolicies": "No policies yet",
+    "noPoliciesDesc": "Create your first policy or use a template to get started",
+    "stats": {
+      "total": "Total Policies",
+      "published": "Published",
+      "draft": "Draft",
+      "review": "Under Review"
+    },
+    "status": {
+      "PUBLISHED": "Published",
+      "DRAFT": "Draft",
+      "REVIEW": "Under Review",
+      "ARCHIVED": "Archived",
+      "EXPIRED": "Expired"
+    },
+    "columns": {
+      "name": "Policy Name",
+      "status": "Status",
+      "version": "Version",
+      "owner": "Owner",
+      "approvedAt": "Approved",
+      "updatedAt": "Updated"
+    }
+  },
+  "templates": {
+    "title": "Policy Templates",
+    "subtitle": "Start with a pre-built template",
+    "searchPlaceholder": "Search templates...",
+    "noResults": "No templates found",
+    "useTemplate": "Use Template",
+    "categories": {
+      "all": "All",
+      "governance": "Governance",
+      "accessControl": "Access Control",
+      "assetManagement": "Asset Management",
+      "operations": "Operations",
+      "businessContinuity": "Business Continuity",
+      "humanResources": "Human Resources",
+      "cryptography": "Cryptography",
+      "communications": "Communications",
+      "incidentResponse": "Incident Response",
+      "physicalSecurity": "Physical Security",
+      "softwareDevelopment": "Software Development",
+      "supplierRelations": "Supplier Relations",
+      "compliance": "Compliance"
+    }
+  },
+  "createPolicy": {
+    "title": "Create Policy",
+    "nameLabel": "Policy Name",
+    "namePlaceholder": "Enter policy name",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Enter policy description",
+    "statusLabel": "Status",
+    "versionLabel": "Version",
+    "versionPlaceholder": "e.g. 1.0",
+    "submitButton": "Create Policy",
+    "cancelButton": "Cancel"
+  },
+  "policyDetail": {
+    "editPolicy": "Edit Policy",
+    "deletePolicy": "Delete Policy",
+    "downloadPdf": "Download PDF",
+    "downloadDocx": "Download DOCX",
+    "approve": "Approve",
+    "approvedBy": "Approved by",
+    "approvedAt": "Approved at",
+    "version": "Version",
+    "owner": "Owner",
+    "lastUpdated": "Last updated",
+    "noDescription": "No description provided"
+  },
+  "controls": {
+    "title": "Controls",
+    "description": "Security controls implementation and compliance tracking",
+    "searchPlaceholder": "Search controls...",
+    "filterByFramework": "Filter by framework",
+    "showing": "Showing {{count}} of {{total}} controls",
+    "noResults": "No controls found",
+    "addControl": "Add Control",
+    "status": {
+      "IMPLEMENTED": "Implemented",
+      "PARTIALLY_IMPLEMENTED": "Partial",
+      "NOT_IMPLEMENTED": "Not Implemented"
+    },
+    "columns": {
+      "reference": "Reference",
+      "title": "Title",
+      "status": "Status",
+      "framework": "Framework",
+      "evidence": "Evidence",
+      "updatedAt": "Updated"
+    }
+  },
+  "frameworks": {
+    "title": "Frameworks",
+    "description": "Compliance framework management and readiness tracking",
+    "availableFrameworks": "Available Frameworks",
+    "activeFrameworks": "Active Frameworks",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "viewControls": "View Controls",
+    "readiness": "Readiness",
+    "coverage": "Coverage",
+    "controls": "Controls",
+    "gaps": "Gaps",
+    "noFrameworks": "No frameworks activated",
+    "noFrameworksDesc": "Activate a compliance framework to start tracking your readiness"
+  },
+  "documents": {
+    "title": "Documents",
+    "description": "Compliance documents and evidence management",
+    "uploadDocument": "Upload Document",
+    "searchPlaceholder": "Search documents...",
+    "noDocuments": "No documents found",
+    "status": {
+      "CURRENT": "Current",
+      "PENDING_REVIEW": "Pending Review",
+      "NEEDS_REVIEW": "Needs Review",
+      "EXPIRED": "Expired"
+    },
+    "columns": {
+      "name": "Name",
+      "type": "Type",
+      "status": "Status",
+      "uploadedAt": "Uploaded",
+      "expiresAt": "Expires"
+    }
+  },
+  "audits": {
+    "title": "Audits",
+    "description": "Audit management and findings tracking",
+    "newAudit": "New Audit",
+    "searchPlaceholder": "Search audits...",
+    "noAudits": "No audits found",
+    "status": {
+      "PLANNED": "Planned",
+      "IN_PROGRESS": "In Progress",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled"
+    },
+    "type": {
+      "INTERNAL": "Internal",
+      "EXTERNAL": "External",
+      "SURVEILLANCE": "Surveillance"
+    }
+  },
+  "findings": {
+    "title": "Findings",
+    "description": "Audit findings and remediation tracking",
+    "newFinding": "New Finding",
+    "noFindings": "No findings",
+    "severity": {
+      "MINOR": "Minor",
+      "MAJOR": "Major",
+      "OBSERVATION": "Observation"
+    },
+    "status": {
+      "OPEN": "Open",
+      "IN_PROGRESS": "In Progress",
+      "RESOLVED": "Resolved",
+      "CLOSED": "Closed"
+    }
+  }
+}

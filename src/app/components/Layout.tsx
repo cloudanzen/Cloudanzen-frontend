@@ -1,28 +1,31 @@
-import { createContext, useContext, useState, Suspense } from "react";
+import { createContext, useContext, useState, Suspense, useEffect } from "react";
 import { Outlet } from "react-router";
 import { Sidebar } from "@/app/components/Sidebar";
 import { Header } from "@/app/components/Header";
 import { ErrorBoundary } from "@/app/components/ErrorBoundary";
+import { useTranslation } from "react-i18next";
+import { authService } from "@/services/api/auth";
 
 function RouteErrorFallback() {
+  const { t } = useTranslation('common');
   return (
     <div className="flex flex-col items-center justify-center h-64 gap-4">
       <div className="text-center">
-        <h2 className="text-lg font-semibold text-gray-900">Something went wrong</h2>
-        <p className="text-sm text-gray-500 mt-1">An error occurred while loading this page.</p>
+        <h2 className="text-lg font-semibold text-gray-900">{t('errors.somethingWentWrong')}</h2>
+        <p className="text-sm text-gray-500 mt-1">{t('errors.pageLoadError')}</p>
       </div>
       <div className="flex gap-2">
         <button
           onClick={() => window.location.reload()}
           className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
         >
-          Try again
+          {t('errors.tryAgain')}
         </button>
         <a
           href="/"
           className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
         >
-          Go to dashboard
+          {t('errors.goToDashboard')}
         </a>
       </div>
     </div>
@@ -51,7 +54,17 @@ export function useSidebar() {
 }
 
 export function Layout() {
+  const { i18n, t } = useTranslation('common');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Sync i18next locale with the user's backend preference on mount
+  useEffect(() => {
+    const cached = authService.getCachedUser();
+    const locale = cached?.preferredLocale ?? 'en';
+    if (i18n.language !== locale) {
+      i18n.changeLanguage(locale);
+    }
+  }, [i18n]);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     try {
       return localStorage.getItem("manzen.sidebar.collapsed") === "1";
@@ -91,7 +104,7 @@ export function Layout() {
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:text-sm focus:font-medium"
         >
-          Skip to content
+          {t('a11y.skipToContent')}
         </a>
         {/* Overlay (mobile only) */}
         {sidebarOpen && (

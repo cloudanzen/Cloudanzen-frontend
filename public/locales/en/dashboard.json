@@ -1,0 +1,58 @@
+{
+  "title": "Dashboard",
+  "description": "Welcome back! Here's an overview of your security posture.",
+  "quickActions": "Quick Actions",
+  "newPolicy": "New Policy",
+  "runTest": "Run Test",
+  "reportRisk": "Report Risk",
+  "addVendor": "Add Vendor",
+  "stats": {
+    "activeControls": "Active Controls",
+    "openRisks": "Open Risks",
+    "vendorsNeedAttention": "Vendors Need Attention",
+    "pendingTasks": "Pending Tasks"
+  },
+  "progressOverview": "Progress Overview",
+  "frameworkReadiness": "Framework Readiness",
+  "noActiveFrameworks": "No active frameworks",
+  "noActiveFrameworksDesc": "Activate a compliance framework to start tracking your readiness and coverage",
+  "browseFrameworks": "Browse Frameworks",
+  "loadingFrameworks": "Loading frameworks…",
+  "tests": {
+    "title": "Tests",
+    "noTests": "No tests yet",
+    "done": "Done",
+    "overdue": "Overdue",
+    "dueSoon": "Due soon",
+    "total": "{{count}} total"
+  },
+  "risks": {
+    "title": "Risks",
+    "noRisks": "No risks yet",
+    "critical": "Critical",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low",
+    "openMitigated": "{{open}} open · {{mitigated}} mitigated"
+  },
+  "policies": {
+    "title": "Policies",
+    "noPolicies": "No policies yet",
+    "published": "Published",
+    "draft": "Draft",
+    "review": "Review",
+    "total": "{{count}} total"
+  },
+  "documents": {
+    "title": "Documents",
+    "noDocuments": "No documents yet",
+    "current": "Current",
+    "pending": "Pending",
+    "review": "Review",
+    "total": "{{count}} total"
+  },
+  "framework": {
+    "openGaps": "{{count}} open gaps",
+    "covered": "{{covered}}/{{applicable}} covered"
+  }
+}

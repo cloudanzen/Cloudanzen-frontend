@@ -1,0 +1,83 @@
+{
+  "inventory": {
+    "title": "資産インベントリ",
+    "description": "クラウドインフラストラクチャとアプリケーション資産の追跡",
+    "searchPlaceholder": "資産を検索...",
+    "noAssets": "資産が見つかりません",
+    "addAsset": "資産を追加",
+    "type": {
+      "CLOUD": "クラウド",
+      "APPLICATION": "アプリケーション",
+      "DATABASE": "データベース",
+      "SAAS": "SaaS",
+      "ENDPOINT": "エンドポイント",
+      "NETWORK": "ネットワーク",
+      "OTHER": "その他"
+    },
+    "criticality": {
+      "LOW": "低",
+      "MEDIUM": "中",
+      "HIGH": "高",
+      "CRITICAL": "クリティカル"
+    },
+    "columns": {
+      "name": "資産",
+      "type": "種類",
+      "criticality": "重要度",
+      "owner": "オーナー",
+      "risks": "リスク",
+      "createdAt": "追加日"
+    }
+  },
+  "codeChanges": {
+    "title": "コード変更",
+    "description": "最近のコードコミットとデプロイアクティビティ",
+    "searchPlaceholder": "コード変更を検索...",
+    "noChanges": "コード変更の追跡なし",
+    "columns": {
+      "commit": "コミット",
+      "author": "作成者",
+      "repository": "リポジトリ",
+      "branch": "ブランチ",
+      "timestamp": "時刻"
+    }
+  },
+  "vulnerabilities": {
+    "title": "脆弱性",
+    "description": "セキュリティ脆弱性の追跡と是正",
+    "searchPlaceholder": "脆弱性を検索...",
+    "noVulnerabilities": "脆弱性が見つかりません",
+    "severity": {
+      "CRITICAL": "クリティカル",
+      "HIGH": "高",
+      "MEDIUM": "中",
+      "LOW": "低",
+      "INFO": "情報"
+    },
+    "status": {
+      "OPEN": "未対応",
+      "IN_PROGRESS": "対応中",
+      "RESOLVED": "解決済み",
+      "ACCEPTED": "受容済み"
+    },
+    "columns": {
+      "title": "脆弱性",
+      "severity": "重大度",
+      "asset": "資産",
+      "status": "ステータス",
+      "detectedAt": "検出日"
+    }
+  },
+  "securityAlerts": {
+    "title": "セキュリティアラート",
+    "description": "監視ツールからのリアルタイムセキュリティアラート",
+    "searchPlaceholder": "アラートを検索...",
+    "noAlerts": "アクティブなアラートなし",
+    "severity": {
+      "CRITICAL": "クリティカル",
+      "HIGH": "高",
+      "MEDIUM": "中",
+      "LOW": "低"
+    }
+  }
+}

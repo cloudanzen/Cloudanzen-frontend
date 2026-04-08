@@ -1,0 +1,40 @@
+{
+  "title": "Integrations",
+  "description": "Connect your tools and automate evidence collection",
+  "connectedApps": "Connected Apps",
+  "availableIntegrations": "Available Integrations",
+  "searchPlaceholder": "Search integrations...",
+  "connected": "Connected",
+  "notConnected": "Not Connected",
+  "connect": "Connect",
+  "disconnect": "Disconnect",
+  "configure": "Configure",
+  "lastSync": "Last sync: {{date}}",
+  "syncNow": "Sync Now",
+  "syncing": "Syncing...",
+  "requestTool": {
+    "title": "Request a Tool",
+    "description": "Don't see the integration you need? Request it.",
+    "toolNameLabel": "Tool Name",
+    "descriptionLabel": "Why do you need this integration?",
+    "submit": "Submit Request"
+  },
+  "categories": {
+    "all": "All",
+    "cloud": "Cloud",
+    "security": "Security",
+    "identity": "Identity",
+    "monitoring": "Monitoring",
+    "development": "Development",
+    "communication": "Communication"
+  },
+  "partnerApi": {
+    "title": "Partner API",
+    "description": "Manage API keys and partner access",
+    "createKey": "Create API Key",
+    "keyName": "Key Name",
+    "created": "Created",
+    "lastUsed": "Last Used",
+    "revoke": "Revoke"
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "inventory": {
+    "title": "Assets Inventory",
+    "description": "Cloud infrastructure and application asset tracking",
+    "searchPlaceholder": "Search assets...",
+    "noAssets": "No assets found",
+    "addAsset": "Add Asset",
+    "type": {
+      "CLOUD": "Cloud",
+      "APPLICATION": "Application",
+      "DATABASE": "Database",
+      "SAAS": "SaaS",
+      "ENDPOINT": "Endpoint",
+      "NETWORK": "Network",
+      "OTHER": "Other"
+    },
+    "criticality": {
+      "LOW": "Low",
+      "MEDIUM": "Medium",
+      "HIGH": "High",
+      "CRITICAL": "Critical"
+    },
+    "columns": {
+      "name": "Asset",
+      "type": "Type",
+      "criticality": "Criticality",
+      "owner": "Owner",
+      "risks": "Risks",
+      "createdAt": "Added"
+    }
+  },
+  "codeChanges": {
+    "title": "Code Changes",
+    "description": "Recent code commits and deployment activity",
+    "searchPlaceholder": "Search code changes...",
+    "noChanges": "No code changes tracked",
+    "columns": {
+      "commit": "Commit",
+      "author": "Author",
+      "repository": "Repository",
+      "branch": "Branch",
+      "timestamp": "Time"
+    }
+  },
+  "vulnerabilities": {
+    "title": "Vulnerabilities",
+    "description": "Security vulnerability tracking and remediation",
+    "searchPlaceholder": "Search vulnerabilities...",
+    "noVulnerabilities": "No vulnerabilities found",
+    "severity": {
+      "CRITICAL": "Critical",
+      "HIGH": "High",
+      "MEDIUM": "Medium",
+      "LOW": "Low",
+      "INFO": "Info"
+    },
+    "status": {
+      "OPEN": "Open",
+      "IN_PROGRESS": "In Progress",
+      "RESOLVED": "Resolved",
+      "ACCEPTED": "Accepted"
+    },
+    "columns": {
+      "title": "Vulnerability",
+      "severity": "Severity",
+      "asset": "Asset",
+      "status": "Status",
+      "detectedAt": "Detected"
+    }
+  },
+  "securityAlerts": {
+    "title": "Security Alerts",
+    "description": "Real-time security alerts from monitoring tools",
+    "searchPlaceholder": "Search alerts...",
+    "noAlerts": "No active alerts",
+    "severity": {
+      "CRITICAL": "Critical",
+      "HIGH": "High",
+      "MEDIUM": "Medium",
+      "LOW": "Low"
+    }
+  }
+}

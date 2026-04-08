@@ -1,0 +1,43 @@
+{
+  "controlTemplates": {
+    "title": "Control Templates",
+    "description": "Manage global control template library",
+    "newTemplate": "New Template",
+    "searchPlaceholder": "Search templates...",
+    "noTemplates": "No templates found"
+  },
+  "testTemplates": {
+    "title": "Test Templates",
+    "description": "Manage automated test template library",
+    "newTemplate": "New Template",
+    "searchPlaceholder": "Search test templates...",
+    "noTemplates": "No templates found"
+  },
+  "policyTemplates": {
+    "title": "Policy Templates",
+    "description": "Manage global policy template library",
+    "newTemplate": "New Template",
+    "searchPlaceholder": "Search policy templates...",
+    "noTemplates": "No templates found"
+  },
+  "frameworks": {
+    "title": "Frameworks",
+    "description": "Manage compliance framework definitions",
+    "newFramework": "New Framework",
+    "searchPlaceholder": "Search frameworks...",
+    "noFrameworks": "No frameworks found"
+  },
+  "organizations": {
+    "title": "Organizations",
+    "description": "Platform-wide organization management",
+    "newOrganization": "New Organization",
+    "searchPlaceholder": "Search organizations...",
+    "noOrganizations": "No organizations found",
+    "columns": {
+      "name": "Name",
+      "plan": "Plan",
+      "users": "Users",
+      "createdAt": "Created"
+    }
+  }
+}
