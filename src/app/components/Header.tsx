@@ -65,18 +65,13 @@ const searchablePages: SearchResult[] = [
 ];
 
 export function Header() {
-  const { i18n, t } = useTranslation('common');
+  const { t } = useTranslation('common');
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredResults, setFilteredResults] = useState<SearchResult[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const navigate = useNavigate();
   const searchRef = useRef<HTMLDivElement>(null);
   const { toggle: toggleSidebar, collapsed } = useSidebar();
-
-  const switchLocale = useCallback(async (locale: 'en' | 'ja') => {
-    await i18n.changeLanguage(locale);
-    await authService.updateLocale(locale);
-  }, [i18n]);
 
   const [aiChatOpen, setAiChatOpen] = useState(false);
   const [isDark, setIsDark] = useState(() =>
@@ -215,25 +210,6 @@ export function Header() {
           >
             {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
-
-          {/* Language picker */}
-          <div className="hidden sm:flex items-center gap-1 text-xs font-medium px-1">
-            <button
-              onClick={() => switchLocale('en')}
-              className={i18n.language === 'en' ? 'text-foreground font-semibold' : 'text-muted-foreground hover:text-foreground transition-colors'}
-              aria-label="Switch to English"
-            >
-              EN
-            </button>
-            <span className="text-muted-foreground/40">|</span>
-            <button
-              onClick={() => switchLocale('ja')}
-              className={i18n.language === 'ja' ? 'text-foreground font-semibold' : 'text-muted-foreground hover:text-foreground transition-colors'}
-              aria-label="日本語に切り替え"
-            >
-              日本語
-            </button>
-          </div>
 
           <NotificationBell />
 

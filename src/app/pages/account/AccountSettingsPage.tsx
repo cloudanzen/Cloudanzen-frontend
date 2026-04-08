@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import {
   User,
   Lock,
@@ -11,6 +12,7 @@ import {
   EyeOff,
   Save,
   Building2,
+  Languages,
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
@@ -75,6 +77,7 @@ function formatRole(role?: string): string {
 // ─── Page ───────────────────────────────────────────────────────────────────
 
 export function AccountSettingsPage() {
+  const { i18n } = useTranslation();
   const user = authService.getCachedUser();
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
@@ -91,6 +94,11 @@ export function AccountSettingsPage() {
     resolver: zodResolver(passwordSchema),
     defaultValues: { currentPassword: "", newPassword: "", confirmPassword: "" },
   });
+
+  const switchLocale = useCallback(async (locale: 'en' | 'ja') => {
+    await i18n.changeLanguage(locale);
+    await authService.updateLocale(locale);
+  }, [i18n]);
 
   const onProfileSubmit = async (data: ProfileFormData) => {
     try {
@@ -315,6 +323,41 @@ export function AccountSettingsPage() {
               </Button>
             </form>
           </Form>
+        </CardContent>
+      </Card>
+
+      {/* ── Language card ── */}
+      <Card>
+        <CardHeader className="pb-4">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Languages className="w-4 h-4 text-blue-600" />
+            Language
+          </CardTitle>
+          <CardDescription>Choose your preferred display language.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => switchLocale('en')}
+              className={`px-4 py-2 rounded-md text-sm font-medium border transition-colors ${
+                i18n.language === 'en'
+                  ? 'bg-blue-600 text-white border-blue-600'
+                  : 'bg-background text-muted-foreground border-border hover:border-blue-400 hover:text-foreground'
+              }`}
+            >
+              English
+            </button>
+            <button
+              onClick={() => switchLocale('ja')}
+              className={`px-4 py-2 rounded-md text-sm font-medium border transition-colors ${
+                i18n.language === 'ja'
+                  ? 'bg-blue-600 text-white border-blue-600'
+                  : 'bg-background text-muted-foreground border-border hover:border-blue-400 hover:text-foreground'
+              }`}
+            >
+              日本語
+            </button>
+          </div>
         </CardContent>
       </Card>
 
