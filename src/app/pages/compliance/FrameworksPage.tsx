@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- legacy: to be typed progressively */
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   useQuery,
   useQueries,
@@ -421,6 +422,7 @@ function RemoveDialog({
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 export function FrameworksPage() {
+  const { t } = useTranslation('compliance');
   const qc = useQueryClient();
   const navigate = useNavigate();
   const cachedUser = authService.getCachedUser();
@@ -521,8 +523,8 @@ export function FrameworksPage() {
 
   return (
     <PageTemplate
-      title="Compliance Frameworks"
-      description="Manage which compliance frameworks are in scope for your organization."
+      title={t('frameworks.title')}
+      description={t('frameworks.description')}
     >
       {loading && (
         <div className="flex items-center justify-center py-20">
@@ -538,7 +540,7 @@ export function FrameworksPage() {
               <div>
                 <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-green-600" />
-                  Active Frameworks
+                  {t('frameworks.activeFrameworks')}
                   {orgFrameworks.length > 0 && (
                     <Badge variant="secondary" className="ml-1">
                       {orgFrameworks.length}
@@ -546,8 +548,7 @@ export function FrameworksPage() {
                   )}
                 </h2>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Frameworks currently in scope. Dashboards, filters, and
-                  reports are built around these.
+                  {t('frameworks.activeDesc')}
                 </p>
               </div>
             </div>
@@ -557,11 +558,10 @@ export function FrameworksPage() {
                 <CardContent className="py-12 text-center">
                   <ShieldCheck className="w-10 h-10 text-muted-foreground/70 mx-auto mb-3" />
                   <p className="text-sm font-medium text-muted-foreground">
-                    No frameworks in scope yet
+                    {t('frameworks.noFrameworks')}
                   </p>
                   <p className="text-xs text-muted-foreground/70 mt-1">
-                    Add a framework from the Available section below to get
-                    started.
+                    {t('frameworks.noFrameworksDesc')}
                   </p>
                 </CardContent>
               </Card>
@@ -587,11 +587,10 @@ export function FrameworksPage() {
               <div className="mb-4">
                 <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
                   <BookOpen className="w-4 h-4 text-muted-foreground" />
-                  Available Frameworks
+                  {t('frameworks.availableFrameworks')}
                 </h2>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Add a framework to start tracking requirements, mappings, and
-                  coverage.
+                  {t('frameworks.availableDesc')}
                 </p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">

@@ -4,16 +4,23 @@
     "description": "Security policy management and lifecycle tracking",
     "newPolicy": "New Policy",
     "useTemplate": "Use Template",
-    "searchPlaceholder": "Search policies...",
+    "searchPlaceholder": "Search by policy name",
     "showing": "Showing {{count}} of {{total}} policies",
     "noResults": "No policies found",
     "noPolicies": "No policies yet",
     "noPoliciesDesc": "Create your first policy or use a template to get started",
+    "filtersActive": "Filters active",
+    "refresh": "Refresh",
+    "publicationRate": "Publication rate",
+    "draftArchived": "Draft / Archived",
+    "showingCount_one": "{{count}} policy",
+    "showingCount_other": "{{count}} policies",
+    "filtered": "(filtered)",
     "stats": {
       "total": "Total Policies",
       "published": "Published",
       "draft": "Draft",
-      "review": "Under Review"
+      "review": "In Review"
     },
     "status": {
       "PUBLISHED": "Published",
@@ -81,7 +88,7 @@
   },
   "controls": {
     "title": "Controls",
-    "description": "Security controls implementation and compliance tracking",
+    "description": "Manage security controls and their implementation status.",
     "searchPlaceholder": "Search controls...",
     "filterByFramework": "Filter by framework",
     "showing": "Showing {{count}} of {{total}} controls",
@@ -93,35 +100,66 @@
       "NOT_IMPLEMENTED": "Not Implemented"
     },
     "columns": {
+      "controlId": "Control ID",
+      "name": "Name",
+      "category": "Category",
       "reference": "Reference",
       "title": "Title",
       "status": "Status",
+      "owner": "Owner",
       "framework": "Framework",
       "evidence": "Evidence",
-      "updatedAt": "Updated"
-    }
+      "updatedAt": "Updated",
+      "actions": "Actions"
+    },
+    "view": "View",
+    "edit": "Edit"
   },
   "frameworks": {
-    "title": "Frameworks",
-    "description": "Compliance framework management and readiness tracking",
+    "title": "Compliance Frameworks",
+    "description": "Manage which compliance frameworks are in scope for your organization.",
     "availableFrameworks": "Available Frameworks",
     "activeFrameworks": "Active Frameworks",
+    "activeDesc": "Frameworks currently in scope. Dashboards, filters, and reports are built around these.",
+    "availableDesc": "Add a framework to start tracking requirements, mappings, and coverage.",
     "activate": "Activate",
     "deactivate": "Deactivate",
     "viewControls": "View Controls",
+    "viewReadiness": "View readiness",
     "readiness": "Readiness",
     "coverage": "Coverage",
     "controls": "Controls",
     "gaps": "Gaps",
-    "noFrameworks": "No frameworks activated",
-    "noFrameworksDesc": "Activate a compliance framework to start tracking your readiness"
+    "openGaps": "{{count}} open gaps",
+    "noCoverageYet": "No coverage snapshot yet",
+    "activated": "Activated {{date}}",
+    "noFrameworks": "No frameworks in scope yet",
+    "noFrameworksDesc": "Add a framework from the Available section below to get started.",
+    "addToScope": "Add to scope",
+    "removeFromScope": "Remove from active scope",
+    "upgradeToAdd": "Upgrade to add",
+    "contactAdmin": "Contact admin",
+    "activating": "Activating…",
+    "viewOnly": "View only",
+    "requirements": "requirements",
+    "removeConfirmTitle": "Remove from active scope?",
+    "removeConfirmBody": "<strong>{{name}}</strong> will be moved to Archived. All controls, tests, policies, evidence, and historical reports will be preserved. This framework can be re-added at any time.",
+    "reasonLabel": "Reason (optional)",
+    "reasonPlaceholder": "e.g. Pausing audit cycle for this quarter…",
+    "upgradeRequired": "Upgrade required",
+    "adminRequired": "Admin action required"
   },
   "documents": {
     "title": "Documents",
-    "description": "Compliance documents and evidence management",
+    "description": "Required compliance documents and evidence collected from integrations.",
+    "requiredDocuments": "Required Documents",
+    "evidenceLocker": "Evidence Locker",
     "uploadDocument": "Upload Document",
+    "uploadEvidence": "Upload Evidence",
     "searchPlaceholder": "Search documents...",
     "noDocuments": "No documents found",
+    "noRequiredDocs": "No required documents yet",
+    "noRequiredDocsDesc": "Required compliance documents are created automatically when you activate a framework. Go to Frameworks and activate one to get started.",
     "status": {
       "CURRENT": "Current",
       "PENDING_REVIEW": "Pending Review",
@@ -138,11 +176,16 @@
   },
   "audits": {
     "title": "Audits",
-    "description": "Audit management and findings tracking",
+    "description": "Schedule and track security and compliance audits.",
+    "scheduleNew": "Schedule New Audit",
     "newAudit": "New Audit",
-    "searchPlaceholder": "Search audits...",
+    "searchPlaceholder": "Search audits or framework names",
     "noAudits": "No audits found",
+    "noAuditsDesc": "Click \"Schedule New Audit\" to get started.",
+    "loading": "Loading audits…",
+    "total": "Total",
     "status": {
+      "DRAFT": "Draft",
       "PLANNED": "Planned",
       "IN_PROGRESS": "In Progress",
       "COMPLETED": "Completed",
@@ -151,22 +194,47 @@
     "type": {
       "INTERNAL": "Internal",
       "EXTERNAL": "External",
-      "SURVEILLANCE": "Surveillance"
+      "SURVEILLANCE": "Surveillance",
+      "RECERTIFICATION": "Recertification"
+    },
+    "allTypes": "All Types",
+    "columns": {
+      "name": "Name",
+      "framework": "Framework",
+      "period": "Period",
+      "type": "Type",
+      "status": "Status",
+      "auditor": "Auditor",
+      "findings": "Findings",
+      "progress": "Progress"
     }
   },
   "findings": {
     "title": "Findings",
-    "description": "Audit findings and remediation tracking",
+    "description": "Track automated findings raised from test executions",
     "newFinding": "New Finding",
     "noFindings": "No findings",
+    "searchPlaceholder": "Search findings...",
+    "total": "Total",
+    "open": "Open",
+    "inRemediation": "In Remediation",
+    "closed": "Closed",
+    "overdue": "Overdue",
     "severity": {
+      "CRITICAL": "Critical",
+      "HIGH": "High",
+      "MEDIUM": "Medium",
+      "LOW": "Low",
       "MINOR": "Minor",
       "MAJOR": "Major",
       "OBSERVATION": "Observation"
     },
+    "allSeverities": "All severities",
+    "allStatuses": "All statuses",
     "status": {
       "OPEN": "Open",
       "IN_PROGRESS": "In Progress",
+      "IN_REMEDIATION": "In Remediation",
       "RESOLVED": "Resolved",
       "CLOSED": "Closed"
     }

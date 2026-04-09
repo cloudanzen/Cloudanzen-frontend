@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- legacy: to be typed progressively */
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FrameworkFilter } from '@/app/components/compliance/FrameworkFilter';
 import { useNavigate } from 'react-router';
 import { clearAuthSession } from '@/services/authStorage';
@@ -30,6 +31,7 @@ import {
 } from './policies/StateComponents';
 
 export function PoliciesPage() {
+  const { t } = useTranslation('compliance');
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [filter, setFilter] = useState<PolicyFilter>({
@@ -192,17 +194,17 @@ export function PoliciesPage() {
       <div className="bg-card border-b border-border px-4 sm:px-6 py-4 flex items-center justify-between sticky top-0 z-10 shadow-sm">
         <div>
           <h1 className="text-xl font-semibold text-foreground tracking-tight">
-            Policies
+            {t('policies.title')}
           </h1>
           <p className="text-sm text-muted-foreground mt-0.5 hidden sm:block">
-            Security policy management and lifecycle tracking
+            {t('policies.description')}
           </p>
         </div>
         <div className="flex items-center gap-2">
           {hasActiveFilters && (
             <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
               <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-              Filters active
+              {t('policies.filtersActive')}
             </span>
           )}
           <button
@@ -214,21 +216,21 @@ export function PoliciesPage() {
             <RefreshCw
               className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`}
             />
-            <span className="hidden sm:inline">Refresh</span>
+            <span className="hidden sm:inline">{t('policies.refresh')}</span>
           </button>
           <button
             onClick={() => setShowTemplates(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border border-border bg-card hover:bg-muted text-foreground transition-colors shadow-sm"
           >
             <LayoutTemplate className="w-4 h-4" />
-            <span className="hidden sm:inline">Use Template</span>
+            <span className="hidden sm:inline">{t('policies.useTemplate')}</span>
           </button>
           <button
             onClick={() => setShowCreate(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white transition-colors shadow-sm"
           >
             <Plus className="w-4 h-4" />
-            <span className="hidden sm:inline">New Policy</span>
+            <span className="hidden sm:inline">{t('policies.newPolicy')}</span>
           </button>
         </div>
       </div>
@@ -237,7 +239,7 @@ export function PoliciesPage() {
         <PageFilterBar
           searchValue={filter.search}
           onSearchChange={(value) => handleFilterChange('search', value)}
-          searchPlaceholder="Search by policy name"
+          searchPlaceholder={t('policies.searchPlaceholder')}
           selects={[
             {
               key: 'status',
@@ -272,28 +274,28 @@ export function PoliciesPage() {
         <div className="px-6 pt-4 pb-2 space-y-3">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <SummaryCard
-              label="Total Policies"
+              label={t('policies.stats.total')}
               value={policies.length}
               color="text-foreground"
               bg="bg-card"
               accent="border-border"
             />
             <SummaryCard
-              label="Published"
+              label={t('policies.stats.published')}
               value={published}
               color="text-green-700"
               bg="bg-green-50"
               accent="border-green-200"
             />
             <SummaryCard
-              label="In Review"
+              label={t('policies.stats.review')}
               value={inReview}
               color="text-amber-700"
               bg="bg-amber-50"
               accent="border-amber-200"
             />
             <SummaryCard
-              label="Draft / Archived"
+              label={t('policies.draftArchived')}
               value={draft + archived}
               color="text-muted-foreground"
               bg="bg-muted"
@@ -303,7 +305,7 @@ export function PoliciesPage() {
           <div className="bg-card rounded-xl border border-border px-4 py-3 shadow-sm">
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-sm font-medium text-foreground">
-                Publication rate
+                {t('policies.publicationRate')}
               </span>
               <span className="text-sm font-semibold text-blue-700">
                 {Math.round((published / policies.length) * 100)}%

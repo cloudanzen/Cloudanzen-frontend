@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- legacy: to be typed progressively */
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -36,6 +37,7 @@ const STATUS_FILTERS: { value: '' | AuditStatus; label: string }[] = [
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function AuditsPage() {
+  const { t } = useTranslation('compliance');
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const { filters, update, reset } = useUrlFilterState({
@@ -111,32 +113,34 @@ export function AuditsPage() {
 
   return (
     <PageTemplate
-      title="Audits"
-      description="Schedule and track security and compliance audits."
+      title={t('audits.title')}
+      description={t('audits.description')}
       actions={
         <Button onClick={() => setShowModal(true)}>
           <Plus className="w-4 h-4 mr-1.5" />
-          Schedule New Audit
+          {t('audits.scheduleNew')}
         </Button>
       }
     >
       {/* Stat strip */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
         {[
-          { label: 'Total', value: counts.total, color: 'text-foreground' },
-          { label: 'Planned', value: counts.planned, color: 'text-blue-700' },
+          { key: 'total', label: t('audits.total'), value: counts.total, color: 'text-foreground' },
+          { key: 'planned', label: t('audits.status.PLANNED'), value: counts.planned, color: 'text-blue-700' },
           {
-            label: 'In Progress',
+            key: 'inProgress',
+            label: t('audits.status.IN_PROGRESS'),
             value: counts.inProgress,
             color: 'text-amber-700',
           },
           {
-            label: 'Completed',
+            key: 'completed',
+            label: t('audits.status.COMPLETED'),
             value: counts.completed,
             color: 'text-green-700',
           },
         ].map((s) => (
-          <Card key={s.label} className="p-4">
+          <Card key={s.key} className="p-4">
             <p className="text-xs font-medium text-muted-foreground/70 uppercase tracking-wide">
               {s.label}
             </p>
@@ -149,7 +153,7 @@ export function AuditsPage() {
         <PageFilterBar
           searchValue={search}
           onSearchChange={(value) => update({ search: value })}
-          searchPlaceholder="Search audits or framework names"
+          searchPlaceholder={t('audits.searchPlaceholder')}
           selects={[
             {
               key: 'status',
@@ -184,14 +188,14 @@ export function AuditsPage() {
       <Card className="overflow-hidden">
         {isLoading ? (
           <div className="p-8 text-center text-sm text-muted-foreground/70">
-            Loading audits…
+            {t('audits.loading')}
           </div>
         ) : filtered.length === 0 ? (
           <div className="p-12 text-center">
             <Shield className="w-10 h-10 mx-auto mb-3 text-muted-foreground/70" />
-            <p className="text-sm font-medium text-muted-foreground">No audits found</p>
+            <p className="text-sm font-medium text-muted-foreground">{t('audits.noAudits')}</p>
             <p className="text-xs text-muted-foreground/70 mt-1">
-              Click "Schedule New Audit" to get started.
+              {t('audits.noAuditsDesc')}
             </p>
           </div>
         ) : (
@@ -200,14 +204,14 @@ export function AuditsPage() {
               <thead className="bg-muted border-b border-border">
                 <tr>
                   {[
-                    'Name',
-                    'Framework',
-                    'Period',
-                    'Type',
-                    'Status',
-                    'Auditor',
-                    'Findings',
-                    'Progress',
+                    t('audits.columns.name'),
+                    t('audits.columns.framework'),
+                    t('audits.columns.period'),
+                    t('audits.columns.type'),
+                    t('audits.columns.status'),
+                    t('audits.columns.auditor'),
+                    t('audits.columns.findings'),
+                    t('audits.columns.progress'),
                   ].map((h) => (
                     <th
                       key={h}
