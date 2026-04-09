@@ -54,5 +54,28 @@
   "framework": {
     "openGaps": "{{count}} open gaps",
     "covered": "{{covered}}/{{applicable}} covered"
+  },
+  "myTasks": {
+    "title": "My Tasks",
+    "description": "Your assigned tests and pending security tasks.",
+    "totalPending": "Total Pending",
+    "overdueTests": "Overdue Tests",
+    "dueSoon": "Due Soon",
+    "onboardingTasks": "Onboarding Tasks",
+    "assignedTests": "Assigned Tests",
+    "securityOnboarding": "Security Onboarding",
+    "pending": "pending",
+    "noPendingTests": "No pending tests assigned to you.",
+    "couldNotLoadOnboarding": "Could not load onboarding status.",
+    "acceptPolicies": "Accept security policies",
+    "acceptPoliciesDesc": "Read and accept all published org policies",
+    "enrollMdm": "Enroll device in MDM",
+    "enrollMdmDesc": "Install the Manzen MDM agent on your Mac",
+    "securityTraining": "Complete security training",
+    "securityTrainingDesc": "Complete the interactive security awareness training",
+    "completedAt": "Completed {{date}}",
+    "dueLabel": "Due {{date}}",
+    "complete": "Complete",
+    "nDone": "{{count}}/3 done"
   }
 }

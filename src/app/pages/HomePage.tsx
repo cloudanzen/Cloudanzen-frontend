@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { Card } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
@@ -61,6 +62,8 @@ interface RiskOverview {
 }
 
 export function HomePage() {
+  const { t } = useTranslation('dashboard');
+  const { t: tc } = useTranslation('common');
   const navigate = useNavigate();
   const qc = useQueryClient();
 
@@ -197,7 +200,8 @@ export function HomePage() {
 
   const stats = [
     {
-      label: 'Active Controls',
+      key: 'controls',
+      label: t('stats.activeControls'),
       value: activeControls,
       icon: Shield,
       color: 'text-blue-600',
@@ -205,7 +209,8 @@ export function HomePage() {
       path: '/compliance/controls',
     },
     {
-      label: 'Open Risks',
+      key: 'risks',
+      label: t('stats.openRisks'),
       value: openRisks,
       icon: AlertTriangle,
       color: 'text-red-600',
@@ -213,7 +218,8 @@ export function HomePage() {
       path: '/risk/risks',
     },
     {
-      label: 'Vendors Need Attention',
+      key: 'vendors',
+      label: t('stats.vendorsNeedAttention'),
       value: vendorsAttention,
       icon: Building2,
       color: 'text-purple-600',
@@ -221,7 +227,8 @@ export function HomePage() {
       path: '/vendors',
     },
     {
-      label: 'Pending Tasks',
+      key: 'tasks',
+      label: t('stats.pendingTasks'),
       value: pendingTasks,
       icon: Clock,
       color: 'text-orange-600',
@@ -234,32 +241,32 @@ export function HomePage() {
 
   return (
     <PageTemplate
-      title="Dashboard"
-      description="Welcome back! Here's an overview of your security posture."
+      title={t('title')}
+      description={t('description')}
       actions={
         <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger className="inline-flex items-center gap-1.5 h-8 rounded-md px-3 text-sm font-semibold border bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-colors">
               <Zap className="w-4 h-4" />
-              <span className="hidden sm:inline">Quick Actions</span>
+              <span className="hidden sm:inline">{t('quickActions')}</span>
               <ChevronDown className="w-3 h-3 opacity-60" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuItem onSelect={() => navigate('/compliance/policies')}>
                 <FileText className="w-4 h-4 mr-2" />
-                New Policy
+                {t('newPolicy')}
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => navigate('/tests')}>
                 <Shield className="w-4 h-4 mr-2" />
-                Run Test
+                {t('runTest')}
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => navigate('/risk/risks')}>
                 <AlertTriangle className="w-4 h-4 mr-2" />
-                Report Risk
+                {t('reportRisk')}
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => navigate('/vendors')}>
                 <Users className="w-4 h-4 mr-2" />
-                Add Vendor
+                {t('addVendor')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -273,7 +280,7 @@ export function HomePage() {
             <RefreshCw
               className={`w-4 h-4 mr-2 ${fetchingCompliance ? 'animate-spin' : ''}`}
             />
-            Refresh
+            {tc('actions.refresh')}
           </Button>
         </div>
       }
@@ -286,7 +293,7 @@ export function HomePage() {
             const isLive = stat.value === null;
             return (
               <Card
-                key={stat.label}
+                key={stat.key}
                 className="p-5 cursor-pointer hover:shadow-md transition-shadow duration-200"
                 onClick={() => navigate(stat.path)}
               >
@@ -313,7 +320,7 @@ export function HomePage() {
         {/* ── Progress Overview ── */}
         <div>
           <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-3">
-            Progress Overview
+            {t('progressOverview')}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Tests */}
@@ -326,7 +333,7 @@ export function HomePage() {
                   <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 flex items-center justify-center">
                     <ClipboardCheck className="w-4 h-4 text-emerald-600" />
                   </div>
-                  <h3 className="text-sm font-bold text-foreground">Tests</h3>
+                  <h3 className="text-sm font-bold text-foreground">{t('tests.title')}</h3>
                 </div>
                 {!loadingTests && testSummary && (
                   <span className="text-2xl font-extrabold text-foreground tracking-tight">
@@ -337,7 +344,7 @@ export function HomePage() {
               {loadingTests ? (
                 <LoadingSkeleton />
               ) : !testSummary ? (
-                <EmptyState label="No tests yet" />
+                <EmptyState label={t('tests.noTests')} />
               ) : (
                 <>
                   <div className="w-full bg-muted rounded-full h-2.5 mb-3">
@@ -347,12 +354,12 @@ export function HomePage() {
                     />
                   </div>
                   <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
-                    <StatDot color="bg-emerald-500" label="Done" count={testSummary.completed} />
-                    <StatDot color="bg-red-500" label="Overdue" count={testSummary.overdue} />
-                    <StatDot color="bg-amber-400" label="Due soon" count={testSummary.dueSoon} />
+                    <StatDot color="bg-emerald-500" label={t('tests.done')} count={testSummary.completed} />
+                    <StatDot color="bg-red-500" label={t('tests.overdue')} count={testSummary.overdue} />
+                    <StatDot color="bg-amber-400" label={t('tests.dueSoon')} count={testSummary.dueSoon} />
                   </div>
                   <p className="text-xs font-medium text-muted-foreground/50 mt-2.5">
-                    {testSummary.total} total
+                    {t('tests.total', { count: testSummary.total })}
                   </p>
                 </>
               )}
@@ -368,7 +375,7 @@ export function HomePage() {
                   <div className="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-950/40 flex items-center justify-center">
                     <TrendingUp className="w-4 h-4 text-red-600" />
                   </div>
-                  <h3 className="text-sm font-bold text-foreground">Risks</h3>
+                  <h3 className="text-sm font-bold text-foreground">{t('risks.title')}</h3>
                 </div>
                 {!loadingRisks && riskOverview && (
                   <span className="text-2xl font-extrabold text-foreground tracking-tight">
@@ -379,7 +386,7 @@ export function HomePage() {
               {loadingRisks ? (
                 <LoadingSkeleton />
               ) : !riskOverview ? (
-                <EmptyState label="No risks yet" />
+                <EmptyState label={t('risks.noRisks')} />
               ) : (
                 <>
                   <div className="w-full bg-muted rounded-full h-2.5 mb-3 flex overflow-hidden">
@@ -393,13 +400,13 @@ export function HomePage() {
                     )}
                   </div>
                   <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
-                    <StatDot color="bg-red-500" label="Critical" count={riskOverview.critical} />
-                    <StatDot color="bg-orange-500" label="High" count={riskOverview.high} />
-                    <StatDot color="bg-yellow-400" label="Medium" count={riskOverview.medium} />
-                    <StatDot color="bg-green-500" label="Low" count={riskOverview.low} />
+                    <StatDot color="bg-red-500" label={t('risks.critical')} count={riskOverview.critical} />
+                    <StatDot color="bg-orange-500" label={t('risks.high')} count={riskOverview.high} />
+                    <StatDot color="bg-yellow-400" label={t('risks.medium')} count={riskOverview.medium} />
+                    <StatDot color="bg-green-500" label={t('risks.low')} count={riskOverview.low} />
                   </div>
                   <p className="text-xs font-medium text-muted-foreground/50 mt-2.5">
-                    {riskOverview.open} open · {riskOverview.mitigated} mitigated
+                    {t('risks.openMitigated', { open: riskOverview.open, mitigated: riskOverview.mitigated })}
                   </p>
                 </>
               )}
@@ -415,7 +422,7 @@ export function HomePage() {
                   <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/40 flex items-center justify-center">
                     <FileText className="w-4 h-4 text-blue-600" />
                   </div>
-                  <h3 className="text-sm font-bold text-foreground">Policies</h3>
+                  <h3 className="text-sm font-bold text-foreground">{t('policies.title')}</h3>
                 </div>
                 {!loadingPolicies && policyStats.total > 0 && (
                   <span className="text-2xl font-extrabold text-foreground tracking-tight">
@@ -426,7 +433,7 @@ export function HomePage() {
               {loadingPolicies ? (
                 <LoadingSkeleton />
               ) : policyStats.total === 0 ? (
-                <EmptyState label="No policies yet" />
+                <EmptyState label={t('policies.noPolicies')} />
               ) : (
                 <>
                   <div className="w-full bg-muted rounded-full h-2.5 mb-3">
@@ -436,12 +443,12 @@ export function HomePage() {
                     />
                   </div>
                   <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
-                    <StatDot color="bg-blue-500" label="Published" count={policyStats.published} />
-                    <StatDot color="bg-gray-400" label="Draft" count={policyStats.draft} />
-                    <StatDot color="bg-amber-500" label="Review" count={policyStats.review} />
+                    <StatDot color="bg-blue-500" label={t('policies.published')} count={policyStats.published} />
+                    <StatDot color="bg-gray-400" label={t('policies.draft')} count={policyStats.draft} />
+                    <StatDot color="bg-amber-500" label={t('policies.review')} count={policyStats.review} />
                   </div>
                   <p className="text-xs font-medium text-muted-foreground/50 mt-2.5">
-                    {policyStats.total} total
+                    {t('policies.total', { count: policyStats.total })}
                   </p>
                 </>
               )}
@@ -457,7 +464,7 @@ export function HomePage() {
                   <div className="w-8 h-8 rounded-lg bg-violet-50 dark:bg-violet-950/40 flex items-center justify-center">
                     <FileCheck className="w-4 h-4 text-violet-600" />
                   </div>
-                  <h3 className="text-sm font-bold text-foreground">Documents</h3>
+                  <h3 className="text-sm font-bold text-foreground">{t('documents.title')}</h3>
                 </div>
                 {!loadingDocs && docStats && docStats.total > 0 && (
                   <span className="text-2xl font-extrabold text-foreground tracking-tight">
@@ -468,7 +475,7 @@ export function HomePage() {
               {loadingDocs ? (
                 <LoadingSkeleton />
               ) : !docStats || docStats.total === 0 ? (
-                <EmptyState label="No documents yet" />
+                <EmptyState label={t('documents.noDocuments')} />
               ) : (
                 <>
                   <div className="w-full bg-muted rounded-full h-2.5 mb-3">
@@ -478,12 +485,12 @@ export function HomePage() {
                     />
                   </div>
                   <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
-                    <StatDot color="bg-violet-500" label="Current" count={docStats.current} />
-                    <StatDot color="bg-gray-400" label="Pending" count={docStats.pending} />
-                    <StatDot color="bg-amber-500" label="Review" count={docStats.needsReview} />
+                    <StatDot color="bg-violet-500" label={t('documents.current')} count={docStats.current} />
+                    <StatDot color="bg-gray-400" label={t('documents.pending')} count={docStats.pending} />
+                    <StatDot color="bg-amber-500" label={t('documents.review')} count={docStats.needsReview} />
                   </div>
                   <p className="text-xs font-medium text-muted-foreground/50 mt-2.5">
-                    {docStats.total} total
+                    {t('documents.total', { count: docStats.total })}
                   </p>
                 </>
               )}
@@ -494,12 +501,12 @@ export function HomePage() {
         {/* ── Framework Readiness ── */}
         <div>
           <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-3">
-            Framework Readiness
+            {t('frameworkReadiness')}
           </h2>
           {loadingReadiness ? (
             <div className="flex items-center gap-3 py-12 justify-center text-sm text-muted-foreground/70">
               <Loader2 className="w-5 h-5 animate-spin" />
-              <span className="font-medium">Loading frameworks…</span>
+              <span className="font-medium">{t('loadingFrameworks')}</span>
             </div>
           ) : readiness.length === 0 ? (
             <Card className="p-8">
@@ -507,9 +514,9 @@ export function HomePage() {
                 <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center mb-3">
                   <ShieldCheck className="w-6 h-6 text-muted-foreground/40" />
                 </div>
-                <p className="text-sm font-semibold text-muted-foreground">No active frameworks</p>
+                <p className="text-sm font-semibold text-muted-foreground">{t('noActiveFrameworks')}</p>
                 <p className="text-xs text-muted-foreground/60 mt-1 max-w-xs">
-                  Activate a compliance framework to start tracking your readiness and coverage
+                  {t('noActiveFrameworksDesc')}
                 </p>
                 <Button
                   variant="outline"
@@ -517,7 +524,7 @@ export function HomePage() {
                   className="mt-4"
                   onClick={() => navigate('/compliance/frameworks')}
                 >
-                  Browse Frameworks
+                  {t('browseFrameworks')}
                 </Button>
               </div>
             </Card>
@@ -557,10 +564,10 @@ export function HomePage() {
                     </div>
                     <div className="flex justify-between text-xs">
                       <span className="text-muted-foreground">
-                        <span className="font-semibold text-foreground">{fw.openGaps ?? 0}</span> open gaps
+                        {t('framework.openGaps', { count: fw.openGaps ?? 0 })}
                       </span>
                       <span className="text-muted-foreground">
-                        <span className="font-semibold text-foreground">{fw.covered ?? 0}</span>/{fw.applicable ?? 0} covered
+                        {t('framework.covered', { covered: fw.covered ?? 0, applicable: fw.applicable ?? 0 })}
                       </span>
                     </div>
                   </Card>

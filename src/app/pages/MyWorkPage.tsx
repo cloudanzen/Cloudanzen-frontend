@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { ClipboardList, ShieldCheck, AlertTriangle, CheckCircle, Clock, ChevronRight } from 'lucide-react';
 import { PageTemplate } from '@/app/components/PageTemplate';
@@ -51,6 +52,7 @@ function OnboardingTaskRow({
   description: string;
   linkTo: string;
 }) {
+  const { t } = useTranslation('dashboard');
   return (
     <div className="flex items-start gap-3 py-3 border-b border-border last:border-0">
       <div className={`mt-0.5 flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center ${done ? 'bg-green-100' : 'bg-amber-100'}`}>
@@ -61,7 +63,7 @@ function OnboardingTaskRow({
       </div>
       <div className="flex-1 min-w-0">
         <p className={`text-sm font-medium ${done ? 'text-muted-foreground/70 line-through' : 'text-foreground'}`}>{label}</p>
-        <p className="text-xs text-muted-foreground/70 mt-0.5">{done ? `Completed ${fmtDate(doneAt)}` : description}</p>
+        <p className="text-xs text-muted-foreground/70 mt-0.5">{done ? t('myTasks.completedAt', { date: fmtDate(doneAt) }) : description}</p>
       </div>
       {!done && (
         <a
@@ -78,6 +80,7 @@ function OnboardingTaskRow({
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 export function MyWorkPage() {
+  const { t } = useTranslation('dashboard');
   const me = authService.getCachedUser();
   const [selectedTestId, setSelectedTestId] = useState<string | null>(null);
 
@@ -120,38 +123,42 @@ export function MyWorkPage() {
 
   return (
     <PageTemplate
-      title="My Tasks"
-      description="Your assigned tests and pending security tasks."
+      title={t('myTasks.title')}
+      description={t('myTasks.description')}
     >
       {/* ── Summary strip ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         {[
           {
-            label: 'Total Pending',
+            key: 'totalPending',
+            label: t('myTasks.totalPending'),
             value: testsLoading || onboardingLoading ? '…' : totalPending,
             icon: <ClipboardList className="w-4 h-4" />,
             cls: 'text-foreground bg-card',
           },
           {
-            label: 'Overdue Tests',
+            key: 'overdueTests',
+            label: t('myTasks.overdueTests'),
             value: testsLoading ? '…' : overdue.length,
             icon: <AlertTriangle className="w-4 h-4" />,
             cls: overdue.length > 0 ? 'text-red-700 bg-red-50' : 'text-foreground bg-card',
           },
           {
-            label: 'Due Soon',
+            key: 'dueSoon',
+            label: t('myTasks.dueSoon'),
             value: testsLoading ? '…' : dueSoon.length,
             icon: <Clock className="w-4 h-4" />,
             cls: 'text-amber-700 bg-amber-50',
           },
           {
-            label: 'Onboarding Tasks',
+            key: 'onboardingTasks',
+            label: t('myTasks.onboardingTasks'),
             value: onboardingLoading ? '…' : `${3 - onboardingPendingCount}/3`,
             icon: <ShieldCheck className="w-4 h-4" />,
             cls: onboardingPendingCount === 0 ? 'text-green-700 bg-green-50' : 'text-amber-700 bg-amber-50',
           },
         ].map(s => (
-          <Card key={s.label} className={`p-4 flex items-center gap-3 ${s.cls}`}>
+          <Card key={s.key} className={`p-4 flex items-center gap-3 ${s.cls}`}>
             <div className="opacity-70">{s.icon}</div>
             <div>
               <div className="text-xl font-bold leading-none">{s.value}</div>
@@ -171,7 +178,7 @@ export function MyWorkPage() {
             <Card className="overflow-hidden">
               <div className="px-4 py-3 bg-red-50 border-b border-red-100 flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4 text-red-500" />
-                <h2 className="text-sm font-semibold text-red-700">Overdue Tests</h2>
+                <h2 className="text-sm font-semibold text-red-700">{t('myTasks.overdueTests')}</h2>
                 {!testsLoading && <span className="ml-auto text-xs text-red-500">{overdue.length}</span>}
               </div>
               {testsLoading ? (
@@ -192,8 +199,8 @@ export function MyWorkPage() {
           <Card className="overflow-hidden">
             <div className="px-4 py-3 bg-muted border-b border-border flex items-center gap-2">
               <ClipboardList className="w-4 h-4 text-muted-foreground" />
-              <h2 className="text-sm font-semibold text-foreground">Assigned Tests</h2>
-              {!testsLoading && <span className="ml-auto text-xs text-muted-foreground/70">{pendingTests.length} pending</span>}
+              <h2 className="text-sm font-semibold text-foreground">{t('myTasks.assignedTests')}</h2>
+              {!testsLoading && <span className="ml-auto text-xs text-muted-foreground/70">{pendingTests.length} {t('myTasks.pending')}</span>}
             </div>
             {testsLoading ? (
               <div className="p-4 space-y-2">
@@ -202,7 +209,7 @@ export function MyWorkPage() {
             ) : pendingTests.length === 0 ? (
               <div className="p-8 text-center text-sm text-muted-foreground/70">
                 <CheckCircle className="w-8 h-8 text-green-400 mx-auto mb-2" />
-                No pending tests assigned to you.
+                {t('myTasks.noPendingTests')}
               </div>
             ) : (
               <div className="divide-y divide-border">
@@ -219,10 +226,10 @@ export function MyWorkPage() {
           <Card className="overflow-hidden">
             <div className="px-4 py-3 bg-muted border-b border-border flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-muted-foreground" />
-              <h2 className="text-sm font-semibold text-foreground">Security Onboarding</h2>
+              <h2 className="text-sm font-semibold text-foreground">{t('myTasks.securityOnboarding')}</h2>
               {onboarding && (
                 <span className={`ml-auto text-xs font-medium ${onboarding.allComplete ? 'text-green-600' : 'text-amber-600'}`}>
-                  {onboarding.allComplete ? 'Complete' : `${3 - onboardingPendingCount}/3 done`}
+                  {onboarding.allComplete ? t('myTasks.complete') : t('myTasks.nDone', { count: 3 - onboardingPendingCount })}
                 </span>
               )}
             </div>
@@ -243,29 +250,29 @@ export function MyWorkPage() {
                   </div>
                 </div>
                 <OnboardingTaskRow
-                  label="Accept security policies"
+                  label={t('myTasks.acceptPolicies')}
                   done={onboarding.policyAccepted}
                   doneAt={onboarding.policyAcceptedAt}
-                  description="Read and accept all published org policies"
+                  description={t('myTasks.acceptPoliciesDesc')}
                   linkTo="/my-security-tasks"
                 />
                 <OnboardingTaskRow
-                  label="Enroll device in MDM"
+                  label={t('myTasks.enrollMdm')}
                   done={onboarding.mdmEnrolled}
                   doneAt={onboarding.mdmEnrolledAt}
-                  description="Install the Manzen MDM agent on your Mac"
+                  description={t('myTasks.enrollMdmDesc')}
                   linkTo="/my-security-tasks"
                 />
                 <OnboardingTaskRow
-                  label="Complete security training"
+                  label={t('myTasks.securityTraining')}
                   done={onboarding.trainingCompleted}
                   doneAt={onboarding.trainingCompletedAt}
-                  description="Complete the interactive security awareness training"
+                  description={t('myTasks.securityTrainingDesc')}
                   linkTo="/my-security-tasks"
                 />
               </div>
             ) : (
-              <p className="p-4 text-sm text-muted-foreground/70">Could not load onboarding status.</p>
+              <p className="p-4 text-sm text-muted-foreground/70">{t('myTasks.couldNotLoadOnboarding')}</p>
             )}
           </Card>
         </div>

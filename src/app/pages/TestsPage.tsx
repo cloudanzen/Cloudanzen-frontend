@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -66,6 +67,7 @@ interface TestFilter {
 const PAGE_SIZE = 25;
 
 export function TestsPage() {
+  const { t } = useTranslation('common');
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { filters: urlFilters, update, reset } = useUrlFilterState({
@@ -388,14 +390,14 @@ export function TestsPage() {
       {/* ── App Bar ── */}
       <div className="bg-card border-b border-border px-6 py-4 flex items-center justify-between sticky top-0 z-10 shadow-sm">
         <div>
-          <h1 className="text-xl font-semibold text-foreground tracking-tight">Tests</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Compliance and security test management</p>
+          <h1 className="text-xl font-semibold text-foreground tracking-tight">{t('testsPage.title')}</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">{t('testsPage.description')}</p>
         </div>
         <div className="flex items-center gap-2">
           {hasActiveFilters && (
             <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
               <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-              Filters active
+              {t('testsPage.filtersActive')}
             </span>
           )}
           <button
@@ -404,7 +406,7 @@ export function TestsPage() {
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border border-border bg-card hover:bg-muted text-foreground transition-colors shadow-sm disabled:opacity-50"
           >
             <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
-            <span className="hidden sm:inline">Refresh</span>
+            <span className="hidden sm:inline">{t('actions.refresh')}</span>
           </button>
           <ColumnPicker columns={columns} onToggle={(id) => setColumns(prev => prev.map(c => c.id === id ? { ...c, visible: !c.visible } : c))} />
         </div>
@@ -478,7 +480,7 @@ export function TestsPage() {
 
             {/* Pass % */}
             <div className="bg-card rounded-xl border border-border shadow-sm px-5 py-4">
-              <p className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider mb-3">Pass Rate</p>
+              <p className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider mb-3">{t('testsPage.passRate')}</p>
               <div className="flex items-end gap-4">
                 <div>
                   <p className="text-4xl font-bold text-foreground">{summary.passPercentage}%</p>
@@ -497,7 +499,7 @@ export function TestsPage() {
 
             {/* Needs attention */}
             <div className="bg-card rounded-xl border border-border shadow-sm px-5 py-4">
-              <p className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider mb-3">Needs Attention</p>
+              <p className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider mb-3">{t('testsPage.needsAttention')}</p>
               <div className="flex gap-4">
                 <button
                   onClick={() => { setStatusFilterOverride('Overdue'); setPage(1); }}
@@ -510,7 +512,7 @@ export function TestsPage() {
                 >
                   <AlertTriangle className="w-5 h-5 text-red-500 mb-1" />
                   <span className="text-2xl font-bold text-red-700">{summary.overdue}</span>
-                  <span className="text-xs text-red-500 mt-0.5">Overdue</span>
+                  <span className="text-xs text-red-500 mt-0.5">{t('testsPage.overdue')}</span>
                 </button>
                 <button
                   onClick={() => { setStatusFilterOverride('Due_soon'); setPage(1); }}
@@ -523,12 +525,12 @@ export function TestsPage() {
                 >
                   <Clock className="w-5 h-5 text-amber-500 mb-1" />
                   <span className="text-2xl font-bold text-amber-700">{summary.dueSoon}</span>
-                  <span className="text-xs text-amber-500 mt-0.5">Due Soon</span>
+                  <span className="text-xs text-amber-500 mt-0.5">{t('testsPage.dueSoon')}</span>
                 </button>
                 <div className="flex-1 flex flex-col items-center p-3 rounded-xl bg-green-50">
                   <CheckCircle className="w-5 h-5 text-green-500 mb-1" />
                   <span className="text-2xl font-bold text-green-700">{summary.total - summary.overdue - summary.dueSoon}</span>
-                  <span className="text-xs text-green-500 mt-0.5">On Track</span>
+                  <span className="text-xs text-green-500 mt-0.5">{t('testsPage.onTrack')}</span>
                 </div>
               </div>
               {statusFilterOverride && (
@@ -536,7 +538,7 @@ export function TestsPage() {
                   onClick={() => setStatusFilterOverride('')}
                   className="mt-2 text-xs text-blue-600 hover:underline flex items-center gap-1"
                 >
-                  <X className="w-3 h-3" /> Clear status filter
+                  <X className="w-3 h-3" /> {t('testsPage.clearStatusFilter')}
                 </button>
               )}
             </div>

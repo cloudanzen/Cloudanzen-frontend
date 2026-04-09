@@ -54,5 +54,28 @@
   "framework": {
     "openGaps": "{{count}}件のギャップ",
     "covered": "{{covered}}/{{applicable}}件適用済み"
+  },
+  "myTasks": {
+    "title": "マイタスク",
+    "description": "担当テストおよび保留中のセキュリティタスク",
+    "totalPending": "合計保留中",
+    "overdueTests": "期限超過テスト",
+    "dueSoon": "期限近いテスト",
+    "onboardingTasks": "オンボーディングタスク",
+    "assignedTests": "担当テスト",
+    "securityOnboarding": "セキュリティオンボーディング",
+    "pending": "保留中",
+    "noPendingTests": "担当している保留中のテストはありません。",
+    "couldNotLoadOnboarding": "オンボーディングステータスを読み込めませんでした。",
+    "acceptPolicies": "セキュリティポリシーに同意する",
+    "acceptPoliciesDesc": "組織の公開済みポリシーをすべて読んで同意してください",
+    "enrollMdm": "デバイスをMDMに登録する",
+    "enrollMdmDesc": "ManzenのMDMエージェントをMacにインストールしてください",
+    "securityTraining": "セキュリティトレーニングを完了する",
+    "securityTrainingDesc": "インタラクティブなセキュリティ意識向上トレーニングを完了してください",
+    "completedAt": "{{date}}に完了",
+    "dueLabel": "期限: {{date}}",
+    "complete": "完了",
+    "nDone": "{{count}}/3 完了"
   }
 }
