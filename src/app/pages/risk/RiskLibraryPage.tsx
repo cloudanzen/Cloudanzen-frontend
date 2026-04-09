@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { Card } from '@/app/components/ui/card';
@@ -35,6 +36,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 export function RiskLibraryPage() {
+  const { t } = useTranslation('risk');
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
   const queryClient = useQueryClient();
@@ -54,14 +56,14 @@ export function RiskLibraryPage() {
     mutationFn: (item: RiskLibraryItemDto) =>
       riskLibraryService.addToRegister({ libraryItemId: item.id }),
     onSuccess: () => {
-      toast.success('Risk added to register');
+      toast.success(t('library.addSuccess'));
       queryClient.invalidateQueries({ queryKey: ['risk-register'] });
     },
     onError: (err: Error & { message?: string }) => {
       if (err.message?.includes('already')) {
-        toast.info('This risk is already in your register');
+        toast.info(t('library.alreadyAdded'));
       } else {
-        toast.error('Failed to add risk');
+        toast.error(t('library.addFailed'));
       }
     },
   });
@@ -82,7 +84,7 @@ export function RiskLibraryPage() {
   }, [items, categoryFilter, search]);
 
   return (
-    <PageTemplate title="Risk Library" description="Browse risk scenarios and add applicable ones to your organization's risk register.">
+    <PageTemplate title={t('library.title')} description={t('library.description')}>
       {isLoading ? (
         <div className="flex h-48 items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
@@ -126,7 +128,7 @@ export function RiskLibraryPage() {
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <Input
-                placeholder="Search risk scenarios..."
+                placeholder={t('library.searchPlaceholder')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-10"
@@ -137,7 +139,7 @@ export function RiskLibraryPage() {
               onChange={(e) => setCategoryFilter(e.target.value)}
               className="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white"
             >
-              <option value="ALL">All categories ({items.length})</option>
+              <option value="ALL">{t('library.allCategories')} ({items.length})</option>
               {categories.map((cat) => (
                 <option key={cat} value={cat}>
                   {cat} ({items.filter((i) => i.category === cat).length})
@@ -160,10 +162,10 @@ export function RiskLibraryPage() {
                           {item.category}
                         </Badge>
                         <span className={`inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full border ${IMPACT_COLORS[item.defaultImpact] ?? ''}`}>
-                          Impact: {item.defaultImpact}
+                          {t('library.impact')}: {item.defaultImpact}
                         </span>
                         <span className={`inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full border ${IMPACT_COLORS[item.defaultLikelihood] ?? ''}`}>
-                          Likelihood: {item.defaultLikelihood}
+                          {t('library.likelihood')}: {item.defaultLikelihood}
                         </span>
                       </div>
                     </div>
@@ -171,7 +173,7 @@ export function RiskLibraryPage() {
                       {isAdded ? (
                         <span className="inline-flex items-center gap-1 text-xs font-medium text-green-700 bg-green-50 px-3 py-1.5 rounded-lg border border-green-200">
                           <CheckCircle2 className="w-3.5 h-3.5" />
-                          In Register
+                          {t('library.alreadyInRegister')}
                         </span>
                       ) : (
                         <Button
@@ -181,7 +183,7 @@ export function RiskLibraryPage() {
                           disabled={addMutation.isPending}
                         >
                           <Plus className="w-3.5 h-3.5 mr-1" />
-                          Add to Register
+                          {t('library.addToRegister')}
                         </Button>
                       )}
                     </div>
@@ -190,7 +192,7 @@ export function RiskLibraryPage() {
               );
             })}
             {filtered.length === 0 && (
-              <p className="text-center text-gray-400 py-8">No risk scenarios match your search.</p>
+              <p className="text-center text-gray-400 py-8">{t('library.noResults')}</p>
             )}
           </div>
         </div>
