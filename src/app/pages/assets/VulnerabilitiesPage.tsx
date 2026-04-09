@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- legacy: to be typed progressively */
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { Card } from '@/app/components/ui/card';
 import { Badge } from '@/app/components/ui/badge';
@@ -23,6 +24,7 @@ function impactVariant(impact: string): 'destructive' | 'secondary' | 'outline' 
 }
 
 export function VulnerabilitiesPage() {
+  const { t } = useTranslation('assets');
   const [vulns, setVulns] = useState<Vuln[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -52,8 +54,8 @@ export function VulnerabilitiesPage() {
 
   return (
     <PageTemplate
-      title="Vulnerabilities"
-      description="Open risks identified by automated scans — branch protection, access control, and CI/CD gaps."
+      title={t('vulnerabilities.title')}
+      description={t('vulnerabilities.description')}
     >
       {loading ? (
         <div className="flex items-center justify-center h-48"><Loader2 className="w-8 h-8 animate-spin text-gray-400" /></div>

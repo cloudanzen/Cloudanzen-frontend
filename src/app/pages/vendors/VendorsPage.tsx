@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- legacy: to be typed progressively */
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { PageFilterBar } from '@/app/components/filters/PageFilterBar';
@@ -78,6 +79,7 @@ function scoreColor(score: number): string {
 }
 
 export function VendorsPage() {
+  const { t } = useTranslation('vendors');
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { filters, update, reset } = useUrlFilterState({
@@ -157,12 +159,12 @@ export function VendorsPage() {
 
   return (
     <PageTemplate
-      title="Vendors"
-      description="Continuously monitor third-party risk, streamline assessments, and keep procurement decisions audit-ready."
+      title={t('title')}
+      description={t('description')}
       actions={
         <Button onClick={() => setIsAddOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
-          Add vendor
+          {t('addVendor')}
         </Button>
       }
     >
@@ -218,7 +220,7 @@ export function VendorsPage() {
             <PageFilterBar
               searchValue={search}
               onSearchChange={(value) => update({ search: value })}
-              searchPlaceholder="Search vendor, category, owner"
+              searchPlaceholder={t('searchPlaceholder')}
               selects={[
                 {
                   key: 'status',
@@ -295,7 +297,7 @@ export function VendorsPage() {
                   {!isLoading && filteredVendors.length === 0 && (
                     <tr>
                       <td colSpan={8} className="py-10 text-center text-muted-foreground">
-                        No vendors match this view.
+                        {t('noResults')}
                       </td>
                     </tr>
                   )}

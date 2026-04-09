@@ -12,6 +12,7 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { FileText, Loader2, Plus, RefreshCw, Search } from 'lucide-react';
 import { PageTemplate } from '@/app/components/PageTemplate';
@@ -180,6 +181,7 @@ function DocumentRow({ doc }: { doc: AiDocument }) {
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function AiDocumentsPage() {
+  const { t } = useTranslation('ai');
   const [search, setSearch] = useState('');
   const [showRegister, setShowRegister] = useState(false);
   const queryClient = useQueryClient();
@@ -197,8 +199,8 @@ export function AiDocumentsPage() {
 
   return (
     <PageTemplate
-      title="AI Knowledge Base"
-      description="Documents indexed for AI-powered evidence synthesis and questionnaire assistance"
+      title={t('documents.title')}
+      description={t('documents.description')}
     >
       <div className="space-y-4">
         {/* Header actions */}
@@ -207,7 +209,7 @@ export function AiDocumentsPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
               type="text"
-              placeholder="Search documents…"
+              placeholder={t('documents.searchPlaceholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full rounded-xl border border-gray-200 bg-white pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"

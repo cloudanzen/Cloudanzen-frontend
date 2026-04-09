@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- legacy: to be typed progressively */
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { Card } from '@/app/components/ui/card';
@@ -15,6 +16,7 @@ interface Repo {
 }
 
 export function CodeChangesPage() {
+  const { t } = useTranslation('assets');
   const [repos, setRepos] = useState<Repo[]>([]);
   const [loading, setLoading] = useState(true);
   const [connected, setConnected] = useState(false);
@@ -49,7 +51,7 @@ export function CodeChangesPage() {
   });
 
   return (
-    <PageTemplate title="Code Changes" description="Commit signing and code review status across GitHub repositories.">
+    <PageTemplate title={t('codeChanges.title')} description={t('codeChanges.description')}>
       {loading ? (
         <div className="flex items-center justify-center h-48"><Loader2 className="w-8 h-8 animate-spin text-gray-400" /></div>
       ) : !connected ? (

@@ -1,4 +1,5 @@
-import { useCallback, useRef, useState, useEffect } from 'react';
+import { useCallback, useMemo, useRef, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Send, Bot, User, Sparkles } from 'lucide-react';
 import { cn } from '@/app/components/ui/utils';
 import { PageTemplate } from '@/app/components/PageTemplate';
@@ -10,32 +11,28 @@ interface DisplayMessage {
   text: string;
 }
 
-const INITIAL_MESSAGES: DisplayMessage[] = [
-  {
-    id: 'welcome',
-    role: 'assistant',
-    text: "Hi! I'm the CloudAnzen AI assistant. I can help you navigate the platform, explain compliance concepts, and guide you through workflows like setting up frameworks, managing risks, preparing for audits, and more. What can I help with?",
-  },
-];
-
-const SUGGESTIONS = [
-  'How do I connect an AWS integration?',
-  'What compliance frameworks do you support?',
-  'How does continuous monitoring work?',
-  'How do I prepare for a SOC 2 audit?',
-  'How do I manage vendor risk assessments?',
-  'How do I create a risk treatment plan?',
-  'How do I set up policy approval workflows?',
-  'How do I use the Trust Center?',
-];
-
 export function AiChatPage() {
-  const [messages, setMessages] = useState<DisplayMessage[]>(INITIAL_MESSAGES);
+  const { t } = useTranslation('ai');
+
+  const suggestions = useMemo(() => [
+    t('chat.suggestions.awsIntegration'),
+    t('chat.suggestions.frameworks'),
+    t('chat.suggestions.monitoring'),
+    t('chat.suggestions.soc2Audit'),
+    t('chat.suggestions.vendorRisk'),
+    t('chat.suggestions.riskTreatment'),
+    t('chat.suggestions.policyApproval'),
+    t('chat.suggestions.trustCenter'),
+  ], [t]);
+
+  const [messages, setMessages] = useState<DisplayMessage[]>([
+    { id: 'welcome', role: 'assistant', text: t('chat.welcome') },
+  ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const counter = useRef(INITIAL_MESSAGES.length + 1);
+  const counter = useRef(2);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -75,7 +72,7 @@ export function AiChatPage() {
         const response = await aiService.chat(chatHistory);
         const replyText =
           response.data?.reply ??
-          "I couldn't process that right now. Please try again or contact support.";
+          t('chat.errorReply');
 
         setMessages((prev) => [
           ...prev,
@@ -91,7 +88,7 @@ export function AiChatPage() {
           {
             id: `assistant-${nextId + 1}`,
             role: 'assistant',
-            text: "I hit a temporary issue. Please try again or check our Help Center for guidance.",
+            text: t('chat.errorReply'),
           },
         ]);
       } finally {
@@ -99,13 +96,13 @@ export function AiChatPage() {
         inputRef.current?.focus();
       }
     },
-    [input, isLoading, messages],
+    [input, isLoading, messages, t],
   );
 
   return (
     <PageTemplate
-      title="AI Chat Assistant"
-      description="Get instant guidance on platform features, compliance concepts, and GRC workflows."
+      title={t('chat.title')}
+      description={t('chat.description')}
     >
       <div className="mx-auto flex max-w-3xl flex-col" style={{ height: 'calc(100vh - 13rem)' }}>
         {/* Messages area */}
@@ -152,7 +149,7 @@ export function AiChatPage() {
                 Suggested questions
               </p>
               <div className="flex flex-wrap gap-2">
-                {SUGGESTIONS.map((s) => (
+                {suggestions.map((s) => (
                   <button
                     key={s}
                     onClick={() => sendMessage(s)}
@@ -173,8 +170,8 @@ export function AiChatPage() {
               </div>
               <div className="rounded-2xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground">
                 <span className="inline-flex items-center gap-1">
-                  Thinking
-                  <span className="animate-pulse">...</span>
+                  {t('chat.thinking')}
+                  <span className="animate-pulse"></span>
                 </span>
               </div>
             </div>
@@ -193,7 +190,7 @@ export function AiChatPage() {
                 void sendMessage();
               }
             }}
-            placeholder="Ask about any feature, workflow, or compliance concept..."
+            placeholder={t('chat.placeholder')}
             className="h-12 flex-1 rounded-xl border border-border bg-card px-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-blue-400 focus:ring-1 focus:ring-blue-400/30"
             disabled={isLoading}
           />
