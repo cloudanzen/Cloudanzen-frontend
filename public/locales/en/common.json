@@ -222,6 +222,259 @@
     "owner": "Owner",
     "organization": "Organization"
   },
+  "securityTasks": {
+    "title": "My Security Tasks",
+    "description": "Complete your mandatory security onboarding",
+    "loading": "Loading tasks...",
+    "loadFailed": "Failed to load tasks",
+    "unknownError": "Unknown error",
+    "retry": "Retry",
+    "taskNumber": "Task {{number}}",
+    "status": {
+      "completed": "Completed",
+      "inProgress": "In Progress",
+      "notStarted": "Not Started"
+    },
+    "cards": {
+      "policies": {
+        "title": "Accept All Organisation Policies",
+        "description": "Digitally acknowledge every active policy in the organisation."
+      },
+      "mdm": {
+        "title": "Install MDM Agent",
+        "description": "Enrol your work device in the company MDM to maintain endpoint compliance."
+      },
+      "training": {
+        "title": "Complete Security Awareness Training",
+        "description": "Complete the interactive security awareness training mission."
+      }
+    },
+    "policies": {
+      "loadFailed": "Failed to load policies",
+      "acceptedOn": "All policies accepted on {{date}}",
+      "acknowledgedCount_one": "{{count}} policy acknowledged.",
+      "acknowledgedCount_other": "{{count}} policies acknowledged.",
+      "newPoliciesPublished_one": "{{count}} new policy has been published",
+      "newPoliciesPublished_other": "{{count}} new policies have been published",
+      "newPoliciesDescription": "since your last acceptance on {{date}}. Please review and accept all policies below.",
+      "instructions": "You must digitally acknowledge all active organisation policies below. Read each policy before accepting.",
+      "loading": "Loading policies...",
+      "noPublishedPolicies": "No published policies found. Ask your admin to publish policies first.",
+      "newBadge": "NEW",
+      "selectAll": "Select all",
+      "acceptPolicies_one": "Accept {{count}} Policy",
+      "acceptPolicies_other": "Accept {{count}} Policies"
+    },
+    "mdm": {
+      "enrolledOn": "MDM agent enrolled on {{date}}",
+      "deviceId": "Device ID",
+      "instructions": "Install the ISMS MDM agent on your work device. Once installed and enrolled, this task will be marked complete automatically.",
+      "installationSteps": "Installation steps",
+      "steps": {
+        "generateToken": "Ask your admin to generate an enrollment token for your device.",
+        "downloadAgent": "Download the ISMS agent binary from your admin.",
+        "runInstaller": "Run the installer with your enrollment token.",
+        "autoCheckIn": "The agent will check in automatically and this task updates within minutes."
+      },
+      "autoCompleteNote": "This task completes automatically after your device checks in with the backend."
+    },
+    "training": {
+      "completedOn": "Training completed on {{date}}",
+      "saveFailed": "Failed to save completion",
+      "inProgress": "Training in progress, started {{date}}. Complete all modules to finish.",
+      "savingCompletion": "Saving completion..."
+    },
+    "progress": {
+      "title": "Security Onboarding",
+      "tasksComplete": "{{done}}/3 tasks complete",
+      "description": "Complete all tasks to finish your security onboarding.",
+      "allTasksCompleteTitle": "All tasks complete!",
+      "allTasksCompleteDescription": "Your security onboarding is fully done. Thank you."
+    },
+    "remediation": {
+      "title": "Remediation Tasks",
+      "description": "Automated findings assigned to you that need remediation.",
+      "loading": "Loading remediation tasks...",
+      "actionFailed": "Action failed",
+      "overdue": "Overdue",
+      "due": "Due {{date}}",
+      "startRemediation": "Start Remediation",
+      "submitForReview": "Submit for Review",
+      "awaitingAuditorReview": "Awaiting auditor review",
+      "statusLabels": {
+        "open": "Open",
+        "inRemediation": "In Remediation",
+        "readyForReview": "Ready for Review",
+        "closed": "Closed"
+      }
+    }
+  },
+  "reports": {
+    "title": "Reports",
+    "description": "Generate and view compliance, risk, and security posture reports.",
+    "viewReport": "View Report",
+    "stats": {
+      "availableReports": "Available Reports",
+      "riskAndAudit": "Risk & Audit"
+    },
+    "categories": {
+      "all": "All",
+      "overview": "Overview",
+      "compliance": "Compliance",
+      "risk": "Risk",
+      "tests": "Tests",
+      "audit": "Audit",
+      "personnel": "Personnel"
+    },
+    "catalog": {
+      "monthlyOverview": {
+        "name": "Monthly Overview Report",
+        "description": "High-level compliance posture for a selected month: framework progress, risk distribution, test completion, and audit summary.",
+        "period": "Select month"
+      },
+      "quarterlyOverview": {
+        "name": "Quarterly Overview Report",
+        "description": "Executive summary for a selected quarter, ideal for board reporting and quarterly business reviews.",
+        "period": "Select quarter"
+      },
+      "frameworkProgress": {
+        "name": "Framework Progress Report",
+        "description": "Detailed breakdown of controls by status: implemented, partially implemented, and not yet implemented."
+      },
+      "riskRegister": {
+        "name": "Risk Register Report",
+        "description": "All active risks grouped by severity with trend over the selected period.",
+        "period": "Last 90 days"
+      },
+      "testEffectiveness": {
+        "name": "Test Effectiveness Report",
+        "description": "Test performance and remediation efficiency with on-time versus late completions, pass rate, and overdue breakdown."
+      },
+      "auditStatus": {
+        "name": "Audit Status Report",
+        "description": "All audits with completion status, major and minor findings counts, and open versus closed findings summary."
+      },
+      "evidenceCoverage": {
+        "name": "Evidence Coverage Report",
+        "description": "Controls versus attached evidence, showing which controls have sufficient evidence and which are gaps."
+      },
+      "personnelCompliance": {
+        "name": "Personnel Compliance Report",
+        "description": "Security onboarding completion by personnel, including policy acceptance, MDM enrollment, and security training."
+      }
+    }
+  },
+  "setup": {
+    "title": "System Setup",
+    "description": "Initialize your ISMS platform with organization and admin accounts",
+    "sections": {
+      "organization": {
+        "title": "Organization Information"
+      },
+      "superAdmin": {
+        "title": "System Administrator (Super Admin)",
+        "description": "This user will have system-wide access"
+      },
+      "organizationAdmin": {
+        "title": "Organization Administrator",
+        "description": "This user will have organization-wide access"
+      },
+      "frameworks": {
+        "title": "Framework Setup",
+        "description": "Choose which framework-aligned suites should be created immediately after setup."
+      }
+    },
+    "fields": {
+      "organizationName": {
+        "label": "Organization Name",
+        "placeholder": "Enter your organization name"
+      },
+      "adminName": {
+        "label": "Admin Name",
+        "placeholder": "Enter admin name"
+      },
+      "adminEmail": {
+        "label": "Admin Email",
+        "placeholder": "Enter admin email"
+      },
+      "adminPassword": {
+        "label": "Admin Password",
+        "placeholder": "Create a strong password"
+      },
+      "orgAdminName": {
+        "label": "Organization Admin Name",
+        "placeholder": "Enter organization admin name"
+      },
+      "orgAdminEmail": {
+        "label": "Organization Admin Email",
+        "placeholder": "Enter organization admin email"
+      },
+      "orgAdminPassword": {
+        "label": "Organization Admin Password",
+        "placeholder": "Create a strong password"
+      }
+    },
+    "passwordStrength": {
+      "label": "Password strength:",
+      "levels": {
+        "weak": "Weak",
+        "medium": "Medium",
+        "strong": "Strong"
+      },
+      "requirements": {
+        "minLength": "8+ characters",
+        "uppercase": "Uppercase letter",
+        "lowercase": "Lowercase letter",
+        "number": "Number",
+        "specialCharacter": "Special character"
+      }
+    },
+    "frameworkOptions": {
+      "soc2AccessReviews": {
+        "name": "SOC 2 Access Review Suite",
+        "description": "Quarterly access reviews, privileged access checks, and evidence attestation."
+      },
+      "isoCloudHardening": {
+        "name": "ISO Cloud Hardening Suite",
+        "description": "Automated cloud posture checks for encryption, exposure, and perimeter hardening."
+      },
+      "nistSdlc": {
+        "name": "NIST Secure SDLC Suite",
+        "description": "Engineering controls for release quality, vulnerability response, and CI guardrails."
+      },
+      "hipaaDataRetention": {
+        "name": "HIPAA Data Retention Suite",
+        "description": "Evidence-driven checks for retention, encryption, and data ownership workflows."
+      }
+    },
+    "submit": {
+      "settingUp": "Setting up system...",
+      "setupSystem": "Setup System"
+    },
+    "note": "Note: Setup can only be performed once. Controls and policies seeded will reflect the frameworks selected above.",
+    "footer": "© 2024 Manzen Security Platform. All rights reserved.",
+    "validation": {
+      "organizationNameMin": "Organization name must be at least 2 characters",
+      "adminNameMin": "Admin name must be at least 2 characters",
+      "orgAdminNameMin": "Organization admin name must be at least 2 characters",
+      "invalidEmail": "Please enter a valid email address",
+      "passwordMin": "Password must be at least 8 characters",
+      "passwordUppercase": "Password must contain at least one uppercase letter",
+      "passwordLowercase": "Password must contain at least one lowercase letter",
+      "passwordNumber": "Password must contain at least one number",
+      "passwordSpecial": "Password must contain at least one special character",
+      "emailsMustDiffer": "Admin emails must be different"
+    },
+    "toasts": {
+      "setupCompleted": "System setup completed successfully!",
+      "frameworksActivated_one": "Activated {{count}} framework during setup.",
+      "frameworksActivated_other": "Activated {{count}} frameworks during setup.",
+      "starterTestsCreated_one": "Created {{count}} starter test during setup.",
+      "starterTestsCreated_other": "Created {{count}} starter tests during setup.",
+      "setupFailed": "Setup failed",
+      "setupError": "An error occurred during setup"
+    }
+  },
   "customerTrust": {
     "settings": {
       "title": "Trust Center Settings",

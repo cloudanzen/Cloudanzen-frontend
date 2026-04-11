@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
 import { Badge } from '@/app/components/ui/badge';
-import { testsService, type WorkflowIntegrationProvider } from '@/services/api/tests';
+import {
+  testsService,
+  type WorkflowIntegrationProvider,
+} from '@/services/api/tests';
 import { EngineerAIntegrationRecord } from '@/services/api/engineer-a-factory';
 import { useConfirmDialog } from '@/app/hooks/useConfirmDialog';
 
@@ -12,7 +16,10 @@ export type WorkflowConfigResult = {
 };
 
 type EngineerAService = {
-  getAccounts: () => Promise<{ success: boolean; data: EngineerAIntegrationRecord[] }>;
+  getAccounts: () => Promise<{
+    success: boolean;
+    data: EngineerAIntegrationRecord[];
+  }>;
   connect: (payload: {
     apiKey: string;
     accountId?: string;
@@ -22,7 +29,9 @@ type EngineerAService = {
     label?: string;
   }) => Promise<{ success: boolean; data: EngineerAIntegrationRecord }>;
   disconnect: (integrationId: string) => Promise<{ success: boolean }>;
-  runScan: (integrationId: string) => Promise<{ success: boolean; jobId: string; status: string }>;
+  runScan: (
+    integrationId: string,
+  ) => Promise<{ success: boolean; jobId: string; status: string }>;
 };
 
 export type EngineerACardConfig = {
@@ -62,6 +71,7 @@ export function EngineerAIntegrationCard({
     baseUrl: string;
   }) => WorkflowConfigResult | null;
 }) {
+  const { t } = useTranslation('integrations');
   const confirm = useConfirmDialog();
   const [accounts, setAccounts] = useState<EngineerAIntegrationRecord[]>([]);
   const [showConnect, setShowConnect] = useState(false);
@@ -95,7 +105,7 @@ export function EngineerAIntegrationCard({
   async function handleConnect(e: React.FormEvent) {
     e.preventDefault();
     if (!apiKey.trim()) {
-      onToast('error', 'API key is required');
+      onToast('error', t('cards.shared.apiKeyRequired'));
       return;
     }
 
@@ -118,10 +128,16 @@ export function EngineerAIntegrationCard({
       });
       if (workflowConfig) {
         try {
-          await testsService.upsertWorkflowIntegrationConfig(workflowConfig.provider, workflowConfig.values);
+          await testsService.upsertWorkflowIntegrationConfig(
+            workflowConfig.provider,
+            workflowConfig.values,
+          );
           await onWorkflowConfigUpdated?.();
         } catch {
-          onToast('error', `${config.name} connected, but workflow endpoint config sync failed`);
+          onToast(
+            'error',
+            t('cards.engineerA.workflowSyncFailed', { name: config.name }),
+          );
         }
       }
 
@@ -132,9 +148,13 @@ export function EngineerAIntegrationCard({
       setBaseUrl('');
       setLabel('');
       await load();
-      onToast('success', `${config.name} connected`);
+      onToast('success', t('cards.engineerA.connected', { name: config.name }));
     } catch (error: unknown) {
-      onToast('error', (error as { message?: string }).message ?? `Failed to connect ${config.name}`);
+      onToast(
+        'error',
+        (error as { message?: string }).message ??
+          t('cards.engineerA.failedToConnect', { name: config.name }),
+      );
     } finally {
       setSubmitting(false);
     }
@@ -142,9 +162,11 @@ export function EngineerAIntegrationCard({
 
   async function handleDisconnect(integrationId: string) {
     const confirmed = await confirm({
-      title: `Disconnect ${config.name}`,
-      description: `Disconnect ${config.name}? Automated tests will stop running.`,
-      confirmLabel: 'Disconnect',
+      title: t('cards.engineerA.disconnectTitle', { name: config.name }),
+      description: t('cards.engineerA.disconnectDescription', {
+        name: config.name,
+      }),
+      confirmLabel: t('cards.shared.disconnect'),
       variant: 'destructive',
     });
     if (!confirmed) return;
@@ -152,9 +174,15 @@ export function EngineerAIntegrationCard({
     try {
       await config.service.disconnect(integrationId);
       await load();
-      onToast('success', `${config.name} disconnected`);
+      onToast(
+        'success',
+        t('cards.engineerA.disconnected', { name: config.name }),
+      );
     } catch {
-      onToast('error', `Failed to disconnect ${config.name}`);
+      onToast(
+        'error',
+        t('cards.engineerA.failedToDisconnect', { name: config.name }),
+      );
     } finally {
       setDisconnectingId(null);
     }
@@ -164,9 +192,15 @@ export function EngineerAIntegrationCard({
     setScanningId(integrationId);
     try {
       await config.service.runScan(integrationId);
-      onToast('success', `${config.name} scan queued - results will appear in tests shortly`);
+      onToast(
+        'success',
+        t('cards.engineerA.scanQueued', { name: config.name }),
+      );
     } catch {
-      onToast('error', `Failed to queue ${config.name} scan`);
+      onToast(
+        'error',
+        t('cards.engineerA.failedToQueueScan', { name: config.name }),
+      );
     } finally {
       setScanningId(null);
     }
@@ -179,45 +213,82 @@ export function EngineerAIntegrationCard({
     <Card className="p-6 md:col-span-2">
       <div className="mb-4 flex items-start justify-between">
         <div className="flex items-center gap-3">
-          <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-full p-1 ${config.iconBg}`}>
+          <div
+            className={`flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-full p-1 ${config.iconBg}`}
+          >
             {config.iconSvg ?? (
               <span className="text-sm font-bold text-white">
-                {config.name.split(' ').map((word) => word[0]).join('').slice(0, 2).toUpperCase()}
+                {config.name
+                  .split(' ')
+                  .map((word) => word[0])
+                  .join('')
+                  .slice(0, 2)
+                  .toUpperCase()}
               </span>
             )}
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">{config.name}</h3>
-            <p className="text-sm text-gray-500">{config.subtitle}</p>
+            <h3 className="text-lg font-semibold text-gray-900">
+              {config.name}
+            </h3>
+            <p className="text-sm text-gray-500">
+              {t(`engineerA.${config.key}.subtitle`, {
+                defaultValue: config.subtitle,
+              })}
+            </p>
           </div>
         </div>
         <Badge variant={connected ? 'default' : 'outline'}>
-          {loading ? 'Checking...' : connected ? `${accounts.length} connected` : 'Available'}
+          {loading
+            ? t('cards.shared.checking')
+            : connected
+              ? t('cards.shared.connectedCount', { count: accounts.length })
+              : t('cards.shared.available')}
         </Badge>
       </div>
 
-      {connected && accounts.map((account) => (
-        <div key={account.id} className="mb-3 flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 p-3">
-          <div>
-            <p className="text-sm font-medium text-gray-900">{(account.metadata?.['label'] as string | undefined) || config.name}</p>
-            <p className="text-xs text-gray-400">{(account.metadata?.['accountId'] as string | undefined) || (account.metadata?.['tenant'] as string | undefined) || 'Active account'}</p>
+      {connected &&
+        accounts.map((account) => (
+          <div
+            key={account.id}
+            className="mb-3 flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 p-3"
+          >
+            <div>
+              <p className="text-sm font-medium text-gray-900">
+                {(account.metadata?.['label'] as string | undefined) ||
+                  config.name}
+              </p>
+              <p className="text-xs text-gray-400">
+                {(account.metadata?.['accountId'] as string | undefined) ||
+                  (account.metadata?.['tenant'] as string | undefined) ||
+                  t('cards.engineerA.activeAccount')}
+              </p>
+            </div>
+            <div className="flex flex-shrink-0 items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleScan(account.id)}
+                disabled={scanningId === account.id}
+              >
+                {scanningId === account.id
+                  ? t('cards.shared.scanning')
+                  : t('cards.shared.runScan')}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-red-200 text-red-600 hover:bg-red-50"
+                onClick={() => handleDisconnect(account.id)}
+                disabled={disconnectingId === account.id}
+              >
+                {disconnectingId === account.id
+                  ? t('cards.shared.disconnecting')
+                  : t('cards.shared.disconnect')}
+              </Button>
+            </div>
           </div>
-          <div className="flex flex-shrink-0 items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => handleScan(account.id)} disabled={scanningId === account.id}>
-              {scanningId === account.id ? 'Scanning…' : 'Run Scan'}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="border-red-200 text-red-600 hover:bg-red-50"
-              onClick={() => handleDisconnect(account.id)}
-              disabled={disconnectingId === account.id}
-            >
-              {disconnectingId === account.id ? 'Disconnecting...' : 'Disconnect'}
-            </Button>
-          </div>
-        </div>
-      ))}
+        ))}
 
       <div className="flex flex-wrap gap-2">
         {!loading && (
@@ -226,58 +297,85 @@ export function EngineerAIntegrationCard({
             style={{ backgroundColor: config.brandColor }}
             className="inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
           >
-            {connected ? `+ Add ${config.name} Account` : `Connect ${config.name}`}
+            {connected
+              ? t('cards.engineerA.addAccount', { name: config.name })
+              : t('cards.engineerA.connect', { name: config.name })}
           </button>
         )}
       </div>
 
       {showConnect && (
         <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
-          <h4 className="mb-3 text-sm font-semibold text-gray-700">Connect {config.name}</h4>
+          <h4 className="mb-3 text-sm font-semibold text-gray-700">
+            {t('cards.engineerA.connect', { name: config.name })}
+          </h4>
           <form onSubmit={handleConnect} className="space-y-3">
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">API Key <span className="text-red-500">*</span></label>
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                {t('cards.shared.apiKey')}{' '}
+                <span className="text-red-500">*</span>
+              </label>
               <input
                 type="password"
                 className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-gray-900"
-                placeholder="API key"
+                placeholder={t('cards.shared.apiKey')}
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
                 autoComplete="off"
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Account ID <span className="font-normal text-gray-400">(optional)</span></label>
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                {t('cards.shared.accountId')}{' '}
+                <span className="font-normal text-gray-400">
+                  {t('cards.shared.optional')}
+                </span>
+              </label>
               <input
                 className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
-                placeholder="Account ID"
+                placeholder={t('cards.shared.accountId')}
                 value={accountId}
                 onChange={(e) => setAccountId(e.target.value)}
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Tenant / Subdomain <span className="font-normal text-gray-400">(optional)</span></label>
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                {t('cards.shared.tenantSubdomain')}{' '}
+                <span className="font-normal text-gray-400">
+                  {t('cards.shared.optional')}
+                </span>
+              </label>
               <input
                 className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
-                placeholder="Tenant or subdomain"
+                placeholder={t('cards.shared.tenantSubdomainPlaceholder')}
                 value={tenant}
                 onChange={(e) => setTenant(e.target.value)}
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Base URL <span className="font-normal text-gray-400">(optional)</span></label>
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                {t('cards.shared.baseUrl')}{' '}
+                <span className="font-normal text-gray-400">
+                  {t('cards.shared.optional')}
+                </span>
+              </label>
               <input
                 className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
-                placeholder="https://..."
+                placeholder={t('cards.shared.baseUrlPlaceholder')}
                 value={baseUrl}
                 onChange={(e) => setBaseUrl(e.target.value)}
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Label <span className="font-normal text-gray-400">(optional)</span></label>
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                {t('cards.shared.label')}{' '}
+                <span className="font-normal text-gray-400">
+                  {t('cards.shared.optional')}
+                </span>
+              </label>
               <input
                 className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
-                placeholder="e.g. Production"
+                placeholder={t('cards.shared.labelPlaceholder')}
                 value={label}
                 onChange={(e) => setLabel(e.target.value)}
               />
@@ -288,14 +386,16 @@ export function EngineerAIntegrationCard({
                 disabled={submitting}
                 className="flex-1 inline-flex items-center justify-center rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-gray-800 disabled:opacity-50"
               >
-                {submitting ? 'Connecting...' : `Connect ${config.name}`}
+                {submitting
+                  ? t('cards.shared.connecting')
+                  : t('cards.engineerA.connect', { name: config.name })}
               </button>
               <button
                 type="button"
                 onClick={() => setShowConnect(false)}
                 className="flex-1 inline-flex items-center justify-center rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
               >
-                Cancel
+                {t('cards.shared.cancel')}
               </button>
             </div>
           </form>

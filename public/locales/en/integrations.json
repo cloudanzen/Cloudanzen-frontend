@@ -45,6 +45,90 @@
   "partnerApi": {
     "title": "Partner API",
     "description": "Manage API keys and partner access",
+    "pageDescription": "Issue API keys to external tool teams so they can push scan results directly into your ISMS.",
+    "accessDenied": {
+      "pageDescription": "Manage external tool integrations",
+      "title": "Super Admin access required",
+      "description": "Only Super Admins can manage Partner API keys and tool requests."
+    },
+    "stats": {
+      "activeKeys": "Active Keys",
+      "revokedKeys": "Revoked Keys",
+      "softDeleted": "soft-deleted",
+      "totalFindings": "Total Findings",
+      "acrossAllResults": "across all results",
+      "openFailures": "Open Failures"
+    },
+    "tabs": {
+      "keys": "API Keys",
+      "results": "Inbound Results",
+      "catalogue": "Tool Catalogue",
+      "requests": "Tool Requests"
+    },
+    "issueKeyCta": "Issue Key",
+    "revokeAction": "Revoke",
+    "status": {
+      "active": "Active",
+      "revoked": "Revoked"
+    },
+    "common": {
+      "none": "—"
+    },
+    "keys": {
+      "title": "API Keys",
+      "description": "Each key is scoped to this organisation. The raw key is never stored, only its SHA-256 hash. Share keys securely.",
+      "emptyTitle": "No keys yet",
+      "emptyDescription": "Issue your first key to let an external team push scan results.",
+      "noExpiry": "No expiry",
+      "columns": {
+        "keyName": "Key Name",
+        "tool": "Tool",
+        "category": "Category",
+        "status": "Status",
+        "lastUsed": "Last Used",
+        "expires": "Expires",
+        "created": "Created"
+      }
+    },
+    "results": {
+      "title": "Inbound Scan Results",
+      "description": "Scan results pushed by external tool teams using their Partner API keys.",
+      "emptyTitle": "No results yet",
+      "emptyDescription": "Once an external team pushes scan results using their API key, they will appear here.",
+      "view": "View",
+      "columns": {
+        "tool": "Tool",
+        "category": "Category",
+        "pass": "Pass",
+        "warn": "Warn",
+        "fail": "Fail",
+        "score": "Score",
+        "scannedAt": "Scanned At"
+      }
+    },
+    "requests": {
+      "title": "Tool Integration Requests",
+      "description": "Requests submitted by users for new tool integrations. Approve to prioritise or dismiss to decline.",
+      "emptyTitle": "No tool requests yet",
+      "emptyDescription": "Users can request new integrations from the Integrations page.",
+      "columns": {
+        "tool": "Tool",
+        "category": "Category",
+        "useCase": "Use Case",
+        "submittedBy": "Submitted By",
+        "date": "Date",
+        "status": "Status"
+      },
+      "actions": {
+        "approve": "Approve",
+        "dismiss": "Dismiss"
+      }
+    },
+    "requestStatus": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "dismissed": "Dismissed"
+    },
     "createKey": "Create API Key",
     "keyName": "Key Name",
     "created": "Created",
@@ -93,9 +177,1048 @@
       "close": "Close"
     },
     "catalogue": {
+      "searchPlaceholder": "Search tools or categories...",
+      "toolCount_one": "{{count}} tool",
+      "toolCount_other": "{{count}} tools",
+      "toolsInCategory_one": "{{count}} tool",
+      "toolsInCategory_other": "{{count}} tools",
+      "noMatch": "No tools match \"{{query}}\"",
       "tests_one": "{{count}} test",
       "tests_other": "{{count}} tests",
       "suggestedIsoTests": "Suggested ISO Tests"
+    }
+  },
+  "grid": {
+    "comingSoon": "Coming Soon",
+    "showMore": "Show more integrations ({{count}} remaining)"
+  },
+  "cards": {
+    "shared": {
+      "checking": "Checking...",
+      "loading": "Loading...",
+      "available": "Available",
+      "connected": "Connected",
+      "connectedCount": "{{count}} connected",
+      "connecting": "Connecting...",
+      "disconnect": "Disconnect",
+      "disconnecting": "Disconnecting...",
+      "cancel": "Cancel",
+      "runScan": "Run Scan",
+      "scanning": "Scanning...",
+      "apiKey": "API Key",
+      "apiKeyRequired": "API key is required",
+      "accountId": "Account ID",
+      "tenantSubdomain": "Tenant / Subdomain",
+      "tenantSubdomainPlaceholder": "Tenant or subdomain",
+      "baseUrl": "Base URL",
+      "baseUrlPlaceholder": "https://...",
+      "label": "Label",
+      "labelPlaceholder": "e.g. Production",
+      "optional": "(optional)",
+      "revoke": "Revoke",
+      "connectingEllipsis": "Connecting..."
+    },
+    "engineerA": {
+      "activeAccount": "Active account",
+      "connect": "Connect {{name}}",
+      "addAccount": "+ Add {{name}} Account",
+      "connected": "{{name}} connected",
+      "disconnected": "{{name}} disconnected",
+      "disconnectTitle": "Disconnect {{name}}",
+      "disconnectDescription": "Disconnect {{name}}? Automated tests will stop running.",
+      "scanQueued": "{{name}} scan queued. Results will appear in tests shortly.",
+      "failedToConnect": "Failed to connect {{name}}",
+      "failedToDisconnect": "Failed to disconnect {{name}}",
+      "failedToQueueScan": "Failed to queue {{name}} scan",
+      "workflowSyncFailed": "{{name}} connected, but workflow endpoint config sync failed",
+      "workspace-directory": {
+        "subtitle": "Identity · MFA, stale accounts & external sharing"
+      },
+      "onelogin": {
+        "subtitle": "Identity & SSO · MFA, stale accounts & app hygiene"
+      },
+      "jamf": { "subtitle": "Endpoint / MDM · Encryption, screen lock & EDR" },
+      "kandji": {
+        "subtitle": "Endpoint / MDM · Encryption, blueprints & firewall"
+      },
+      "intune": {
+        "subtitle": "Endpoint / MDM · Device compliance & conditional access"
+      },
+      "crowdstrike": {
+        "subtitle": "Endpoint Security · Sensor coverage & detections"
+      },
+      "workday": {
+        "subtitle": "HRIS · Employee lifecycle & HR access governance"
+      },
+      "rippling": {
+        "subtitle": "HRIS · Onboarding, offboarding & HR data retention"
+      },
+      "hibob": { "subtitle": "HRIS · People ops lifecycle & PII controls" },
+      "gitlab": { "subtitle": "DevOps · Source control & CI/CD security" },
+      "bitbucket": {
+        "subtitle": "DevOps · Repository & pipeline access controls"
+      },
+      "jira": { "subtitle": "Project Management · Workflow & access controls" },
+      "linear": { "subtitle": "Project Management · Issue tracking & access" },
+      "asana": {
+        "subtitle": "Project Management · Task & workspace governance"
+      },
+      "confluence": {
+        "subtitle": "Knowledge Management · Space & content access"
+      },
+      "sharepoint": {
+        "subtitle": "Content Management · Document & site permissions"
+      },
+      "splunk": { "subtitle": "SIEM · Log management & security monitoring" },
+      "sumologic": {
+        "subtitle": "SIEM · Cloud-native log analytics & security"
+      },
+      "tenable": {
+        "subtitle": "Vulnerability Management · Asset scanning & risk"
+      },
+      "qualys": {
+        "subtitle": "Vulnerability Management · Compliance & scanning"
+      },
+      "digitalocean": {
+        "subtitle": "Cloud Provider · Infrastructure access, network and encryption"
+      },
+      "heroku": {
+        "subtitle": "Cloud Provider · App pipeline security and auditability"
+      },
+      "render": {
+        "subtitle": "Cloud Provider · Service access and deployment governance"
+      },
+      "netlify": {
+        "subtitle": "Cloud Provider · Deploy controls and build security hygiene"
+      },
+      "vercel": {
+        "subtitle": "Cloud Provider · Deployment protection and access monitoring"
+      },
+      "scaleway": {
+        "subtitle": "Cloud Provider · European cloud infrastructure"
+      },
+      "gitlab-self-managed": {
+        "subtitle": "Version Control · On-premise source code management"
+      },
+      "azure-devops": {
+        "subtitle": "Version Control · CI/CD and project management"
+      },
+      "auth0": {
+        "subtitle": "Identity Provider · Authentication and authorization"
+      },
+      "pingone": {
+        "subtitle": "Identity Provider · Cloud identity management"
+      },
+      "tailscale": {
+        "subtitle": "Identity Provider · Network identity and access controls"
+      },
+      "mondaycom": {
+        "subtitle": "Task Management · Workspace sharing and member governance"
+      },
+      "basecamp": {
+        "subtitle": "Task Management · Project access and collaboration controls"
+      },
+      "smartsheet": {
+        "subtitle": "Task Management · Sheet sharing and admin permission controls"
+      },
+      "zendesk": {
+        "subtitle": "Task Management · Support access and ticket data governance"
+      },
+      "microsoft-teams": {
+        "subtitle": "Communication · Messaging, collaboration and admin governance"
+      },
+      "zoom": {
+        "subtitle": "Communication · Meeting security and host control posture"
+      },
+      "webex": {
+        "subtitle": "Communication · Meeting governance and external access controls"
+      },
+      "hubspot": {
+        "subtitle": "CRM · Customer data access and token governance"
+      },
+      "salesforce": {
+        "subtitle": "CRM · Permission model, session controls and data governance"
+      },
+      "pipedrive": {
+        "subtitle": "CRM · Deal pipeline governance and API token hygiene"
+      },
+      "copper": {
+        "subtitle": "CRM · Workspace member governance and sharing controls"
+      },
+      "apollo": {
+        "subtitle": "Sales · Prospecting data access and workflow permissions"
+      },
+      "gong": {
+        "subtitle": "Sales · Recording access and external sharing governance"
+      },
+      "zoominfo": {
+        "subtitle": "Sales · Data access, export policy, and admin controls"
+      },
+      "gusto": {
+        "subtitle": "HRIS · Payroll data access and admin governance controls"
+      },
+      "trinet": {
+        "subtitle": "HRIS · Role assignment, data export, and admin audit controls"
+      },
+      "humaans": {
+        "subtitle": "HRIS · Lifecycle workflows and PII field access controls"
+      },
+      "personio": {
+        "subtitle": "HRIS · Role-based access and document permission governance"
+      },
+      "adp-workforce-now": {
+        "subtitle": "HRIS · Payroll and PII access policy governance"
+      },
+      "deel": {
+        "subtitle": "HRIS · Global payroll and contractor access governance"
+      },
+      "employment-hero": {
+        "subtitle": "HRIS · Employee record protection and admin access controls"
+      },
+      "justworks": {
+        "subtitle": "HRIS · Payroll export controls and SSO governance"
+      },
+      "factorial": {
+        "subtitle": "HRIS · HR permission boundaries and document access controls"
+      },
+      "alexishr": {
+        "subtitle": "HRIS · Sensitive profile access and credential lifecycle controls"
+      },
+      "addigy": {
+        "subtitle": "MDM · Device enrollment and compliance governance"
+      },
+      "workspace-one": {
+        "subtitle": "MDM · Device ownership, baseline policy, and admin controls"
+      },
+      "huntress": {
+        "subtitle": "Endpoint Security · Managed detection and response posture"
+      },
+      "intruder": {
+        "subtitle": "Vulnerability Scanner · External surface and remediation SLA"
+      },
+      "orca-security": {
+        "subtitle": "Vulnerability Scanner · Cloud asset and misconfiguration risk"
+      },
+      "hostedscan": {
+        "subtitle": "Vulnerability Scanner · Attack surface and remediation tracking"
+      },
+      "aikido-security": {
+        "subtitle": "Vulnerability Scanner · Code and cloud findings governance"
+      },
+      "jit": {
+        "subtitle": "Vulnerability Scanner · Alert triage and control baseline"
+      },
+      "knowbe4": {
+        "subtitle": "Security Training · Phishing simulation and awareness cadence"
+      },
+      "cybeready": {
+        "subtitle": "Security Training · Participation and risk behavior governance"
+      },
+      "hook-security": {
+        "subtitle": "Security Training · Phishing participation and coaching governance"
+      },
+      "hoxhunt": {
+        "subtitle": "Security Training · Behavioral risk and simulation governance"
+      },
+      "certn": {
+        "subtitle": "Background Checks · Screening policy and data access controls"
+      },
+      "checkr": {
+        "subtitle": "Background Checks · Candidate screening and access governance"
+      },
+      "dashlane": {
+        "subtitle": "Password Manager · Vault permissions and credential hygiene"
+      },
+      "box": {
+        "subtitle": "Document Management · Sharing controls and sensitive file governance"
+      },
+      "google-drive": {
+        "subtitle": "Document Management · External sharing and document access policy"
+      },
+      "docusign": {
+        "subtitle": "Document Management · Envelope security and audit retention"
+      },
+      "mongodb-atlas": {
+        "subtitle": "Datastore · Network controls and database access governance"
+      },
+      "supabase": {
+        "subtitle": "Datastore · RLS policy and project membership governance"
+      },
+      "rockset": {
+        "subtitle": "Datastore · Workspace access and query governance"
+      },
+      "envoy": {
+        "subtitle": "Other · Visitor access and credential lifecycle governance"
+      },
+      "launchdarkly": {
+        "subtitle": "DevOps · Feature flag change and token governance"
+      },
+      "buildkite": {
+        "subtitle": "CI/CD · Pipeline permissions and deployment gate controls"
+      },
+      "circleci": {
+        "subtitle": "CI/CD · Workflow approvals and secret governance"
+      },
+      "jenkins": {
+        "subtitle": "CI/CD · Job permissions, approvals, and secret controls"
+      },
+      "harness": {
+        "subtitle": "CI/CD · Pipeline roles, deployment freezes, and secrets"
+      },
+      "github-actions": {
+        "subtitle": "CI/CD · Workflow permissions and environment protection"
+      },
+      "manageengine": {
+        "subtitle": "IT Management · Admin roles and policy compliance controls"
+      },
+      "teamwork": {
+        "subtitle": "Project Management · Member roles and sharing governance"
+      },
+      "comeet": {
+        "subtitle": "HR Recruiting · Candidate access and hiring workflow controls"
+      },
+      "lever": {
+        "subtitle": "HR Recruiting · Role assignments and candidate visibility controls"
+      },
+      "fieldguide": {
+        "subtitle": "Audit Management · Engagement access and evidence sharing controls"
+      },
+      "ramp": {
+        "subtitle": "Finance · Spend policies and approval hierarchy controls"
+      },
+      "brex": {
+        "subtitle": "Finance · Cardholder access and spend exception governance"
+      },
+      "netsuite": {
+        "subtitle": "Finance · Role permissions and financial approval controls"
+      },
+      "xero": {
+        "subtitle": "Finance · Advisor access and payment approval governance"
+      },
+      "sentinelone": { "subtitle": "Endpoint Security · AI-powered EDR & XDR" },
+      "grafana": { "subtitle": "Observability · Metrics, logs & alerting" },
+      "sentry": { "subtitle": "Observability · Error tracking & performance" },
+      "onepassword": {
+        "subtitle": "Password Manager · Team credential security"
+      },
+      "snowflake": { "subtitle": "Data Warehouse · Cloud data platform" }
+    },
+    "notion": {
+      "subtitle": "Knowledge Base · Policies, procedures & wikis",
+      "connect": "Connect Notion",
+      "connectedWorkspace": "Connected to workspace {{workspaceName}}.",
+      "connectUrlFailed": "Failed to get Notion connect URL",
+      "disconnectTitle": "Disconnect Notion",
+      "disconnectDescription": "Disconnect Notion?",
+      "disconnected": "Notion disconnected",
+      "disconnectFailed": "Failed to disconnect Notion"
+    },
+    "github": {
+      "subtitle": "Development · Code repository integration",
+      "connect": "Connect GitHub",
+      "disconnectTitle": "Disconnect GitHub",
+      "disconnectDescription": "Disconnect GitHub? Evidence collection will stop.",
+      "disconnected": "GitHub disconnected",
+      "disconnectFailed": "Failed to disconnect GitHub",
+      "scanCompleted": "GitHub scan completed",
+      "scanFailed": "Failed to run GitHub scan",
+      "hideRepos": "Hide Repos",
+      "viewRepos": "View Repos ({{count}})",
+      "connectedSummary_one": "Connected {{date}} · {{count}} repository · scans run daily at 02:00 UTC",
+      "connectedSummary_other": "Connected {{date}} · {{count}} repositories · scans run daily at 02:00 UTC",
+      "repositoriesHeading": "Repositories & Compliance Evidence",
+      "noRepositories": "No repositories found. Run a scan to discover them.",
+      "branch": "Branch",
+      "pass": "Pass",
+      "fail": "Fail",
+      "none": "-",
+      "checks": {
+        "branchProtection": "Branch Protection (A.8.32)",
+        "commitSigning": "Commit Signing (A.8.24)",
+        "cicd": "CI/CD (A.8.25)",
+        "accessControl": "Access Control (A.5.15)",
+        "visibility": "Visibility (A.5.15)"
+      }
+    },
+    "slack": {
+      "subtitle": "Communication · Alerts & interactive notifications",
+      "description": "Receive automated alerts for critical risks, audit findings, overdue tests, and audit events. Respond with interactive buttons directly from Slack - accept risks, start remediation, and more.",
+      "connect": "Connect Slack",
+      "disconnectTitle": "Disconnect Slack",
+      "disconnectDescription": "Disconnect Slack? This will remove all channel mappings.",
+      "disconnected": "Slack disconnected",
+      "disconnectFailed": "Failed to disconnect Slack",
+      "channelRequired": "Channel ID and name are required",
+      "addChannelMapping": "Add Channel Mapping",
+      "channelId": "Slack Channel ID",
+      "channelName": "Channel Name",
+      "eventType": "Event Type",
+      "adding": "Adding...",
+      "addMapping": "Add Mapping",
+      "addMappingCta": "+ Add Mapping",
+      "addMappingFailed": "Failed to add channel mapping",
+      "removeMappingFailed": "Failed to remove channel mapping",
+      "refreshChannelsFailed": "Could not refresh channel list - please reload",
+      "connectedWorkspace": "Connected to workspace {{workspace}} since {{date}}.",
+      "hideChannels": "Hide Channels",
+      "channelMappings": "Channel Mappings ({{count}})",
+      "channelMappingsTitle": "Channel Mappings",
+      "noChannelMappings": "No channel mappings yet. Use \"+ Add Mapping\" to route events to Slack channels.",
+      "remove": "Remove",
+      "alertTypes": {
+        "criticalRisks": "Critical Risks",
+        "auditFindings": "Audit Findings",
+        "overdueTests": "Overdue Tests",
+        "auditEvents": "Audit Events"
+      },
+      "table": {
+        "channel": "Channel",
+        "event": "Event",
+        "added": "Added",
+        "actions": "Actions"
+      }
+    },
+    "okta": {
+      "subtitle": "Identity & SSO · MFA, stale accounts, access reviews",
+      "connect": "Connect Okta",
+      "connectDescription": "Generate a read-only API token in Okta Admin -> Security -> API -> Tokens. Use your Okta domain (e.g. mycompany.okta.com).",
+      "domain": "Okta Domain",
+      "domainHint": "e.g. mycompany.okta.com",
+      "apiToken": "API Token (SSWS)",
+      "requiredFields": "Domain and API Token are required",
+      "connectFailed": "Failed to connect - check your domain and API token",
+      "scanStarted": "Okta scan started - results will appear in tests shortly",
+      "scanStartFailed": "Failed to start scan",
+      "disconnectTitle": "Disconnect Okta",
+      "disconnectDescription": "Disconnect Okta ({{target}})? Automated tests will stop running.",
+      "disconnected": "Okta disconnected",
+      "disconnectFailed": "Failed to disconnect Okta",
+      "lastSync": "Last sync: {{date}}",
+      "addAccount": "+ Add Okta Account",
+      "connected": "Okta connected! 5 automated identity tests are being seeded."
+    },
+    "jumpCloud": {
+      "subtitle": "Identity & SSO · MFA, user lifecycle, SSO apps",
+      "connect": "Connect JumpCloud",
+      "connectDescription": "Generate an API key in JumpCloud Admin -> Settings -> API Settings.",
+      "apiToken": "API Token",
+      "apiTokenRequired": "API Token is required",
+      "connectFailed": "Failed to connect - check your API token",
+      "scanStarted": "JumpCloud scan started - results will appear in tests shortly",
+      "scanStartFailed": "Failed to start scan",
+      "disconnectTitle": "Disconnect JumpCloud",
+      "disconnectDescription": "Disconnect JumpCloud ({{target}})? Automated tests will stop running.",
+      "disconnected": "JumpCloud disconnected",
+      "disconnectFailed": "Failed to disconnect JumpCloud",
+      "defaultAccount": "JumpCloud Account",
+      "lastSync": "Last sync: {{date}}",
+      "notYetSynced": "Not yet synced",
+      "addAccount": "+ Add JumpCloud Account",
+      "connected": "JumpCloud connected! 5 automated identity tests are being seeded."
+    },
+    "workspace": {
+      "subtitle": "Identity & Access · User lifecycle & MFA compliance",
+      "connect": "Connect Google Workspace",
+      "connectDescriptionPrefix": "Create a service account with Domain-Wide Delegation in",
+      "connectDescriptionSuffix": "and grant the following scopes in your Workspace Admin console:",
+      "serviceAccountJson": "Service Account Key JSON",
+      "superAdminEmail": "Super Admin Email",
+      "superAdminEmailHint": "(impersonated for API calls)",
+      "requiredFields": "Service Account JSON and Admin Email are required",
+      "connectFailed": "Failed to connect - check service account key, admin email, and domain-wide delegation scopes",
+      "scanStarted": "Google Workspace scan started - results will appear in tests shortly",
+      "scanStartFailed": "Failed to start scan",
+      "disconnectTitle": "Disconnect Google Workspace",
+      "disconnectDescription": "Disconnect Google Workspace ({{target}})? Automated identity tests will stop running.",
+      "disconnected": "Google Workspace disconnected",
+      "disconnectFailed": "Failed to disconnect Google Workspace",
+      "activeUsers": "{{active}} active / {{total}} users",
+      "mfaCount": "{{count}} MFA",
+      "highFindings_one": "{{count}} HIGH finding",
+      "highFindings_other": "{{count}} HIGH findings",
+      "lastScan": "Last scan: {{date}}",
+      "addDomain": "+ Add Workspace Domain",
+      "connected": "Google Workspace connected! 6 automated identity tests are being seeded."
+    },
+    "azureAd": {
+      "subtitle": "Identity & SSO · MFA, conditional access, user reviews",
+      "connect": "Connect Azure AD",
+      "connectDescription": "Register an app in Azure Portal -> App Registrations and grant the required application permissions.",
+      "tenantId": "Tenant ID",
+      "clientId": "Client ID (App ID)",
+      "clientSecret": "Client Secret",
+      "requiredFields": "Tenant ID, Client ID, and Client Secret are required",
+      "connectFailed": "Failed to connect - check your tenant ID, client ID, and secret",
+      "scanStarted": "Azure AD scan started - results will appear in tests shortly",
+      "scanStartFailed": "Failed to start scan",
+      "disconnectTitle": "Disconnect Azure AD",
+      "disconnectDescription": "Disconnect Azure AD ({{target}})? Automated tests will stop running.",
+      "disconnected": "Azure AD disconnected",
+      "disconnectFailed": "Failed to disconnect Azure AD",
+      "lastSync": "Last sync: {{date}}",
+      "addTenant": "+ Add Azure AD Tenant",
+      "connected": "Azure AD connected! 5 automated identity tests are being seeded."
+    },
+    "bambooHr": {
+      "subtitle": "HR · Employee lifecycle & personnel compliance",
+      "connect": "Connect BambooHR",
+      "connectDescription": "Generate a read-only API key in BambooHR -> Account -> API Keys. Use your company subdomain.",
+      "companySubdomain": "Company Subdomain",
+      "companySubdomainHint": "e.g. mycompany",
+      "readOnly": "read-only",
+      "requiredFields": "Subdomain and API Key are required",
+      "connectFailed": "Failed to connect - check your subdomain and API key",
+      "syncStarted": "Employee sync started - roster will update shortly",
+      "syncStartFailed": "Failed to start sync",
+      "scanStarted": "BambooHR compliance scan started - results will appear in tests shortly",
+      "scanStartFailed": "Failed to start scan",
+      "disconnectTitle": "Disconnect BambooHR",
+      "disconnectDescription": "Disconnect BambooHR ({{target}})? Automated HR tests will stop running.",
+      "disconnected": "BambooHR disconnected",
+      "disconnectFailed": "Failed to disconnect BambooHR",
+      "employeeSummary": "{{active}} active / {{total}} total employees",
+      "lastSync": "Last sync: {{date}}",
+      "sync": "Sync",
+      "syncing": "Syncing...",
+      "addAccount": "+ Add BambooHR Account",
+      "connected": "BambooHR connected! Employee sync started and 6 automated tests are being seeded."
+    },
+    "cloudflare": {
+      "subtitle": "Network Security · WAF, DNS, TLS & Bot Protection",
+      "connect": "Connect Cloudflare",
+      "scopedApiToken": "Scoped API Token",
+      "readOnly": "read-only",
+      "apiTokenRequired": "API Token is required",
+      "connectFailed": "Failed to connect - check your API token and try again",
+      "scanStarted": "Cloudflare scan started - results will appear in tests shortly",
+      "scanStartFailed": "Failed to start scan",
+      "disconnectTitle": "Disconnect Cloudflare",
+      "disconnectDescription": "Disconnect Cloudflare account {{target}}? Automated tests will stop running.",
+      "disconnected": "Cloudflare account disconnected",
+      "disconnectFailed": "Failed to disconnect Cloudflare account",
+      "accountsConnected_one": "{{count}} account connected",
+      "accountsConnected_other": "{{count}} accounts connected",
+      "zones_one": "{{count}} zone",
+      "zones_other": "{{count}} zones",
+      "lastScan": "Last scan: {{date}}",
+      "addAccount": "+ Add Cloudflare Account",
+      "connected": "Cloudflare account connected! 10 automated tests are being seeded."
+    },
+    "fleet": {
+      "subtitle": "Endpoint · Device posture & policy compliance",
+      "connect": "Connect Fleet",
+      "serverUrl": "Fleet Server URL",
+      "serverUrlHint": "e.g. https://fleet.company.com",
+      "apiToken": "API Token",
+      "readOnly": "read-only",
+      "requiredFields": "Fleet URL and API Token are required",
+      "connectFailed": "Failed to connect - check your Fleet URL and API token",
+      "scanStarted": "Fleet scan started - results will appear in tests shortly",
+      "scanStartFailed": "Failed to start scan",
+      "disconnectTitle": "Disconnect Fleet",
+      "disconnectDescription": "Disconnect Fleet ({{target}})? Automated endpoint tests will stop running.",
+      "disconnected": "Fleet disconnected",
+      "disconnectFailed": "Failed to disconnect Fleet",
+      "addInstance": "+ Add Fleet Instance",
+      "connected": "Fleet connected! 6 automated endpoint tests are being seeded."
+    },
+    "intercom": {
+      "subtitle": "Customer Support · Trust request & findings tracking",
+      "connect": "Connect Intercom",
+      "scanStarted": "Intercom scan started - results will appear in tests shortly",
+      "scanStartFailed": "Failed to start scan",
+      "synced": "Synced {{count}} conversation(s)",
+      "syncFailed": "Failed to sync conversations",
+      "disconnectTitle": "Disconnect Intercom",
+      "disconnectDescription": "Disconnect Intercom ({{target}})? Automated Policy tests will stop running.",
+      "disconnected": "Intercom disconnected",
+      "disconnectFailed": "Failed to disconnect Intercom",
+      "workspacesConnected_one": "{{count}} workspace connected",
+      "workspacesConnected_other": "{{count}} workspaces connected",
+      "tickets_one": "{{count}} ticket",
+      "tickets_other": "{{count}} tickets",
+      "open": "{{count}} open",
+      "lastSync": "Last sync: {{date}}",
+      "scanNow": "Scan Now",
+      "sync": "Sync",
+      "syncing": "Syncing...",
+      "addWorkspace": "+ Connect Another Workspace"
+    },
+    "snyk": {
+      "subtitle": "Code Security · Vulnerability scanning",
+      "connect": "Connect Snyk",
+      "connectDescription": "Enter your Snyk Organization ID and API token to enable code vulnerability scanning.",
+      "organizationId": "Snyk Organization ID",
+      "apiToken": "API Token",
+      "connectFailed": "Failed to connect to Snyk. Check the org ID and API token.",
+      "scanStarted": "Snyk scan started - results will appear in Tests shortly",
+      "scanStartFailed": "Failed to start scan",
+      "disconnectTitle": "Disconnect Snyk",
+      "disconnectDescription": "Disconnect Snyk ({{target}})? Automated code security tests will stop running.",
+      "disconnected": "Snyk disconnected",
+      "disconnectFailed": "Failed to disconnect Snyk",
+      "accountsConnected_one": "{{count}} account connected",
+      "accountsConnected_other": "{{count}} accounts connected",
+      "findings_one": "{{count}} finding",
+      "findings_other": "{{count}} findings",
+      "lastSync": "Last sync: {{date}}",
+      "scanNow": "Scan Now",
+      "addAccount": "+ Connect Another Account",
+      "connected": "Snyk connected! 5 automated code security tests are being seeded."
+    },
+    "bigId": {
+      "subtitle": "Data Privacy · PII/PCI/PHI discovery & classification",
+      "connect": "Connect BigID",
+      "connectDescription": "Enter your BigID base URL and API token to begin data discovery compliance scanning.",
+      "apiToken": "API Token",
+      "requiredFields": "Base URL and API token are required",
+      "connectFailed": "Failed to connect to BigID. Check the URL and API token.",
+      "scanStarted": "BigID scan started - results will appear in Tests shortly",
+      "scanStartFailed": "Failed to start scan",
+      "disconnectTitle": "Disconnect BigID",
+      "disconnectDescription": "Disconnect BigID ({{target}})? Automated data-privacy tests will stop running.",
+      "disconnected": "BigID disconnected",
+      "disconnectFailed": "Failed to disconnect BigID",
+      "instancesConnected_one": "{{count}} instance connected",
+      "instancesConnected_other": "{{count}} instances connected",
+      "scanNow": "Scan Now",
+      "addInstance": "+ Connect Another Instance",
+      "connected": "BigID connected! 5 automated data-privacy tests are being seeded."
+    },
+    "checkmarx": {
+      "subtitle": "Code Security · SAST scanning",
+      "connect": "Connect Checkmarx",
+      "connectDescription": "Enter your Checkmarx One instance URL and OAuth2 credentials to enable SAST scanning.",
+      "instanceUrl": "Instance URL",
+      "clientId": "Client ID",
+      "clientSecret": "Client Secret",
+      "connectFailed": "Failed to connect to Checkmarx. Check the instance URL and credentials.",
+      "scanStarted": "Checkmarx scan started - results will appear in Tests shortly",
+      "scanStartFailed": "Failed to start scan",
+      "disconnectTitle": "Disconnect Checkmarx",
+      "disconnectDescription": "Disconnect Checkmarx ({{target}})? Automated code security tests will stop running.",
+      "disconnected": "Checkmarx disconnected",
+      "disconnectFailed": "Failed to disconnect Checkmarx",
+      "accountsConnected_one": "{{count}} account connected",
+      "accountsConnected_other": "{{count}} accounts connected",
+      "scanNow": "Scan Now",
+      "addAccount": "+ Connect Another Account",
+      "connected": "Checkmarx connected! 5 automated code security tests are being seeded."
+    },
+    "datadog": {
+      "subtitle": "Observability · Incident tracking & postmortems",
+      "connect": "Connect Datadog",
+      "connectDescription": "Enter your Datadog API key and Application key to begin incident compliance scanning.",
+      "applicationKey": "Application Key",
+      "site": "Datadog Site",
+      "slaHours": "SLA Hours",
+      "slaHint": "acknowledgement target",
+      "requiredFields": "API key and App key are required",
+      "connectFailed": "Failed to connect to Datadog. Check credentials.",
+      "scanStarted": "Datadog scan started - results will appear in Tests shortly",
+      "scanStartFailed": "Failed to start scan",
+      "disconnectTitle": "Disconnect Datadog",
+      "disconnectDescription": "Disconnect Datadog ({{target}})? Automated incident tests will stop running.",
+      "disconnected": "Datadog disconnected",
+      "disconnectFailed": "Failed to disconnect Datadog",
+      "instancesConnected_one": "{{count}} instance connected",
+      "instancesConnected_other": "{{count}} instances connected",
+      "scanNow": "Scan Now",
+      "addAccount": "+ Connect Another Account",
+      "connected": "Datadog connected! 5 automated incident tests are being seeded."
+    },
+    "lacework": {
+      "subtitle": "Cloud Security · Compliance & threat detection",
+      "connect": "Connect Lacework",
+      "connectDescription": "Enter your Lacework API credentials to enable compliance scanning.",
+      "connectFailed": "Failed to connect to Lacework. Check the credentials.",
+      "scanStarted": "Lacework scan started - results will appear in Tests shortly",
+      "scanStartFailed": "Failed to start scan",
+      "disconnectTitle": "Disconnect Lacework",
+      "disconnectDescription": "Disconnect Lacework ({{target}})? Automated cloud security tests will stop running.",
+      "disconnected": "Lacework disconnected",
+      "disconnectFailed": "Failed to disconnect Lacework",
+      "accountsConnected_one": "{{count}} account connected",
+      "accountsConnected_other": "{{count}} accounts connected",
+      "scanNow": "Scan Now",
+      "addAccount": "+ Connect Another Account",
+      "connected": "Lacework connected! 5 automated cloud security tests are being seeded."
+    },
+    "opsgenie": {
+      "subtitle": "Alert Management · On-call schedules & SLA tracking",
+      "connect": "Connect Opsgenie",
+      "connectDescription": "Enter your Opsgenie API key to start alert compliance scanning.",
+      "apiKeyRequired": "API key is required",
+      "region": "Region",
+      "slaHours": "SLA Hours",
+      "slaHint": "acknowledgement target",
+      "connectFailed": "Failed to connect to Opsgenie. Check the API key.",
+      "scanStarted": "Opsgenie scan started - results will appear in Tests shortly",
+      "scanStartFailed": "Failed to start scan",
+      "disconnectTitle": "Disconnect Opsgenie",
+      "disconnectDescription": "Disconnect Opsgenie ({{target}})? Automated incident tests will stop running.",
+      "disconnected": "Opsgenie disconnected",
+      "disconnectFailed": "Failed to disconnect Opsgenie",
+      "instancesConnected_one": "{{count}} instance connected",
+      "instancesConnected_other": "{{count}} instances connected",
+      "scanNow": "Scan Now",
+      "addAccount": "+ Connect Another Account",
+      "connected": "Opsgenie connected! 5 automated incident tests are being seeded."
+    },
+    "pagerDuty": {
+      "subtitle": "Incident Management · On-call & escalation policies",
+      "connect": "Connect PagerDuty",
+      "connectDescription": "Enter your PagerDuty API key (User or Account API key) to start incident compliance scanning.",
+      "apiKeyRequired": "API key is required",
+      "slaHours": "SLA Hours",
+      "slaHint": "acknowledgement target",
+      "connectFailed": "Failed to connect to PagerDuty. Check the API key.",
+      "scanStarted": "PagerDuty scan started - results will appear in Tests shortly",
+      "scanStartFailed": "Failed to start scan",
+      "disconnectTitle": "Disconnect PagerDuty",
+      "disconnectDescription": "Disconnect PagerDuty ({{target}})? Automated incident tests will stop running.",
+      "disconnected": "PagerDuty disconnected",
+      "disconnectFailed": "Failed to disconnect PagerDuty",
+      "instancesConnected_one": "{{count}} instance connected",
+      "instancesConnected_other": "{{count}} instances connected",
+      "defaultAccount": "PagerDuty Account",
+      "incidents_one": "{{count}} incident",
+      "incidents_other": "{{count}} incidents",
+      "lastSync": "Last sync: {{date}}",
+      "scanNow": "Scan Now",
+      "addAccount": "+ Connect Another Account",
+      "connected": "PagerDuty connected! 5 automated incident tests are being seeded."
+    },
+    "redash": {
+      "subtitle": "Analytics · Data governance & query compliance",
+      "connect": "Connect Redash",
+      "connectDescription": "Enter your Redash instance URL and an API key with admin read access.",
+      "instanceUrl": "Redash Instance URL",
+      "instanceUrlHint": "e.g. https://redash.example.com",
+      "adminUser": "admin user",
+      "requiredFields": "Base URL and API Key are required",
+      "connectFailed": "Failed to connect - check your base URL and API key",
+      "scanStarted": "Redash scan started - results will appear in tests shortly",
+      "scanStartFailed": "Failed to start scan",
+      "disconnectTitle": "Disconnect Redash",
+      "disconnectDescription": "Disconnect Redash ({{target}})? Automated tests will stop running.",
+      "disconnected": "Redash disconnected",
+      "disconnectFailed": "Failed to disconnect Redash",
+      "userSummary": "{{active}} active / {{total}} users",
+      "dataSources_one": "{{count}} data source",
+      "dataSources_other": "{{count}} data sources",
+      "lastScan": "Last scan: {{date}}",
+      "addInstance": "+ Add Redash Instance",
+      "connected": "Redash connected! 7 automated tests are being seeded."
+    },
+    "sonarQube": {
+      "subtitle": "Code Security · Static analysis",
+      "connect": "Connect SonarQube",
+      "connectDescription": "Enter your SonarQube instance URL and user token to enable static analysis.",
+      "instanceUrl": "Instance URL",
+      "userToken": "User Token",
+      "connectFailed": "Failed to connect to SonarQube. Check the instance URL and token.",
+      "scanStarted": "SonarQube scan started - results will appear in Tests shortly",
+      "scanStartFailed": "Failed to start scan",
+      "disconnectTitle": "Disconnect SonarQube",
+      "disconnectDescription": "Disconnect SonarQube ({{target}})? Automated code security tests will stop running.",
+      "disconnected": "SonarQube disconnected",
+      "disconnectFailed": "Failed to disconnect SonarQube",
+      "accountsConnected_one": "{{count}} account connected",
+      "accountsConnected_other": "{{count}} accounts connected",
+      "findings_one": "{{count}} finding",
+      "findings_other": "{{count}} findings",
+      "lastSync": "Last sync: {{date}}",
+      "scanNow": "Scan Now",
+      "addAccount": "+ Connect Another Account",
+      "connected": "SonarQube connected! 5 automated code security tests are being seeded."
+    },
+    "veracode": {
+      "subtitle": "Code Security · Application security testing",
+      "connect": "Connect Veracode",
+      "connectDescription": "Enter your Veracode API credentials to enable application security scanning.",
+      "apiId": "API ID",
+      "connectFailed": "Failed to connect to Veracode. Check the API ID and key.",
+      "scanStarted": "Veracode scan started - results will appear in Tests shortly",
+      "scanStartFailed": "Failed to start scan",
+      "disconnectTitle": "Disconnect Veracode",
+      "disconnectDescription": "Disconnect Veracode ({{target}})? Automated code security tests will stop running.",
+      "disconnected": "Veracode disconnected",
+      "disconnectFailed": "Failed to disconnect Veracode",
+      "accountsConnected_one": "{{count}} account connected",
+      "accountsConnected_other": "{{count}} accounts connected",
+      "findings_one": "{{count}} finding",
+      "findings_other": "{{count}} findings",
+      "lastSync": "Last sync: {{date}}",
+      "scanNow": "Scan Now",
+      "addAccount": "+ Connect Another Account",
+      "connected": "Veracode connected! 5 automated code security tests are being seeded."
+    },
+    "vault": {
+      "subtitle": "Secrets Management · KV secrets & rotation",
+      "connect": "Connect Vault",
+      "connectDescription": "Enter your Vault address and a token with list/read permissions on your KV secrets engine.",
+      "address": "Vault Address",
+      "token": "Vault Token",
+      "namespace": "Namespace",
+      "namespaceHint": "(optional - Vault Enterprise)",
+      "connectFailed": "Failed to connect to Vault. Check the address and token.",
+      "scanStarted": "Vault scan started - results will appear in Tests shortly",
+      "scanStartFailed": "Failed to start scan",
+      "disconnectTitle": "Disconnect Vault",
+      "disconnectDescription": "Disconnect Vault ({{target}})? Automated secrets tests will stop running.",
+      "disconnected": "Vault disconnected",
+      "disconnectFailed": "Failed to disconnect Vault",
+      "instancesConnected_one": "{{count}} instance connected",
+      "instancesConnected_other": "{{count}} instances connected",
+      "findings_one": "{{count}} finding",
+      "findings_other": "{{count}} findings",
+      "lastSync": "Last sync: {{date}}",
+      "scanNow": "Scan Now",
+      "addInstance": "+ Connect Another Instance",
+      "connected": "HashiCorp Vault connected! 5 automated secrets tests are being seeded."
+    },
+    "wiz": {
+      "subtitle": "CSPM · Multi-cloud security posture management",
+      "connect": "Connect Wiz",
+      "connectDescription": "Enter your Wiz Service Account credentials to enable CSPM scanning.",
+      "clientId": "Client ID",
+      "clientSecret": "Client Secret",
+      "apiEndpoint": "API Endpoint",
+      "connectFailed": "Failed to connect to Wiz. Check the client credentials.",
+      "scanStarted": "Wiz scan started - results will appear in Tests shortly",
+      "scanStartFailed": "Failed to start scan",
+      "disconnectTitle": "Disconnect Wiz",
+      "disconnectDescription": "Disconnect Wiz ({{target}})? Automated cloud security tests will stop running.",
+      "disconnected": "Wiz disconnected",
+      "disconnectFailed": "Failed to disconnect Wiz",
+      "tenantsConnected_one": "{{count}} tenant connected",
+      "tenantsConnected_other": "{{count}} tenants connected",
+      "defaultTenant": "Wiz Tenant",
+      "findings_one": "{{count}} finding",
+      "findings_other": "{{count}} findings",
+      "lastSync": "Last sync: {{date}}",
+      "scanNow": "Scan Now",
+      "addTenant": "+ Connect Another Tenant",
+      "connected": "Wiz connected! 5 automated cloud security tests are being seeded."
+    },
+    "aws": {
+      "connect": "Connect AWS Account",
+      "subtitle": "Cloud Infrastructure · IAM, S3, CloudTrail, KMS, EC2, RDS",
+      "stepOf": "Step {{step}} of 2",
+      "step1Description": "Create a cross-account IAM role in your AWS account with the trust policy below. This allows ISMS to assume the role using a unique External ID.",
+      "generatingTrustPolicy": "Generating trust policy...",
+      "trustPolicy": "1. Trust Policy (attach to IAM role)",
+      "permissionPolicy": "2. Permission Policy (inline or managed)",
+      "externalId": "External ID:",
+      "externalIdHint": "This ID is pre-filled in the trust policy above. Keep this page open while creating the role.",
+      "next": "I've created the role - Next",
+      "step2Description": "Enter the ARN of the role you just created and your AWS Account ID.",
+      "roleArn": "Role ARN",
+      "roleArnHint": "e.g. arn:aws:iam::123456789012:role/ISMSReadOnly",
+      "accountId": "AWS Account ID",
+      "accountIdHint": "12 digits",
+      "primaryRegion": "Primary Region",
+      "trustPolicyFailed": "Failed to generate trust policy",
+      "requiredFields": "Role ARN and AWS Account ID are required",
+      "trustPolicyMissing": "Trust policy data missing - please go back and try again",
+      "connectFailed": "Failed to connect - check your Role ARN and trust policy",
+      "connectingValidating": "Connecting & validating...",
+      "scanStarted": "AWS scan started - results will appear in tests shortly",
+      "scanStartFailed": "Failed to start scan",
+      "disconnectTitle": "Disconnect AWS",
+      "disconnectDescription": "Disconnect AWS account {{target}}? Automated tests will stop running.",
+      "disconnected": "AWS account disconnected",
+      "disconnectFailed": "Failed to disconnect AWS account",
+      "accountsConnected_one": "{{count}} account connected",
+      "accountsConnected_other": "{{count}} accounts connected",
+      "lastScan": "Last scan: {{date}}",
+      "addAccount": "+ Add AWS Account",
+      "connected": "AWS account {{target}} connected! 12 automated tests are being seeded."
+    },
+    "certManager": {
+      "connect": "Connect Cert Manager",
+      "connectDescription": "Monitor TLS/SSL certificate expiry and compliance.",
+      "subtitle": "Secrets & Certs · TLS/SSL certificate lifecycle",
+      "provider": "Provider",
+      "providers": {
+        "awsAcm": "AWS Certificate Manager (ACM)",
+        "generic": "Generic / REST API"
+      },
+      "awsRegion": "AWS Region",
+      "accessKeyId": "Access Key ID",
+      "secretAccessKey": "Secret Access Key",
+      "instanceUrl": "Instance URL",
+      "connectFailed": "Failed to connect Certificate Manager. Check the credentials.",
+      "scanStarted": "Certificate Manager scan started - results will appear in Tests shortly",
+      "scanStartFailed": "Failed to start scan",
+      "disconnectTitle": "Disconnect Certificate Manager",
+      "disconnectDescription": "Disconnect Certificate Manager ({{target}})? Automated certificate tests will stop running.",
+      "disconnected": "Certificate Manager disconnected",
+      "disconnectFailed": "Failed to disconnect Certificate Manager",
+      "instancesConnected_one": "{{count}} instance connected",
+      "instancesConnected_other": "{{count}} instances connected",
+      "findings_one": "{{count}} finding",
+      "findings_other": "{{count}} findings",
+      "lastSync": "Last sync: {{date}}",
+      "scanNow": "Scan Now",
+      "addInstance": "+ Connect Another Instance",
+      "connected": "Certificate Manager connected! 5 automated certificate tests are being seeded."
+    },
+    "serviceNow": {
+      "connect": "Connect ServiceNow",
+      "connectDescription": "Connect your ServiceNow instance to track incident compliance.",
+      "subtitle": "Incident Management · ITSM & SLA compliance",
+      "instanceUrl": "Instance URL",
+      "instanceUrlRequired": "Instance URL is required",
+      "authMethod": "Auth Method",
+      "authMethods": {
+        "basic": "Basic (username/password)",
+        "token": "Bearer Token"
+      },
+      "bearerToken": "Bearer Token",
+      "slaHours": "SLA Hours",
+      "slaHint": "acknowledgement target",
+      "connectFailed": "Failed to connect to ServiceNow. Check credentials.",
+      "scanStarted": "ServiceNow scan started - results will appear in Tests shortly",
+      "scanStartFailed": "Failed to start scan",
+      "disconnectTitle": "Disconnect ServiceNow",
+      "disconnectDescription": "Disconnect ServiceNow ({{target}})? Automated incident tests will stop running.",
+      "disconnected": "ServiceNow disconnected",
+      "disconnectFailed": "Failed to disconnect ServiceNow",
+      "instancesConnected_one": "{{count}} instance connected",
+      "instancesConnected_other": "{{count}} instances connected",
+      "incidents_one": "{{count}} incident",
+      "incidents_other": "{{count}} incidents",
+      "lastSync": "Last sync: {{date}}",
+      "scanNow": "Scan Now",
+      "addInstance": "+ Connect Another Instance",
+      "connected": "ServiceNow connected! 5 automated incident tests are being seeded."
+    },
+    "secretsManager": {
+      "connect": "Connect Secrets Manager",
+      "connectDescription": "Provide IAM credentials with secretsmanager:ListSecrets and secretsmanager:DescribeSecret permissions.",
+      "subtitle": "Secrets Management · AWS secret lifecycle",
+      "awsRegion": "AWS Region",
+      "accessKeyId": "Access Key ID",
+      "secretAccessKey": "Secret Access Key",
+      "connectFailed": "Failed to connect to AWS Secrets Manager. Check your region and credentials.",
+      "scanStarted": "AWS Secrets Manager scan started - results will appear in Tests shortly",
+      "scanStartFailed": "Failed to start scan",
+      "disconnectTitle": "Disconnect AWS Secrets Manager",
+      "disconnectDescription": "Disconnect AWS Secrets Manager ({{target}})? Automated secrets tests will stop running.",
+      "disconnected": "AWS Secrets Manager disconnected",
+      "disconnectFailed": "Failed to disconnect AWS Secrets Manager",
+      "regionsConnected_one": "{{count}} region connected",
+      "regionsConnected_other": "{{count}} regions connected",
+      "findings_one": "{{count}} finding",
+      "findings_other": "{{count}} findings",
+      "lastSync": "Last sync: {{date}}",
+      "scanNow": "Scan Now",
+      "addRegion": "+ Connect Another Region",
+      "connected": "AWS Secrets Manager connected! 5 automated secrets tests are being seeded."
+    },
+    "googleDrive": {
+      "subtitle": "Document Storage · Evidence & Policy files",
+      "connect": "Connect Google Drive",
+      "connectedSince": "Drive connected since {{date}}. New evidence and policy uploads will be stored in your Drive.",
+      "disconnectTitle": "Disconnect Google Drive",
+      "disconnectDescription": "Disconnect Google Drive? Future uploads will revert to local storage.",
+      "disconnected": "Google Drive disconnected",
+      "disconnectFailed": "Failed to disconnect Google Drive"
+    },
+    "newRelic": {
+      "subtitle": "APM & Infrastructure · Logging & monitoring",
+      "connect": "Connect New Relic",
+      "connectDescription": "Provide a User API Key and your Account ID.",
+      "requiredFields": "API Key and Account ID are required",
+      "statusLoadFailed": "Connected to New Relic, but failed to load status",
+      "connectFailed": "Failed to connect to New Relic",
+      "accountIdPlaceholder": "e.g. 1234567",
+      "apiKeyPlaceholder": "NRAK-...",
+      "connectedAccount": "Connected to account {{accountId}} in {{region}}.",
+      "connected": "New Relic connected!",
+      "disconnectTitle": "Disconnect New Relic",
+      "disconnectDescription": "Disconnect New Relic?",
+      "disconnected": "New Relic disconnected",
+      "disconnectFailed": "Failed to disconnect New Relic"
+    },
+    "gcp": {
+      "subtitle": "Cloud Security · IAM, logging & misconfigurations",
+      "connect": "Connect GCP",
+      "connectDescription": "Paste your GCP Service Account key JSON to enable cloud security scanning.",
+      "serviceAccountKeyJson": "Service Account Key JSON",
+      "keyJsonPlaceholder": "{\"type\":\"service_account\",\"project_id\":\"...\",\"private_key\":\"...\",\"client_email\":\"...\"}",
+      "labelPlaceholder": "e.g. Production GCP",
+      "connectFailed": "Failed to connect to GCP. Check the service account key.",
+      "scanStarted": "GCP scan started. Results will appear in tests shortly.",
+      "scanStartFailed": "Failed to start scan",
+      "disconnectTitle": "Disconnect GCP",
+      "disconnectDescription": "Disconnect GCP ({{target}})? Automated cloud security tests will stop running.",
+      "disconnected": "GCP disconnected",
+      "disconnectFailed": "Failed to disconnect GCP",
+      "projectsConnected_one": "{{count}} project connected",
+      "projectsConnected_other": "{{count}} projects connected",
+      "findings_one": "{{count}} finding",
+      "findings_other": "{{count}} findings",
+      "lastSync": "Last sync: {{date}}",
+      "scanNow": "Scan Now",
+      "connectAnotherProject": "+ Connect Another Project",
+      "connected": "GCP connected! 5 automated cloud security tests are being seeded."
+    },
+    "azure": {
+      "subtitle": "Cloud Security · Defender for Cloud & NSG analysis",
+      "connect": "Connect Azure",
+      "connectDescription": "Enter your Azure service principal credentials to enable cloud security scanning.",
+      "subscriptionId": "Subscription ID",
+      "tenantId": "Tenant ID",
+      "clientId": "Client ID",
+      "clientSecret": "Client Secret",
+      "uuidPlaceholder": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+      "clientIdPlaceholder": "App registration client ID",
+      "clientSecretPlaceholder": "App registration client secret",
+      "labelPlaceholder": "e.g. Production Azure",
+      "connectFailed": "Failed to connect to Azure. Check the credentials.",
+      "scanStarted": "Azure scan started. Results will appear in tests shortly.",
+      "scanStartFailed": "Failed to start scan",
+      "disconnectTitle": "Disconnect Azure",
+      "disconnectDescription": "Disconnect Azure ({{target}})? Automated cloud security tests will stop running.",
+      "disconnected": "Azure disconnected",
+      "disconnectFailed": "Failed to disconnect Azure",
+      "subscriptionsConnected_one": "{{count}} subscription connected",
+      "subscriptionsConnected_other": "{{count}} subscriptions connected",
+      "findings_one": "{{count}} finding",
+      "findings_other": "{{count}} findings",
+      "lastSync": "Last sync: {{date}}",
+      "scanNow": "Scan Now",
+      "connectAnotherSubscription": "+ Connect Another Subscription",
+      "connected": "Azure connected! 5 automated cloud security tests are being seeded."
+    },
+    "mdm": {
+      "title": "Manzen MDM Agent",
+      "subtitle": "Endpoint · macOS device management",
+      "devices_one": "{{count}} device",
+      "devices_other": "{{count}} devices",
+      "noDevices": "No devices",
+      "stats": {
+        "compliant": "Compliant",
+        "nonCompliant": "Non-Compliant",
+        "unknown": "Unknown"
+      },
+      "tokenCreated": "Token created. Install the agent on the device:",
+      "tokenExpiresAt": "This token expires at {{date}} and can only be used once.",
+      "labelPlaceholder": "Label (optional, e.g. Alice's MacBook)",
+      "creating": "Creating...",
+      "createEnrollmentToken": "Create Enrollment Token",
+      "used": "Used",
+      "expires": "Expires",
+      "unlabelled": "Unlabelled",
+      "usedDate": "Used {{date}}",
+      "pending": "Pending",
+      "enrollmentTokenCreated": "Enrollment token created",
+      "failedToCreateToken": "Failed to create token",
+      "tokenRevoked": "Token revoked",
+      "failedToRevokeToken": "Failed to revoke token"
     }
   }
 }

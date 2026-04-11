@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
 import { Badge } from '@/app/components/ui/badge';
@@ -14,6 +15,7 @@ export function MdmCard({
 }: {
   onToast: (type: 'success' | 'error', msg: string) => void;
 }) {
+  const { t: tr } = useTranslation('integrations');
   const [tokens, setTokens] = useState<EnrollmentToken[]>([]);
   const [overview, setOverview] = useState<MdmOverview | null>(null);
   const [newToken, setNewToken] = useState<CreatedToken | null>(null);
@@ -44,15 +46,18 @@ export function MdmCard({
   const handleCreate = async () => {
     setCreating(true);
     try {
-      const t = await mdmService.createToken(tokenLabel || undefined);
-      setNewToken(t);
+      const createdToken = await mdmService.createToken(
+        tokenLabel || undefined,
+      );
+      setNewToken(createdToken);
       setTokenLabel('');
       await loadData();
-      onToast('success', 'Enrollment token created');
+      onToast('success', tr('cards.mdm.enrollmentTokenCreated'));
     } catch (e: unknown) {
       onToast(
         'error',
-        (e as { message?: string })?.message ?? 'Failed to create token',
+        (e as { message?: string })?.message ??
+          tr('cards.mdm.failedToCreateToken'),
       );
     } finally {
       setCreating(false);
@@ -64,9 +69,9 @@ export function MdmCard({
       await mdmService.deleteToken(id);
       setTokens((prev) => prev.filter((t) => t.id !== id));
       if (newToken?.id === id) setNewToken(null);
-      onToast('success', 'Token revoked');
+      onToast('success', tr('cards.mdm.tokenRevoked'));
     } catch {
-      onToast('error', 'Failed to revoke token');
+      onToast('error', tr('cards.mdm.failedToRevokeToken'));
     }
   };
 
@@ -88,19 +93,17 @@ export function MdmCard({
           </div>
           <div>
             <h3 className="text-lg font-semibold text-gray-900">
-              Manzen MDM Agent
+              {tr('cards.mdm.title')}
             </h3>
-            <p className="text-sm text-gray-500">
-              Endpoint · macOS device management
-            </p>
+            <p className="text-sm text-gray-500">{tr('cards.mdm.subtitle')}</p>
           </div>
         </div>
         <Badge variant={overview && overview.total > 0 ? 'default' : 'outline'}>
           {loading
-            ? 'Loading…'
+            ? tr('cards.shared.loading')
             : overview && overview.total > 0
-              ? `${overview.total} device${overview.total !== 1 ? 's' : ''}`
-              : 'No devices'}
+              ? tr('cards.mdm.devices', { count: overview.total })
+              : tr('cards.mdm.noDevices')}
         </Badge>
       </div>
 
@@ -109,17 +112,17 @@ export function MdmCard({
         <div className="grid grid-cols-3 gap-3 mb-5">
           {[
             {
-              label: 'Compliant',
+              label: tr('cards.mdm.stats.compliant'),
               value: overview.compliant,
               color: 'text-green-700 bg-green-50',
             },
             {
-              label: 'Non-Compliant',
+              label: tr('cards.mdm.stats.nonCompliant'),
               value: overview.nonCompliant,
               color: 'text-red-600 bg-red-50',
             },
             {
-              label: 'Unknown',
+              label: tr('cards.mdm.stats.unknown'),
               value: overview.unknown,
               color: 'text-gray-600 bg-gray-50',
             },
@@ -139,15 +142,15 @@ export function MdmCard({
       {newToken && (
         <div className="mb-4 rounded-lg border border-green-200 bg-green-50 p-4">
           <p className="text-sm font-semibold text-green-800 mb-2">
-            Token created — install the agent on the device:
+            {tr('cards.mdm.tokenCreated')}
           </p>
           <pre className="text-xs bg-gray-900 text-green-400 rounded p-3 overflow-x-auto whitespace-pre-wrap break-all">
             {newToken.installCommand}
           </pre>
           <p className="text-xs text-green-700 mt-2">
-            This token expires at{' '}
-            {new Date(newToken.expiresAt).toLocaleString()} and can only be used
-            once.
+            {tr('cards.mdm.tokenExpiresAt', {
+              date: new Date(newToken.expiresAt).toLocaleString(),
+            })}
           </p>
         </div>
       )}
@@ -156,13 +159,15 @@ export function MdmCard({
       <div className="flex gap-2 mb-4">
         <input
           type="text"
-          placeholder="Label (optional, e.g. Alice's MacBook)"
+          placeholder={tr('cards.mdm.labelPlaceholder')}
           value={tokenLabel}
           onChange={(e) => setTokenLabel(e.target.value)}
           className="flex-1 text-sm border border-gray-300 rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-purple-500"
         />
         <Button size="sm" onClick={handleCreate} disabled={creating}>
-          {creating ? 'Creating…' : 'Create Enrollment Token'}
+          {creating
+            ? tr('cards.mdm.creating')
+            : tr('cards.mdm.createEnrollmentToken')}
         </Button>
       </div>
 
@@ -173,45 +178,49 @@ export function MdmCard({
             <thead className="bg-gray-50 border-b">
               <tr>
                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                  Label
+                  {tr('cards.shared.label')}
                 </th>
                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                  Used
+                  {tr('cards.mdm.used')}
                 </th>
                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                  Expires
+                  {tr('cards.mdm.expires')}
                 </th>
                 <th className="px-4 py-2"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {tokens.map((t) => (
-                <tr key={t.id} className="bg-white hover:bg-gray-50">
+              {tokens.map((token) => (
+                <tr key={token.id} className="bg-white hover:bg-gray-50">
                   <td className="px-4 py-2 text-gray-800">
-                    {t.label ?? (
-                      <span className="italic text-gray-400">Unlabelled</span>
+                    {token.label ?? (
+                      <span className="italic text-gray-400">
+                        {tr('cards.mdm.unlabelled')}
+                      </span>
                     )}
                   </td>
                   <td className="px-4 py-2">
-                    {t.usedAt ? (
+                    {token.usedAt ? (
                       <Badge variant="secondary" className="text-xs">
-                        Used {new Date(t.usedAt).toLocaleDateString()}
+                        {tr('cards.mdm.usedDate', {
+                          date: new Date(token.usedAt).toLocaleDateString(),
+                        })}
                       </Badge>
                     ) : (
                       <Badge variant="outline" className="text-xs">
-                        Pending
+                        {tr('cards.mdm.pending')}
                       </Badge>
                     )}
                   </td>
                   <td className="px-4 py-2 text-xs text-gray-500">
-                    {new Date(t.expiresAt).toLocaleDateString()}
+                    {new Date(token.expiresAt).toLocaleDateString()}
                   </td>
                   <td className="px-4 py-2 text-right">
                     <button
-                      onClick={() => handleRevoke(t.id)}
+                      onClick={() => handleRevoke(token.id)}
                       className="text-xs text-red-500 hover:underline"
                     >
-                      Revoke
+                      {tr('cards.shared.revoke')}
                     </button>
                   </td>
                 </tr>

@@ -222,6 +222,259 @@
     "owner": "オーナー",
     "organization": "組織"
   },
+  "securityTasks": {
+    "title": "マイセキュリティタスク",
+    "description": "必須のセキュリティオンボーディングを完了してください",
+    "loading": "タスクを読み込み中...",
+    "loadFailed": "タスクの読み込みに失敗しました",
+    "unknownError": "不明なエラー",
+    "retry": "再試行",
+    "taskNumber": "タスク {{number}}",
+    "status": {
+      "completed": "完了",
+      "inProgress": "進行中",
+      "notStarted": "未開始"
+    },
+    "cards": {
+      "policies": {
+        "title": "すべての組織ポリシーに同意",
+        "description": "組織内の有効なすべてのポリシーをデジタルで確認します。"
+      },
+      "mdm": {
+        "title": "MDMエージェントをインストール",
+        "description": "エンドポイントのコンプライアンスを維持するため、業務端末を会社のMDMに登録します。"
+      },
+      "training": {
+        "title": "セキュリティ意識向上トレーニングを完了",
+        "description": "対話型のセキュリティ意識向上トレーニングを完了します。"
+      }
+    },
+    "policies": {
+      "loadFailed": "ポリシーの読み込みに失敗しました",
+      "acceptedOn": "{{date}} にすべてのポリシーに同意しました",
+      "acknowledgedCount_one": "{{count}}件のポリシーを確認しました。",
+      "acknowledgedCount_other": "{{count}}件のポリシーを確認しました。",
+      "newPoliciesPublished_one": "{{count}}件の新しいポリシーが公開されました",
+      "newPoliciesPublished_other": "{{count}}件の新しいポリシーが公開されました",
+      "newPoliciesDescription": "前回の同意日 {{date}} 以降に公開されています。以下のすべてのポリシーを確認して同意してください。",
+      "instructions": "以下の有効な組織ポリシーすべてにデジタルで同意する必要があります。同意する前に各ポリシーを確認してください。",
+      "loading": "ポリシーを読み込み中...",
+      "noPublishedPolicies": "公開済みポリシーが見つかりません。最初に管理者にポリシーを公開してもらってください。",
+      "newBadge": "NEW",
+      "selectAll": "すべて選択",
+      "acceptPolicies_one": "{{count}}件のポリシーに同意",
+      "acceptPolicies_other": "{{count}}件のポリシーに同意"
+    },
+    "mdm": {
+      "enrolledOn": "{{date}} に MDM エージェントを登録しました",
+      "deviceId": "デバイスID",
+      "instructions": "業務端末に ISMS MDM エージェントをインストールしてください。インストールして登録が完了すると、このタスクは自動的に完了になります。",
+      "installationSteps": "インストール手順",
+      "steps": {
+        "generateToken": "管理者に端末用の登録トークンを発行してもらってください。",
+        "downloadAgent": "管理者から ISMS エージェントのバイナリをダウンロードしてください。",
+        "runInstaller": "登録トークンを使ってインストーラーを実行してください。",
+        "autoCheckIn": "エージェントは自動的にチェックインし、このタスクは数分以内に更新されます。"
+      },
+      "autoCompleteNote": "端末がバックエンドにチェックインすると、このタスクは自動的に完了します。"
+    },
+    "training": {
+      "completedOn": "{{date}} にトレーニングを完了しました",
+      "saveFailed": "完了状態の保存に失敗しました",
+      "inProgress": "トレーニング進行中です。{{date}} に開始しました。完了するにはすべてのモジュールを終了してください。",
+      "savingCompletion": "完了状態を保存中..."
+    },
+    "progress": {
+      "title": "セキュリティオンボーディング",
+      "tasksComplete": "{{done}}/3 タスク完了",
+      "description": "セキュリティオンボーディングを完了するには、すべてのタスクを完了してください。",
+      "allTasksCompleteTitle": "すべてのタスクが完了しました！",
+      "allTasksCompleteDescription": "セキュリティオンボーディングはすべて完了しました。ありがとうございます。"
+    },
+    "remediation": {
+      "title": "是正タスク",
+      "description": "あなたに割り当てられた、自動検出の是正が必要な事項です。",
+      "loading": "是正タスクを読み込み中...",
+      "actionFailed": "操作に失敗しました",
+      "overdue": "期限超過",
+      "due": "期限 {{date}}",
+      "startRemediation": "是正を開始",
+      "submitForReview": "レビューに提出",
+      "awaitingAuditorReview": "監査担当者のレビュー待ち",
+      "statusLabels": {
+        "open": "未対応",
+        "inRemediation": "是正中",
+        "readyForReview": "レビュー準備完了",
+        "closed": "完了"
+      }
+    }
+  },
+  "reports": {
+    "title": "レポート",
+    "description": "コンプライアンス、リスク、セキュリティ体制のレポートを生成して確認します。",
+    "viewReport": "レポートを表示",
+    "stats": {
+      "availableReports": "利用可能なレポート",
+      "riskAndAudit": "リスクと監査"
+    },
+    "categories": {
+      "all": "すべて",
+      "overview": "概要",
+      "compliance": "コンプライアンス",
+      "risk": "リスク",
+      "tests": "テスト",
+      "audit": "監査",
+      "personnel": "人員"
+    },
+    "catalog": {
+      "monthlyOverview": {
+        "name": "月次概要レポート",
+        "description": "選択した月のコンプライアンス体制の概要です。フレームワーク進捗、リスク分布、テスト完了状況、監査サマリーを含みます。",
+        "period": "月を選択"
+      },
+      "quarterlyOverview": {
+        "name": "四半期概要レポート",
+        "description": "選択した四半期の経営向けサマリーで、取締役会報告や四半期レビューに適しています。",
+        "period": "四半期を選択"
+      },
+      "frameworkProgress": {
+        "name": "フレームワーク進捗レポート",
+        "description": "管理策の実装状況を、実装済み、一部実装、未実装に分けて詳細に表示します。"
+      },
+      "riskRegister": {
+        "name": "リスク登録簿レポート",
+        "description": "有効なすべてのリスクを重大度別に整理し、選択期間における推移も表示します。",
+        "period": "直近90日"
+      },
+      "testEffectiveness": {
+        "name": "テスト有効性レポート",
+        "description": "期限内完了と遅延完了、合格率、期限超過の内訳を通じてテスト実績と是正効率を確認します。"
+      },
+      "auditStatus": {
+        "name": "監査状況レポート",
+        "description": "すべての監査の完了状況、重大・軽微な指摘件数、未解決と解決済みの要約を表示します。"
+      },
+      "evidenceCoverage": {
+        "name": "証跡カバレッジレポート",
+        "description": "管理策と添付証跡を比較し、十分な証跡がある項目と不足している項目を示します。"
+      },
+      "personnelCompliance": {
+        "name": "人員コンプライアンスレポート",
+        "description": "人員ごとのセキュリティオンボーディング完了状況を、ポリシー同意、MDM登録、セキュリティトレーニングの観点で表示します。"
+      }
+    }
+  },
+  "setup": {
+    "title": "システムセットアップ",
+    "description": "組織と管理者アカウントを作成して ISMS プラットフォームを初期化します",
+    "sections": {
+      "organization": {
+        "title": "組織情報"
+      },
+      "superAdmin": {
+        "title": "システム管理者（スーパー管理者）",
+        "description": "このユーザーにはシステム全体のアクセス権が付与されます"
+      },
+      "organizationAdmin": {
+        "title": "組織管理者",
+        "description": "このユーザーには組織全体のアクセス権が付与されます"
+      },
+      "frameworks": {
+        "title": "フレームワーク設定",
+        "description": "セットアップ直後に作成するフレームワーク準拠のスイートを選択してください。"
+      }
+    },
+    "fields": {
+      "organizationName": {
+        "label": "組織名",
+        "placeholder": "組織名を入力"
+      },
+      "adminName": {
+        "label": "管理者名",
+        "placeholder": "管理者名を入力"
+      },
+      "adminEmail": {
+        "label": "管理者メールアドレス",
+        "placeholder": "管理者メールアドレスを入力"
+      },
+      "adminPassword": {
+        "label": "管理者パスワード",
+        "placeholder": "強力なパスワードを作成"
+      },
+      "orgAdminName": {
+        "label": "組織管理者名",
+        "placeholder": "組織管理者名を入力"
+      },
+      "orgAdminEmail": {
+        "label": "組織管理者メールアドレス",
+        "placeholder": "組織管理者メールアドレスを入力"
+      },
+      "orgAdminPassword": {
+        "label": "組織管理者パスワード",
+        "placeholder": "強力なパスワードを作成"
+      }
+    },
+    "passwordStrength": {
+      "label": "パスワード強度:",
+      "levels": {
+        "weak": "弱い",
+        "medium": "普通",
+        "strong": "強い"
+      },
+      "requirements": {
+        "minLength": "8文字以上",
+        "uppercase": "大文字を含む",
+        "lowercase": "小文字を含む",
+        "number": "数字を含む",
+        "specialCharacter": "記号を含む"
+      }
+    },
+    "frameworkOptions": {
+      "soc2AccessReviews": {
+        "name": "SOC 2 アクセスレビュースイート",
+        "description": "四半期ごとのアクセスレビュー、特権アクセス確認、証跡確認を行います。"
+      },
+      "isoCloudHardening": {
+        "name": "ISO クラウドハードニングスイート",
+        "description": "暗号化、露出、境界防御を対象とした自動クラウド設定チェックを行います。"
+      },
+      "nistSdlc": {
+        "name": "NIST セキュア SDLC スイート",
+        "description": "リリース品質、脆弱性対応、CI ガードレールに関するエンジニアリング管理策を提供します。"
+      },
+      "hipaaDataRetention": {
+        "name": "HIPAA データ保持スイート",
+        "description": "保持、暗号化、データ所有権ワークフローを証跡ベースで確認します。"
+      }
+    },
+    "submit": {
+      "settingUp": "システムを設定中...",
+      "setupSystem": "システムを設定"
+    },
+    "note": "注: セットアップは一度だけ実行できます。投入される管理策とポリシーは、上で選択したフレームワークに応じて決まります。",
+    "footer": "© 2024 Manzen Security Platform. All rights reserved.",
+    "validation": {
+      "organizationNameMin": "組織名は2文字以上で入力してください",
+      "adminNameMin": "管理者名は2文字以上で入力してください",
+      "orgAdminNameMin": "組織管理者名は2文字以上で入力してください",
+      "invalidEmail": "有効なメールアドレスを入力してください",
+      "passwordMin": "パスワードは8文字以上である必要があります",
+      "passwordUppercase": "パスワードには大文字を少なくとも1文字含めてください",
+      "passwordLowercase": "パスワードには小文字を少なくとも1文字含めてください",
+      "passwordNumber": "パスワードには数字を少なくとも1文字含めてください",
+      "passwordSpecial": "パスワードには記号を少なくとも1文字含めてください",
+      "emailsMustDiffer": "管理者のメールアドレスは異なる必要があります"
+    },
+    "toasts": {
+      "setupCompleted": "システムセットアップが正常に完了しました！",
+      "frameworksActivated_one": "セットアップ中に {{count}} 件のフレームワークを有効化しました。",
+      "frameworksActivated_other": "セットアップ中に {{count}} 件のフレームワークを有効化しました。",
+      "starterTestsCreated_one": "セットアップ中に {{count}} 件のスターターテストを作成しました。",
+      "starterTestsCreated_other": "セットアップ中に {{count}} 件のスターターテストを作成しました。",
+      "setupFailed": "セットアップに失敗しました",
+      "setupError": "セットアップ中にエラーが発生しました"
+    }
+  },
   "customerTrust": {
     "settings": {
       "title": "トラストセンター設定",

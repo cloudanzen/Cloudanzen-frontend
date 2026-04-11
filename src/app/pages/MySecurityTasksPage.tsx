@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   CheckCircle2,
   Circle,
@@ -36,21 +37,24 @@ function StatusPill({
   done: boolean;
   inProgress?: boolean;
 }) {
+  const { t } = useTranslation('common');
+
   if (done)
     return (
       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-50 text-green-700 border border-green-200">
-        <CheckCircle2 className="w-3 h-3" /> Completed
+        <CheckCircle2 className="w-3 h-3" />{' '}
+        {t('securityTasks.status.completed')}
       </span>
     );
   if (inProgress)
     return (
       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-        <Clock className="w-3 h-3" /> In Progress
+        <Clock className="w-3 h-3" /> {t('securityTasks.status.inProgress')}
       </span>
     );
   return (
     <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-muted text-muted-foreground border border-border">
-      <Circle className="w-3 h-3" /> Not Started
+      <Circle className="w-3 h-3" /> {t('securityTasks.status.notStarted')}
     </span>
   );
 }
@@ -74,6 +78,7 @@ function TaskCard({
   inProgress?: boolean;
   children: React.ReactNode;
 }) {
+  const { t } = useTranslation('common');
   const [open, setOpen] = useState(!done);
 
   return (
@@ -97,9 +102,11 @@ function TaskCard({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-xs font-mono text-muted-foreground/70">
-              Task {number}
+              {t('securityTasks.taskNumber', { number })}
             </span>
-            <span className="text-sm font-semibold text-foreground">{title}</span>
+            <span className="text-sm font-semibold text-foreground">
+              {title}
+            </span>
             <StatusPill done={done} inProgress={inProgress} />
           </div>
           <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
@@ -130,6 +137,7 @@ function Task1Policies({
   status: OnboardingStatus;
   onDone: (updated: OnboardingStatus) => void;
 }) {
+  const { t } = useTranslation('common');
   const [policies, setPolicies] = useState<
     { id: string; name: string; version: string; status: string }[]
   >([]);
@@ -142,11 +150,19 @@ function Task1Policies({
     policiesService
       .getPolicies({ status: 'PUBLISHED' })
       .then((res) => {
-        if (res.success && res.data) setPolicies(res.data as { id: string; name: string; version: string; status: string }[]);
+        if (res.success && res.data)
+          setPolicies(
+            res.data as {
+              id: string;
+              name: string;
+              version: string;
+              status: string;
+            }[],
+          );
       })
-      .catch(() => setError('Failed to load policies'))
+      .catch(() => setError(t('securityTasks.policies.loadFailed')))
       .finally(() => setLoading(false));
-  }, []);
+  }, [t]);
 
   const hasPending = (status.pendingPolicyIds ?? []).length > 0;
   const publishedPolicies = policies.filter((p) => p.status === 'PUBLISHED');
@@ -177,11 +193,15 @@ function Task1Policies({
       <div className="space-y-3">
         <div className="flex items-center gap-2 text-sm text-green-700 font-medium">
           <CheckCircle2 className="w-4 h-4" />
-          All policies accepted on {fmtDateTime(status.policyAcceptedAt)}
+          {t('securityTasks.policies.acceptedOn', {
+            date: fmtDateTime(status.policyAcceptedAt),
+          })}
         </div>
         {ids.length > 0 && (
           <p className="text-xs text-muted-foreground">
-            {ids.length} polic{ids.length === 1 ? 'y' : 'ies'} acknowledged.
+            {t('securityTasks.policies.acknowledgedCount', {
+              count: ids.length,
+            })}
           </p>
         )}
       </div>
@@ -192,23 +212,29 @@ function Task1Policies({
     <div className="space-y-4">
       {hasPending && status.policyAcceptedAt ? (
         <div className="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-700">
-          <strong>{pendingSet.size} new polic{pendingSet.size === 1 ? 'y has' : 'ies have'} been published</strong> since your last acceptance on {fmtDateTime(status.policyAcceptedAt)}.
-          Please review and accept all policies below.
+          <strong>
+            {t('securityTasks.policies.newPoliciesPublished', {
+              count: pendingSet.size,
+            })}
+          </strong>{' '}
+          {t('securityTasks.policies.newPoliciesDescription', {
+            date: fmtDateTime(status.policyAcceptedAt),
+          })}
         </div>
       ) : (
         <p className="text-sm text-muted-foreground">
-          You must digitally acknowledge all active organisation policies below.
-          Read each policy before accepting.
+          {t('securityTasks.policies.instructions')}
         </p>
       )}
 
       {loading ? (
         <div className="flex items-center gap-2 text-sm text-muted-foreground/70">
-          <Loader2 className="w-4 h-4 animate-spin" /> Loading policies…
+          <Loader2 className="w-4 h-4 animate-spin" />{' '}
+          {t('securityTasks.policies.loading')}
         </div>
       ) : publishedPolicies.length === 0 ? (
         <div className="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-700">
-          No published policies found. Ask your admin to publish policies first.
+          {t('securityTasks.policies.noPublishedPolicies')}
         </div>
       ) : (
         <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
@@ -243,11 +269,13 @@ function Task1Policies({
                     </p>
                     {isNew && (
                       <span className="inline-flex px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-700 border border-amber-200">
-                        NEW
+                        {t('securityTasks.policies.newBadge')}
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground/70">v{p.version}</p>
+                  <p className="text-xs text-muted-foreground/70">
+                    v{p.version}
+                  </p>
                 </div>
               </label>
             );
@@ -265,7 +293,7 @@ function Task1Policies({
           }}
           className="text-xs text-blue-600 hover:underline"
         >
-          Select all
+          {t('securityTasks.policies.selectAll')}
         </button>
         <button
           disabled={
@@ -280,7 +308,9 @@ function Task1Policies({
               );
               onDone(res.data);
             } catch (e: unknown) {
-              setError((e as { message?: string })?.message ?? 'Failed to save');
+              setError(
+                (e as { message?: string })?.message ?? t('errors.saveFailed'),
+              );
             } finally {
               setSaving(false);
             }
@@ -293,8 +323,10 @@ function Task1Policies({
             <CheckCircle2 className="w-3.5 h-3.5" />
           )}
           {saving
-            ? 'Saving…'
-            : `Accept ${checked.size > 0 ? checked.size : ''} Polic${checked.size === 1 ? 'y' : 'ies'}`}
+            ? t('actions.saving')
+            : t('securityTasks.policies.acceptPolicies', {
+                count: checked.size,
+              })}
         </button>
       </div>
     </div>
@@ -304,16 +336,21 @@ function Task1Policies({
 // ── Task 2 – Install MDM Agent ────────────────────────────────────────────────
 
 function Task2Mdm({ status }: { status: OnboardingStatus }) {
+  const { t } = useTranslation('common');
+
   if (status.mdmEnrolled) {
     return (
       <div className="space-y-2">
         <div className="flex items-center gap-2 text-sm text-green-700 font-medium">
           <CheckCircle2 className="w-4 h-4" />
-          MDM agent enrolled on {fmtDateTime(status.mdmEnrolledAt)}
+          {t('securityTasks.mdm.enrolledOn', {
+            date: fmtDateTime(status.mdmEnrolledAt),
+          })}
         </div>
         {status.deviceId && (
           <p className="text-xs text-muted-foreground">
-            Device ID: <code className="font-mono">{status.deviceId}</code>
+            {t('securityTasks.mdm.deviceId')}:{' '}
+            <code className="font-mono">{status.deviceId}</code>
           </p>
         )}
       </div>
@@ -323,29 +360,22 @@ function Task2Mdm({ status }: { status: OnboardingStatus }) {
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Install the ISMS MDM agent on your work device. Once installed and
-        enrolled, this task will be marked complete automatically.
+        {t('securityTasks.mdm.instructions')}
       </p>
       <div className="rounded-lg bg-blue-50 border border-blue-200 px-4 py-4 space-y-3">
         <p className="text-sm font-semibold text-blue-900">
-          Installation steps
+          {t('securityTasks.mdm.installationSteps')}
         </p>
         <ol className="list-decimal list-inside space-y-1.5 text-sm text-blue-800">
-          <li>
-            Ask your admin to generate an enrollment token for your device.
-          </li>
-          <li>Download the ISMS agent binary from your admin.</li>
-          <li>Run the installer with your enrollment token.</li>
-          <li>
-            The agent will check in automatically — this task updates within
-            minutes.
-          </li>
+          <li>{t('securityTasks.mdm.steps.generateToken')}</li>
+          <li>{t('securityTasks.mdm.steps.downloadAgent')}</li>
+          <li>{t('securityTasks.mdm.steps.runInstaller')}</li>
+          <li>{t('securityTasks.mdm.steps.autoCheckIn')}</li>
         </ol>
       </div>
       <div className="flex items-center gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
         <Clock className="w-3.5 h-3.5 flex-shrink-0" />
-        This task completes automatically after your device checks in with the
-        backend.
+        {t('securityTasks.mdm.autoCompleteNote')}
       </div>
     </div>
   );
@@ -360,6 +390,7 @@ function Task3Training({
   status: OnboardingStatus;
   onDone: (updated: OnboardingStatus) => void;
 }) {
+  const { t } = useTranslation('common');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -367,7 +398,9 @@ function Task3Training({
     return (
       <div className="flex items-center gap-2 text-sm text-green-700 font-medium">
         <CheckCircle2 className="w-4 h-4" />
-        Training completed on {fmtDateTime(status.trainingCompletedAt)}
+        {t('securityTasks.training.completedOn', {
+          date: fmtDateTime(status.trainingCompletedAt),
+        })}
       </div>
     );
   }
@@ -388,7 +421,10 @@ function Task3Training({
       const res = await onboardingService.recordTrainingComplete();
       onDone(res.data);
     } catch (e: unknown) {
-      setError((e as { message?: string })?.message ?? 'Failed to save completion');
+      setError(
+        (e as { message?: string })?.message ??
+          t('securityTasks.training.saveFailed'),
+      );
     } finally {
       setSaving(false);
     }
@@ -399,8 +435,9 @@ function Task3Training({
       {status.trainingStarted && !status.trainingCompleted && (
         <div className="flex items-center gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
           <Clock className="w-3.5 h-3.5" />
-          Training in progress — started {fmtDateTime(status.trainingStartedAt)}.
-          Complete all modules to finish.
+          {t('securityTasks.training.inProgress', {
+            date: fmtDateTime(status.trainingStartedAt),
+          })}
         </div>
       )}
 
@@ -411,7 +448,8 @@ function Task3Training({
 
       {saving && (
         <div className="flex items-center gap-2 text-sm text-blue-600">
-          <Loader2 className="w-4 h-4 animate-spin" /> Saving completion…
+          <Loader2 className="w-4 h-4 animate-spin" />{' '}
+          {t('securityTasks.training.savingCompletion')}
         </div>
       )}
       {error && <p className="text-xs text-red-600">{error}</p>}
@@ -422,6 +460,7 @@ function Task3Training({
 // ── Progress banner ───────────────────────────────────────────────────────────
 
 function ProgressBanner({ status }: { status: OnboardingStatus }) {
+  const { t } = useTranslation('common');
   const done = [
     status.policyAccepted,
     status.mdmEnrolled,
@@ -437,10 +476,10 @@ function ProgressBanner({ status }: { status: OnboardingStatus }) {
         </div>
         <div>
           <p className="text-base font-semibold text-green-900">
-            All tasks complete!
+            {t('securityTasks.progress.allTasksCompleteTitle')}
           </p>
           <p className="text-sm text-green-700 mt-0.5">
-            Your security onboarding is fully done. Thank you.
+            {t('securityTasks.progress.allTasksCompleteDescription')}
           </p>
         </div>
       </div>
@@ -451,10 +490,10 @@ function ProgressBanner({ status }: { status: OnboardingStatus }) {
     <div className="rounded-2xl bg-card border border-border px-6 py-4 shadow-sm">
       <div className="flex items-center justify-between mb-2">
         <p className="text-sm font-semibold text-foreground">
-          Security Onboarding
+          {t('securityTasks.progress.title')}
         </p>
         <span className="text-sm font-semibold text-blue-700">
-          {done}/3 tasks complete
+          {t('securityTasks.progress.tasksComplete', { done })}
         </span>
       </div>
       <div className="h-2.5 bg-muted rounded-full overflow-hidden">
@@ -464,7 +503,7 @@ function ProgressBanner({ status }: { status: OnboardingStatus }) {
         />
       </div>
       <p className="text-xs text-muted-foreground/70 mt-2">
-        Complete all tasks to finish your security onboarding.
+        {t('securityTasks.progress.description')}
       </p>
     </div>
   );
@@ -486,11 +525,11 @@ const STATUS_COLORS: Record<FindingStatus, string> = {
   CLOSED: 'bg-green-50 text-green-700',
 };
 
-const STATUS_LABELS: Record<FindingStatus, string> = {
-  OPEN: 'Open',
-  IN_REMEDIATION: 'In Remediation',
-  READY_FOR_REVIEW: 'Ready for Review',
-  CLOSED: 'Closed',
+const STATUS_LABEL_KEYS: Record<FindingStatus, string> = {
+  OPEN: 'open',
+  IN_REMEDIATION: 'inRemediation',
+  READY_FOR_REVIEW: 'readyForReview',
+  CLOSED: 'closed',
 };
 
 function fmtShort(iso: string | null | undefined) {
@@ -508,6 +547,7 @@ function isOverdue(f: FindingRecord) {
 }
 
 function RemediationTasksSection() {
+  const { t } = useTranslation('common');
   const qc = useQueryClient();
   const [transitioning, setTransitioning] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -529,7 +569,10 @@ function RemediationTasksSection() {
       else await findingsService.submitForReview(finding.id);
       qc.invalidateQueries({ queryKey: ['findings'] });
     } catch (e: unknown) {
-      setErr((e as { message?: string })?.message ?? 'Action failed');
+      setErr(
+        (e as { message?: string })?.message ??
+          t('securityTasks.remediation.actionFailed'),
+      );
     } finally {
       setTransitioning(null);
     }
@@ -538,7 +581,8 @@ function RemediationTasksSection() {
   if (isLoading)
     return (
       <div className="flex items-center gap-2 py-4 text-sm text-muted-foreground/70">
-        <Loader2 className="w-4 h-4 animate-spin" /> Loading remediation tasks…
+        <Loader2 className="w-4 h-4 animate-spin" />{' '}
+        {t('securityTasks.remediation.loading')}
       </div>
     );
 
@@ -549,14 +593,14 @@ function RemediationTasksSection() {
       <div className="flex items-center gap-2">
         <AlertTriangle className="w-5 h-5 text-amber-500" />
         <h2 className="text-base font-semibold text-foreground">
-          Remediation Tasks
+          {t('securityTasks.remediation.title')}
         </h2>
         <span className="ml-1 inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-100 text-amber-700 text-xs font-bold">
           {tasks.length}
         </span>
       </div>
       <p className="text-sm text-muted-foreground">
-        Automated findings assigned to you that need remediation.
+        {t('securityTasks.remediation.description')}
       </p>
 
       {err && (
@@ -583,11 +627,14 @@ function RemediationTasksSection() {
                     <span
                       className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[f.status]}`}
                     >
-                      {STATUS_LABELS[f.status]}
+                      {t(
+                        `securityTasks.remediation.statusLabels.${STATUS_LABEL_KEYS[f.status]}`,
+                      )}
                     </span>
                     {isOverdue(f) && (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
-                        <AlertTriangle className="w-3 h-3" /> Overdue
+                        <AlertTriangle className="w-3 h-3" />{' '}
+                        {t('securityTasks.remediation.overdue')}
                       </span>
                     )}
                   </div>
@@ -599,7 +646,10 @@ function RemediationTasksSection() {
                     <p
                       className={`flex items-center gap-1 text-xs mt-1 ${isOverdue(f) ? 'text-red-600 font-semibold' : 'text-muted-foreground/70'}`}
                     >
-                      <Calendar className="w-3 h-3" /> Due {fmtShort(f.dueAt)}
+                      <Calendar className="w-3 h-3" />{' '}
+                      {t('securityTasks.remediation.due', {
+                        date: fmtShort(f.dueAt),
+                      })}
                     </p>
                   )}
                 </div>
@@ -618,7 +668,7 @@ function RemediationTasksSection() {
                     ) : (
                       <ArrowRight className="w-3.5 h-3.5" />
                     )}
-                    Start Remediation
+                    {t('securityTasks.remediation.startRemediation')}
                   </button>
                 )}
                 {f.status === 'IN_REMEDIATION' && (
@@ -632,12 +682,13 @@ function RemediationTasksSection() {
                     ) : (
                       <ArrowRight className="w-3.5 h-3.5" />
                     )}
-                    Submit for Review
+                    {t('securityTasks.remediation.submitForReview')}
                   </button>
                 )}
                 {f.status === 'READY_FOR_REVIEW' && (
                   <span className="flex items-center gap-1 text-xs text-blue-600 font-medium px-3 py-1.5 rounded-lg bg-blue-50 border border-blue-200">
-                    <Clock className="w-3.5 h-3.5" /> Awaiting auditor review
+                    <Clock className="w-3.5 h-3.5" />{' '}
+                    {t('securityTasks.remediation.awaitingAuditorReview')}
                   </span>
                 )}
               </div>
@@ -652,6 +703,7 @@ function RemediationTasksSection() {
 // ── Main page ──────────────────────────────────────────────────────────────────
 
 export function MySecurityTasksPage() {
+  const { t } = useTranslation('common');
   const [status, setStatus] = useState<OnboardingStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -660,25 +712,27 @@ export function MySecurityTasksPage() {
     onboardingService
       .getMyStatus()
       .then((res) => setStatus(res.data))
-      .catch((e) => setError(e?.message ?? 'Failed to load tasks'))
+      .catch((e) => setError(e?.message ?? t('securityTasks.loadFailed')))
       .finally(() => setLoading(false));
-  }, []);
+  }, [t]);
 
   if (loading) {
     return (
       <div className="flex flex-col h-full bg-muted">
         <div className="bg-card border-b border-border px-6 py-4 shadow-sm">
           <h1 className="text-xl font-semibold text-foreground">
-            My Security Tasks
+            {t('securityTasks.title')}
           </h1>
           <p className="text-sm text-muted-foreground mt-0.5">
-            Complete your mandatory security onboarding
+            {t('securityTasks.description')}
           </p>
         </div>
         <div className="flex-1 flex items-center justify-center">
           <div className="flex flex-col items-center gap-3">
             <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
-            <p className="text-sm text-muted-foreground">Loading tasks…</p>
+            <p className="text-sm text-muted-foreground">
+              {t('securityTasks.loading')}
+            </p>
           </div>
         </div>
       </div>
@@ -690,18 +744,20 @@ export function MySecurityTasksPage() {
       <div className="flex flex-col h-full bg-muted">
         <div className="bg-card border-b border-border px-6 py-4 shadow-sm">
           <h1 className="text-xl font-semibold text-foreground">
-            My Security Tasks
+            {t('securityTasks.title')}
           </h1>
         </div>
         <div className="flex-1 flex items-center justify-center">
           <div className="flex flex-col items-center gap-3">
             <AlertCircle className="w-10 h-10 text-red-400" />
-            <p className="text-sm text-red-600">{error ?? 'Unknown error'}</p>
+            <p className="text-sm text-red-600">
+              {error ?? t('securityTasks.unknownError')}
+            </p>
             <button
               onClick={() => window.location.reload()}
               className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700"
             >
-              Retry
+              {t('securityTasks.retry')}
             </button>
           </div>
         </div>
@@ -714,10 +770,10 @@ export function MySecurityTasksPage() {
       {/* Top bar */}
       <div className="bg-card border-b border-border px-6 py-4 shadow-sm sticky top-0 z-10">
         <h1 className="text-xl font-semibold text-foreground">
-          My Security Tasks
+          {t('securityTasks.title')}
         </h1>
         <p className="text-sm text-muted-foreground mt-0.5">
-          Complete your mandatory security onboarding
+          {t('securityTasks.description')}
         </p>
       </div>
 
@@ -729,10 +785,14 @@ export function MySecurityTasksPage() {
         <TaskCard
           number={1}
           icon={FileText}
-          title="Accept All Organisation Policies"
-          description="Digitally acknowledge every active policy in the organisation."
+          title={t('securityTasks.cards.policies.title')}
+          description={t('securityTasks.cards.policies.description')}
           done={status.policyAccepted}
-          inProgress={!status.policyAccepted && (status.pendingPolicyIds ?? []).length > 0 && !!status.policyAcceptedAt}
+          inProgress={
+            !status.policyAccepted &&
+            (status.pendingPolicyIds ?? []).length > 0 &&
+            !!status.policyAcceptedAt
+          }
         >
           <Task1Policies status={status} onDone={setStatus} />
         </TaskCard>
@@ -741,8 +801,8 @@ export function MySecurityTasksPage() {
         <TaskCard
           number={2}
           icon={Laptop}
-          title="Install MDM Agent"
-          description="Enrol your work device in the company MDM to maintain endpoint compliance."
+          title={t('securityTasks.cards.mdm.title')}
+          description={t('securityTasks.cards.mdm.description')}
           done={status.mdmEnrolled}
         >
           <Task2Mdm status={status} />
@@ -752,8 +812,8 @@ export function MySecurityTasksPage() {
         <TaskCard
           number={3}
           icon={BookOpen}
-          title="Complete Security Awareness Training"
-          description="Complete the interactive security awareness training mission."
+          title={t('securityTasks.cards.training.title')}
+          description={t('securityTasks.cards.training.description')}
           done={status.trainingCompleted}
           inProgress={status.trainingStarted && !status.trainingCompleted}
         >

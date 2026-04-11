@@ -12,6 +12,7 @@
  */
 
 import { useEffect, useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PageTemplate } from '@/app/components/PageTemplate';
 import {
   Card,
@@ -41,10 +42,7 @@ import {
   EyeIcon,
   ShieldIcon,
 } from './partnerApi/icons';
-import {
-  timeAgo,
-  categoryBadge,
-} from './partnerApi/helpers';
+import { timeAgo, categoryBadge } from './partnerApi/helpers';
 import { fmtDate, fmtDateTime } from '@/lib/format-date';
 import { StatCard } from './partnerApi/StatCard';
 import { IssueKeyDialog } from './partnerApi/IssueKeyDialog';
@@ -56,6 +54,7 @@ import { CatalogueCard } from './partnerApi/CatalogueCard';
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 export function PartnerApiPage() {
+  const { t } = useTranslation('integrations');
   const isSuperAdmin = useHasRole('SUPER_ADMIN');
 
   // State
@@ -171,16 +170,16 @@ export function PartnerApiPage() {
   if (!isSuperAdmin) {
     return (
       <PageTemplate
-        title="Partner API"
-        description="Manage external tool integrations"
+        title={t('partnerApi.title')}
+        description={t('partnerApi.accessDenied.pageDescription')}
       >
         <div className="flex flex-col items-center justify-center py-24 text-center">
           <ShieldIcon className="mb-4 w-10 h-10 text-slate-300" />
           <p className="text-lg font-semibold text-slate-700">
-            Super Admin access required
+            {t('partnerApi.accessDenied.title')}
           </p>
           <p className="mt-1 text-sm text-slate-400">
-            Only Super Admins can manage Partner API keys and tool requests.
+            {t('partnerApi.accessDenied.description')}
           </p>
         </div>
       </PageTemplate>
@@ -189,24 +188,27 @@ export function PartnerApiPage() {
 
   return (
     <PageTemplate
-      title="Partner API"
-      description="Issue API keys to external tool teams so they can push scan results directly into your ISMS"
+      title={t('partnerApi.title')}
+      description={t('partnerApi.pageDescription')}
     >
       {/* ── Stats ─────────────────────────────────────────────────────────── */}
       <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <StatCard label="Active Keys" value={activeKeys.length} />
         <StatCard
-          label="Revoked Keys"
+          label={t('partnerApi.stats.activeKeys')}
+          value={activeKeys.length}
+        />
+        <StatCard
+          label={t('partnerApi.stats.revokedKeys')}
           value={revokedKeys.length}
-          sub="soft-deleted"
+          sub={t('partnerApi.stats.softDeleted')}
         />
         <StatCard
-          label="Total Findings"
+          label={t('partnerApi.stats.totalFindings')}
           value={totalFindings}
-          sub="across all results"
+          sub={t('partnerApi.stats.acrossAllResults')}
         />
         <StatCard
-          label="Open Failures"
+          label={t('partnerApi.stats.openFailures')}
           value={totalFail}
           color={totalFail > 0 ? 'text-red-600' : 'text-emerald-600'}
         />
@@ -216,11 +218,15 @@ export function PartnerApiPage() {
       <div className="mb-4 flex items-center justify-between">
         <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
           <TabsList>
-            <TabsTrigger value="keys">API Keys</TabsTrigger>
-            <TabsTrigger value="results">Inbound Results</TabsTrigger>
-            <TabsTrigger value="catalogue">Tool Catalogue</TabsTrigger>
+            <TabsTrigger value="keys">{t('partnerApi.tabs.keys')}</TabsTrigger>
+            <TabsTrigger value="results">
+              {t('partnerApi.tabs.results')}
+            </TabsTrigger>
+            <TabsTrigger value="catalogue">
+              {t('partnerApi.tabs.catalogue')}
+            </TabsTrigger>
             <TabsTrigger value="requests" className="relative">
-              Tool Requests
+              {t('partnerApi.tabs.requests')}
               {toolRequests.filter((r) => r.status === 'pending').length >
                 0 && (
                 <span className="ml-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-500 px-1 text-[10px] font-semibold text-white">
@@ -232,7 +238,7 @@ export function PartnerApiPage() {
         </Tabs>
         {tab === 'keys' && (
           <Button onClick={() => setShowIssue(true)} className="gap-1.5">
-            <PlusIcon className="w-4 h-4" /> Issue Key
+            <PlusIcon className="w-4 h-4" /> {t('partnerApi.issueKeyCta')}
           </Button>
         )}
       </div>
@@ -247,10 +253,11 @@ export function PartnerApiPage() {
           {tab === 'keys' && (
             <Card className="border-slate-200">
               <CardHeader className="pb-2">
-                <CardTitle className="text-base">API Keys</CardTitle>
+                <CardTitle className="text-base">
+                  {t('partnerApi.keys.title')}
+                </CardTitle>
                 <CardDescription>
-                  Each key is scoped to this organisation. The raw key is never
-                  stored — only its SHA-256 hash. Share keys securely.
+                  {t('partnerApi.keys.description')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-0">
@@ -258,17 +265,17 @@ export function PartnerApiPage() {
                   <div className="flex flex-col items-center justify-center py-16 text-center px-6">
                     <KeyIcon className="mb-3 w-8 h-8 text-slate-300" />
                     <p className="text-sm font-medium text-slate-600">
-                      No keys yet
+                      {t('partnerApi.keys.emptyTitle')}
                     </p>
                     <p className="mt-1 text-xs text-slate-400">
-                      Issue your first key to let an external team push scan
-                      results.
+                      {t('partnerApi.keys.emptyDescription')}
                     </p>
                     <Button
                       className="mt-4 gap-1.5"
                       onClick={() => setShowIssue(true)}
                     >
-                      <PlusIcon className="w-4 h-4" /> Issue Key
+                      <PlusIcon className="w-4 h-4" />{' '}
+                      {t('partnerApi.issueKeyCta')}
                     </Button>
                   </div>
                 ) : (
@@ -277,25 +284,25 @@ export function PartnerApiPage() {
                       <thead>
                         <tr className="border-b border-slate-100 text-left">
                           <th className="px-6 py-3 text-xs font-medium uppercase tracking-wide text-slate-500">
-                            Key Name
+                            {t('partnerApi.keys.columns.keyName')}
                           </th>
                           <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500">
-                            Tool
+                            {t('partnerApi.keys.columns.tool')}
                           </th>
                           <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500">
-                            Category
+                            {t('partnerApi.keys.columns.category')}
                           </th>
                           <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500">
-                            Status
+                            {t('partnerApi.keys.columns.status')}
                           </th>
                           <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500">
-                            Last Used
+                            {t('partnerApi.keys.columns.lastUsed')}
                           </th>
                           <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500">
-                            Expires
+                            {t('partnerApi.keys.columns.expires')}
                           </th>
                           <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500">
-                            Created
+                            {t('partnerApi.keys.columns.created')}
                           </th>
                           <th className="px-4 py-3" />
                         </tr>
@@ -331,14 +338,14 @@ export function PartnerApiPage() {
                                   variant="outline"
                                   className="text-xs bg-emerald-50 text-emerald-700 border-emerald-200"
                                 >
-                                  Active
+                                  {t('partnerApi.status.active')}
                                 </Badge>
                               ) : (
                                 <Badge
                                   variant="outline"
                                   className="text-xs bg-red-50 text-red-700 border-red-200"
                                 >
-                                  Revoked
+                                  {t('partnerApi.status.revoked')}
                                 </Badge>
                               )}
                             </td>
@@ -346,7 +353,9 @@ export function PartnerApiPage() {
                               {timeAgo(k.lastUsedAt)}
                             </td>
                             <td className="px-4 py-3 text-xs text-slate-500">
-                              {k.expiresAt ? fmtDate(k.expiresAt) : 'No expiry'}
+                              {k.expiresAt
+                                ? fmtDate(k.expiresAt)
+                                : t('partnerApi.keys.noExpiry')}
                             </td>
                             <td className="px-4 py-3 text-xs text-slate-400">
                               {fmtDate(k.createdAt)}
@@ -360,7 +369,7 @@ export function PartnerApiPage() {
                                   onClick={() => setRevokeTarget(k)}
                                 >
                                   <TrashIcon className="w-3.5 h-3.5" />
-                                  Revoke
+                                  {t('partnerApi.revokeAction')}
                                 </Button>
                               )}
                             </td>
@@ -379,11 +388,10 @@ export function PartnerApiPage() {
             <Card className="border-slate-200">
               <CardHeader className="pb-2">
                 <CardTitle className="text-base">
-                  Inbound Scan Results
+                  {t('partnerApi.results.title')}
                 </CardTitle>
                 <CardDescription>
-                  Scan results pushed by external tool teams using their Partner
-                  API keys.
+                  {t('partnerApi.results.description')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-0">
@@ -391,11 +399,10 @@ export function PartnerApiPage() {
                   <div className="flex flex-col items-center justify-center py-16 text-center px-6">
                     <EyeIcon className="mb-3 w-8 h-8 text-slate-300" />
                     <p className="text-sm font-medium text-slate-600">
-                      No results yet
+                      {t('partnerApi.results.emptyTitle')}
                     </p>
                     <p className="mt-1 text-xs text-slate-400">
-                      Once an external team pushes scan results using their API
-                      key, they'll appear here.
+                      {t('partnerApi.results.emptyDescription')}
                     </p>
                   </div>
                 ) : (
@@ -404,25 +411,25 @@ export function PartnerApiPage() {
                       <thead>
                         <tr className="border-b border-slate-100 text-left">
                           <th className="px-6 py-3 text-xs font-medium uppercase tracking-wide text-slate-500">
-                            Tool
+                            {t('partnerApi.results.columns.tool')}
                           </th>
                           <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500">
-                            Category
+                            {t('partnerApi.results.columns.category')}
                           </th>
                           <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500 text-center">
-                            Pass
+                            {t('partnerApi.results.columns.pass')}
                           </th>
                           <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500 text-center">
-                            Warn
+                            {t('partnerApi.results.columns.warn')}
                           </th>
                           <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500 text-center">
-                            Fail
+                            {t('partnerApi.results.columns.fail')}
                           </th>
                           <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500">
-                            Score
+                            {t('partnerApi.results.columns.score')}
                           </th>
                           <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500">
-                            Scanned At
+                            {t('partnerApi.results.columns.scannedAt')}
                           </th>
                           <th className="px-4 py-3" />
                         </tr>
@@ -498,7 +505,7 @@ export function PartnerApiPage() {
                                   ) : (
                                     <EyeIcon className="w-3.5 h-3.5" />
                                   )}
-                                  View
+                                  {t('partnerApi.results.view')}
                                 </Button>
                               </td>
                             </tr>
@@ -518,13 +525,15 @@ export function PartnerApiPage() {
               <div className="mb-4 flex items-center justify-between gap-4">
                 <div className="flex-1 max-w-sm">
                   <Input
-                    placeholder="Search tools or categories…"
+                    placeholder={t('partnerApi.catalogue.searchPlaceholder')}
                     value={catalogueSearch}
                     onChange={(e) => setCatalogueSearch(e.target.value)}
                   />
                 </div>
                 <p className="text-sm text-slate-400">
-                  {filteredCatalogue.length} tools
+                  {t('partnerApi.catalogue.toolCount', {
+                    count: filteredCatalogue.length,
+                  })}
                 </p>
               </div>
 
@@ -540,7 +549,9 @@ export function PartnerApiPage() {
                         {cat}
                       </Badge>
                       <span className="text-xs text-slate-400">
-                        {tools.length} {tools.length === 1 ? 'tool' : 'tools'}
+                        {t('partnerApi.catalogue.toolsInCategory', {
+                          count: tools.length,
+                        })}
                       </span>
                     </div>
                     <div className="space-y-2">
@@ -554,7 +565,9 @@ export function PartnerApiPage() {
               {filteredCatalogue.length === 0 && (
                 <div className="py-16 text-center">
                   <p className="text-sm text-slate-500">
-                    No tools match "{catalogueSearch}"
+                    {t('partnerApi.catalogue.noMatch', {
+                      query: catalogueSearch,
+                    })}
                   </p>
                 </div>
               )}
@@ -566,11 +579,10 @@ export function PartnerApiPage() {
             <Card className="border-slate-200">
               <CardHeader className="pb-2">
                 <CardTitle className="text-base">
-                  Tool Integration Requests
+                  {t('partnerApi.requests.title')}
                 </CardTitle>
                 <CardDescription>
-                  Requests submitted by users for new tool integrations. Approve
-                  to prioritise or dismiss to decline.
+                  {t('partnerApi.requests.description')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-0">
@@ -578,11 +590,10 @@ export function PartnerApiPage() {
                   <div className="flex flex-col items-center justify-center py-16 text-center px-6">
                     <ShieldIcon className="mb-3 w-8 h-8 text-slate-300" />
                     <p className="text-sm font-medium text-slate-600">
-                      No tool requests yet
+                      {t('partnerApi.requests.emptyTitle')}
                     </p>
                     <p className="mt-1 text-xs text-slate-400">
-                      Users can request new integrations from the Integrations
-                      page.
+                      {t('partnerApi.requests.emptyDescription')}
                     </p>
                   </div>
                 ) : (
@@ -591,22 +602,22 @@ export function PartnerApiPage() {
                       <thead>
                         <tr className="border-b border-slate-100 text-left">
                           <th className="px-6 py-3 text-xs font-medium uppercase tracking-wide text-slate-500">
-                            Tool
+                            {t('partnerApi.requests.columns.tool')}
                           </th>
                           <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500">
-                            Category
+                            {t('partnerApi.requests.columns.category')}
                           </th>
                           <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500">
-                            Use Case
+                            {t('partnerApi.requests.columns.useCase')}
                           </th>
                           <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500">
-                            Submitted By
+                            {t('partnerApi.requests.columns.submittedBy')}
                           </th>
                           <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500">
-                            Date
+                            {t('partnerApi.requests.columns.date')}
                           </th>
                           <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500">
-                            Status
+                            {t('partnerApi.requests.columns.status')}
                           </th>
                           <th className="px-4 py-3" />
                         </tr>
@@ -625,7 +636,7 @@ export function PartnerApiPage() {
                                 variant="outline"
                                 className={`text-xs ${categoryBadge(req.category)}`}
                               >
-                                {req.category || '—'}
+                                {req.category || t('partnerApi.common.none')}
                               </Badge>
                             </td>
                             <td
@@ -646,7 +657,7 @@ export function PartnerApiPage() {
                                   variant="outline"
                                   className="text-xs bg-amber-50 text-amber-700 border-amber-200"
                                 >
-                                  Pending
+                                  {t('partnerApi.requestStatus.pending')}
                                 </Badge>
                               )}
                               {req.status === 'approved' && (
@@ -654,7 +665,7 @@ export function PartnerApiPage() {
                                   variant="outline"
                                   className="text-xs bg-emerald-50 text-emerald-700 border-emerald-200"
                                 >
-                                  Approved
+                                  {t('partnerApi.requestStatus.approved')}
                                 </Badge>
                               )}
                               {req.status === 'dismissed' && (
@@ -662,7 +673,7 @@ export function PartnerApiPage() {
                                   variant="outline"
                                   className="text-xs bg-slate-50 text-slate-500 border-slate-200"
                                 >
-                                  Dismissed
+                                  {t('partnerApi.requestStatus.dismissed')}
                                 </Badge>
                               )}
                             </td>
@@ -678,7 +689,7 @@ export function PartnerApiPage() {
                                       reviewRequest(req.id, 'approved')
                                     }
                                   >
-                                    Approve
+                                    {t('partnerApi.requests.actions.approve')}
                                   </Button>
                                   <Button
                                     variant="ghost"
@@ -689,7 +700,7 @@ export function PartnerApiPage() {
                                       reviewRequest(req.id, 'dismissed')
                                     }
                                   >
-                                    Dismiss
+                                    {t('partnerApi.requests.actions.dismiss')}
                                   </Button>
                                 </div>
                               )}

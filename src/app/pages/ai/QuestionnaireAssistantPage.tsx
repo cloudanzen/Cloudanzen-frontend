@@ -158,11 +158,11 @@ function GenerationPanel({
                   AI draft ready for review
                 </p>
                 <Badge className={confidenceMeta.chip} variant="outline">
-                  {confidenceMeta.label}
+                  {t(confidenceMeta.labelKey)}
                 </Badge>
               </div>
               <p className="mt-1 text-sm leading-6 text-slate-600">
-                {confidenceMeta.hint}
+                {t(confidenceMeta.hintKey)}
               </p>
             </div>
           </div>
