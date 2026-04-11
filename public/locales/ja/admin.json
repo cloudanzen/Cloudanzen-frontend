@@ -1,17 +1,39 @@
 {
+  "common": {
+    "accessDenied": "アクセス拒否",
+    "unauthorized": "認証されていません",
+    "superAdminRequired": "SUPER_ADMIN ロールが必要です。"
+  },
   "controlTemplates": {
     "title": "管理策テンプレート",
     "description": "グローバル管理策テンプレートライブラリを管理する",
     "newTemplate": "新規テンプレート",
     "searchPlaceholder": "テンプレートを検索...",
-    "noTemplates": "テンプレートが見つかりません"
+    "noTemplates": "テンプレートが見つかりません",
+    "libraryTitle": "管理策テンプレートライブラリ",
+    "libraryDescription": "フレームワーク有効化時に顧客組織へ展開される全体共通の管理策テンプレートを管理します。",
+    "loading": "テンプレートを読み込み中...",
+    "mappingsCount": "{{count}} 件のマッピング",
+    "stats": {
+      "totalTemplates": "テンプレート総数",
+      "domains": "ドメイン",
+      "totalMappings": "総マッピング数",
+      "frameworks": "フレームワーク"
+    }
   },
   "testTemplates": {
     "title": "テストテンプレート",
     "description": "自動テストテンプレートライブラリを管理する",
     "newTemplate": "新規テンプレート",
     "searchPlaceholder": "テストテンプレートを検索...",
-    "noTemplates": "テンプレートが見つかりません"
+    "noTemplates": "テンプレートが見つかりません",
+    "libraryDescription": "フレームワーク有効化時に組織へ複製される事前定義テストです。",
+    "stats": {
+      "totalTests": "テスト総数",
+      "categories": "カテゴリ",
+      "automated": "自動",
+      "document": "ドキュメント"
+    }
   },
   "policyTemplates": {
     "title": "ポリシーテンプレート",

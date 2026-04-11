@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import {
   Copy,
@@ -21,7 +22,13 @@ import {
 import { ApiError } from '@/services/api/client';
 import { fmtDate, fmtDateTime } from '@/lib/format-date';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
 import { Input } from '@/app/components/ui/input';
 import { Label } from '@/app/components/ui/label';
@@ -47,6 +54,7 @@ import {
 // ── MCP Settings Page ────────────────────────────────────────────────────────
 
 export function McpSettingsPage() {
+  const { t } = useTranslation('settings');
   const queryClient = useQueryClient();
   const [showCreateKey, setShowCreateKey] = useState(false);
   const [newRawKey, setNewRawKey] = useState<string | null>(null);
@@ -80,10 +88,10 @@ export function McpSettingsPage() {
     mutationFn: mcpService.updateSettings,
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: QK.mcpSettings() });
-      toast.success('Settings updated');
+      toast.success(t('mcp.updated'));
     },
     onError: (e: unknown) => {
-      toast.error(e instanceof ApiError ? e.message : 'Failed to update settings');
+      toast.error(e instanceof ApiError ? e.message : t('mcp.updateFailed'));
     },
   });
 
@@ -91,10 +99,10 @@ export function McpSettingsPage() {
     mutationFn: mcpService.revokeKey,
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: QK.mcpKeys() });
-      toast.success('API key revoked');
+      toast.success(t('mcp.keyRevoked'));
     },
     onError: (e: unknown) => {
-      toast.error(e instanceof ApiError ? e.message : 'Failed to revoke key');
+      toast.error(e instanceof ApiError ? e.message : t('mcp.revokeFailed'));
     },
   });
 
@@ -107,7 +115,7 @@ export function McpSettingsPage() {
 
   const copyToClipboard = useCallback(async (text: string) => {
     await navigator.clipboard.writeText(text);
-    toast.success('Copied to clipboard');
+    toast.success(t('mcp.copied'));
   }, []);
 
   // ── Render ─────────────────────────────────────────────────────────────────
@@ -129,12 +137,9 @@ export function McpSettingsPage() {
         <CardHeader className="pb-4">
           <CardTitle className="text-base flex items-center gap-2">
             <Link className="w-4 h-4 text-blue-600" />
-            MCP Server URL
+            {t('mcp.serverUrl')}
           </CardTitle>
-          <CardDescription>
-            Point your AI agent (Claude Desktop, Cursor, etc.) at this endpoint
-            and authenticate with an MCP API key.
-          </CardDescription>
+          <CardDescription>{t('mcp.serverDescription')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-2">
@@ -148,13 +153,10 @@ export function McpSettingsPage() {
               onClick={() => copyToClipboard(MCP_SERVER_URL)}
             >
               <Copy className="w-3.5 h-3.5" />
-              Copy
+              {t('mcp.copy')}
             </Button>
           </div>
-          <p className="mt-3 text-xs text-gray-500">
-            Use this URL as the MCP server endpoint in your agent configuration,
-            and supply an active API key (created below) as the bearer token.
-          </p>
+          <p className="mt-3 text-xs text-gray-500">{t('mcp.serverHint')}</p>
         </CardContent>
       </Card>
 
@@ -208,8 +210,8 @@ export function McpSettingsPage() {
               API Keys
             </CardTitle>
             <CardDescription>
-              Create keys for each AI agent or integration. Keys are shown once on
-              creation — store them securely.
+              Create keys for each AI agent or integration. Keys are shown once
+              on creation — store them securely.
             </CardDescription>
           </div>
           <Button
@@ -512,8 +514,8 @@ function CreateKeyDialog({
             </div>
             <div className="rounded-lg bg-amber-50 border border-amber-200 p-3">
               <p className="text-sm text-amber-800">
-                Store this key securely. You will not be able to see it again after
-                closing this dialog.
+                Store this key securely. You will not be able to see it again
+                after closing this dialog.
               </p>
             </div>
             <div className="flex justify-end">
@@ -536,10 +538,7 @@ function CreateKeyDialog({
               />
             </div>
             <div className="flex justify-end gap-2">
-              <Button
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-              >
+              <Button variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
               <Button

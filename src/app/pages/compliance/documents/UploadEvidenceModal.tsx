@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- legacy: to be typed progressively */
 import { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FileText, Loader2, Upload, X, AlertCircle } from 'lucide-react';
 import { evidenceService } from '@/services/api/evidence';
 import { EvidenceItem, ControlOption } from './EvidenceDetailPanel';
@@ -15,6 +16,7 @@ export function UploadEvidenceModal({
   onClose: () => void;
   onUploaded: (ev: EvidenceItem) => void;
 }) {
+  const { t } = useTranslation('compliance');
   const [file, setFile] = useState<File | null>(null);
   const [controlId, setControlId] = useState(controls[0]?.id ?? '');
   const [uploading, setUploading] = useState(false);
@@ -28,15 +30,15 @@ export function UploadEvidenceModal({
   };
 
   const handleUpload = async () => {
-    if (!file) { setError('Please select a file'); return; }
-    if (!controlId) { setError('Please select a control'); return; }
+    if (!file) { setError(t('uploadEvidence.selectFile')); return; }
+    if (!controlId) { setError(t('uploadEvidence.selectControl')); return; }
     setUploading(true);
     setError(null);
     try {
       const res = await evidenceService.uploadEvidenceFile(file, controlId) as any;
       onUploaded(res.data);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Upload failed');
+      setError(err instanceof Error ? err.message : t('uploadEvidence.uploadFailed'));
     } finally {
       setUploading(false);
     }
@@ -49,7 +51,7 @@ export function UploadEvidenceModal({
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-base font-semibold text-gray-900">Upload Evidence File</h2>
+          <h2 className="text-base font-semibold text-gray-900">{t('uploadEvidence.title')}</h2>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400">
             <X className="w-4 h-4" />
           </button>
@@ -58,10 +60,10 @@ export function UploadEvidenceModal({
         {/* Control picker */}
         <div className="mb-4">
           <label className="block text-xs font-medium text-gray-600 mb-1.5 uppercase tracking-wide">
-            Link to ISO Control *
+            {t('uploadEvidence.linkToControl')}
           </label>
           {controls.length === 0 ? (
-            <p className="text-sm text-gray-400 italic">No controls found — create a control first.</p>
+            <p className="text-sm text-gray-400 italic">{t('uploadEvidence.noControls')}</p>
           ) : (
             <select
               value={controlId}
@@ -100,14 +102,14 @@ export function UploadEvidenceModal({
                 onClick={e => { e.stopPropagation(); setFile(null); }}
                 className="text-xs text-red-500 hover:text-red-700 mt-1"
               >
-                Remove
+                {t('uploadEvidence.remove')}
               </button>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-2">
               <Upload className="w-10 h-10 text-gray-300" />
-              <p className="text-sm font-medium text-gray-700">Drag & drop or click to select</p>
-              <p className="text-xs text-gray-400">PDF, Word, images, logs, ZIP — max 50 MB</p>
+              <p className="text-sm font-medium text-gray-700">{t('uploadEvidence.dragDrop')}</p>
+              <p className="text-xs text-gray-400">{t('uploadEvidence.fileTypes')}</p>
             </div>
           )}
         </div>
@@ -124,7 +126,7 @@ export function UploadEvidenceModal({
             onClick={onClose}
             className="flex-1 px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50"
           >
-            Cancel
+            {t('uploadEvidence.cancel')}
           </button>
           <button
             onClick={handleUpload}
@@ -132,7 +134,7 @@ export function UploadEvidenceModal({
             className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white text-sm font-medium"
           >
             {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-            {uploading ? 'Uploading…' : 'Upload'}
+            {uploading ? t('uploadEvidence.uploading') : t('uploadEvidence.upload')}
           </button>
         </div>
       </div>

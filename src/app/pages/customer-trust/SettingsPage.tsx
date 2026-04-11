@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { TOAST_DURATION_MS } from '@/lib/constants';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { Button } from '@/app/components/ui/button';
 import { Card } from '@/app/components/ui/card';
@@ -24,6 +25,7 @@ function fmt(iso: string | null | undefined) {
 }
 
 export function CustomerTrustSettingsPage() {
+  const { t } = useTranslation('common');
   const qc = useQueryClient();
   const [toast, setToast] = useState<{
     type: 'success' | 'error';
@@ -65,10 +67,9 @@ export function CustomerTrustSettingsPage() {
   }
 
   function validateSlug(v: string) {
-    if (!v) return 'Slug is required';
-    if (!/^[a-z0-9-]+$/.test(v))
-      return 'Only lowercase letters, digits and hyphens';
-    if (v.length < 2) return 'At least 2 characters';
+    if (!v) return t('customerTrust.settings.slugRequired');
+    if (!/^[a-z0-9-]+$/.test(v)) return t('customerTrust.settings.slugFormat');
+    if (v.length < 2) return t('customerTrust.settings.slugMinLength');
     return '';
   }
 
@@ -91,9 +92,12 @@ export function CustomerTrustSettingsPage() {
       };
       await trustCenterService.updateSettings(payload);
       qc.invalidateQueries({ queryKey: ['trust-settings'] });
-      showToast('success', 'Settings saved');
+      showToast('success', t('customerTrust.settings.settingsSaved'));
     } catch (e: unknown) {
-      showToast('error', e instanceof Error ? e.message : 'Failed to save settings');
+      showToast(
+        'error',
+        e instanceof Error ? e.message : t('errors.saveFailed'),
+      );
     } finally {
       setSaving(false);
     }
@@ -103,9 +107,14 @@ export function CustomerTrustSettingsPage() {
     try {
       await trustCenterService.triggerSnapshot();
       qc.invalidateQueries({ queryKey: ['trust-settings'] });
-      showToast('success', 'Compliance snapshot refreshed');
+      showToast('success', t('customerTrust.settings.snapshotRefreshed'));
     } catch (e: unknown) {
-      showToast('error', e instanceof Error ? e.message : 'Failed to snapshot');
+      showToast(
+        'error',
+        e instanceof Error
+          ? e.message
+          : t('customerTrust.settings.failedToSnapshot'),
+      );
     }
   }
 
@@ -116,19 +125,22 @@ export function CustomerTrustSettingsPage() {
 
   return (
     <PageTemplate
-      title="Trust Center Settings"
-      description="Configure your public-facing customer trust portal."
+      title={t('customerTrust.settings.title')}
+      description={t('customerTrust.settings.description')}
       actions={
         <div className="flex gap-2">
           {settings?.enabled && orgSlug && (
             <a href={portalUrl} target="_blank" rel="noopener noreferrer">
               <Button variant="outline" size="sm">
-                <ExternalLink className="w-4 h-4 mr-1.5" /> View Portal
+                <ExternalLink className="w-4 h-4 mr-1.5" />{' '}
+                {t('customerTrust.settings.viewPortal')}
               </Button>
             </a>
           )}
           <Button onClick={handleSave} disabled={saving}>
-            {saving ? 'Saving…' : 'Save Settings'}
+            {saving
+              ? t('customerTrust.settings.saving')
+              : t('customerTrust.settings.saveSettings')}
           </Button>
         </div>
       }
@@ -146,7 +158,8 @@ export function CustomerTrustSettingsPage() {
         {/* ── A) General Settings ─────────────────────────────────────── */}
         <Card className="p-6">
           <h2 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <Globe className="w-4 h-4 text-blue-600" /> General Settings
+            <Globe className="w-4 h-4 text-blue-600" />{' '}
+            {t('customerTrust.settings.generalSettings')}
           </h2>
 
           {isLoading ? (
@@ -164,10 +177,10 @@ export function CustomerTrustSettingsPage() {
               <div className="flex items-center justify-between py-2 border-b border-gray-100">
                 <div>
                   <Label htmlFor="tc-enabled" className="font-medium">
-                    Enable Trust Center
+                    {t('customerTrust.settings.enableTrustCenter')}
                   </Label>
                   <p className="text-xs text-gray-500 mt-0.5">
-                    Make your trust portal publicly accessible
+                    {t('customerTrust.settings.enableDescription')}
                   </p>
                 </div>
                 <Switch
@@ -180,7 +193,8 @@ export function CustomerTrustSettingsPage() {
               {/* Slug */}
               <div>
                 <Label className="block text-xs font-medium text-gray-700 mb-1">
-                  Public URL Slug <span className="text-red-500">*</span>
+                  {t('customerTrust.settings.publicUrlSlug')}{' '}
+                  <span className="text-red-500">*</span>
                 </Label>
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-gray-400 whitespace-nowrap">
@@ -204,11 +218,11 @@ export function CustomerTrustSettingsPage() {
               {/* Logo URL */}
               <div>
                 <Label className="block text-xs font-medium text-gray-700 mb-1">
-                  Logo URL
+                  {t('customerTrust.settings.logoUrl')}
                 </Label>
                 <input
                   className={inputCls}
-                  placeholder="https://your-cdn.com/logo.png"
+                  placeholder={t('customerTrust.settings.logoPlaceholder')}
                   value={logoUrl}
                   onChange={(e) => setLogoUrl(e.target.value)}
                 />
@@ -217,7 +231,7 @@ export function CustomerTrustSettingsPage() {
               {/* Brand color */}
               <div>
                 <Label className="block text-xs font-medium text-gray-700 mb-1">
-                  Primary Brand Color
+                  {t('customerTrust.settings.primaryBrandColor')}
                 </Label>
                 <div className="flex items-center gap-3">
                   <input
@@ -238,12 +252,14 @@ export function CustomerTrustSettingsPage() {
               {/* Description */}
               <div>
                 <Label className="block text-xs font-medium text-gray-700 mb-1">
-                  Public Description
+                  {t('customerTrust.settings.publicDescription')}
                 </Label>
                 <textarea
                   className={`${inputCls} resize-none`}
                   rows={4}
-                  placeholder="Describe your security posture and commitments to customers…"
+                  placeholder={t(
+                    'customerTrust.settings.descriptionPlaceholder',
+                  )}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                 />
@@ -252,7 +268,7 @@ export function CustomerTrustSettingsPage() {
               {/* Security email */}
               <div>
                 <Label className="block text-xs font-medium text-gray-700 mb-1">
-                  Security Contact Email
+                  {t('customerTrust.settings.securityContactEmail')}
                 </Label>
                 <div className="flex items-center gap-2">
                   <Mail className="w-4 h-4 text-gray-400 flex-shrink-0" />

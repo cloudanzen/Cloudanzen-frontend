@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   X,
   CheckCircle2,
@@ -15,6 +16,7 @@ import { ALL_ROLES } from './helpers';
 // ── Invite User Modal ──────────────────────────────────────────────────────────
 
 export function InviteUserModal({ onClose }: { onClose: () => void }) {
+  const { t } = useTranslation('access');
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<Role>(Role.VIEWER);
   const [sending, setSending] = useState(false);
@@ -30,7 +32,7 @@ export function InviteUserModal({ onClose }: { onClose: () => void }) {
       await usersService.inviteUser(email, role);
       setSent(true);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to send invitation';
+      const msg = err instanceof Error ? err.message : t('invite.failedToSend');
       setError(msg);
     } finally {
       setSending(false);
@@ -49,10 +51,10 @@ export function InviteUserModal({ onClose }: { onClose: () => void }) {
         <div className="flex items-center justify-between mb-5">
           <div>
             <h2 className="text-base font-semibold text-gray-900">
-              Invite User
+              {t('invite.title')}
             </h2>
             <p className="text-xs text-gray-500 mt-0.5">
-              An email invitation will be sent with a secure signup link.
+              {t('invite.subtitle')}
             </p>
           </div>
           <button
@@ -69,23 +71,23 @@ export function InviteUserModal({ onClose }: { onClose: () => void }) {
               <CheckCircle2 className="w-6 h-6 text-green-600" />
             </div>
             <p className="text-sm font-semibold text-gray-900">
-              Invitation sent!
+              {t('invite.sentTitle')}
             </p>
             <p className="text-xs text-gray-500 text-center">
-              An email was sent to <strong>{email}</strong> with a signup link.
+              {t('invite.sentMessage', { email })}
             </p>
             <button
               onClick={onClose}
               className="mt-2 px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium"
             >
-              Done
+              {t('invite.done')}
             </button>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">
-                Work Email *
+                {t('invite.emailLabel')}
               </label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -93,7 +95,7 @@ export function InviteUserModal({ onClose }: { onClose: () => void }) {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="colleague@company.com"
+                  placeholder={t('invite.emailPlaceholder')}
                   className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                   autoFocus
@@ -102,7 +104,7 @@ export function InviteUserModal({ onClose }: { onClose: () => void }) {
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1.5">
-                Assign Role
+                {t('invite.assignRole')}
               </label>
               <div className="grid grid-cols-2 gap-2">
                 {ALL_ROLES.filter((r) => r !== 'SUPER_ADMIN').map((r) => {
@@ -121,7 +123,9 @@ export function InviteUserModal({ onClose }: { onClose: () => void }) {
                       <span
                         className={`w-2 h-2 rounded-full flex-shrink-0 ${rc.dot}`}
                       />
-                      <span className="font-medium">{ROLE_LABELS[r]}</span>
+                      <span className="font-medium">
+                        {t(`users.roles.${r}`, ROLE_LABELS[r])}
+                      </span>
                     </button>
                   );
                 })}
@@ -140,7 +144,7 @@ export function InviteUserModal({ onClose }: { onClose: () => void }) {
                 onClick={onClose}
                 className="flex-1 px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50"
               >
-                Cancel
+                {t('invite.cancel')}
               </button>
               <button
                 type="submit"
@@ -152,7 +156,7 @@ export function InviteUserModal({ onClose }: { onClose: () => void }) {
                 ) : (
                   <UserPlus className="w-4 h-4" />
                 )}
-                {sending ? 'Sending…' : 'Send Invite'}
+                {sending ? t('invite.sending') : t('invite.sendInvite')}
               </button>
             </div>
           </form>

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { frameworksService, type PolicyMappingDto } from '@/services/api/frameworks';
@@ -7,6 +8,7 @@ import { FileText } from 'lucide-react';
 import { TabPlaceholder } from './shared';
 
 export function PoliciesTab({ slug }: { slug: string }) {
+  const { t } = useTranslation('compliance');
   const { data: mappingsRes, isLoading } = useQuery({
     queryKey: ['frameworks', 'mappings', slug],
     queryFn: () => frameworksService.getFrameworkMappings(slug),
@@ -19,14 +21,14 @@ export function PoliciesTab({ slug }: { slug: string }) {
   const policyMappings: PolicyMappingDto[] = mappingsRes?.data?.policies ?? [];
   const policiesById = new Map(((policiesRes?.data ?? []) as Policy[]).map((p) => [p.id, p]));
 
-  if (isLoading) return <TabPlaceholder icon={FileText} text="Loading policy mappings…" />;
+  if (isLoading) return <TabPlaceholder icon={FileText} text={t('frameworkTabs.policies.loadingPolicies')} />;
 
   if (policyMappings.length === 0) {
     return (
       <TabPlaceholder
         icon={FileText}
-        text="No policy mappings yet"
-        sub="Policy mappings are suggested at activation based on policy names matching framework requirement domains."
+        text={t('frameworkTabs.policies.noPolicies')}
+        sub={t('frameworkTabs.policies.noPoliciesDesc')}
       />
     );
   }
@@ -40,7 +42,7 @@ export function PoliciesTab({ slug }: { slug: string }) {
 
   return (
     <div className="space-y-6">
-      <div className="text-xs text-gray-500">{policyMappings.length} policy mappings</div>
+      <div className="text-xs text-gray-500">{t('frameworkTabs.policies.policyCount', { count: policyMappings.length })}</div>
 
       {Object.entries(byDomain).map(([domain, items]) => (
         <Card key={domain} className="border-gray-100">
@@ -58,7 +60,7 @@ export function PoliciesTab({ slug }: { slug: string }) {
                       <span className="text-xs text-gray-700 truncate">{mapping.requirementTitle}</span>
                     </div>
                     <p className="text-xs text-gray-500">{policiesById.get(mapping.policyId)?.name ?? mapping.policyId}</p>
-                    <p className="text-xs text-gray-400">Status: {policiesById.get(mapping.policyId)?.status ?? 'UNKNOWN'}</p>
+                    <p className="text-xs text-gray-400">{t('frameworkTabs.policies.status')}: {policiesById.get(mapping.policyId)?.status ?? 'UNKNOWN'}</p>
                   </div>
                   <p className="text-xs text-gray-400 shrink-0">{new Date(mapping.createdAt).toLocaleDateString()}</p>
                 </div>

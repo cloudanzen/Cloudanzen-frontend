@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { QK } from '@/lib/queryKeys';
 import { STALE } from '@/lib/queryClient';
 import { testsService } from '@/services/api/tests';
@@ -7,6 +8,7 @@ import { LastResultBadge } from './StatusBadge';
 import { fmtDateTime } from '@/lib/format-date';
 
 export function RunsSection({ testId }: { testId: string }) {
+  const { t } = useTranslation('tests');
   const { data, isLoading } = useQuery({
     queryKey: QK.testRuns(testId),
     queryFn: async () => {
@@ -19,27 +21,21 @@ export function RunsSection({ testId }: { testId: string }) {
 
   if (isLoading)
     return (
-      <p className="text-sm text-gray-400 animate-pulse">
-        Loading scan history...
-      </p>
+      <p className="text-sm text-gray-400 animate-pulse">{t('runs.loading')}</p>
     );
   if (!data || data.length === 0)
-    return (
-      <p className="text-sm text-gray-400">
-        No scan runs recorded yet. Run a scan from the Integrations page.
-      </p>
-    );
+    return <p className="text-sm text-gray-400">{t('runs.noRuns')}</p>;
 
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
           <tr className="text-xs font-medium text-gray-400 uppercase tracking-wide border-b border-gray-100">
-            <th className="text-left pb-2 pr-3">Run At</th>
-            <th className="text-left pb-2 pr-3">Result</th>
-            <th className="text-left pb-2 pr-3">Source</th>
-            <th className="text-left pb-2 pr-3">Summary</th>
-            <th className="text-left pb-2">Duration</th>
+            <th className="text-left pb-2 pr-3">{t('runs.runAt')}</th>
+            <th className="text-left pb-2 pr-3">{t('runs.result')}</th>
+            <th className="text-left pb-2 pr-3">{t('runs.source')}</th>
+            <th className="text-left pb-2 pr-3">{t('runs.summary')}</th>
+            <th className="text-left pb-2">{t('runs.duration')}</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-50">
@@ -72,6 +68,7 @@ export function RunsSection({ testId }: { testId: string }) {
 }
 
 export function TrendSparkline({ testId }: { testId: string }) {
+  const { t } = useTranslation('tests');
   const { data } = useQuery({
     queryKey: QK.testRuns(testId),
     queryFn: async () => {
@@ -83,7 +80,7 @@ export function TrendSparkline({ testId }: { testId: string }) {
 
   const items = (data ?? []).slice(0, 10).reverse();
   if (items.length === 0)
-    return <p className="text-xs text-gray-400">No trend data yet.</p>;
+    return <p className="text-xs text-gray-400">{t('runs.noTrend')}</p>;
 
   const colorFor = (status: string) =>
     status === 'Pass'
@@ -114,7 +111,7 @@ export function TrendSparkline({ testId }: { testId: string }) {
         ))}
       </div>
       <p className="mt-2 text-xs text-gray-500">
-        Last {items.length} execution result{items.length === 1 ? '' : 's'}.
+        {t('runs.lastExecutions', { count: items.length })}
       </p>
     </div>
   );

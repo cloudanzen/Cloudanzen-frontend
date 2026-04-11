@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useTranslation } from 'react-i18next';
 import { authService } from "@/services/api/auth";
 
 /**
@@ -20,6 +21,7 @@ import { authService } from "@/services/api/auth";
  * On error it redirects to /login?error=oauth_failed
  */
 export function AuthCallbackPage() {
+  const { t } = useTranslation('auth');
   useEffect(() => {
     try {
       // Prefer hash fragment — never reaches the server in HTTP requests
@@ -56,7 +58,7 @@ export function AuthCallbackPage() {
             <img src="/logo.svg" className="w-9 h-9" style={{ filter: "brightness(0) invert(1)" }} alt="CloudAnzen" />
           </div>
         </div>
-        <p className="text-gray-600 text-sm">Signing you in…</p>
+        <p className="text-gray-600 text-sm">{t('callback.signingIn')}</p>
       </div>
     </div>
   );

@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { COPY_FEEDBACK_MS, TOAST_DURATION_MS } from '@/lib/constants';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import {
   FileQuestion,
   ExternalLink,
@@ -32,6 +33,7 @@ function AiDraftPanel({
   requestId: string;
   onClose: () => void;
 }) {
+  const { t } = useTranslation('common');
   const [questions, setQuestions] = useState<string[]>(['']);
   const [drafts, setDrafts] = useState<
     TrustQuestionnaireDraftResponse[] | null
@@ -84,7 +86,7 @@ function AiDraftPanel({
         <div className="flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-violet-600" />
           <span className="text-sm font-semibold text-violet-800">
-            AI Response Assistant
+            {t('customerTrust.questionnaires.aiResponseAssistant')}
           </span>
         </div>
         <button
@@ -97,9 +99,7 @@ function AiDraftPanel({
       </div>
 
       <p className="text-xs text-gray-600">
-        Enter the questions from the customer's questionnaire. AI will generate
-        draft answers using your organization's policies and documents. All
-        answers require human review.
+        {t('customerTrust.questionnaires.aiInstructions')}
       </p>
 
       {/* Question inputs */}
@@ -111,7 +111,10 @@ function AiDraftPanel({
                 type="text"
                 value={q}
                 onChange={(e) => updateQuestion(i, e.target.value)}
-                placeholder={`Question ${i + 1}…`}
+                placeholder={t(
+                  'customerTrust.questionnaires.questionPlaceholder',
+                  { number: i + 1 },
+                )}
                 className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400"
               />
               {questions.length > 1 && (
@@ -132,7 +135,7 @@ function AiDraftPanel({
               className="flex items-center gap-1 text-xs text-violet-600 hover:text-violet-800"
             >
               <Plus className="h-3.5 w-3.5" />
-              Add question
+              {t('customerTrust.questionnaires.addQuestion')}
             </button>
           </div>
           <button
@@ -148,12 +151,12 @@ function AiDraftPanel({
             ) : (
               <Sparkles className="h-4 w-4" />
             )}
-            Generate draft answers
+            {t('customerTrust.questionnaires.generateDraftAnswers')}
           </button>
           {generateMutation.isError && (
             <p className="text-xs text-red-600">
               {(generateMutation.error as Error)?.message ??
-                'Generation failed'}
+                t('customerTrust.questionnaires.generationFailed')}
             </p>
           )}
         </div>
@@ -164,15 +167,16 @@ function AiDraftPanel({
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <p className="text-xs font-medium text-gray-700">
-              {drafts.length} draft answer{drafts.length !== 1 ? 's' : ''}{' '}
-              generated
+              {t('customerTrust.questionnaires.draftAnswersGenerated', {
+                count: drafts.length,
+              })}
             </p>
             <button
               type="button"
               onClick={() => setDrafts(null)}
               className="text-xs text-violet-600 hover:text-violet-800"
             >
-              Start over
+              {t('customerTrust.questionnaires.startOver')}
             </button>
           </div>
 
@@ -193,7 +197,9 @@ function AiDraftPanel({
                     ] ?? 'bg-gray-100 text-gray-600'
                   }`}
                 >
-                  {draft.confidence} confidence
+                  {t('customerTrust.questionnaires.confidence', {
+                    level: draft.confidence,
+                  })}
                 </span>
               </div>
 
@@ -204,7 +210,7 @@ function AiDraftPanel({
               {Array.isArray(draft.citations) && draft.citations.length > 0 && (
                 <CitationViewer
                   citations={draft.citations as any}
-                  label="Sources"
+                  label={t('customerTrust.questionnaires.sources')}
                   className="pt-1"
                 />
               )}
@@ -223,7 +229,7 @@ function AiDraftPanel({
                     className="flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700 disabled:opacity-50"
                   >
                     <ThumbsUp className="h-3.5 w-3.5" />
-                    Approve for reuse
+                    {t('customerTrust.questionnaires.approveForReuse')}
                   </button>
                   <button
                     type="button"
@@ -231,7 +237,9 @@ function AiDraftPanel({
                     className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
                   >
                     <Copy className="h-3.5 w-3.5" />
-                    {copied === i ? 'Copied!' : 'Copy'}
+                    {copied === i
+                      ? t('customerTrust.questionnaires.copied')
+                      : t('customerTrust.questionnaires.copy')}
                   </button>
                 </div>
               )}
@@ -246,6 +254,7 @@ function AiDraftPanel({
 // ── Questionnaires Tab ────────────────────────────────────────────────────────
 
 export function QuestionnairesTab() {
+  const { t } = useTranslation('common');
   const qc = useQueryClient();
   const [acting, setActing] = useState<string | null>(null);
   const [toast, setToast] = useState<{
@@ -269,7 +278,10 @@ export function QuestionnairesTab() {
 
   async function handleComplete(id: string) {
     if (!editUrl.trim())
-      return showToast('error', 'Response file URL is required');
+      return showToast(
+        'error',
+        t('customerTrust.questionnaires.responseUrlRequired'),
+      );
     setActing(id);
     try {
       await trustCenterService.updateQuestionnaireRequest(id, {
@@ -279,9 +291,15 @@ export function QuestionnairesTab() {
       qc.invalidateQueries({ queryKey: ['trust-questionnaires'] });
       setEditId(null);
       setEditUrl('');
-      showToast('success', 'Questionnaire marked complete');
+      showToast(
+        'success',
+        t('customerTrust.questionnaires.questionnaireCompleted'),
+      );
     } catch (e: unknown) {
-      showToast('error', e instanceof Error ? e.message : 'Failed');
+      showToast(
+        'error',
+        e instanceof Error ? e.message : t('errors.loadFailed'),
+      );
     } finally {
       setActing(null);
     }
@@ -303,17 +321,19 @@ export function QuestionnairesTab() {
         </div>
       )}
       <p className="text-sm text-gray-500 mb-4">
-        Manage inbound security questionnaire requests from customers
+        {t('customerTrust.questionnaires.subtitle')}
       </p>
 
       <Card className="overflow-hidden">
         {isLoading ? (
-          <div className="p-8 text-center text-sm text-gray-400">Loading…</div>
+          <div className="p-8 text-center text-sm text-gray-400">
+            {t('customerTrust.questionnaires.loading')}
+          </div>
         ) : items.length === 0 ? (
           <div className="p-12 text-center">
             <FileQuestion className="w-10 h-10 mx-auto mb-3 text-gray-200" />
             <p className="text-sm font-medium text-gray-600">
-              No questionnaire requests yet
+              {t('customerTrust.questionnaires.noRequests')}
             </p>
           </div>
         ) : (
@@ -323,11 +343,11 @@ export function QuestionnairesTab() {
                 <thead className="bg-gray-50 border-b border-gray-100">
                   <tr>
                     {[
-                      'Requester',
-                      'Type',
-                      'Status',
-                      'Requested',
-                      'Response',
+                      t('customerTrust.questionnaires.columns.requester'),
+                      t('customerTrust.questionnaires.columns.type'),
+                      t('customerTrust.questionnaires.columns.status'),
+                      t('customerTrust.questionnaires.columns.requested'),
+                      t('customerTrust.questionnaires.columns.response'),
                       '',
                     ].map((h) => (
                       <th
@@ -368,7 +388,7 @@ export function QuestionnairesTab() {
                               className="text-blue-600 hover:underline flex items-center gap-1"
                             >
                               <ExternalLink className="w-3 h-3" />
-                              View
+                              {t('customerTrust.questionnaires.view')}
                             </a>
                           ) : (
                             <span className="text-gray-400">—</span>
@@ -386,7 +406,9 @@ export function QuestionnairesTab() {
                                   )
                                 }
                                 className="flex items-center gap-1 text-xs text-violet-600 hover:text-violet-800"
-                                title="Generate AI draft response"
+                                title={t(
+                                  'customerTrust.questionnaires.generateAiDraft',
+                                )}
                               >
                                 <Sparkles className="w-3.5 h-3.5" />
                                 {aiPanelId === item.id ? (
@@ -403,7 +425,9 @@ export function QuestionnairesTab() {
                                 <div className="flex items-center gap-1">
                                   <input
                                     className="text-xs border border-gray-300 rounded px-2 py-1 w-48 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                    placeholder="Response URL…"
+                                    placeholder={t(
+                                      'customerTrust.questionnaires.responsePlaceholder',
+                                    )}
                                     value={editUrl}
                                     onChange={(e) => setEditUrl(e.target.value)}
                                   />
@@ -412,7 +436,9 @@ export function QuestionnairesTab() {
                                     disabled={acting === item.id}
                                     className="px-2 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
                                   >
-                                    {acting === item.id ? '…' : 'Save'}
+                                    {acting === item.id
+                                      ? '…'
+                                      : t('customerTrust.questionnaires.save')}
                                   </button>
                                   <button
                                     onClick={() => {
@@ -432,7 +458,9 @@ export function QuestionnairesTab() {
                                   }}
                                   className="text-xs text-blue-600 hover:underline"
                                 >
-                                  Attach Response
+                                  {t(
+                                    'customerTrust.questionnaires.attachResponse',
+                                  )}
                                 </button>
                               ))}
                           </div>

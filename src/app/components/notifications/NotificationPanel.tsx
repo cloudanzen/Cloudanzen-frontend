@@ -5,6 +5,7 @@ import { NotificationRow } from './NotificationRow';
 import { useMarkAllNotificationsRead, useMarkNotificationRead } from '@/app/features/notifications/useNotifications';
 import { getNotificationTargetPath, notificationPageIcons } from '@/app/features/notifications/notificationHelpers';
 import type { NotificationDto } from '@/services/api/notifications';
+import { useTranslation } from 'react-i18next';
 
 interface NotificationPanelProps {
   notifications: NotificationDto[];
@@ -13,6 +14,7 @@ interface NotificationPanelProps {
 }
 
 export function NotificationPanel({ notifications, isLoading, onClose }: NotificationPanelProps) {
+  const { t } = useTranslation('common');
   const navigate = useNavigate();
   const markRead = useMarkNotificationRead();
   const markAllRead = useMarkAllNotificationsRead();
@@ -28,11 +30,11 @@ export function NotificationPanel({ notifications, isLoading, onClose }: Notific
     <div className="w-[min(92vw,26rem)] space-y-4">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h3 className="text-sm font-semibold text-gray-900">Notifications</h3>
-          <p className="text-xs text-gray-500">Recent alerts, reminders, and assignment updates.</p>
+          <h3 className="text-sm font-semibold text-gray-900">{t('notifications.title')}</h3>
+          <p className="text-xs text-gray-500">{t('notifications.description')}</p>
         </div>
         <Button variant="ghost" size="sm" onClick={() => markAllRead.mutate()} disabled={markAllRead.isPending || notifications.length === 0}>
-          Mark all read
+          {t('notifications.markAllRead')}
         </Button>
       </div>
 
@@ -43,8 +45,8 @@ export function NotificationPanel({ notifications, isLoading, onClose }: Notific
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-sm">
             <EmptyIcon className="h-5 w-5 text-gray-400" />
           </div>
-          <p className="mt-4 text-sm font-medium text-gray-900">Your inbox is clear</p>
-          <p className="mt-1 text-sm text-gray-500">New issues and workflow nudges will show up here.</p>
+          <p className="mt-4 text-sm font-medium text-gray-900">{t('notifications.emptyTitle')}</p>
+          <p className="mt-1 text-sm text-gray-500">{t('notifications.emptyDesc')}</p>
         </div>
       ) : (
         <div className="max-h-[26rem] space-y-3 overflow-y-auto pr-1">
@@ -56,10 +58,10 @@ export function NotificationPanel({ notifications, isLoading, onClose }: Notific
 
       <div className="flex items-center justify-between border-t pt-3">
         <Link to="/notifications" onClick={onClose} className="text-sm font-medium text-blue-600 hover:text-blue-700">
-          View all
+          {t('notifications.viewAll')}
         </Link>
         <Link to="/settings/notifications" onClick={onClose} className="text-sm text-gray-500 hover:text-gray-700">
-          Settings
+          {t('notifications.settings')}
         </Link>
       </div>
     </div>

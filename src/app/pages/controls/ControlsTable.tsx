@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Control, ColumnConfig, ControlStatus } from './types';
 
 interface ControlsTableProps {
@@ -12,22 +13,22 @@ interface ControlsTableProps {
 
 const STATUS_CONFIG: Record<
   ControlStatus,
-  { label: string; bg: string; text: string; dot: string }
+  { key: string; bg: string; text: string; dot: string }
 > = {
   [ControlStatus.IMPLEMENTED]: {
-    label: 'Implemented',
+    key: 'controls.status.IMPLEMENTED',
     bg: 'bg-green-50',
     text: 'text-green-700',
     dot: 'bg-green-500',
   },
   [ControlStatus.PARTIALLY_IMPLEMENTED]: {
-    label: 'Partial',
+    key: 'controls.status.PARTIALLY_IMPLEMENTED',
     bg: 'bg-amber-50',
     text: 'text-amber-700',
     dot: 'bg-amber-500',
   },
   [ControlStatus.NOT_IMPLEMENTED]: {
-    label: 'Not Implemented',
+    key: 'controls.status.NOT_IMPLEMENTED',
     bg: 'bg-red-50',
     text: 'text-red-700',
     dot: 'bg-red-500',
@@ -42,6 +43,7 @@ export function ControlsTable({
   sortDirection,
   onSelect,
 }: ControlsTableProps) {
+  const { t } = useTranslation('compliance');
   const visibleColumns = columns.filter((c) => c.visible);
 
   const handleSort = (columnId: string) => {
@@ -77,17 +79,18 @@ export function ControlsTable({
 
       case 'status': {
         const cfg = STATUS_CONFIG[control.status as ControlStatus] ?? {
-          label: control.status,
+          key: '',
           bg: 'bg-gray-50',
           text: 'text-gray-600',
           dot: 'bg-gray-400',
         };
+        const label = cfg.key ? t(cfg.key) : control.status;
         return (
           <span
             className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${cfg.bg} ${cfg.text}`}
           >
             <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
-            {cfg.label}
+            {label}
           </span>
         );
       }

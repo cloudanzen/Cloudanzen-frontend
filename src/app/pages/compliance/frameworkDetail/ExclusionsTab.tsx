@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent } from '@/app/components/ui/card';
 import { frameworksService, type RequirementStatusDto } from '@/services/api/frameworks';
@@ -5,6 +6,7 @@ import { XCircle } from 'lucide-react';
 import { TabPlaceholder } from './shared';
 
 export function ExclusionsTab({ slug }: { slug: string }) {
+  const { t } = useTranslation('compliance');
   const { data: reqsRes, isLoading } = useQuery({
     queryKey: ['frameworks', 'org-requirements', slug],
     queryFn: () => frameworksService.listOrgRequirements(slug),
@@ -12,8 +14,8 @@ export function ExclusionsTab({ slug }: { slug: string }) {
   const reqs: RequirementStatusDto[] = reqsRes?.data ?? [];
   const excluded = reqs.filter(r => r.applicabilityStatus === 'not_applicable');
 
-  if (isLoading) return <TabPlaceholder icon={XCircle} text="Loading exclusions…" />;
-  if (excluded.length === 0) return <TabPlaceholder icon={XCircle} text="No exclusions recorded" sub="Requirements marked N/A with justification appear here as an audit trail." />;
+  if (isLoading) return <TabPlaceholder icon={XCircle} text={t('frameworkTabs.exclusions.loadingExclusions')} />;
+  if (excluded.length === 0) return <TabPlaceholder icon={XCircle} text={t('frameworkTabs.exclusions.noExclusions')} sub={t('frameworkTabs.exclusions.noExclusionsDesc')} />;
 
   return (
     <Card className="border-gray-100">

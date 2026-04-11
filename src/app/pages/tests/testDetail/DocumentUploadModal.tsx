@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { Upload, FileText, X, CheckCircle, AlertCircle } from 'lucide-react';
 import { QK } from '@/lib/queryKeys';
 import { testsService } from '@/services/api/tests';
@@ -18,6 +19,7 @@ export function DocumentUploadModal({
   onClose,
   onSuccess,
 }: DocumentUploadModalProps) {
+  const { t } = useTranslation('tests');
   const qc = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -52,15 +54,12 @@ export function DocumentUploadModal({
 
   const submitMutation = useMutation({
     mutationFn: async () => {
-      if (!controlId)
-        throw new Error(
-          'This test has no linked controls. Please link a control first.',
-        );
+      if (!controlId) throw new Error(t('documentUpload.noControlLinked'));
 
       let evidenceId: string;
 
       if (tab === 'upload') {
-        if (!selectedFile) throw new Error('Please select a file to upload.');
+        if (!selectedFile) throw new Error(t('documentUpload.selectFileError'));
         if (test.type === 'Document') {
           const docsRes = await complianceDocumentService.list({
             testId: test.id,
@@ -70,9 +69,7 @@ export function DocumentUploadModal({
           );
 
           if (!linkedDoc) {
-            throw new Error(
-              'No compliance document is linked to this test yet.',
-            );
+            throw new Error(t('documentUpload.noComplianceDoc'));
           }
 
           const uploadRes = await complianceDocumentService.uploadDocument(
@@ -80,18 +77,15 @@ export function DocumentUploadModal({
             selectedFile,
           );
 
-          if (!uploadRes.success) {
-            throw new Error('Failed to upload document.');
-          }
+          if (!uploadRes.success)
+            throw new Error(t('documentUpload.uploadDocFailed'));
 
           const refreshedDoc = await complianceDocumentService.getById(
             linkedDoc.id,
           );
 
           if (!refreshedDoc.success || !refreshedDoc.data?.currentEvidenceId) {
-            throw new Error(
-              'Document uploaded, but no evidence record was returned.',
-            );
+            throw new Error(t('documentUpload.noEvidenceReturned'));
           }
 
           evidenceId = refreshedDoc.data.currentEvidenceId;
@@ -100,19 +94,20 @@ export function DocumentUploadModal({
             selectedFile,
             controlId,
           );
-          if (!res.success || !res.data) throw new Error('File upload failed.');
+          if (!res.success || !res.data)
+            throw new Error(t('testDetail.evidenceTab.uploadFailed'));
           evidenceId = res.data.id;
         }
       } else {
         const policy = linkedPolicies.find((p) => p.id === selectedPolicyId);
-        if (!policy) throw new Error('Please select a policy document.');
+        if (!policy) throw new Error(t('documentUpload.noPolicyDocument'));
         const res = await evidenceService.createLinkEvidence({
           controlId,
           fileUrl: policy.documentUrl,
           fileName: policy.name,
         });
         if (!res.success || !res.data)
-          throw new Error('Failed to link policy document.');
+          throw new Error(t('documentUpload.linkPolicyFailed'));
         evidenceId = res.data.id;
       }
 
@@ -139,7 +134,7 @@ export function DocumentUploadModal({
           <div className="flex items-center gap-2">
             <Upload className="w-5 h-5 text-blue-600" />
             <h2 className="text-base font-semibold text-gray-900">
-              Upload Document
+              {t('documentUpload.title')}
             </h2>
           </div>
           <button
@@ -161,7 +156,7 @@ export function DocumentUploadModal({
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              Policy Document
+              {t('documentUpload.fromPolicy')}
             </button>
             <button
               onClick={() => setTab('upload')}
@@ -171,7 +166,7 @@ export function DocumentUploadModal({
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              Upload File
+              {t('documentUpload.uploadNew')}
             </button>
           </div>
         )}
@@ -181,7 +176,7 @@ export function DocumentUploadModal({
           {tab === 'policy' && hasPolicies ? (
             <div className="space-y-2">
               <p className="text-sm text-gray-600">
-                Select a policy document linked to this test's controls.
+                {t('documentUpload.selectLinkedPolicy')}
               </p>
               <div className="space-y-2">
                 {linkedPolicies.map((policy) => (
@@ -219,11 +214,10 @@ export function DocumentUploadModal({
           ) : (
             <div className="space-y-3">
               <p className="text-sm text-gray-600">
-                Upload a document as evidence to pass this test.
+                {t('documentUpload.selectFile')}
                 {!controlId && (
                   <span className="block mt-1 text-amber-600 font-medium">
-                    Note: this test has no linked controls — please link a
-                    control before uploading.
+                    {t('documentUpload.noControlLinked')}
                   </span>
                 )}
               </p>
@@ -235,10 +229,12 @@ export function DocumentUploadModal({
                 <Upload className="w-8 h-8 text-gray-300" />
                 {selectedFile ? (
                   <span className="font-medium text-gray-800">
-                    {selectedFile.name}
+                    {t('documentUpload.fileSelected', {
+                      name: selectedFile.name,
+                    })}
                   </span>
                 ) : (
-                  <span>Click to select a file</span>
+                  <span>{t('documentUpload.browse')}</span>
                 )}
               </button>
               <input
@@ -269,7 +265,7 @@ export function DocumentUploadModal({
             disabled={submitMutation.isPending}
             className="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors disabled:opacity-50"
           >
-            Cancel
+            {t('documentUpload.cancel')}
           </button>
           <button
             onClick={() => {
@@ -285,7 +281,9 @@ export function DocumentUploadModal({
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-medium disabled:opacity-50 transition-colors"
           >
             <CheckCircle className="w-4 h-4" />
-            {submitMutation.isPending ? 'Uploading...' : 'Upload & Pass'}
+            {submitMutation.isPending
+              ? t('documentUpload.uploadingFile')
+              : t('documentUpload.uploadAndAttach')}
           </button>
         </div>
       </div>

@@ -1,0 +1,368 @@
+{
+  "testDetail": {
+    "noTestId": "No test ID provided.",
+    "backToTests": "Back to Tests",
+    "closePanel": "Close panel",
+    "failedToLoad": "Failed to load test details.",
+    "owner": "Owner",
+    "dueDate": "Due Date",
+    "evidence": "Evidence",
+    "linkedItems_one": "{{count}} linked item",
+    "linkedItems_other": "{{count}} linked items",
+    "lastResult": "Last Result",
+    "completion": "Completion",
+    "completed": "Completed {{date}}",
+    "pendingCompletion": "Pending completion",
+    "needsFollowUp": "Needs follow-up",
+    "needsFollowUpDesc": "Create a remediation task or update evidence before the next review cycle.",
+    "createNotionTask": "Create Notion Task",
+    "taskCreated": "Task created:",
+    "openInNotion": "Open in Notion",
+    "tabs": {
+      "summary": "Summary",
+      "evidence": "Evidence",
+      "mapping": "Mappings",
+      "activity": "Activity"
+    },
+    "overview": {
+      "title": "Overview",
+      "nextDue": "Next Due",
+      "cadence": "Cadence",
+      "oneTime": "One-time",
+      "type": "Type",
+      "category": "Category",
+      "created": "Created",
+      "riskEngineId": "Risk Engine ID",
+      "automatedVia": "Automated via {{provider}}",
+      "lastScan": "Last Scan",
+      "ingestPipelineRun": "Ingest Pipeline Run",
+      "runScanNow": "Run Scan Now",
+      "running": "Running...",
+      "scanTriggered": "Scan triggered. Results will update shortly.",
+      "scanFailed": "Failed to trigger scan.",
+      "markAsPassed": "Mark as Passed",
+      "markComplete": "Mark Complete",
+      "marking": "Marking...",
+      "uploadDocument": "Upload / Attach Document",
+      "autoRemediate": "Auto-Remediate",
+      "autoRemediating": "Auto-Remediating…",
+      "systemDrivenVia": "This test is system-driven via {{provider}}. Results update automatically on every scan.",
+      "editPermissions": "Only the assigned owner, team lead, or CISO override roles can change this test.",
+      "integrationFallback": "Integration",
+      "integrationNameFallback": "the integration",
+      "pipelineProviderFallback": "GitHub Actions",
+      "pipelineImportSummary": "Pipeline execution imported from CI/CD webhook."
+    },
+    "evidenceTab": {
+      "title": "Evidence & Documents",
+      "aiSynthesis": "AI Evidence Synthesis",
+      "suggestMappings": "Suggest control mappings",
+      "selectEvidence": "Select an evidence item to generate an AI-suggested control mapping with citations.",
+      "synthesizing": "Synthesizing evidence…",
+      "synthesisFailed": "Synthesis failed —",
+      "sourceDocuments": "Source documents",
+      "acceptSuggestion": "Accept suggestion",
+      "dismiss": "Dismiss",
+      "unknownError": "unknown error",
+      "generating": "Generating…",
+      "attachedEvidence": "Attached Evidence",
+      "noEvidence": "No evidence linked to this test yet.",
+      "uploadFile": "Upload file",
+      "uploading": "Uploading...",
+      "linkControlFirst": "Link a control to this test to enable file uploads.",
+      "uploadFailed": "Upload failed",
+      "detach": "Detach",
+      "viewEvidence": "View evidence",
+      "unifiedEvidence": "Unified Evidence",
+      "noUnifiedEvidence": "No unified evidence events found for this test.",
+      "securityEvents": "Security Events",
+      "noSecurityEvents": "No security events found for this test."
+    },
+    "mappingTab": {
+      "linkedControls": "Linked Controls",
+      "noControls": "No controls linked yet.",
+      "detachControl": "Detach control",
+      "linkedFrameworks": "Linked Frameworks",
+      "noFrameworks": "No frameworks linked yet.",
+      "removeFramework": "Remove framework",
+      "linkedAudits": "Linked Audits",
+      "noAudits": "No audits linked.",
+      "auditor": "Auditor: {{name}}",
+      "policyDocuments": "Linked Policy Documents",
+      "noPolicies": "No policies linked via controls."
+    },
+    "activityTab": {
+      "scanRuns": "Scan Runs",
+      "trendTitle": "Result Trend",
+      "history": "Change History",
+      "riskContext": "Risk Context",
+      "securityWorkflow": "Security Workflow",
+      "siemSoar": "SIEM / SOAR",
+      "securityEvent": "{{eventType}} to {{destination}} ({{status}})"
+    },
+    "attestation": {
+      "title": "Attestation",
+      "requestAttestation": "Request attestation from",
+      "selectReviewer": "Select reviewer…",
+      "request": "Request",
+      "awaitingReview": "Awaiting review from auditor.",
+      "signOff": "Sign Off",
+      "signedBy": "Signed by {{name}} on {{date}}",
+      "notAvailable": "Attestation available for tests in OK or reviewed status."
+    },
+    "governance": {
+      "title": "Governance",
+      "attestationStatus": "Attestation Status",
+      "reviewer": "Reviewer: {{name}}",
+      "unassigned": "Unassigned",
+      "signedAt": "Signed {{date}}",
+      "signing": "Signing...",
+      "attestEvidence": "Attest Evidence",
+      "permissionsHint": "Owners can edit and complete, auditors can attest, and CISO/admin roles retain override authority.",
+      "attestationStatuses": {
+        "Not_requested": "Not requested",
+        "Pending_review": "Pending review",
+        "Attested": "Attested"
+      }
+    }
+  },
+  "testLibrary": {
+    "title": "Available Frameworks",
+    "description": "Pre-built compliance test suites for enterprise frameworks."
+  },
+  "statusBadge": {
+    "OK": "OK",
+    "Due_soon": "Due Soon",
+    "Overdue": "Overdue",
+    "Needs_remediation": "Needs Remediation"
+  },
+  "lastResultBadge": {
+    "Pass": "Pass",
+    "Fail": "Fail",
+    "Warning": "Warning",
+    "Not_Run": "Not Run"
+  },
+  "history": {
+    "loading": "Loading history...",
+    "noHistory": "No history recorded yet."
+  },
+  "riskContext": {
+    "loading": "Loading linked risk context...",
+    "noContext": "No linked risk engine evaluation found.",
+    "linkedRiskEngine": "Linked risk engine test",
+    "notLinked": "Not linked",
+    "riskInfo": "{{severity}} risk · Score {{score}} · {{status}}"
+  },
+  "runs": {
+    "loading": "Loading scan history...",
+    "noRuns": "No scan runs recorded yet. Run a scan from the Integrations page.",
+    "runAt": "Run At",
+    "result": "Result",
+    "source": "Source",
+    "summary": "Summary",
+    "duration": "Duration",
+    "noTrend": "No trend data yet.",
+    "lastExecutions_one": "Last {{count}} execution result.",
+    "lastExecutions_other": "Last {{count}} execution results."
+  },
+  "notionTask": {
+    "title": "Create Notion Task",
+    "description": "Push a remediation task to your linked Notion database.",
+    "taskTitle": "Task Title",
+    "notionDatabase": "Notion Database",
+    "loadingDatabases": "Loading databases...",
+    "noDatabases": "No linked databases. Link a Notion database from the Integrations page first.",
+    "selectDatabase": "Select a database...",
+    "dueDateLabel": "Due Date",
+    "optional": "(optional)",
+    "controlLinked": "Control: {{controlId}} will be linked to the task.",
+    "creating": "Creating...",
+    "createTask": "Create Task in Notion",
+    "cancel": "Cancel",
+    "selectDbError": "Select a Notion database",
+    "loadFailed": "Failed to load Notion databases",
+    "createFailed": "Failed to create Notion task"
+  },
+  "documentUpload": {
+    "title": "Attach Document / Evidence",
+    "fromPolicy": "From Linked Policy",
+    "uploadNew": "Upload New",
+    "selectLinkedPolicy": "Select a policy document linked to this test's controls.",
+    "noLinkedPolicies": "No policies linked through controls.",
+    "noPolicyDocument": "No policy document available.",
+    "linkPolicyFailed": "Failed to link policy document.",
+    "useAsEvidence": "Use as Evidence",
+    "attaching": "Attaching…",
+    "policyAttached": "Policy document attached as evidence",
+    "selectFile": "Select a file to upload as evidence.",
+    "browse": "Browse files",
+    "noFile": "No file selected",
+    "fileSelected": "Selected: {{name}}",
+    "uploadAndAttach": "Upload & Attach",
+    "uploadingFile": "Uploading…",
+    "noControlLinked": "This test has no linked controls. Please link a control first.",
+    "selectFileError": "Please select a file to upload.",
+    "noComplianceDoc": "No compliance document is linked to this test yet.",
+    "uploadDocFailed": "Failed to upload document.",
+    "noEvidenceReturned": "Document uploaded, but no evidence record was returned.",
+    "cancel": "Cancel"
+  },
+  "remediation": {
+    "loadingStatus": "Loading remediation status…",
+    "noActions": "No automated remediation actions available for this finding yet.",
+    "statusLabels": {
+      "PENDING": "Pending dry run",
+      "DRY_RUN_READY": "Dry run ready",
+      "AWAITING_APPROVAL": "Awaiting approval",
+      "APPROVED": "Approved — ready to execute",
+      "EXECUTING": "Executing…",
+      "SUCCEEDED": "Succeeded",
+      "FAILED": "Failed",
+      "ROLLED_BACK": "Rolled back",
+      "CANCELLED": "Cancelled"
+    },
+    "title": "Remediation Guide",
+    "noFindings": "No compliance findings linked to this test.",
+    "loading": "Loading findings…",
+    "severity": "Severity",
+    "findingStatus": "Status",
+    "source": "Source",
+    "recommendation": "Recommendation",
+    "livePanelTitle": "Live Auto-Remediation",
+    "dryRun": "Dry-run summary",
+    "createdAt": "Created {{date}}",
+    "lastUpdated": "Last updated {{date}}",
+    "viewDryRunDiff": "View dry-run diff",
+    "before": "Before",
+    "after": "After",
+    "checkingEngine": "Checking remediation engine…",
+    "autoAvailable": "Automated remediation is available",
+    "noOpenFindings": "No open findings detected. Run a scan to trigger the remediation engine when issues are found.",
+    "autoAvailableForFindings_one": "Automated remediation is available for {{count}} finding",
+    "autoAvailableForFindings_other": "Automated remediation is available for {{count}} findings",
+    "useFindingsPage": "Use the Findings page to run dry runs, request approval, and execute automated fixes.",
+    "integrationFallback": "the integration",
+    "connectedSystemFallback": "the connected system",
+    "alertFailing": "This test is failing and requires remediation",
+    "alertOverdue": "This test is overdue and needs attention",
+    "alertDescription": "Follow the steps below to resolve the issue and bring this test back into compliance.",
+    "steps": {
+      "investigateFailure": {
+        "title": "Investigate the failing scan result",
+        "description": "Review the latest scan output from {{provider}}. Check the Scan Run History section above for the detailed failure summary and root cause."
+      },
+      "reviewRequirements": {
+        "title": "Review the test requirements",
+        "description": "This test requires manual verification. Review the linked controls and evidence requirements to understand what compliance gap exists."
+      },
+      "acknowledgeOverdue": {
+        "title": "Acknowledge the overdue status",
+        "description": "This test was due on {{date}} and is now overdue. Prioritize completing this test to avoid compliance drift."
+      },
+      "reviewStatus": {
+        "title": "Review current test status",
+        "description": "This test is currently {{status}}. Review linked controls and evidence to ensure continued compliance."
+      },
+      "verifyControls": {
+        "title": "Verify linked control implementation",
+        "description": "Ensure the following controls are fully implemented: {{controls}}. Check each control's status and verify its implementation aligns with the test requirements."
+      },
+      "mapControls": {
+        "title": "Map relevant controls",
+        "description": "No controls are linked to this test. Use the Controls section below to link the applicable ISO/SOC controls that this test validates."
+      },
+      "collectEvidence": {
+        "title": "Collect and attach evidence",
+        "description": "No evidence is currently attached. Gather the required documentation, screenshots, or automated reports that prove compliance and attach them using the Evidence section below."
+      },
+      "updateEvidence": {
+        "title": "Update evidence with remediation proof",
+        "description": "Current evidence ({{count}} items) may reflect the pre-remediation state. After fixing the issue, collect fresh evidence showing the resolved state and attach it."
+      },
+      "verifyEvidence": {
+        "title": "Verify evidence freshness",
+        "description": "{{count}} evidence item(s) attached. Ensure the latest evidence is still current and reflects the actual state of the system."
+      },
+      "applyFix": {
+        "title": "Apply the fix in {{provider}}",
+        "description": "Make the necessary configuration changes directly in {{provider}}. Common fixes include updating security policies, enabling required features, or patching vulnerable components."
+      },
+      "rerunScan": {
+        "title": "Re-run the automated scan",
+        "description": "After applying the fix, trigger a new scan using the \"Run Scan Now\" button above. Wait for the scan to complete and verify the result changes to Pass."
+      },
+      "confirmFrameworks": {
+        "title": "Confirm framework alignment",
+        "description": "This test maps to: {{frameworks}}. Verify that remediation actions satisfy the requirements of all linked frameworks."
+      },
+      "markComplete": {
+        "title": "Mark the test as complete",
+        "description": "Once all controls are implemented, evidence is collected, and the compliance gap is resolved, use the \"Mark Complete\" button to close this test cycle."
+      },
+      "auditReadiness": {
+        "title": "Document for audit readiness",
+        "description": "This test is linked to {{count}} audit(s). Ensure all remediation actions and evidence are thoroughly documented for the auditor."
+      }
+    }
+  },
+  "attachSections": {
+    "attachEvidence": "Attach Evidence",
+    "searchEvidence": "Search evidence…",
+    "noResults": "No matching evidence found.",
+    "loadingEvidence": "Loading evidence...",
+    "noAvailableEvidence": "No available evidence to attach.",
+    "fromLinkedControls": "From linked controls ({{count}})",
+    "showAllOtherEvidence": "Show all other evidence ({{count}})",
+    "otherEvidence": "Other evidence ({{count}})",
+    "attach": "Attach",
+    "markAsPassed": {
+      "prompt": "Evidence attached. Mark this test as passed?",
+      "confirm": "Mark as Passed",
+      "dismiss": "Not yet",
+      "updating": "Updating..."
+    },
+    "attachControl": {
+      "title": "Attach Control",
+      "search": "Search controls…",
+      "noResults": "No matching controls found.",
+      "loading": "Loading controls..."
+    },
+    "attachAudit": {
+      "title": "Link Audit",
+      "search": "Search audits…",
+      "noResults": "No matching audits found.",
+      "link": "Link",
+      "select": "Select an audit to link",
+      "loading": "Loading audits..."
+    },
+    "addFramework": {
+      "title": "Add Framework",
+      "search": "Search frameworks…",
+      "noResults": "No matching frameworks found.",
+      "add": "Add",
+      "placeholder": "Framework name (e.g. SOC 2, ISO 27001)"
+    },
+    "policyDocuments": {
+      "title": "Linked Policy Documents",
+      "noDocuments": "No policies linked via controls.",
+      "viewPolicy": "View",
+      "status": "Status",
+      "loading": "Loading policy documents...",
+      "count": "Policy Documents ({{count}})",
+      "autoLinked": "Auto-linked from controls",
+      "linkedControls_one": "Linked to {{count}} control",
+      "linkedControls_other": "Linked to {{count}} controls"
+    }
+  },
+  "testsPage": {
+    "columns": "Columns",
+    "toggleColumns": "Toggle columns",
+    "loading": "Loading tests\u2026",
+    "loadFailed": "Failed to load tests",
+    "tryAgain": "Try again",
+    "noTestsFound": "No tests found",
+    "noTestsMatchFilters": "No tests match your current filters.",
+    "activateFramework": "Activate a framework to create tests automatically.",
+    "clearFilters": "Clear filters"
+  }
+}

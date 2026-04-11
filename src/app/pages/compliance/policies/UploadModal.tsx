@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- legacy: to be typed progressively */
 import React, { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { policiesService } from '@/services/api/policies';
 import { Policy } from '@/services/api/types';
 import { FileText, X, Upload, Loader2 } from 'lucide-react';
@@ -13,6 +14,7 @@ export function UploadModal({
   onClose: () => void;
   onUploaded: (updated: Policy) => void;
 }) {
+  const { t } = useTranslation('compliance');
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -32,7 +34,7 @@ export function UploadModal({
       const res = await policiesService.uploadPolicyDocument(policy.id, file) as any;
       onUploaded(res.data.policy);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Upload failed');
+      setError(err instanceof Error ? err.message : t('policiesPage.uploadModal.uploadFailed'));
     } finally {
       setUploading(false);
     }
@@ -46,7 +48,7 @@ export function UploadModal({
       >
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h2 className="text-base font-semibold text-gray-900">Upload Policy Document</h2>
+            <h2 className="text-base font-semibold text-gray-900">{t('policiesPage.uploadModal.title')}</h2>
             <p className="text-sm text-gray-500 mt-0.5 truncate max-w-xs">{policy.name}</p>
           </div>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400">
@@ -79,14 +81,14 @@ export function UploadModal({
                 onClick={e => { e.stopPropagation(); setFile(null); }}
                 className="text-xs text-red-500 hover:text-red-700 mt-1"
               >
-                Remove
+                {t('policiesPage.uploadModal.remove')}
               </button>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-2">
               <Upload className="w-10 h-10 text-gray-300" />
-              <p className="text-sm font-medium text-gray-700">Drag & drop or click to select</p>
-              <p className="text-xs text-gray-400">PDF, Word, Excel, images — max 50 MB</p>
+              <p className="text-sm font-medium text-gray-700">{t('policiesPage.uploadModal.dropOrClick')}</p>
+              <p className="text-xs text-gray-400">{t('policiesPage.uploadModal.fileTypes')}</p>
             </div>
           )}
         </div>
@@ -100,7 +102,7 @@ export function UploadModal({
             onClick={onClose}
             className="flex-1 px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
           >
-            Cancel
+            {t('policiesPage.uploadModal.cancel')}
           </button>
           <button
             onClick={handleUpload}
@@ -108,7 +110,7 @@ export function UploadModal({
             className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white text-sm font-medium transition-colors"
           >
             {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-            {uploading ? 'Uploading…' : 'Upload'}
+            {uploading ? t('policiesPage.uploadModal.uploading') : t('policiesPage.uploadModal.upload')}
           </button>
         </div>
       </div>

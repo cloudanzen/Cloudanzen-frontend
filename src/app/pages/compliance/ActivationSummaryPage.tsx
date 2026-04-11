@@ -6,6 +6,7 @@
  * Provides a guided next-steps workflow.
  */
 
+import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate, useParams } from 'react-router';
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { Card, CardContent } from '@/app/components/ui/card';
@@ -49,12 +50,14 @@ function StatCard({
   label,
   color,
   processing = false,
+  processingLabel = 'Processing',
 }: {
   value: number | string | null;
   label: string;
   color: string;
   /** Shows a pulsing clock when true or when value is null (async not yet resolved) */
   processing?: boolean;
+  processingLabel?: string;
 }) {
   const showPending = processing || value === null;
   return (
@@ -62,7 +65,7 @@ function StatCard({
       {showPending ? (
         <div className="flex items-center justify-center gap-1.5 py-1">
           <Clock className="w-4 h-4 text-gray-300 animate-pulse" />
-          <span className="text-sm text-gray-400">Processing</span>
+          <span className="text-sm text-gray-400">{processingLabel}</span>
         </div>
       ) : (
         <p className={`text-3xl font-bold ${color}`}>{value}</p>
@@ -82,6 +85,7 @@ function NextStepCard({
   actionLabel,
   onAction,
   optional,
+  optionalLabel = 'Optional',
 }: {
   stepNum: number;
   icon: React.ElementType;
@@ -90,6 +94,7 @@ function NextStepCard({
   actionLabel: string;
   onAction: () => void;
   optional?: boolean;
+  optionalLabel?: string;
 }) {
   return (
     <div className="flex items-start gap-4 p-4 rounded-xl border border-gray-100 bg-white hover:border-blue-200 hover:bg-blue-50/30 transition-colors">
@@ -105,7 +110,7 @@ function NextStepCard({
               variant="outline"
               className="text-xs text-gray-400 border-gray-200"
             >
-              Optional
+              {optionalLabel}
             </Badge>
           )}
         </div>
@@ -126,6 +131,7 @@ function NextStepCard({
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function ActivationSummaryPage() {
+  const { t } = useTranslation('compliance');
   const navigate = useNavigate();
   const { slug } = useParams<{ slug: string }>();
   const location = useLocation();
@@ -150,7 +156,7 @@ export function ActivationSummaryPage() {
 
   return (
     <PageTemplate
-      title="Framework Activated"
+      title={t('activationSummary.title')}
       description={
         frameworkName + (frameworkVersion ? ` v${frameworkVersion}` : '')
       }
@@ -170,15 +176,13 @@ export function ActivationSummaryPage() {
                   <CheckCircle2 className="w-5 h-5 text-green-600" />
                   <h2 className="text-lg font-semibold text-gray-900">
                     {summary?.isReactivation
-                      ? 'Framework Re-activated'
-                      : 'Framework Activated'}
+                      ? t('activationSummary.reactivatedTitle')
+                      : t('activationSummary.title')}
                   </h2>
                 </div>
                 <p className="text-sm text-gray-600 mt-0.5">
-                  <strong>{frameworkName}</strong> is now in scope for your
-                  organization.
-                  {summary?.isReactivation &&
-                    ' Your existing data, mappings, and history were preserved.'}
+                  {t('activationSummary.scopeMessage', { name: frameworkName })}
+                  {summary?.isReactivation && t('activationSummary.reactivationNote')}
                 </p>
               </div>
             </div>
@@ -189,30 +193,34 @@ export function ActivationSummaryPage() {
         {summary && (
           <div className="space-y-3">
             <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-              Setup Summary
+              {t('activationSummary.setupSummary')}
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <StatCard
                 value={summary.requirementsLoaded}
-                label="Requirements loaded"
+                label={t('activationSummary.requirementsLoaded')}
                 color="text-blue-700"
+                processingLabel={t('activationSummary.processing')}
               />
               <StatCard
                 value={summary.mappingsSuggested}
-                label="Mappings suggested"
+                label={t('activationSummary.mappingsSuggested')}
                 color="text-violet-700"
                 processing={summary.mappingsProcessing}
+                processingLabel={t('activationSummary.processing')}
               />
               <StatCard
                 value={summary.testsLinkedOrCreated}
-                label="Tests linked / created"
+                label={t('activationSummary.testsLinkedOrCreated')}
                 color="text-indigo-700"
                 processing={summary.mappingsProcessing}
+                processingLabel={t('activationSummary.processing')}
               />
               <StatCard
                 value={summary.requirementsNeedingReview}
-                label="Needing review"
+                label={t('activationSummary.needingReview')}
                 color="text-amber-700"
+                processingLabel={t('activationSummary.processing')}
               />
             </div>
 
@@ -221,9 +229,7 @@ export function ActivationSummaryPage() {
               <div className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 flex items-start gap-2">
                 <Clock className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5 animate-pulse" />
                 <p className="text-xs text-blue-700 leading-relaxed">
-                  Control and policy mappings, test generation, and coverage are
-                  being computed in the background. Refresh the framework detail
-                  page in a few moments to see the full results.
+                  {t('activationSummary.mappingsProcessingNote')}
                 </p>
               </div>
             )}
@@ -234,7 +240,7 @@ export function ActivationSummaryPage() {
                 <div className="flex items-center gap-2 mb-2">
                   <Info className="w-4 h-4 text-amber-600 flex-shrink-0" />
                   <p className="text-xs font-semibold text-amber-800 uppercase tracking-wide">
-                    Notes
+                    {t('activationSummary.notes')}
                   </p>
                 </div>
                 <ul className="space-y-1">
@@ -255,7 +261,7 @@ export function ActivationSummaryPage() {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-              Next Steps
+              {t('activationSummary.nextSteps')}
             </h3>
             <Button
               variant="ghost"
@@ -264,7 +270,7 @@ export function ActivationSummaryPage() {
               onClick={() => navigate(`/compliance/frameworks/${slug}`)}
             >
               <SkipForward className="w-3.5 h-3.5 mr-1" />
-              Do this later
+              {t('activationSummary.doThisLater')}
             </Button>
           </div>
 
@@ -272,9 +278,10 @@ export function ActivationSummaryPage() {
             <NextStepCard
               stepNum={1}
               icon={ListChecks}
-              title="Review applicability"
-              description="Mark requirements as N/A with justification. This narrows your compliance scope to what actually applies to your organization."
-              actionLabel="Review"
+              title={t('activationSummary.step1Title')}
+              description={t('activationSummary.step1Desc')}
+              actionLabel={t('activationSummary.review')}
+              optionalLabel={t('activationSummary.optional')}
               onAction={() =>
                 navigate(`/compliance/frameworks/${slug}`, {
                   state: { tab: 'requirements' },
@@ -284,9 +291,10 @@ export function ActivationSummaryPage() {
             <NextStepCard
               stepNum={2}
               icon={Link2}
-              title="Review suggested control mappings"
-              description="We've pre-suggested control mappings based on control references. Confirm or dismiss each mapping."
-              actionLabel="Review"
+              title={t('activationSummary.step2Title')}
+              description={t('activationSummary.step2Desc')}
+              actionLabel={t('activationSummary.review')}
+              optionalLabel={t('activationSummary.optional')}
               onAction={() =>
                 navigate(`/compliance/frameworks/${slug}`, {
                   state: { tab: 'controls' },
@@ -296,9 +304,10 @@ export function ActivationSummaryPage() {
             <NextStepCard
               stepNum={3}
               icon={Target}
-              title="Confirm policy coverage"
-              description="Review policies that have been suggested as covering framework requirements."
-              actionLabel="Review"
+              title={t('activationSummary.step3Title')}
+              description={t('activationSummary.step3Desc')}
+              actionLabel={t('activationSummary.review')}
+              optionalLabel={t('activationSummary.optional')}
               onAction={() =>
                 navigate(`/compliance/frameworks/${slug}`, {
                   state: { tab: 'policies' },
@@ -308,9 +317,10 @@ export function ActivationSummaryPage() {
             <NextStepCard
               stepNum={4}
               icon={AlertTriangle}
-              title="Assign owners to gaps"
-              description="Applicable requirements without an assigned owner show up as gaps. Assign owners and due dates to close them."
-              actionLabel="Review gaps"
+              title={t('activationSummary.step4Title')}
+              description={t('activationSummary.step4Desc')}
+              actionLabel={t('activationSummary.reviewGaps')}
+              optionalLabel={t('activationSummary.optional')}
               onAction={() =>
                 navigate(`/compliance/frameworks/${slug}`, {
                   state: { tab: 'gaps' },
@@ -326,10 +336,10 @@ export function ActivationSummaryPage() {
             variant="outline"
             onClick={() => navigate('/compliance/frameworks')}
           >
-            Back to Frameworks
+            {t('activationSummary.backToFrameworks')}
           </Button>
           <Button onClick={() => navigate(`/compliance/frameworks/${slug}`)}>
-            Open Framework Detail <ArrowRight className="w-4 h-4 ml-1.5" />
+            {t('activationSummary.openFrameworkDetail')} <ArrowRight className="w-4 h-4 ml-1.5" />
           </Button>
         </div>
       </div>

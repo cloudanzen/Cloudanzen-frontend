@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -30,29 +30,10 @@ import {
 import { authService } from "@/services/api/auth";
 import { ApiError } from "@/services/api/client";
 
-// ─── Schemas ────────────────────────────────────────────────────────────────
+// ─── Types ──────────────────────────────────────────────────────────────────
 
-const profileSchema = z.object({
-  name: z.string().min(1, "Display name is required").max(100),
-});
-
-const passwordSchema = z
-  .object({
-    currentPassword: z.string().min(1, "Current password is required"),
-    newPassword: z
-      .string()
-      .min(8, "Password must be at least 8 characters")
-      .regex(/[A-Z]/, "Must contain at least one uppercase letter")
-      .regex(/[0-9]/, "Must contain at least one number"),
-    confirmPassword: z.string().min(1, "Please confirm your new password"),
-  })
-  .refine((d) => d.newPassword === d.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
-
-type ProfileFormData = z.infer<typeof profileSchema>;
-type PasswordFormData = z.infer<typeof passwordSchema>;
+type ProfileFormData = { name: string };
+type PasswordFormData = { currentPassword: string; newPassword: string; confirmPassword: string };
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -77,8 +58,27 @@ function formatRole(role?: string): string {
 // ─── Page ───────────────────────────────────────────────────────────────────
 
 export function AccountSettingsPage() {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation('settings');
   const user = authService.getCachedUser();
+
+  const profileSchema = useMemo(() => z.object({
+    name: z.string().min(1, t('profile.validation.nameRequired')).max(100),
+  }), [t]);
+
+  const passwordSchema = useMemo(() => z
+    .object({
+      currentPassword: z.string().min(1, t('profile.validation.currentPasswordRequired')),
+      newPassword: z
+        .string()
+        .min(8, t('profile.validation.passwordMinLength'))
+        .regex(/[A-Z]/, t('profile.validation.passwordUppercase'))
+        .regex(/[0-9]/, t('profile.validation.passwordNumber')),
+      confirmPassword: z.string().min(1, t('profile.validation.confirmRequired')),
+    })
+    .refine((d) => d.newPassword === d.confirmPassword, {
+      message: t('profile.validation.passwordMismatch'),
+      path: ["confirmPassword"],
+    }), [t]);
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -105,9 +105,9 @@ export function AccountSettingsPage() {
       const response = await authService.updateProfile(data.name);
       const updated = response.user ?? response;
       authService.cacheUser({ ...user!, ...updated });
-      toast.success("Display name updated successfully.");
+      toast.success(t('profile.nameUpdated'));
     } catch (err: unknown) {
-      const msg = err instanceof ApiError ? err.message : "Failed to update profile.";
+      const msg = err instanceof ApiError ? err.message : t('profile.nameUpdateFailed');
       toast.error(msg);
     }
   };
@@ -115,10 +115,10 @@ export function AccountSettingsPage() {
   const onPasswordSubmit = async (data: PasswordFormData) => {
     try {
       await authService.changePassword(data.currentPassword, data.newPassword);
-      toast.success("Password changed successfully.");
+      toast.success(t('profile.passwordChanged'));
       passwordForm.reset();
     } catch (err: unknown) {
-      const msg = err instanceof ApiError ? err.message : "Failed to change password.";
+      const msg = err instanceof ApiError ? err.message : t('profile.passwordChangeFailed');
       toast.error(msg);
     }
   };
@@ -132,9 +132,9 @@ export function AccountSettingsPage() {
         <CardHeader className="pb-4">
           <CardTitle className="text-base flex items-center gap-2">
             <User className="w-4 h-4 text-blue-600" />
-            Profile
+            {t('profile.title')}
           </CardTitle>
-          <CardDescription>Your account identity and organisation details.</CardDescription>
+          <CardDescription>{t('profile.description')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
           {/* Avatar row */}
@@ -158,7 +158,7 @@ export function AccountSettingsPage() {
             <div className="flex items-center gap-3 text-sm">
               <Building2 className="w-4 h-4 text-gray-400 flex-shrink-0" />
               <div>
-                <span className="text-gray-500">Organisation: </span>
+                <span className="text-gray-500">{t('profile.organisation')}: </span>
                 <span className="font-medium text-gray-900">{user.organization.name}</span>
               </div>
             </div>
@@ -174,9 +174,9 @@ export function AccountSettingsPage() {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Display name</FormLabel>
+                    <FormLabel>{t('profile.displayName')}</FormLabel>
                     <FormControl>
-                      <Input placeholder="Your full name" {...field} />
+                      <Input placeholder={t('profile.namePlaceholder')} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -189,7 +189,7 @@ export function AccountSettingsPage() {
                 className="flex items-center gap-2"
               >
                 <Save className="w-3.5 h-3.5" />
-                {profileForm.formState.isSubmitting ? "Saving…" : "Save name"}
+                {profileForm.formState.isSubmitting ? t('profile.saving') : t('profile.saveName')}
               </Button>
             </form>
           </Form>
@@ -201,10 +201,10 @@ export function AccountSettingsPage() {
         <CardHeader className="pb-4">
           <CardTitle className="text-base flex items-center gap-2">
             <Lock className="w-4 h-4 text-blue-600" />
-            Change Password
+            {t('profile.changePassword')}
           </CardTitle>
           <CardDescription>
-            Use a strong password with uppercase letters, numbers, and symbols.
+            {t('profile.changePasswordDesc')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -225,12 +225,12 @@ export function AccountSettingsPage() {
                 name="currentPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Current password</FormLabel>
+                    <FormLabel>{t('profile.currentPassword')}</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Input
                           type={showCurrent ? "text" : "password"}
-                          placeholder="Enter current password"
+                          placeholder={t('profile.currentPasswordPlaceholder')}
                           autoComplete="current-password"
                           className="pr-10"
                           {...field}
@@ -256,12 +256,12 @@ export function AccountSettingsPage() {
                 name="newPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>New password</FormLabel>
+                    <FormLabel>{t('profile.newPassword')}</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Input
                           type={showNew ? "text" : "password"}
-                          placeholder="At least 8 characters"
+                          placeholder={t('profile.newPasswordPlaceholder')}
                           autoComplete="new-password"
                           className="pr-10"
                           {...field}
@@ -287,12 +287,12 @@ export function AccountSettingsPage() {
                 name="confirmPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Confirm new password</FormLabel>
+                    <FormLabel>{t('profile.confirmNewPassword')}</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Input
                           type={showConfirm ? "text" : "password"}
-                          placeholder="Repeat new password"
+                          placeholder={t('profile.confirmPasswordPlaceholder')}
                           autoComplete="new-password"
                           className="pr-10"
                           {...field}
@@ -319,7 +319,7 @@ export function AccountSettingsPage() {
                 className="flex items-center gap-2"
               >
                 <Lock className="w-3.5 h-3.5" />
-                {passwordForm.formState.isSubmitting ? "Updating…" : "Update password"}
+                {passwordForm.formState.isSubmitting ? t('profile.updating') : t('profile.updatePassword')}
               </Button>
             </form>
           </Form>
@@ -331,9 +331,9 @@ export function AccountSettingsPage() {
         <CardHeader className="pb-4">
           <CardTitle className="text-base flex items-center gap-2">
             <Languages className="w-4 h-4 text-blue-600" />
-            Language
+            {t('profile.language')}
           </CardTitle>
-          <CardDescription>Choose your preferred display language.</CardDescription>
+          <CardDescription>{t('profile.languageDesc')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-2">
@@ -366,18 +366,18 @@ export function AccountSettingsPage() {
         <CardHeader className="pb-4">
           <CardTitle className="text-base flex items-center gap-2">
             <Shield className="w-4 h-4 text-blue-600" />
-            Account Information
+            {t('profile.accountInfo')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <dl className="space-y-3 text-sm">
             <div className="flex justify-between">
-              <dt className="text-gray-500">Email address</dt>
+              <dt className="text-gray-500">{t('profile.emailAddress')}</dt>
               <dd className="font-medium text-gray-900">{user?.email ?? "—"}</dd>
             </div>
             <Separator />
             <div className="flex justify-between">
-              <dt className="text-gray-500">Role</dt>
+              <dt className="text-gray-500">{t('profile.role')}</dt>
               <dd>
                 <Badge variant="outline" className="text-xs">
                   {formatRole(user?.role)}
@@ -386,7 +386,7 @@ export function AccountSettingsPage() {
             </div>
             <Separator />
             <div className="flex justify-between">
-              <dt className="text-gray-500">Account created</dt>
+              <dt className="text-gray-500">{t('profile.accountCreated')}</dt>
               <dd className="font-medium text-gray-900">
                 {user?.createdAt
                   ? new Date(user.createdAt).toLocaleDateString(undefined, {
@@ -399,7 +399,7 @@ export function AccountSettingsPage() {
             </div>
             <Separator />
             <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
-              <dt className="text-gray-500 flex-shrink-0">User ID</dt>
+              <dt className="text-gray-500 flex-shrink-0">{t('profile.userId')}</dt>
               <dd className="font-mono text-xs text-gray-500 break-all sm:text-right">{user?.id ?? "—"}</dd>
             </div>
           </dl>

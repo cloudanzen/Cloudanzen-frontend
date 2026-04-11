@@ -1,20 +1,40 @@
 {
   "users": {
-    "title": "ユーザー",
-    "description": "ユーザーとアクセスレベルを管理する",
+    "title": "ユーザー管理",
+    "description": "組織全体のユーザー、ロール、アクセスを管理する。",
     "inviteUser": "ユーザーを招待",
-    "searchPlaceholder": "ユーザーを検索...",
-    "noUsers": "ユーザーが見つかりません",
+    "searchPlaceholder": "名前またはメールアドレスで検索…",
+    "noUsers": "検索に一致するユーザーがいません。",
     "columns": {
-      "name": "名前",
-      "email": "メールアドレス",
+      "user": "ユーザー",
       "role": "ロール",
-      "status": "ステータス",
-      "createdAt": "参加日",
+      "onboarding": "オンボーディング",
+      "github": "GitHub",
+      "joined": "参加日",
       "actions": "操作"
     },
     "removeUser": "ユーザーを削除",
-    "confirmRemove": "このユーザーを削除してよろしいですか？",
+    "confirmRemove": "{{name}} を組織から削除しますか？この操作は元に戻せません。",
+    "thisUser": "このユーザー",
+    "refresh": "更新",
+    "noName": "名前なし",
+    "you": "（自分）",
+    "changeRole": "ロールを変更",
+    "viewDetails": "詳細を表示",
+    "removeUserAction": "ユーザーを削除",
+    "failedToLoad": "ユーザーの読み込みに失敗しました",
+    "showing": "{{total}} 件中 {{filtered}} 件を表示",
+    "filteredBy": "{{role}} でフィルター中",
+    "clearFilter": "フィルターを解除",
+    "kpi": {
+      "totalUsers": "合計ユーザー数",
+      "privilegedUsers": "特権ユーザー",
+      "privilegedSub": "管理者 / セキュリティオーナー",
+      "fullyOnboarded": "オンボーディング完了",
+      "onboardedPercent": "{{percent}}% 完了",
+      "rolesInUse": "使用中のロール"
+    },
+    "roleDistribution": "ロール分布",
     "roles": {
       "SUPER_ADMIN": "スーパー管理者",
       "ORG_ADMIN": "組織管理者",
@@ -25,23 +45,179 @@
     }
   },
   "roles": {
-    "title": "ロール",
-    "description": "ロールベースのアクセス制御を定義・管理する",
+    "title": "ロールと権限",
+    "description": "各モジュールにおける各ロールの権限を確認する。",
     "noRoles": "カスタムロールが定義されていません",
     "createRole": "ロールを作成",
-    "permissions": "権限"
+    "permissions": "権限",
+    "tabs": {
+      "roleCards": "ロールカード",
+      "permissionMatrix": "権限マトリクス"
+    },
+    "permissionsCount": "{{count}} 件の権限",
+    "usersCount_one": "{{count}} ユーザー",
+    "usersCount_other": "{{count}} ユーザー",
+    "filterByRole": "ロールで絞り込み:",
+    "allRoles": "すべてのロール",
+    "modulePermission": "モジュール / 権限",
+    "detail": {
+      "permissionsLabel": "権限",
+      "usersAssigned": "割り当てユーザー数",
+      "grantedPermissions": "付与された権限",
+      "deniedPermissions": "拒否された権限"
+    },
+    "roleDescriptions": {
+      "SUPER_ADMIN": "プラットフォーム運用者です。すべてのテナントとプラットフォーム設定に完全アクセスできます。",
+      "ORG_ADMIN": "テナントを全面的に管理します。ユーザー、ロール、すべてのコンプライアンスモジュールを管理できます。",
+      "SECURITY_OWNER": "コンプライアンスプログラムの責任者です。すべてのGRCコンテンツを管理し、ポリシーを承認できます。",
+      "AUDITOR": "読み取り専用の監査アクセスです。監査を実施し、発見事項を記録できます。",
+      "CONTRIBUTOR": "エビデンス、テスト、リスクを更新できます。ユーザー管理やポリシー承認はできません。",
+      "VIEWER": "すべてのコンプライアンスコンテンツに読み取り専用でアクセスできます。"
+    },
+    "modules": {
+      "risks": "リスク",
+      "controls": "管理策",
+      "evidence": "エビデンス",
+      "policies": "ポリシー",
+      "tests": "テスト",
+      "users": "ユーザー",
+      "integrations": "インテグレーション",
+      "audits": "監査",
+      "reports": "レポート",
+      "accessrequests": "アクセス申請",
+      "orgsettings": "組織設定"
+    },
+    "permissionLabels": {
+      "read": "閲覧",
+      "write": "更新",
+      "accept": "承認",
+      "delete": "削除",
+      "upload": "アップロード",
+      "approve": "承認",
+      "run": "実行",
+      "manage": "管理",
+      "roles_assign": "ロール割り当て",
+      "conduct": "実施",
+      "export": "エクスポート",
+      "create": "作成",
+      "settings": "管理",
+      "billing": "請求"
+    }
   },
   "requests": {
     "title": "アクセス申請",
-    "description": "保留中のアクセス申請を確認する",
-    "noRequests": "保留中のアクセス申請なし",
+    "description": "セルフサービスのアクセス申請と承認ワークフロー。",
+    "noRequests": "保留中のアクセス申請はありません",
     "approve": "承認",
-    "deny": "拒否",
+    "reject": "拒否",
+    "cancel": "キャンセル",
     "columns": {
       "user": "ユーザー",
       "requestedRole": "申請ロール",
       "reason": "理由",
       "requestedAt": "申請日時"
+    },
+    "newRequest": "新規申請",
+    "pending": "{{count}} 件保留中",
+    "statusLabels": {
+      "PENDING": "審査待ち",
+      "APPROVED": "承認済み",
+      "REJECTED": "拒否済み",
+      "EXPIRED": "期限切れ"
+    },
+    "typeLabels": {
+      "ROLE_UPGRADE": "ロールアップグレード",
+      "TEMPORARY_ACCESS": "一時的なアクセス",
+      "POLICY_EXCEPTION": "ポリシー例外"
+    },
+    "typeDescriptions": {
+      "ROLE_UPGRADE": "恒久的なロール変更",
+      "TEMPORARY_ACCESS": "期間限定のアクセス"
+    },
+    "tabs": {
+      "pendingReview": "審査待ち",
+      "myRequests": "自分の申請",
+      "allRequests": "すべての申請"
+    },
+    "noPending": "保留中の申請なし",
+    "allReviewed": "すべてのアクセス申請が審査済みです。",
+    "noRequestsYet": "まだ申請がありません",
+    "noRequestsYetSub": "アクセス権限の昇格が必要な場合に申請を提出してください。",
+    "status": "ステータス:",
+    "allCount": "すべて ({{count}})",
+    "noMatchFilter": "選択したフィルターに一致する申請がありません。",
+    "modal": {
+      "title": "新規アクセス申請",
+      "subtitle": "申請は組織管理者とセキュリティオーナーによって審査されます。",
+      "requestType": "申請タイプ",
+      "requestedRole": "申請ロール",
+      "justification": "申請理由 *",
+      "justificationPlaceholder": "このアクセスが必要な理由と職務との関連性を説明してください...",
+      "provideJustification": "申請理由を入力してください",
+      "failedToSubmit": "申請の送信に失敗しました",
+      "submitting": "送信中…",
+      "submitRequest": "申請を送信"
+    },
+    "card": {
+      "expires": "有効期限 {{date}}",
+      "justification": "申請理由",
+      "reviewerNote": "レビューメモ — {{reviewer}}",
+      "reviewRequest": "申請を審査",
+      "reviewNotePlaceholder": "レビューメモを追加（任意）..."
+    }
+  },
+  "invite": {
+    "title": "ユーザーを招待",
+    "subtitle": "安全なサインアップリンク付きのメール招待が送信されます。",
+    "emailLabel": "勤務先メールアドレス *",
+    "emailPlaceholder": "colleague@company.com",
+    "assignRole": "ロールを割り当て",
+    "cancel": "キャンセル",
+    "sending": "送信中…",
+    "sendInvite": "招待を送信",
+    "failedToSend": "招待の送信に失敗しました",
+    "sentTitle": "招待を送信しました！",
+    "sentMessage": "{{email}} にサインアップリンク付きのメールを送信しました。",
+    "done": "完了"
+  },
+  "userDetail": {
+    "noName": "名前なし",
+    "joined": "参加日 {{date}}",
+    "kpi": {
+      "permissions": "権限",
+      "githubAccounts": "GitHubアカウント",
+      "onboarded": "オンボーディング"
+    },
+    "tabs": {
+      "roleAccess": "ロールとアクセス",
+      "permissions": "権限 ({{count}})",
+      "onboarding": "オンボーディング",
+      "github": "GitHub"
+    },
+    "roleAssignment": "ロール割り当て",
+    "currentRole": "現在のロール",
+    "change": "変更",
+    "saveRole": "ロールを保存",
+    "saving": "保存中…",
+    "cancel": "キャンセル",
+    "failedToUpdateRole": "ロールの更新に失敗しました",
+    "grantedPermissions": "付与された権限",
+    "total": "{{count}} 件",
+    "noOnboarding": "オンボーディングデータがありません。",
+    "progress": "進捗",
+    "onboardingTasks": {
+      "acceptPolicies": "すべてのポリシーに同意",
+      "installMdm": "MDMエージェントをインストール",
+      "securityTraining": "セキュリティトレーニング"
+    },
+    "onboardingDetail": {
+      "accepted": "同意済み {{date}}",
+      "notAccepted": "未同意",
+      "enrolled": "登録済み {{date}}",
+      "awaitingEnrollment": "登録待ち",
+      "completed": "完了 {{date}}",
+      "inProgress": "進行中",
+      "notStarted": "未開始"
     }
   }
 }

@@ -27,6 +27,9 @@
     "automatedControls": "Automated controls",
     "acceptedRisks": "Accepted risks",
     "transferredRisks": "Transferred risks",
+    "refresh": "Refresh",
+    "risks_one": "{{count}} risk",
+    "risks_other": "{{count}} risks",
     "riskScore": "Score {{score}}",
     "evidenceItems": "{{count}} evidence items"
   },
@@ -104,12 +107,99 @@
     "noActions": "No actions pending"
   },
   "snapshot": {
-    "title": "Risk Snapshot",
-    "description": "Point-in-time risk posture summary"
+    "title": "Risk Snapshots",
+    "description": "Point-in-time, immutable records of your risk register for audit evidence and compliance reporting.",
+    "createSnapshot": "Create Snapshot",
+    "createDialog": {
+      "title": "Create Risk Snapshot",
+      "description": "This will freeze your current risk register into an immutable, auditor-ready record.",
+      "placeholder": "e.g. \"ISO 27001 – 2025 Annual Assessment\"",
+      "cancel": "Cancel",
+      "create": "Create Snapshot",
+      "success": "Snapshot created",
+      "error": "Failed to create snapshot"
+    },
+    "detail": {
+      "backToSnapshots": "Snapshots",
+      "createdInfo": "Created {{date}} · {{count}} risks",
+      "sharedWithAuditor": "Shared with auditor",
+      "exportCsv": "Export CSV",
+      "sharingError": "Failed to update sharing",
+      "immutableNotice": "This snapshot is immutable. It captures risk state at the time of creation and cannot be edited.",
+      "totalRisks": "Total risks",
+      "criticalHigh": "Critical / High",
+      "accepted": "Accepted",
+      "mitigated": "Mitigated",
+      "noRisks": "No risks were in the register at the time this snapshot was captured.",
+      "none": "None",
+      "columns": {
+        "risk": "Risk",
+        "asset": "Asset",
+        "impact": "Impact",
+        "likelihood": "Likelihood",
+        "score": "Score",
+        "status": "Status",
+        "treatments": "Treatments"
+      }
+    },
+    "list": {
+      "noSnapshots": "No snapshots yet",
+      "noSnapshotsDesc": "Create your first snapshot to provide auditors with a tamper-proof view of your risk register.",
+      "createFirst": "Create First Snapshot",
+      "view": "View",
+      "columns": {
+        "name": "Name",
+        "created": "Created",
+        "risks": "Risks",
+        "shared": "Shared with auditor"
+      }
+    }
   },
   "engine": {
     "title": "Risk Engine",
-    "description": "Automated risk detection and scoring configuration"
+    "description": "Admin and debug surface for normalized signals, control tests, evidence snapshots, and generated risks.",
+    "refresh": "Refresh",
+    "runEvaluation": "Run evaluation",
+    "running": "Running...",
+    "loading": "Loading risk engine state...",
+    "metrics": {
+      "signals": "Signals",
+      "tests": "Tests",
+      "evidence": "Evidence",
+      "openRisks": "Open risks"
+    },
+    "providerSync": "Provider sync status",
+    "scanHistory": "Recent scan history",
+    "signalsCount": "{{count}} signals",
+    "testsCount": "{{count}} tests",
+    "openRisksCount": "{{count}} open risks",
+    "lastSuccess": "Last success {{date}}",
+    "trigger": "Trigger: {{trigger}}",
+    "ingested": "{{count}} ingested",
+    "executed": "{{count}} executed",
+    "risksCount": "{{count}} risks",
+    "completed": "Completed {{date}}",
+    "tabs": {
+      "signals": "Signals",
+      "tests": "Test Results",
+      "evidence": "Evidence",
+      "risks": "Generated Risks",
+      "events": "Events"
+    },
+    "signalColumns": ["Signal Type", "Provider", "Resource", "Value", "Observed", "Integration"],
+    "testColumns": ["Test", "Signal", "Status", "Severity", "Reason", "Executed"],
+    "evidenceColumns": ["Kind", "Provider", "Resource", "Hash", "Captured", "Payload"],
+    "riskColumns": ["Title", "Category", "Severity", "Score", "Owner Team", "Status", "Resource", "Created"],
+    "eventColumns": ["Event", "Severity", "Provider", "Resource", "Message", "Timestamp"]
+  },
+  "settings": {
+    "title": "Risk Settings",
+    "description": "Configure automation, scoring, and lifecycle governance for enterprise risk workflows.",
+    "saveChanges": "Save Changes",
+    "notifications": "Notifications",
+    "automationPosture": "Automation posture",
+    "scoringModel": "Scoring model",
+    "lifecycleStates": "Lifecycle states"
   },
   "status": {
     "IDENTIFIED": "Identified",
@@ -133,5 +223,115 @@
     "HIGH": "High",
     "MEDIUM": "Medium",
     "LOW": "Low"
+  },
+  "detail": {
+    "title": "Risk Detail",
+    "saving": "Saving...",
+    "saved": "Saved",
+    "backToRegister": "Back to register",
+    "notFound": "Risk not found.",
+    "descriptionPlaceholder": "Add a description...",
+    "inherent": "Inherent",
+    "residual": "Residual",
+    "assessment": {
+      "title": "Risk Assessment",
+      "inherentRisk": "Inherent Risk",
+      "inherentDesc": "Risk level before any controls or mitigations are applied.",
+      "residualRisk": "Residual Risk",
+      "residualDesc": "Risk level after controls and mitigations are applied.",
+      "impact": "Impact",
+      "likelihood": "Likelihood",
+      "score": "Score:"
+    },
+    "treatmentPlan": {
+      "title": "Treatment Plan",
+      "strategy": "Treatment Strategy",
+      "notes": "Treatment Notes",
+      "notesPlaceholder": "Describe the treatment approach, timeline, and responsible parties...",
+      "notSet": "Not set"
+    },
+    "mapping": {
+      "title": "Control & Framework Mapping",
+      "linkedControls": "Linked Controls",
+      "add": "Add",
+      "selectControl": "Select a control to link...",
+      "linking": "Linking...",
+      "control": "Control",
+      "removeControl": "Remove control",
+      "noControls": "No controls linked yet.",
+      "impactedFrameworks": "Impacted Frameworks",
+      "selectFramework": "Select a framework to link...",
+      "removeFramework": "Remove framework",
+      "noFrameworks": "No frameworks linked yet."
+    },
+    "details": {
+      "title": "Details",
+      "status": "Status",
+      "owner": "Owner",
+      "unassigned": "Unassigned",
+      "reviewDueDate": "Review Due Date",
+      "category": "Category",
+      "source": "Source",
+      "created": "Created"
+    },
+    "stakeholders": {
+      "title": "Stakeholders",
+      "edit": "Edit",
+      "noStakeholders": "No stakeholders assigned.",
+      "editDialog": {
+        "title": "Edit stakeholders",
+        "description": "Reassign technical, business, control, or backup ownership for this risk.",
+        "selectUser": "Select user...",
+        "name": "Name",
+        "team": "Team",
+        "addBackupOwner": "+ Add backup owner",
+        "saveFailed": "Failed to save stakeholder changes. Please try again.",
+        "cancel": "Cancel",
+        "saving": "Saving...",
+        "saveChanges": "Save changes"
+      }
+    },
+    "tabs": {
+      "findings": "Findings",
+      "evidence": "Evidence",
+      "activity": "Activity",
+      "remediation": "Remediation"
+    },
+    "findings": {
+      "title": "Scan findings",
+      "openTotal": "{{open}} open / {{total}} total",
+      "noFindings": "No scan findings linked to this risk.",
+      "firstSeen": "First seen: {{date}}",
+      "lastSeen": "Last seen: {{date}}",
+      "source": "Source: {{source}}"
+    },
+    "evidence": {
+      "title": "Evidence timeline",
+      "noEvidence": "No evidence collected yet.",
+      "captured": "Captured {{date}}"
+    },
+    "activity": {
+      "title": "Activity history",
+      "noActivity": "No activity recorded.",
+      "ownership": "Ownership"
+    },
+    "remediation": {
+      "generatedFrom": "Generated from",
+      "generatedDesc": "This risk was created by the risk engine from a failing control test.",
+      "testName": "Test name",
+      "control": "Control",
+      "provider": "Provider",
+      "viewTestDetail": "View test detail",
+      "viewInRiskEngine": "View in risk engine",
+      "workflowTitle": "Remediation workflow",
+      "noSteps": "No remediation steps defined yet.",
+      "testLink": "Test: {{id}}",
+      "controlLink": "Control: {{name}}",
+      "affectedResource": "Affected resource:",
+      "recommended": "Recommended: {{fix}}",
+      "evidenceLabel": "Evidence:",
+      "viewTestResult": "View test result",
+      "viewEvidence": "View evidence"
+    }
   }
 }

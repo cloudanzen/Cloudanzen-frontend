@@ -1,7 +1,13 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { PageTemplate } from '@/app/components/PageTemplate';
-import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
 import { Badge } from '@/app/components/ui/badge';
 import { Input } from '@/app/components/ui/input';
@@ -31,6 +37,7 @@ const TYPE_COLORS: Record<string, string> = {
 };
 
 export function AdminTestTemplatesPage() {
+  const { t } = useTranslation('admin');
   const isSuperAdmin = useHasRole('SUPER_ADMIN');
   const [search, setSearch] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -57,31 +64,58 @@ export function AdminTestTemplatesPage() {
 
   if (!isSuperAdmin) {
     return (
-      <PageTemplate title="Unauthorized">
-        <p className="text-gray-500">SUPER_ADMIN role required.</p>
+      <PageTemplate title={t('common.unauthorized')}>
+        <p className="text-gray-500">{t('common.superAdminRequired')}</p>
       </PageTemplate>
     );
   }
 
   return (
-    <PageTemplate title="Test Templates" description="Pre-built test definitions cloned into organizations on framework activation.">
+    <PageTemplate
+      title={t('testTemplates.title')}
+      description={t('testTemplates.libraryDescription')}
+    >
       {/* Stats row */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-500">Total Tests</CardTitle></CardHeader>
-          <CardContent><p className="text-2xl font-bold">{templates.length}</p></CardContent>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-gray-500">
+              {t('testTemplates.stats.totalTests')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold">{templates.length}</p>
+          </CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-500">Categories</CardTitle></CardHeader>
-          <CardContent><p className="text-2xl font-bold">{categories.length}</p></CardContent>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-gray-500">
+              {t('testTemplates.stats.categories')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold">{categories.length}</p>
+          </CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-500">Automated</CardTitle></CardHeader>
-          <CardContent><p className="text-2xl font-bold">{automated}</p></CardContent>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-gray-500">
+              {t('testTemplates.stats.automated')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold">{automated}</p>
+          </CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-500">Document</CardTitle></CardHeader>
-          <CardContent><p className="text-2xl font-bold">{templates.length - automated}</p></CardContent>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-gray-500">
+              {t('testTemplates.stats.document')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold">{templates.length - automated}</p>
+          </CardContent>
         </Card>
       </div>
 
@@ -89,7 +123,7 @@ export function AdminTestTemplatesPage() {
       <div className="relative mb-4 max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
         <Input
-          placeholder="Search test templates..."
+          placeholder={t('testTemplates.searchPlaceholder')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="pl-10"
@@ -112,20 +146,32 @@ export function AdminTestTemplatesPage() {
               <FlaskConical className="w-5 h-5 text-gray-400 shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-sm truncate">{t.name}</p>
-                <p className="text-xs text-gray-500 truncate">{t.controlRef} — {t.controlTitle}</p>
+                <p className="text-xs text-gray-500 truncate">
+                  {t.controlRef} — {t.controlTitle}
+                </p>
               </div>
-              <Badge variant="outline" className={`text-xs shrink-0 ${CATEGORY_COLORS[t.category] ?? 'bg-gray-100 text-gray-800'}`}>
+              <Badge
+                variant="outline"
+                className={`text-xs shrink-0 ${CATEGORY_COLORS[t.category] ?? 'bg-gray-100 text-gray-800'}`}
+              >
                 {t.category}
               </Badge>
-              <Badge variant="outline" className={`text-xs shrink-0 ${TYPE_COLORS[t.testType] ?? ''}`}>
+              <Badge
+                variant="outline"
+                className={`text-xs shrink-0 ${TYPE_COLORS[t.testType] ?? ''}`}
+              >
                 {t.testType}
               </Badge>
-              <span className="text-xs text-gray-400 shrink-0">{t.frequencyDays}d</span>
+              <span className="text-xs text-gray-400 shrink-0">
+                {t.frequencyDays}d
+              </span>
               <ChevronRight className="w-4 h-4 text-gray-300 shrink-0" />
             </div>
           ))}
           {filtered.length === 0 && (
-            <p className="text-center text-gray-400 py-8">No test templates found.</p>
+            <p className="text-center text-gray-400 py-8">
+              {t('testTemplates.noTemplates')}
+            </p>
           )}
         </div>
       )}
@@ -147,15 +193,27 @@ export function AdminTestTemplatesPage() {
                   </div>
                   <div>
                     <span className="text-gray-500">Category:</span>{' '}
-                    <Badge variant="outline" className={`text-xs ${CATEGORY_COLORS[selected.category] ?? ''}`}>{selected.category}</Badge>
+                    <Badge
+                      variant="outline"
+                      className={`text-xs ${CATEGORY_COLORS[selected.category] ?? ''}`}
+                    >
+                      {selected.category}
+                    </Badge>
                   </div>
                   <div>
                     <span className="text-gray-500">Type:</span>{' '}
-                    <Badge variant="outline" className={`text-xs ${TYPE_COLORS[selected.testType] ?? ''}`}>{selected.testType}</Badge>
+                    <Badge
+                      variant="outline"
+                      className={`text-xs ${TYPE_COLORS[selected.testType] ?? ''}`}
+                    >
+                      {selected.testType}
+                    </Badge>
                   </div>
                   <div>
                     <span className="text-gray-500">Frequency:</span>{' '}
-                    <span className="font-medium">{selected.frequencyDays} days</span>
+                    <span className="font-medium">
+                      {selected.frequencyDays} days
+                    </span>
                   </div>
                   <div>
                     <span className="text-gray-500">Evidence:</span>{' '}
@@ -164,13 +222,17 @@ export function AdminTestTemplatesPage() {
                 </div>
                 {selected.guidance && (
                   <div className="mt-3 p-3 bg-blue-50 rounded-lg">
-                    <p className="text-xs font-medium text-blue-800 mb-1">Guidance</p>
+                    <p className="text-xs font-medium text-blue-800 mb-1">
+                      Guidance
+                    </p>
                     <p className="text-xs text-blue-700">{selected.guidance}</p>
                   </div>
                 )}
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setSelectedId(null)}>Close</Button>
+                <Button variant="outline" onClick={() => setSelectedId(null)}>
+                  Close
+                </Button>
               </DialogFooter>
             </>
           )}

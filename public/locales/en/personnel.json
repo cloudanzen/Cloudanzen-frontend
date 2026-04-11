@@ -2,6 +2,24 @@
   "people": {
     "title": "People",
     "description": "Manage your organization's users and security onboarding",
+    "refresh": "Refresh",
+    "loading": "Loading users...",
+    "noName": "No name",
+    "noUsersFound": "No users found.",
+    "failedToLoadUsers": "Failed to load users",
+    "failedToRemoveUser": "Failed to remove user",
+    "removeUser": "Remove user",
+    "changeRole": "Change role",
+    "thisUser": "this user",
+    "confirmRemove": "Remove {{name}} from the organisation?",
+    "members_one": "{{count}} member",
+    "members_other": "{{count}} members",
+    "fullyOnboarded": "fully onboarded",
+    "onboardingTitles": {
+      "policies": "Policies",
+      "mdm": "MDM",
+      "training": "Training"
+    },
     "inviteUser": "Invite User",
     "searchPlaceholder": "Search people...",
     "noUsers": "No users found",
@@ -18,12 +36,43 @@
       "completeTrainingDesc": "Complete the interactive security awareness training"
     },
     "columns": {
+      "nameEmail": "Name / Email",
       "name": "Name",
       "email": "Email",
       "role": "Role",
+      "githubAccounts": "GitHub Accounts",
       "onboarding": "Onboarding",
+      "joined": "Joined",
       "joinedAt": "Joined",
       "actions": "Actions"
+    },
+    "detail": {
+      "securityOnboarding": "Security Onboarding",
+      "complete": "{{count}}/{{total}} complete",
+      "allTasksComplete": "All tasks complete",
+      "taskStatus": "Task Status",
+      "userInfo": "User Info",
+      "tasks": {
+        "acceptPolicies": {
+          "title": "Accept All Organisation Policies",
+          "acceptedOn": "Accepted on {{date}}",
+          "acknowledged_one": "{{count}} policy acknowledged",
+          "acknowledged_other": "{{count}} policies acknowledged",
+          "notYetAccepted": "Not yet accepted"
+        },
+        "installMdm": {
+          "title": "Install MDM Agent",
+          "enrolledOn": "Enrolled on {{date}}",
+          "awaitingEnrollment": "Awaiting device enrollment",
+          "device": "Device: {{id}}"
+        },
+        "training": {
+          "title": "Complete Security Awareness Training",
+          "completedOn": "Completed on {{date}}",
+          "startedOn": "Started on {{date}} - training not completed yet",
+          "notStarted": "Not started"
+        }
+      }
     },
     "roles": {
       "SUPER_ADMIN": "Super Admin",
@@ -36,26 +85,112 @@
   },
   "computers": {
     "title": "Computers",
-    "description": "MDM-enrolled devices in your organization",
+    "description": "Managed Mac endpoints reporting to Manzen MDM. Enroll devices from the Integrations page.",
+    "refresh": "Refresh",
+    "loading": "Loading devices...",
+    "failedToLoad": "Failed to load devices",
+    "failedToRevoke": "Failed to revoke device",
+    "confirmRevoke": "Revoke {{name}}? The agent will no longer be able to check in.",
+    "emptyPrefix": "No managed devices yet. Go to",
+    "integrationsLink": "Integrations",
+    "emptySuffix": "to create an enrollment token and install the agent.",
+    "unassigned": "unassigned",
+    "details": "Details",
+    "reassignOwner": "Reassign owner",
+    "revokeDevice": "Revoke device",
+    "managedDevices_one": "{{count}} managed device",
+    "managedDevices_other": "{{count}} managed devices",
+    "lastChecked": "Last checked:",
+    "stats": {
+      "totalDevices": "Total Devices",
+      "compliant": "Compliant",
+      "nonCompliant": "Non-Compliant"
+    },
     "searchPlaceholder": "Search computers...",
     "noComputers": "No computers enrolled",
     "noComputersDesc": "Enroll devices via the MDM agent",
     "columns": {
+      "device": "Device",
       "name": "Device Name",
+      "owner": "Owner",
       "user": "User",
       "os": "OS",
+      "compliance": "Compliance",
       "lastSeen": "Last Seen",
-      "status": "Status"
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "complianceStatus": {
+      "compliant": "Compliant",
+      "nonCompliant": "Non-compliant",
+      "unknown": "Unknown"
+    },
+    "deviceStatus": {
+      "active": "Active",
+      "revoked": "Revoked"
+    },
+    "checks": {
+      "diskEncryption": "Disk Encryption (A.8.24)",
+      "screenLock": "Screen Lock (A.5.15)",
+      "firewall": "Firewall (A.8.20)",
+      "antivirus": "Antivirus (A.8.7)",
+      "systemIntegrity": "System Integrity (A.8.7)",
+      "autoUpdates": "Auto Updates (A.8.8)",
+      "gatekeeper": "Gatekeeper"
+    },
+    "reassign": {
+      "title": "Reassign Device Owner",
+      "description": "Changing the owner will attribute the MDM task to the selected user.",
+      "newOwner": "New Owner",
+      "selectUser": "- select a user -",
+      "saving": "Saving...",
+      "failed": "Failed to reassign owner"
     },
     "status": {
       "ENROLLED": "Enrolled",
       "PENDING": "Pending",
       "BLOCKED": "Blocked"
-    }
+    },
+    "pass": "Pass",
+    "fail": "Fail"
   },
   "access": {
-    "title": "Access Management",
-    "description": "User access reviews and linked accounts",
+    "title": "Linked Accounts",
+    "description": "Map external service accounts (GitHub, Slack) to organisation members.",
+    "refresh": "Refresh",
+    "loading": "Loading\u2026",
+    "connected": "Connected",
+    "notMapped": "Not mapped",
+    "selectUser": "\u2014 Select user \u2014",
+    "unmap": "Unmap",
+    "notLinked": "Not linked",
+    "mapped": "mapped",
+    "unmapped": "unmapped",
+    "columns": {
+      "mappedUser": "Mapped ISMS User",
+      "mapTo": "Map to User",
+      "actions": "Actions"
+    },
+    "github": {
+      "title": "GitHub Accounts",
+      "account": "GitHub Account",
+      "notConnected": "GitHub integration not connected.",
+      "connectPrompt": "Go to <link>Integrations</link> to connect GitHub to see members here.",
+      "noMembers": "No GitHub members found.",
+      "connectToSee": "Connect GitHub to see members.",
+      "accountCount_one": "{{count}} GitHub account",
+      "accountCount_other": "{{count}} GitHub accounts"
+    },
+    "slack": {
+      "title": "Slack Accounts",
+      "account": "Slack Account",
+      "notConnected": "Slack integration not connected.",
+      "connectPrompt": "Go to <link>Integrations</link> to connect your Slack workspace to see members here.",
+      "noMembers": "No Slack members found.",
+      "connectToSee": "Connect Slack to see workspace members.",
+      "accountCount_one": "{{count}} Slack account",
+      "accountCount_other": "{{count}} Slack accounts"
+    },
     "campaigns": {
       "title": "Access Review Campaigns",
       "newCampaign": "New Campaign",
@@ -69,6 +204,214 @@
     "services": {
       "title": "Services",
       "addService": "Add Service"
+    }
+  },
+  "common": {
+    "cancel": "Cancel",
+    "create": "Create",
+    "creating": "Creating...",
+    "save": "Save",
+    "none": "—",
+    "unknown": "Unknown"
+  },
+  "settings": {
+    "title": "Personnel Settings",
+    "description": "Configure personnel management settings.",
+    "saveChanges": "Save Changes",
+    "accessControl": {
+      "title": "Access Control",
+      "requireMfa": "Require MFA",
+      "requireMfaDescription": "Require multi-factor authentication for all users"
+    }
+  },
+  "accessManagement": {
+    "title": "Access Management",
+    "description": "Unified view of all user accounts across integrated and manually-tracked services.",
+    "tabs": {
+      "accounts": "Access Table",
+      "services": "Services",
+      "reviews": "Access Reviews"
+    },
+    "addCustomService": {
+      "title": "Add Custom Service",
+      "description": "Track a tool that isn't integrated. You can upload a CSV of accounts after creating it.",
+      "placeholder": "e.g. Jira, AWS, Okta"
+    },
+    "campaignCreate": {
+      "title": "Create Access Review Campaign",
+      "name": "Campaign Name",
+      "namePlaceholder": "e.g. Q1 2026 Access Review",
+      "description": "Description (optional)",
+      "descriptionPlaceholder": "Purpose of this review...",
+      "scope": "Scope (services to review)",
+      "scopeHint": "Leave empty to include all services.",
+      "noServices": "No services found. Sync first.",
+      "reviewers": "Reviewers",
+      "reviewersHint": "Select who will review the accounts.",
+      "deadline": "Deadline (optional)",
+      "cadence": "Recurring Cadence",
+      "noRecurrence": "No recurrence",
+      "create": "Create Campaign",
+      "cadenceOptions": {
+        "monthly": "Monthly",
+        "quarterly": "Quarterly",
+        "semiAnnual": "Semi-annual",
+        "annual": "Annual"
+      }
+    },
+    "campaignList": {
+      "description": "Create access review campaigns to periodically verify that all accounts are legitimate and properly authorized.",
+      "newCampaign": "New Campaign",
+      "loading": "Loading campaigns...",
+      "empty": "No access review campaigns yet.",
+      "emptyDescription": "Create one to start reviewing account access across your services.",
+      "accounts": "{{count}} accounts",
+      "reviewed": "{{count}} reviewed",
+      "accepted": "{{count}} accepted",
+      "revoked": "{{count}} revoked",
+      "pending": "{{count}} pending",
+      "deadline": "Deadline: {{date}}",
+      "cadence": "Cadence: {{value}}",
+      "nextReview": "Next review: {{date}}",
+      "launch": "Launch",
+      "review": "Review",
+      "complete": "Complete",
+      "report": "Report"
+    },
+    "campaignReview": {
+      "title": "Campaign Review",
+      "progress": "Progress: {{percent}}%",
+      "reviewed": "{{reviewed}}/{{total}} reviewed",
+      "accepted": "{{count}} accepted",
+      "revoked": "{{count}} revoked",
+      "pending": "{{count}} pending",
+      "searchPlaceholder": "Search accounts...",
+      "loading": "Loading review items...",
+      "empty": "No items match your filters.",
+      "acceptDecision": "Accepted",
+      "revokeDecision": "Revoked",
+      "pendingDecision": "Pending",
+      "acceptAction": "Accept",
+      "revokeAction": "Revoke",
+      "showing": "Showing {{start}}-{{end}} of {{total}}",
+      "filters": {
+        "all": "All",
+        "pending": "Pending",
+        "accepted": "Accepted",
+        "revoked": "Revoked"
+      },
+      "columns": {
+        "service": "Service",
+        "account": "Account",
+        "email": "Email",
+        "role": "Role",
+        "status": "Status",
+        "decision": "Decision",
+        "actions": "Actions"
+      }
+    },
+    "mapAccount": {
+      "title": "Map Account",
+      "accountLabel": "Account:",
+      "searchPlaceholder": "Search users...",
+      "removeMapping": "Remove mapping",
+      "noUsers": "No users found"
+    },
+    "services": {
+      "loading": "Loading services...",
+      "description": "Manage integrated and manually-tracked services. Upload CSV files to import accounts for non-integrated tools.",
+      "syncIntegrations": "Sync Integrations",
+      "addCustomService": "Add Custom Service",
+      "empty": "No services tracked yet.",
+      "emptyDescription": "Click \"Sync Integrations\" to pull from connected tools, or \"Add Custom Service\" to manually track a tool.",
+      "confirmDelete": "Delete \"{{name}}\" and all its accounts?",
+      "accounts": "{{count}} accounts",
+      "lastSynced": "Last synced: {{date}}",
+      "evidence": "Evidence: {{name}}",
+      "importAccounts": "Import Accounts",
+      "serviceTypes": {
+        "integrated": "integrated",
+        "manual": "manual"
+      }
+    },
+    "unifiedAccess": {
+      "searchPlaceholder": "Search accounts...",
+      "sync": "Sync",
+      "export": "Export",
+      "loading": "Loading accounts...",
+      "empty": "No accounts yet. Click \"Sync\" to pull data from integrations, or add a custom service.",
+      "emptyFiltered": "No accounts match your filters.",
+      "showing": "Showing {{start}}-{{end}} of {{total}}",
+      "map": "Map",
+      "remap": "Remap",
+      "manual": "(manual)",
+      "stats": {
+        "totalAccounts": "Total Accounts",
+        "mapped": "Mapped",
+        "unmapped": "Unmapped",
+        "serviceAccounts": "Service Accounts"
+      },
+      "filters": {
+        "allServices": "All Services",
+        "allStatus": "All Status",
+        "allMapping": "All Mapping"
+      },
+      "columns": {
+        "service": "Service",
+        "account": "Account",
+        "email": "Email",
+        "role": "Role",
+        "status": "Status",
+        "type": "Type",
+        "mappedTo": "Mapped To",
+        "actions": "Actions"
+      },
+      "status": {
+        "active": "Active",
+        "deactivated": "Deactivated"
+      },
+      "mapping": {
+        "mapped": "Mapped",
+        "unmapped": "Unmapped"
+      },
+      "accountTypes": {
+        "user": "User",
+        "serviceAccount": "Service Account",
+        "externalUser": "External User"
+      }
+    },
+    "csvUpload": {
+      "title": "Import Accounts - {{service}}",
+      "tabs": {
+        "csv": "CSV Upload",
+        "scan": "Scan Image"
+      },
+      "csvFile": "CSV File (required)",
+      "csvFileHint": "Columns: account_name (or name), email, role, status, external_id (or username). Header row is required.",
+      "selectCsv": "Select CSV",
+      "evidenceFile": "Evidence File (optional)",
+      "evidenceFileHint": "Screenshot or PDF of the user list page for audit evidence.",
+      "selectEvidence": "Select Evidence",
+      "uploading": "Uploading...",
+      "uploadAndImport": "Upload & Import",
+      "screenshotTitle": "Screenshot of User List",
+      "screenshotHint": "Upload a screenshot of the tool's user management or team page. AI will extract account names, emails, and roles automatically.",
+      "previewAlt": "Preview",
+      "selectScreenshot": "Select Screenshot",
+      "scanningHint": "Scanning image with AI... This may take a few seconds.",
+      "scanning": "Scanning...",
+      "scanAndImport": "Scan & Import",
+      "importedSuccess": "{{count}} accounts imported successfully.",
+      "warnings": "Warnings:",
+      "extractedAccounts": "Extracted accounts",
+      "viaProvider": "via {{provider}}",
+      "columns": {
+        "name": "Name",
+        "email": "Email",
+        "role": "Role",
+        "status": "Status"
+      },
+      "done": "Done"
     }
   }
 }

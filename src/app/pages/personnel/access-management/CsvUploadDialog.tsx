@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -7,11 +8,19 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/app/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/app/components/ui/tabs';
 import { Button } from '@/app/components/ui/button';
 import { Badge } from '@/app/components/ui/badge';
 import { Upload, FileText, X, ScanLine, Loader2 } from 'lucide-react';
-import { accessManagementService, type AccessService } from '@/services/api/access-management';
+import {
+  accessManagementService,
+  type AccessService,
+} from '@/services/api/access-management';
 
 interface Props {
   service: AccessService;
@@ -19,6 +28,7 @@ interface Props {
 }
 
 export function CsvUploadDialog({ service, onClose }: Props) {
+  const { t } = useTranslation('personnel');
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<string>('csv');
 
@@ -27,11 +37,18 @@ export function CsvUploadDialog({ service, onClose }: Props) {
   const evidenceRef = useRef<HTMLInputElement>(null);
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [evidenceFile, setEvidenceFile] = useState<File | null>(null);
-  const [csvResult, setCsvResult] = useState<{ accountsImported: number; parseErrors: string[] } | null>(null);
+  const [csvResult, setCsvResult] = useState<{
+    accountsImported: number;
+    parseErrors: string[];
+  } | null>(null);
 
   const csvMutation = useMutation({
     mutationFn: () =>
-      accessManagementService.uploadCsv(service.id, csvFile!, evidenceFile ?? undefined),
+      accessManagementService.uploadCsv(
+        service.id,
+        csvFile!,
+        evidenceFile ?? undefined,
+      ),
     onSuccess: (data) => {
       setCsvResult(data);
       invalidateAll();
@@ -86,7 +103,11 @@ export function CsvUploadDialog({ service, onClose }: Props) {
     <Dialog open onOpenChange={() => onClose()}>
       <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Import Accounts — {service.serviceName}</DialogTitle>
+          <DialogTitle>
+            {t('accessManagement.csvUpload.title', {
+              service: service.serviceName,
+            })}
+          </DialogTitle>
         </DialogHeader>
 
         {isDone ? (
@@ -100,21 +121,22 @@ export function CsvUploadDialog({ service, onClose }: Props) {
             <TabsList className="w-full">
               <TabsTrigger value="csv" className="flex-1">
                 <FileText className="w-4 h-4 mr-1" />
-                CSV Upload
+                {t('accessManagement.csvUpload.tabs.csv')}
               </TabsTrigger>
               <TabsTrigger value="scan" className="flex-1">
                 <ScanLine className="w-4 h-4 mr-1" />
-                Scan Image
+                {t('accessManagement.csvUpload.tabs.scan')}
               </TabsTrigger>
             </TabsList>
 
             {/* ── CSV Tab ──────────────────────────────────────────── */}
             <TabsContent value="csv" className="mt-4 space-y-4">
               <div className="space-y-2">
-                <p className="text-sm font-medium">CSV File (required)</p>
+                <p className="text-sm font-medium">
+                  {t('accessManagement.csvUpload.csvFile')}
+                </p>
                 <p className="text-xs text-muted-foreground">
-                  Columns: account_name (or name), email, role, status, external_id (or username).
-                  Header row is required.
+                  {t('accessManagement.csvUpload.csvFileHint')}
                 </p>
                 <input
                   ref={csvRef}
@@ -124,19 +146,29 @@ export function CsvUploadDialog({ service, onClose }: Props) {
                   onChange={(e) => setCsvFile(e.target.files?.[0] ?? null)}
                 />
                 {csvFile ? (
-                  <FileChip name={csvFile.name} onRemove={() => setCsvFile(null)} />
+                  <FileChip
+                    name={csvFile.name}
+                    onRemove={() => setCsvFile(null)}
+                  />
                 ) : (
-                  <Button variant="outline" size="sm" className="w-full" onClick={() => csvRef.current?.click()}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => csvRef.current?.click()}
+                  >
                     <Upload className="w-4 h-4 mr-1" />
-                    Select CSV
+                    {t('accessManagement.csvUpload.selectCsv')}
                   </Button>
                 )}
               </div>
 
               <div className="space-y-2">
-                <p className="text-sm font-medium">Evidence File (optional)</p>
+                <p className="text-sm font-medium">
+                  {t('accessManagement.csvUpload.evidenceFile')}
+                </p>
                 <p className="text-xs text-muted-foreground">
-                  Screenshot or PDF of the user list page for audit evidence.
+                  {t('accessManagement.csvUpload.evidenceFileHint')}
                 </p>
                 <input
                   ref={evidenceRef}
@@ -146,23 +178,40 @@ export function CsvUploadDialog({ service, onClose }: Props) {
                   onChange={(e) => setEvidenceFile(e.target.files?.[0] ?? null)}
                 />
                 {evidenceFile ? (
-                  <FileChip name={evidenceFile.name} onRemove={() => setEvidenceFile(null)} />
+                  <FileChip
+                    name={evidenceFile.name}
+                    onRemove={() => setEvidenceFile(null)}
+                  />
                 ) : (
-                  <Button variant="outline" size="sm" className="w-full" onClick={() => evidenceRef.current?.click()}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => evidenceRef.current?.click()}
+                  >
                     <Upload className="w-4 h-4 mr-1" />
-                    Select Evidence
+                    {t('accessManagement.csvUpload.selectEvidence')}
                   </Button>
                 )}
               </div>
 
               {csvMutation.isError && (
-                <p className="text-sm text-red-600">{(csvMutation.error as Error).message}</p>
+                <p className="text-sm text-red-600">
+                  {(csvMutation.error as Error).message}
+                </p>
               )}
 
               <DialogFooter>
-                <Button variant="outline" onClick={onClose}>Cancel</Button>
-                <Button onClick={() => csvMutation.mutate()} disabled={!csvFile || csvMutation.isPending}>
-                  {csvMutation.isPending ? 'Uploading...' : 'Upload & Import'}
+                <Button variant="outline" onClick={onClose}>
+                  {t('common.cancel')}
+                </Button>
+                <Button
+                  onClick={() => csvMutation.mutate()}
+                  disabled={!csvFile || csvMutation.isPending}
+                >
+                  {csvMutation.isPending
+                    ? t('accessManagement.csvUpload.uploading')
+                    : t('accessManagement.csvUpload.uploadAndImport')}
                 </Button>
               </DialogFooter>
             </TabsContent>
@@ -170,35 +219,46 @@ export function CsvUploadDialog({ service, onClose }: Props) {
             {/* ── Scan Image Tab ──────────────────────────────────── */}
             <TabsContent value="scan" className="mt-4 space-y-4">
               <div className="space-y-2">
-                <p className="text-sm font-medium">Screenshot of User List</p>
+                <p className="text-sm font-medium">
+                  {t('accessManagement.csvUpload.screenshotTitle')}
+                </p>
                 <p className="text-xs text-muted-foreground">
-                  Upload a screenshot of the tool's user management or team page.
-                  AI will extract account names, emails, and roles automatically.
+                  {t('accessManagement.csvUpload.screenshotHint')}
                 </p>
                 <input
                   ref={imageRef}
                   type="file"
                   accept="image/png,image/jpeg,image/webp,image/gif"
                   className="hidden"
-                  onChange={(e) => handleImageSelect(e.target.files?.[0] ?? null)}
+                  onChange={(e) =>
+                    handleImageSelect(e.target.files?.[0] ?? null)
+                  }
                 />
                 {imageFile ? (
                   <div className="space-y-2">
-                    <FileChip name={imageFile.name} onRemove={() => handleImageSelect(null)} />
+                    <FileChip
+                      name={imageFile.name}
+                      onRemove={() => handleImageSelect(null)}
+                    />
                     {imagePreview && (
                       <div className="border rounded-md overflow-hidden max-h-[200px]">
                         <img
                           src={imagePreview}
-                          alt="Preview"
+                          alt={t('accessManagement.csvUpload.previewAlt')}
                           className="w-full h-auto object-contain max-h-[200px]"
                         />
                       </div>
                     )}
                   </div>
                 ) : (
-                  <Button variant="outline" size="sm" className="w-full" onClick={() => imageRef.current?.click()}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => imageRef.current?.click()}
+                  >
                     <ScanLine className="w-4 h-4 mr-1" />
-                    Select Screenshot
+                    {t('accessManagement.csvUpload.selectScreenshot')}
                   </Button>
                 )}
               </div>
@@ -207,27 +267,34 @@ export function CsvUploadDialog({ service, onClose }: Props) {
                 <div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-950 rounded-md">
                   <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
                   <span className="text-sm text-blue-600">
-                    Scanning image with AI... This may take a few seconds.
+                    {t('accessManagement.csvUpload.scanningHint')}
                   </span>
                 </div>
               )}
 
               {scanMutation.isError && (
-                <p className="text-sm text-red-600">{(scanMutation.error as Error).message}</p>
+                <p className="text-sm text-red-600">
+                  {(scanMutation.error as Error).message}
+                </p>
               )}
 
               <DialogFooter>
-                <Button variant="outline" onClick={onClose}>Cancel</Button>
-                <Button onClick={() => scanMutation.mutate()} disabled={!imageFile || scanMutation.isPending}>
+                <Button variant="outline" onClick={onClose}>
+                  {t('common.cancel')}
+                </Button>
+                <Button
+                  onClick={() => scanMutation.mutate()}
+                  disabled={!imageFile || scanMutation.isPending}
+                >
                   {scanMutation.isPending ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                      Scanning...
+                      {t('accessManagement.csvUpload.scanning')}
                     </>
                   ) : (
                     <>
                       <ScanLine className="w-4 h-4 mr-1" />
-                      Scan & Import
+                      {t('accessManagement.csvUpload.scanAndImport')}
                     </>
                   )}
                 </Button>
@@ -272,20 +339,26 @@ function SuccessView({
   } | null;
   onClose: () => void;
 }) {
-  const imported = csvResult?.accountsImported ?? scanResult?.accountsImported ?? 0;
+  const { t } = useTranslation('personnel');
+  const imported =
+    csvResult?.accountsImported ?? scanResult?.accountsImported ?? 0;
   const accounts = scanResult?.accounts ?? [];
 
   return (
     <div className="space-y-3">
       <p className="text-sm text-green-600 font-medium">
-        {imported} accounts imported successfully.
+        {t('accessManagement.csvUpload.importedSuccess', { count: imported })}
       </p>
 
       {csvResult?.parseErrors && csvResult.parseErrors.length > 0 && (
         <div className="text-sm space-y-1">
-          <p className="text-amber-600 font-medium">Warnings:</p>
+          <p className="text-amber-600 font-medium">
+            {t('accessManagement.csvUpload.warnings')}
+          </p>
           {csvResult.parseErrors.map((e, i) => (
-            <p key={i} className="text-xs text-muted-foreground">{e}</p>
+            <p key={i} className="text-xs text-muted-foreground">
+              {e}
+            </p>
           ))}
         </div>
       )}
@@ -293,30 +366,50 @@ function SuccessView({
       {scanResult && accounts.length > 0 && (
         <div className="space-y-2">
           <p className="text-sm font-medium flex items-center gap-2">
-            Extracted accounts
+            {t('accessManagement.csvUpload.extractedAccounts')}
             <Badge variant="secondary" className="text-xs">
-              via {scanResult.provider}
+              {t('accessManagement.csvUpload.viaProvider', {
+                provider: scanResult.provider,
+              })}
             </Badge>
           </p>
           <div className="max-h-[200px] overflow-y-auto border rounded-md">
             <table className="w-full text-xs">
               <thead>
                 <tr className="border-b bg-muted/50">
-                  <th className="text-left p-2 font-medium">Name</th>
-                  <th className="text-left p-2 font-medium">Email</th>
-                  <th className="text-left p-2 font-medium">Role</th>
-                  <th className="text-left p-2 font-medium">Status</th>
+                  <th className="text-left p-2 font-medium">
+                    {t('accessManagement.csvUpload.columns.name')}
+                  </th>
+                  <th className="text-left p-2 font-medium">
+                    {t('accessManagement.csvUpload.columns.email')}
+                  </th>
+                  <th className="text-left p-2 font-medium">
+                    {t('accessManagement.csvUpload.columns.role')}
+                  </th>
+                  <th className="text-left p-2 font-medium">
+                    {t('accessManagement.csvUpload.columns.status')}
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {accounts.map((a, i) => (
                   <tr key={i} className="border-b">
                     <td className="p-2">{a.accountName}</td>
-                    <td className="p-2 text-muted-foreground">{a.accountEmail ?? '—'}</td>
-                    <td className="p-2">{a.role ?? '—'}</td>
+                    <td className="p-2 text-muted-foreground">
+                      {a.accountEmail ?? t('common.none')}
+                    </td>
+                    <td className="p-2">{a.role ?? t('common.none')}</td>
                     <td className="p-2">
-                      <Badge variant={a.status === 'active' ? 'default' : 'destructive'} className="text-xs">
-                        {a.status}
+                      <Badge
+                        variant={
+                          a.status === 'active' ? 'default' : 'destructive'
+                        }
+                        className="text-xs"
+                      >
+                        {t(
+                          `accessManagement.unifiedAccess.status.${a.status}`,
+                          a.status,
+                        )}
                       </Badge>
                     </td>
                   </tr>
@@ -328,7 +421,9 @@ function SuccessView({
       )}
 
       <DialogFooter>
-        <Button onClick={onClose}>Done</Button>
+        <Button onClick={onClose}>
+          {t('accessManagement.csvUpload.done')}
+        </Button>
       </DialogFooter>
     </div>
   );

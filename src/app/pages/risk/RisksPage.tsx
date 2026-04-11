@@ -192,12 +192,12 @@ export function RisksPage() {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white"
             >
-              <option value="ALL">All statuses ({stats.total})</option>
-              <option value="IDENTIFIED">Identified ({stats.identified})</option>
-              <option value="ASSESSING">Assessing ({stats.assessing})</option>
-              <option value="TREATING">Treating ({stats.treating})</option>
-              <option value="MONITORING">Monitoring ({stats.monitoring})</option>
-              <option value="CLOSED">Closed ({stats.closed})</option>
+              <option value="ALL">{t('register.allStatuses', { count: stats.total })}</option>
+              <option value="IDENTIFIED">{t('status.IDENTIFIED')} ({stats.identified})</option>
+              <option value="ASSESSING">{t('status.ASSESSING')} ({stats.assessing})</option>
+              <option value="TREATING">{t('status.TREATING')} ({stats.treating})</option>
+              <option value="MONITORING">{t('status.MONITORING')} ({stats.monitoring})</option>
+              <option value="CLOSED">{t('status.CLOSED')} ({stats.closed})</option>
             </select>
           </div>
 
@@ -308,6 +308,7 @@ function RegisterRow({
   onNavigate: () => void;
   onAssign: (e: React.MouseEvent) => void;
 }) {
+  const { t } = useTranslation('risk');
   const statusConf = STATUS_CONFIG[entry.status] ?? STATUS_CONFIG.IDENTIFIED!;
 
   return (
@@ -320,7 +321,7 @@ function RegisterRow({
           <p className="text-sm font-medium text-gray-900 max-w-md">{entry.title}</p>
           {(entry.findingCount ?? 0) > 0 && (
             <span className="inline-flex items-center text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-orange-100 text-orange-700 border border-orange-200">
-              {entry.findingCount} {entry.findingCount === 1 ? 'finding' : 'findings'}
+              {t('register.findings', { count: entry.findingCount })}
             </span>
           )}
         </div>
@@ -340,23 +341,23 @@ function RegisterRow({
         {entry.residualScore != null ? (
           <ScoreBadge impact={entry.residualImpact!} likelihood={entry.residualLikelihood!} score={entry.residualScore} />
         ) : (
-          <span className="text-xs text-gray-400">Not assessed</span>
+          <span className="text-xs text-gray-400">{t('register.notAssessed')}</span>
         )}
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
         <span className={`inline-flex items-center text-xs font-medium px-2 py-1 rounded-full border ${statusConf!.color}`}>
-          {statusConf!.label}
+          {t(`status.${entry.status}`)}
         </span>
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-        {entry.treatment ? TREATMENT_LABELS[entry.treatment] ?? entry.treatment : <span className="text-gray-400">—</span>}
+        {entry.treatment ? t(`treatment.${entry.treatment}`) : <span className="text-gray-400">—</span>}
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
         <div className="flex items-center gap-2">
           {entry.ownerName ? (
             <span>{entry.ownerName}</span>
           ) : (
-            <span className="text-gray-400">Unassigned</span>
+            <span className="text-gray-400">{t('register.unassigned')}</span>
           )}
           <button
             onClick={onAssign}

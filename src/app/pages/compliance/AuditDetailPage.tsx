@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- legacy: to be typed progressively */
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -35,7 +36,7 @@ import { useCanAudit, useCurrentUser } from '@/hooks/useCurrentUser';
 import { useConfirmDialog } from '@/app/hooks/useConfirmDialog';
 import { ControlReviewPanel } from '@/app/pages/auditor/auditorDashboard/ControlReviewPanel';
 import { AddFindingModal } from '@/app/pages/auditor/auditorDashboard/AddFindingModal';
-import { AUDIT_TYPE_LABELS, StatusBadge, fmt } from './AuditDetailPanel';
+import { AUDIT_TYPE_KEYS, StatusBadge, fmt } from './AuditDetailPanel';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -69,6 +70,7 @@ const FINDING_SEVERITY_COLORS: Record<string, string> = {
 // ── Overview Tab ─────────────────────────────────────────────────────────────
 
 function OverviewTab({ audit }: { audit: AuditRecord }) {
+  const { t } = useTranslation('compliance');
   const controls = audit.auditControls ?? [];
   const findings = audit.findings ?? [];
   const snap = audit.snapshot;
@@ -94,12 +96,12 @@ function OverviewTab({ audit }: { audit: AuditRecord }) {
     <div className="space-y-4">
       {/* Readiness bars */}
       <Card className="p-5">
-        <h3 className="text-sm font-semibold text-foreground mb-4">Readiness</h3>
+        <h3 className="text-sm font-semibold text-foreground mb-4">{t('auditDetail.overview.readiness')}</h3>
         <div className="space-y-4">
           {[
-            { label: 'Controls Reviewed', value: reviewedPct, sub: `${reviewed} of ${total}` },
-            { label: 'Compliance Rate', value: compliancePct, sub: `${compliant} compliant` },
-            { label: 'Findings Resolved', value: findingPct, sub: findings.length > 0 ? `${closedFindings} of ${findings.length}` : 'No findings' },
+            { label: t('auditDetail.overview.controlsReviewed'), value: reviewedPct, sub: t('auditDetail.overview.reviewedOf', { reviewed, total }) },
+            { label: t('auditDetail.overview.complianceRate'), value: compliancePct, sub: t('auditDetail.overview.compliantCount', { count: compliant }) },
+            { label: t('auditDetail.overview.findingsResolved'), value: findingPct, sub: findings.length > 0 ? t('auditDetail.overview.closedOf', { closed: closedFindings, total: findings.length }) : t('auditDetail.overview.noFindings') },
           ].map((bar) => (
             <div key={bar.label}>
               <div className="flex items-center justify-between mb-1.5">
@@ -115,10 +117,10 @@ function OverviewTab({ audit }: { audit: AuditRecord }) {
       {/* Control status breakdown */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: 'Compliant', value: compliant, color: 'text-green-700' },
-          { label: 'Non-Compliant', value: nonCompliant, color: 'text-red-700' },
-          { label: 'N/A', value: notApplicable, color: 'text-slate-500' },
-          { label: 'Pending', value: pending, color: 'text-muted-foreground' },
+          { label: t('auditDetail.overview.compliant'), value: compliant, color: 'text-green-700' },
+          { label: t('auditDetail.overview.nonCompliant'), value: nonCompliant, color: 'text-red-700' },
+          { label: t('auditDetail.overview.na'), value: notApplicable, color: 'text-slate-500' },
+          { label: t('auditDetail.overview.pending'), value: pending, color: 'text-muted-foreground' },
         ].map((s) => (
           <Card key={s.label} className="p-4">
             <p className="text-xs font-medium text-muted-foreground/70 uppercase tracking-wide">{s.label}</p>
@@ -130,13 +132,13 @@ function OverviewTab({ audit }: { audit: AuditRecord }) {
       {/* Finding severity breakdown */}
       {findings.length > 0 && (
         <Card className="p-5">
-          <h3 className="text-sm font-semibold text-foreground mb-3">Findings</h3>
+          <h3 className="text-sm font-semibold text-foreground mb-3">{t('auditDetail.overview.findings')}</h3>
           <div className="grid grid-cols-4 gap-3">
             {[
-              { label: 'Major', value: majorCount, color: 'text-red-700' },
-              { label: 'Minor', value: minorCount, color: 'text-amber-700' },
-              { label: 'Observation', value: obsCount, color: 'text-blue-700' },
-              { label: 'OFI', value: ofiCount, color: 'text-slate-500' },
+              { label: t('auditDetail.overview.major'), value: majorCount, color: 'text-red-700' },
+              { label: t('auditDetail.overview.minor'), value: minorCount, color: 'text-amber-700' },
+              { label: t('auditDetail.overview.observation'), value: obsCount, color: 'text-blue-700' },
+              { label: t('auditDetail.overview.ofi'), value: ofiCount, color: 'text-slate-500' },
             ].map((s) => (
               <div key={s.label} className="text-center">
                 <p className={`text-xl font-bold ${s.color}`}>{s.value}</p>
@@ -149,27 +151,27 @@ function OverviewTab({ audit }: { audit: AuditRecord }) {
 
       {/* Timeline */}
       <Card className="p-5">
-        <h3 className="text-sm font-semibold text-foreground mb-3">Timeline</h3>
+        <h3 className="text-sm font-semibold text-foreground mb-3">{t('auditDetail.overview.timeline')}</h3>
         <div className="flex flex-wrap gap-6 text-sm">
           <div>
-            <p className="text-xs text-muted-foreground">Start Date</p>
+            <p className="text-xs text-muted-foreground">{t('auditDetail.overview.startDate')}</p>
             <p className="font-medium">{fmt(audit.startDate)}</p>
           </div>
           {audit.periodStart && (
             <div>
-              <p className="text-xs text-muted-foreground">Audit Period</p>
+              <p className="text-xs text-muted-foreground">{t('auditDetail.overview.auditPeriod')}</p>
               <p className="font-medium">{fmt(audit.periodStart)} → {fmt(audit.periodEnd)}</p>
             </div>
           )}
           {audit.endDate && (
             <div>
-              <p className="text-xs text-muted-foreground">End Date</p>
+              <p className="text-xs text-muted-foreground">{t('auditDetail.overview.endDate')}</p>
               <p className="font-medium">{fmt(audit.endDate)}</p>
             </div>
           )}
           {audit.closedAt && (
             <div>
-              <p className="text-xs text-muted-foreground">Closed</p>
+              <p className="text-xs text-muted-foreground">{t('auditDetail.overview.closed')}</p>
               <p className="font-medium text-green-700">{fmt(audit.closedAt)}</p>
             </div>
           )}
@@ -188,6 +190,7 @@ function EvidenceTab({
   auditId: string;
   isLocked: boolean;
 }) {
+  const { t } = useTranslation('compliance');
   const canAudit = useCanAudit();
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
   const [reviewingControl, setReviewingControl] = useState<AuditControlRecord | null>(null);
@@ -231,7 +234,7 @@ function EvidenceTab({
     return (
       <Card className="p-12 text-center">
         <FileText className="w-10 h-10 mx-auto mb-3 text-muted-foreground/50" />
-        <p className="text-sm text-muted-foreground">No controls in scope for this audit.</p>
+        <p className="text-sm text-muted-foreground">{t('auditDetail.evidence.noControls')}</p>
       </Card>
     );
   }
@@ -258,7 +261,7 @@ function EvidenceTab({
                   {ctrls[0]?.control.title.split(' ').slice(0, 4).join(' ')}…
                 </span>
                 <span className="text-xs text-muted-foreground ml-auto">
-                  {reviewed}/{ctrls.length} reviewed
+                  {t('auditDetail.evidence.reviewedOf', { reviewed, total: ctrls.length })}
                 </span>
               </button>
               {isOpen && (
@@ -288,9 +291,9 @@ function EvidenceTab({
                         const hasFailingTests = (auditCtrl.control.testMappings ?? []).some(
                           (tm) => tm.test.status === 'Overdue' || tm.test.status === 'Needs_remediation',
                         );
-                        if (hasFlagged) return <span className="text-xs px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 flex-shrink-0">⚑ Flagged</span>;
-                        if (hasTests && hasFailingTests) return <span className="text-xs px-1.5 py-0.5 rounded bg-red-50 text-red-700 flex-shrink-0">✕ Failing</span>;
-                        if (allApproved) return <span className="text-xs px-1.5 py-0.5 rounded bg-green-50 text-green-700 flex-shrink-0">✓ Ready</span>;
+                        if (hasFlagged) return <span className="text-xs px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 flex-shrink-0">⚑ {t('auditDetail.evidence.flagged')}</span>;
+                        if (hasTests && hasFailingTests) return <span className="text-xs px-1.5 py-0.5 rounded bg-red-50 text-red-700 flex-shrink-0">✕ {t('auditDetail.evidence.failing')}</span>;
+                        if (allApproved) return <span className="text-xs px-1.5 py-0.5 rounded bg-green-50 text-green-700 flex-shrink-0">✓ {t('auditDetail.evidence.ready')}</span>;
                         return null;
                       })()}
                       {canAudit && !isLocked && (
@@ -300,7 +303,7 @@ function EvidenceTab({
                           className="h-6 px-2 text-xs flex-shrink-0"
                           onClick={() => setReviewingControl(auditCtrl)}
                         >
-                          Review
+                          {t('auditDetail.evidence.review')}
                         </Button>
                       )}
                     </div>
@@ -338,6 +341,7 @@ function FindingsTab({
   audit: AuditRecord;
   onRefresh: () => void;
 }) {
+  const { t } = useTranslation('compliance');
   const canAudit = useCanAudit();
   const confirm = useConfirmDialog();
   const [statusFilter, setStatusFilter] = useState<FindingFilter>('ALL');
@@ -359,30 +363,30 @@ function FindingsTab({
 
   async function handleDeleteFinding(findingId: string) {
     const ok = await confirm({
-      title: 'Delete Finding',
-      description: 'Permanently delete this finding?',
-      confirmLabel: 'Delete',
+      title: t('auditDetail.findingsTab.deleteFinding'),
+      description: t('auditDetail.findingsTab.deleteConfirm'),
+      confirmLabel: t('auditDetail.findingsTab.delete'),
       variant: 'destructive',
     });
     if (!ok) return;
     setDeletingId(findingId);
     try {
       await auditsService.deleteFinding(audit.id, findingId);
-      toast.success('Finding deleted');
+      toast.success(t('auditDetail.findingsTab.findingDeleted'));
       onRefresh();
     } catch {
-      toast.error('Failed to delete finding');
+      toast.error(t('auditDetail.findingsTab.deleteFailed'));
     } finally {
       setDeletingId(null);
     }
   }
 
   const filters: { value: FindingFilter; label: string }[] = [
-    { value: 'ALL', label: 'All' },
-    { value: 'OPEN', label: 'Open' },
-    { value: 'IN_REMEDIATION', label: 'In Remediation' },
-    { value: 'READY_FOR_REVIEW', label: 'Ready for Review' },
-    { value: 'CLOSED', label: 'Closed' },
+    { value: 'ALL', label: t('auditDetail.findingsTab.all') },
+    { value: 'OPEN', label: t('auditDetail.findingsTab.open') },
+    { value: 'IN_REMEDIATION', label: t('auditDetail.findingsTab.inRemediation') },
+    { value: 'READY_FOR_REVIEW', label: t('auditDetail.findingsTab.readyForReview') },
+    { value: 'CLOSED', label: t('auditDetail.findingsTab.closed') },
   ];
 
   // Get controls in scope for AddFindingModal
@@ -409,7 +413,7 @@ function FindingsTab({
         {canAudit && !audit.isLocked && firstControl && (
           <Button size="sm" onClick={() => setShowAddFinding(true)}>
             <Plus className="w-4 h-4 mr-1" />
-            Add Finding
+            {t('auditDetail.findingsTab.addFinding')}
           </Button>
         )}
       </div>
@@ -418,13 +422,13 @@ function FindingsTab({
         {sorted.length === 0 ? (
           <div className="p-8 text-center">
             <AlertCircle className="w-8 h-8 mx-auto mb-2 text-muted-foreground/50" />
-            <p className="text-sm text-muted-foreground">No findings match this filter.</p>
+            <p className="text-sm text-muted-foreground">{t('auditDetail.findingsTab.noMatch')}</p>
           </div>
         ) : (
           <table className="w-full text-sm">
             <thead className="bg-muted border-b border-border">
               <tr>
-                {['Control', 'Severity', 'Description', 'Status', ''].map((h) => (
+                {(t('auditDetail.findingsTab.columns', { returnObjects: true }) as string[]).map((h) => (
                   <th key={h} className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wide">
                     {h}
                   </th>
@@ -488,6 +492,7 @@ function FindingsTab({
 // ── Comments Tab ──────────────────────────────────────────────────────────────
 
 function CommentsTab({ auditId, controls }: { auditId: string; controls: AuditControlRecord[] }) {
+  const { t } = useTranslation('compliance');
   const me = useCurrentUser();
   const canAudit = useCanAudit();
   const confirm = useConfirmDialog();
@@ -513,7 +518,7 @@ function CommentsTab({ auditId, controls }: { auditId: string; controls: AuditCo
       setText('');
       refetch();
     } catch {
-      toast.error('Failed to post comment');
+      toast.error(t('auditDetail.comments.postFailed'));
     } finally {
       setPosting(false);
     }
@@ -521,9 +526,9 @@ function CommentsTab({ auditId, controls }: { auditId: string; controls: AuditCo
 
   async function handleDelete(commentId: string) {
     const ok = await confirm({
-      title: 'Delete Comment',
-      description: 'Delete this comment?',
-      confirmLabel: 'Delete',
+      title: t('auditDetail.comments.deleteComment'),
+      description: t('auditDetail.comments.deleteConfirm'),
+      confirmLabel: t('auditDetail.comments.delete'),
       variant: 'destructive',
     });
     if (!ok) return;
@@ -531,7 +536,7 @@ function CommentsTab({ auditId, controls }: { auditId: string; controls: AuditCo
       await auditsService.deleteComment(auditId, commentId);
       refetch();
     } catch {
-      toast.error('Failed to delete comment');
+      toast.error(t('auditDetail.comments.deleteFailed'));
     }
   }
 
@@ -544,13 +549,13 @@ function CommentsTab({ auditId, controls }: { auditId: string; controls: AuditCo
     <div className="space-y-4">
       {/* Control filter */}
       <div className="flex items-center gap-2">
-        <label className="text-xs font-medium text-muted-foreground">Filter by control:</label>
+        <label className="text-xs font-medium text-muted-foreground">{t('auditDetail.comments.filterByControl')}</label>
         <select
           value={selectedControlId}
           onChange={(e) => setSelectedControlId(e.target.value)}
           className="text-xs border border-border rounded px-2 py-1 bg-background text-foreground"
         >
-          <option value="">All comments</option>
+          <option value="">{t('auditDetail.comments.allComments')}</option>
           {controls.map((c) => (
             <option key={c.control.id} value={c.control.id}>
               {c.control.isoReference} — {c.control.title.slice(0, 40)}
@@ -562,7 +567,7 @@ function CommentsTab({ auditId, controls }: { auditId: string; controls: AuditCo
       {/* Comment list */}
       <Card className="p-4 space-y-4 min-h-[200px]">
         {comments.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-8">No comments yet.</p>
+          <p className="text-sm text-muted-foreground text-center py-8">{t('auditDetail.comments.noComments')}</p>
         ) : (
           comments.map((c) => (
             <div key={c.id} className="flex gap-3">
@@ -575,7 +580,7 @@ function CommentsTab({ auditId, controls }: { auditId: string; controls: AuditCo
                     {c.author?.name ?? c.author?.email}
                   </span>
                   {c.author?.role === 'AUDITOR' && (
-                    <span className="text-xs px-1.5 py-0.5 rounded bg-violet-50 text-violet-700 font-medium">Auditor</span>
+                    <span className="text-xs px-1.5 py-0.5 rounded bg-violet-50 text-violet-700 font-medium">{t('auditDetail.comments.auditor')}</span>
                   )}
                   <span className="text-xs text-muted-foreground">
                     {new Date(c.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
@@ -608,7 +613,7 @@ function CommentsTab({ auditId, controls }: { auditId: string; controls: AuditCo
             rows={2}
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="Add a comment…"
+            placeholder={t('auditDetail.comments.placeholder')}
             className="flex-1 text-sm border border-border rounded-md px-3 py-2 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
           />
           <Button
@@ -628,6 +633,7 @@ function CommentsTab({ auditId, controls }: { auditId: string; controls: AuditCo
 // ── Report Tab ────────────────────────────────────────────────────────────────
 
 function ReportTab({ audit, onRefresh }: { audit: AuditRecord; onRefresh: () => void }) {
+  const { t } = useTranslation('compliance');
   const navigate = useNavigate();
   const canAudit = useCanAudit();
   const confirm = useConfirmDialog();
@@ -636,19 +642,19 @@ function ReportTab({ audit, onRefresh }: { audit: AuditRecord; onRefresh: () => 
 
   async function handleClose() {
     const ok = await confirm({
-      title: 'Complete Audit',
-      description: 'Mark this audit as completed?',
-      confirmLabel: 'Complete',
+      title: t('auditDetail.report.completeConfirmTitle'),
+      description: t('auditDetail.report.completeConfirmDesc'),
+      confirmLabel: t('auditDetail.report.completeConfirmLabel'),
       variant: 'default',
     });
     if (!ok) return;
     setActing(true);
     try {
       await auditsService.close(audit.id);
-      toast.success('Audit completed');
+      toast.success(t('auditDetail.report.auditCompleted'));
       onRefresh();
     } catch {
-      toast.error('Failed to complete audit');
+      toast.error(t('auditDetail.report.completeFailed'));
     } finally {
       setActing(false);
     }
@@ -658,10 +664,10 @@ function ReportTab({ audit, onRefresh }: { audit: AuditRecord; onRefresh: () => 
     setActing(true);
     try {
       await auditsService.start(audit.id);
-      toast.success('Audit started');
+      toast.success(t('auditDetail.report.auditStarted'));
       onRefresh();
     } catch {
-      toast.error('Failed to start audit');
+      toast.error(t('auditDetail.report.startFailed'));
     } finally {
       setActing(false);
     }
@@ -681,10 +687,10 @@ function ReportTab({ audit, onRefresh }: { audit: AuditRecord; onRefresh: () => 
           )}
           <div>
             <p className="text-sm font-semibold text-foreground">
-              {audit.isLocked ? 'Audit Completed & Locked' : audit.status === 'IN_PROGRESS' ? 'Audit In Progress' : `Status: ${audit.status}`}
+              {audit.isLocked ? t('auditDetail.report.completedLocked') : audit.status === 'IN_PROGRESS' ? t('auditDetail.report.inProgress') : t('auditDetail.report.statusPrefix', { status: audit.status })}
             </p>
             {audit.signedAt && (
-              <p className="text-xs text-muted-foreground">Signed on {fmt(audit.signedAt)}</p>
+              <p className="text-xs text-muted-foreground">{t('auditDetail.report.signedOn', { date: fmt(audit.signedAt) })}</p>
             )}
           </div>
         </div>
@@ -693,15 +699,15 @@ function ReportTab({ audit, onRefresh }: { audit: AuditRecord; onRefresh: () => 
           <div className="grid grid-cols-3 gap-4 mb-4 text-center border-t border-border pt-4">
             <div>
               <p className="text-2xl font-bold text-foreground">{snap.compliancePct}%</p>
-              <p className="text-xs text-muted-foreground">Compliance</p>
+              <p className="text-xs text-muted-foreground">{t('auditDetail.report.compliance')}</p>
             </div>
             <div>
               <p className="text-2xl font-bold text-red-600">{snap.majorFindings}</p>
-              <p className="text-xs text-muted-foreground">Major Findings</p>
+              <p className="text-xs text-muted-foreground">{t('auditDetail.report.majorFindings')}</p>
             </div>
             <div>
               <p className="text-2xl font-bold text-foreground">{snap.totalControls}</p>
-              <p className="text-xs text-muted-foreground">Controls</p>
+              <p className="text-xs text-muted-foreground">{t('auditDetail.report.controls')}</p>
             </div>
           </div>
         )}
@@ -709,7 +715,7 @@ function ReportTab({ audit, onRefresh }: { audit: AuditRecord; onRefresh: () => 
         <div className="flex flex-wrap gap-2">
           {(audit.status === 'DRAFT' || audit.status === 'PLANNED') && canAudit && (
             <Button onClick={handleStart} disabled={acting}>
-              {acting ? 'Starting…' : 'Start Audit'}
+              {acting ? t('auditDetail.report.starting') : t('auditDetail.report.startAudit')}
             </Button>
           )}
           {audit.status === 'IN_PROGRESS' && canAudit && (
@@ -719,14 +725,14 @@ function ReportTab({ audit, onRefresh }: { audit: AuditRecord; onRefresh: () => 
                 disabled={acting}
                 className="bg-green-700 hover:bg-green-600"
               >
-                {acting ? 'Completing…' : 'Complete Audit'}
+                {acting ? t('auditDetail.report.completing') : t('auditDetail.report.completeAudit')}
               </Button>
               <Button
                 variant="outline"
                 onClick={() => navigate(`/auditor/audits/${audit.id}/final-report`)}
               >
                 <ClipboardList className="w-4 h-4 mr-1.5" />
-                Final Report
+                {t('auditDetail.report.finalReport')}
               </Button>
             </>
           )}
@@ -737,13 +743,13 @@ function ReportTab({ audit, onRefresh }: { audit: AuditRecord; onRefresh: () => 
                 onClick={() => navigate(`/auditor/audits/${audit.id}/final-report`)}
               >
                 <ClipboardList className="w-4 h-4 mr-1.5" />
-                View Final Report
+                {t('auditDetail.report.viewFinalReport')}
               </Button>
               {audit.signedPdfUrl && (
                 <Button variant="outline" asChild>
                   <a href={audit.signedPdfUrl} target="_blank" rel="noopener noreferrer">
                     <FileText className="w-4 h-4 mr-1.5" />
-                    Download PDF
+                    {t('auditDetail.report.downloadPdf')}
                   </a>
                 </Button>
               )}
@@ -757,13 +763,13 @@ function ReportTab({ audit, onRefresh }: { audit: AuditRecord; onRefresh: () => 
         <Card className="p-5 space-y-4">
           {audit.executiveSummary && (
             <div>
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Executive Summary</p>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">{t('auditDetail.report.executiveSummary')}</p>
               <p className="text-sm text-foreground whitespace-pre-wrap">{audit.executiveSummary}</p>
             </div>
           )}
           {audit.auditConclusion && (
             <div>
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Audit Conclusion</p>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">{t('auditDetail.report.auditConclusion')}</p>
               <p className="text-sm text-foreground whitespace-pre-wrap">{audit.auditConclusion}</p>
             </div>
           )}
@@ -790,6 +796,7 @@ const VENDOR_TIER_COLORS: Record<string, string> = {
 };
 
 function VendorsTab() {
+  const { t } = useTranslation('compliance');
   const { data, isLoading } = useQuery<VendorRecord[]>({
     queryKey: ['vendors'],
     queryFn: () => vendorsService.list(),
@@ -797,13 +804,13 @@ function VendorsTab() {
   const vendors = data ?? [];
 
   if (isLoading) {
-    return <div className="p-8 text-center text-sm text-muted-foreground">Loading vendors…</div>;
+    return <div className="p-8 text-center text-sm text-muted-foreground">{t('auditDetail.vendors.loading')}</div>;
   }
 
   if (vendors.length === 0) {
     return (
       <Card className="p-8 text-center text-sm text-muted-foreground">
-        No vendors registered in this organisation.
+        {t('auditDetail.vendors.noVendors')}
       </Card>
     );
   }
@@ -812,20 +819,20 @@ function VendorsTab() {
     <Card className="overflow-hidden">
       <div className="px-5 py-3 border-b flex items-center gap-2">
         <Building2 className="w-4 h-4 text-muted-foreground" />
-        <span className="text-sm font-medium">Vendor / TPRM Roster</span>
+        <span className="text-sm font-medium">{t('auditDetail.vendors.rosterTitle')}</span>
         <Badge variant="secondary" className="ml-auto">{vendors.length}</Badge>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b bg-muted/40 text-xs text-muted-foreground">
-              <th className="px-4 py-2 text-left font-medium">Vendor</th>
-              <th className="px-4 py-2 text-left font-medium">Tier</th>
-              <th className="px-4 py-2 text-left font-medium">Status</th>
-              <th className="px-4 py-2 text-right font-medium">Security Score</th>
-              <th className="px-4 py-2 text-right font-medium">Open Findings</th>
-              <th className="px-4 py-2 text-left font-medium">Last Assessment</th>
-              <th className="px-4 py-2 text-left font-medium">Next Due</th>
+              <th className="px-4 py-2 text-left font-medium">{t('auditDetail.vendors.columns.vendor')}</th>
+              <th className="px-4 py-2 text-left font-medium">{t('auditDetail.vendors.columns.tier')}</th>
+              <th className="px-4 py-2 text-left font-medium">{t('auditDetail.vendors.columns.status')}</th>
+              <th className="px-4 py-2 text-right font-medium">{t('auditDetail.vendors.columns.securityScore')}</th>
+              <th className="px-4 py-2 text-right font-medium">{t('auditDetail.vendors.columns.openFindings')}</th>
+              <th className="px-4 py-2 text-left font-medium">{t('auditDetail.vendors.columns.lastAssessment')}</th>
+              <th className="px-4 py-2 text-left font-medium">{t('auditDetail.vendors.columns.nextDue')}</th>
             </tr>
           </thead>
           <tbody>
@@ -865,6 +872,7 @@ function VendorsTab() {
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export function AuditDetailPage() {
+  const { t } = useTranslation('compliance');
   const { auditId } = useParams<{ auditId: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -884,16 +892,16 @@ export function AuditDetailPage() {
 
   if (isLoading) {
     return (
-      <PageTemplate title="Loading…" description="">
-        <div className="p-8 text-center text-sm text-muted-foreground">Loading audit…</div>
+      <PageTemplate title={t('auditDetail.loading')} description="">
+        <div className="p-8 text-center text-sm text-muted-foreground">{t('auditDetail.loadingAudit')}</div>
       </PageTemplate>
     );
   }
 
   if (!audit) {
     return (
-      <PageTemplate title="Not Found" description="">
-        <div className="p-8 text-center text-sm text-muted-foreground">Audit not found.</div>
+      <PageTemplate title={t('auditDetail.notFound')} description="">
+        <div className="p-8 text-center text-sm text-muted-foreground">{t('auditDetail.auditNotFound')}</div>
       </PageTemplate>
     );
   }
@@ -901,9 +909,9 @@ export function AuditDetailPage() {
   const controls = audit.auditControls ?? [];
 
   const descriptionStr = [
-    AUDIT_TYPE_LABELS[audit.type],
+    t(`auditPanel.typeLabels.${AUDIT_TYPE_KEYS[audit.type]}`),
     audit.frameworkName,
-    audit.isLocked ? 'Locked' : null,
+    audit.isLocked ? t('auditDetail.locked') : null,
   ].filter(Boolean).join(' · ');
 
   return (
@@ -915,28 +923,28 @@ export function AuditDetailPage() {
           <StatusBadge status={audit.status as AuditStatus} />
           <Button variant="ghost" size="sm" onClick={() => navigate('/compliance/audits')}>
             <ArrowLeft className="w-4 h-4 mr-1" />
-            Back
+            {t('auditDetail.back')}
           </Button>
         </div>
       }
     >
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="evidence">Evidence</TabsTrigger>
+          <TabsTrigger value="overview">{t('auditDetail.tabs.overview')}</TabsTrigger>
+          <TabsTrigger value="evidence">{t('auditDetail.tabs.evidence')}</TabsTrigger>
           <TabsTrigger value="findings">
-            Findings
+            {t('auditDetail.tabs.findings')}
             {(audit.findings ?? []).length > 0 && (
               <Badge variant="secondary" className="ml-1.5 h-4 min-w-4 px-1 text-xs">
                 {(audit.findings ?? []).length}
               </Badge>
             )}
           </TabsTrigger>
-          <TabsTrigger value="comments">Comments</TabsTrigger>
-          <TabsTrigger value="report">Report</TabsTrigger>
+          <TabsTrigger value="comments">{t('auditDetail.tabs.comments')}</TabsTrigger>
+          <TabsTrigger value="report">{t('auditDetail.tabs.report')}</TabsTrigger>
           <TabsTrigger value="vendors">
             <Building2 className="w-3.5 h-3.5 mr-1" />
-            Vendors
+            {t('auditDetail.tabs.vendors')}
           </TabsTrigger>
         </TabsList>
 

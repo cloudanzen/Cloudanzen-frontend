@@ -17,7 +17,21 @@
     "description": "Don't see the integration you need? Request it.",
     "toolNameLabel": "Tool Name",
     "descriptionLabel": "Why do you need this integration?",
-    "submit": "Submit Request"
+    "submit": "Submit Request",
+    "modalTitle": "Request a New Tool",
+    "modalDescription": "Let the team know which integration you need.",
+    "toolIntegrationName": "Tool / Integration Name",
+    "toolPlaceholder": "e.g. Datadog, 1Password, Figma",
+    "category": "Category",
+    "selectCategory": "Select a category...",
+    "useCaseJustification": "Use Case / Justification",
+    "useCasePlaceholder": "Describe how this tool would help your security programme...",
+    "cancel": "Cancel",
+    "submitting": "Submitting...",
+    "submitRequest": "Submit Request",
+    "toolNameRequired": "Tool name is required.",
+    "useCaseRequired": "Please describe your use case.",
+    "submitFailed": "Failed to submit request. Please try again."
   },
   "categories": {
     "all": "All",
@@ -35,6 +49,53 @@
     "keyName": "Key Name",
     "created": "Created",
     "lastUsed": "Last Used",
-    "revoke": "Revoke"
+    "revoke": "Revoke",
+    "issueKey": {
+      "title": "Issue Partner API Key",
+      "description": "Generate a key for an external team to push scan results from their tool into ISMS.",
+      "required": "Key name and tool are required.",
+      "failed": "Failed to issue key.",
+      "keyLabel": "Key label",
+      "keyPlaceholder": "e.g. Huntress Team - Production",
+      "keyHint": "A human-readable name to identify this key later.",
+      "tool": "Tool",
+      "selectTool": "Select a tool...",
+      "category": "Category:",
+      "expiry": "Expiry",
+      "optional": "(optional)",
+      "expiryHint": "Leave blank for no expiry.",
+      "cancel": "Cancel",
+      "generating": "Generating...",
+      "generate": "Generate key"
+    },
+    "rawKey": {
+      "title": "API Key Generated",
+      "descriptionPrefix": "This key will",
+      "descriptionMiddle": "be shown again. Copy it now and share it securely with the",
+      "copy": "Copy",
+      "copied": "Copied",
+      "securityReminder": "Security reminder:",
+      "securityReminderText": "Store this key in a password manager or secret vault before sharing. Never send it over email or unencrypted channels.",
+      "done": "Done - I've saved the key"
+    },
+    "revoke": {
+      "title": "Revoke API Key",
+      "description": "This will immediately invalidate \"{{name}}\". Any external system using this key will stop being able to push scan results.",
+      "cancel": "Cancel",
+      "revoking": "Revoking...",
+      "confirm": "Yes, revoke key"
+    },
+    "resultDetail": {
+      "scanReport": "Scan Report",
+      "pass": "Pass",
+      "warning": "Warning",
+      "fail": "Fail",
+      "close": "Close"
+    },
+    "catalogue": {
+      "tests_one": "{{count}} test",
+      "tests_other": "{{count}} tests",
+      "suggestedIsoTests": "Suggested ISO Tests"
+    }
   }
 }

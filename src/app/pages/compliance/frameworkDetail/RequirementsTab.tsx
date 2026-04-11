@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
@@ -15,6 +16,7 @@ import { Loader2, ListChecks, User, Calendar, XCircle, CheckCircle2 } from 'luci
 import { applicabilityBadge, reviewBadge, TabPlaceholder } from './shared';
 
 export function RequirementsTab({ slug }: { slug: string }) {
+  const { t } = useTranslation('compliance');
   const qc = useQueryClient();
   const [ownerDialog, setOwnerDialog] = useState<RequirementStatusDto | null>(null);
   const [applicabilityDialog, setApplicabilityDialog] = useState<RequirementStatusDto | null>(null);
@@ -44,9 +46,9 @@ export function RequirementsTab({ slug }: { slug: string }) {
       setOwnerDialog(null);
       qc.invalidateQueries({ queryKey: ['frameworks', 'org-requirements', slug] });
       qc.invalidateQueries({ queryKey: ['frameworks', 'coverage', slug] });
-      toast.success('Owner assigned');
+      toast.success(t('frameworkTabs.requirements.ownerAssigned'));
     },
-    onError: () => toast.error('Failed to assign owner'),
+    onError: () => toast.error(t('frameworkTabs.requirements.assignFailed')),
   });
 
   const applicabilityMutation = useMutation({
@@ -60,14 +62,14 @@ export function RequirementsTab({ slug }: { slug: string }) {
     },
   });
 
-  if (isLoading) return <TabPlaceholder icon={ListChecks} text="Loading requirements…" />;
+  if (isLoading) return <TabPlaceholder icon={ListChecks} text={t('frameworkTabs.requirements.loadingReqs')} />;
 
   if (reqs.length === 0) {
     return (
       <TabPlaceholder
         icon={ListChecks}
-        text="No requirements loaded yet"
-        sub="Activate this framework to load requirements for your organization."
+        text={t('frameworkTabs.requirements.noReqs')}
+        sub={t('frameworkTabs.requirements.noReqsDesc')}
       />
     );
   }
@@ -82,8 +84,8 @@ export function RequirementsTab({ slug }: { slug: string }) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between text-xs text-gray-500">
-        <span>{reqs.length} requirements · {reqs.filter(r => r.applicabilityStatus === 'not_applicable').length} marked N/A</span>
-        <span className="text-gray-400">Click a row to assign owner or mark N/A</span>
+        <span>{t('frameworkTabs.requirements.reqCount', { total: reqs.length, na: reqs.filter(r => r.applicabilityStatus === 'not_applicable').length })}</span>
+        <span className="text-gray-400">{t('frameworkTabs.requirements.clickHint')}</span>
       </div>
 
       {Object.entries(byDomain).map(([domain, items]) => (
@@ -114,8 +116,8 @@ export function RequirementsTab({ slug }: { slug: string }) {
                     )}
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    {reviewBadge(req.reviewStatus)}
-                    {applicabilityBadge(req.applicabilityStatus)}
+                    {reviewBadge(req.reviewStatus, t)}
+                    {applicabilityBadge(req.applicabilityStatus, t)}
                     {req.applicabilityStatus === 'applicable' ? (
                       <button
                         className="text-xs text-gray-300 hover:text-gray-500 px-1"
@@ -124,7 +126,7 @@ export function RequirementsTab({ slug }: { slug: string }) {
                           setApplicabilityDialog(req);
                           setApplicabilityJustification(req.justification ?? '');
                         }}
-                        title="Mark N/A"
+                        title={t('frameworkTabs.requirements.markNA')}
                       >
                         <XCircle className="w-4 h-4" />
                       </button>
@@ -135,7 +137,7 @@ export function RequirementsTab({ slug }: { slug: string }) {
                           e.stopPropagation();
                           applicabilityMutation.mutate({ r: req, status: 'applicable' });
                         }}
-                        title="Mark applicable"
+                        title={t('frameworkTabs.requirements.markApplicable')}
                       >
                         <CheckCircle2 className="w-4 h-4" />
                       </button>
@@ -152,7 +154,7 @@ export function RequirementsTab({ slug }: { slug: string }) {
       <Dialog open={!!ownerDialog} onOpenChange={() => setOwnerDialog(null)}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Assign owner & due date</DialogTitle>
+            <DialogTitle>{t('frameworkTabs.requirements.assignOwnerTitle')}</DialogTitle>
             <DialogDescription className="text-sm">
               <span className="font-mono text-xs text-gray-500">{ownerDialog?.code}</span>{' '}
               {ownerDialog?.title}
@@ -160,21 +162,21 @@ export function RequirementsTab({ slug }: { slug: string }) {
           </DialogHeader>
           <div className="space-y-3 pt-1">
             <div>
-              <Label htmlFor="owner" className="text-sm font-medium">Owner</Label>
+              <Label htmlFor="owner" className="text-sm font-medium">{t('frameworkTabs.requirements.owner')}</Label>
               <select
                 id="owner"
                 value={ownerInput}
                 onChange={e => setOwnerInput(e.target.value)}
                 className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               >
-                <option value="">— Select a user —</option>
+                <option value="">{t('frameworkTabs.requirements.selectUser')}</option>
                 {users.map(u => (
                   <option key={u.id} value={u.id}>{u.name ?? u.email}</option>
                 ))}
               </select>
             </div>
             <div>
-              <Label htmlFor="dueDate" className="text-sm font-medium">Due date</Label>
+              <Label htmlFor="dueDate" className="text-sm font-medium">{t('frameworkTabs.requirements.dueDate')}</Label>
               <Input
                 id="dueDate"
                 type="date"
@@ -185,13 +187,13 @@ export function RequirementsTab({ slug }: { slug: string }) {
             </div>
           </div>
           <DialogFooter className="gap-2 pt-2">
-            <Button variant="outline" onClick={() => setOwnerDialog(null)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setOwnerDialog(null)}>{t('frameworkTabs.requirements.cancel')}</Button>
             <Button
               onClick={() => ownerDialog && ownerMutation.mutate(ownerDialog)}
               disabled={ownerMutation.isPending}
             >
               {ownerMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : null}
-              Save
+              {t('frameworkTabs.requirements.save')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -200,24 +202,24 @@ export function RequirementsTab({ slug }: { slug: string }) {
       <Dialog open={!!applicabilityDialog} onOpenChange={() => setApplicabilityDialog(null)}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Mark requirement not applicable</DialogTitle>
+            <DialogTitle>{t('frameworkTabs.requirements.markNATitle')}</DialogTitle>
             <DialogDescription className="text-sm">
               <span className="font-mono text-xs text-gray-500">{applicabilityDialog?.code}</span>{' '}
               {applicabilityDialog?.title}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2">
-            <Label htmlFor="na-justification" className="text-sm font-medium">Justification</Label>
+            <Label htmlFor="na-justification" className="text-sm font-medium">{t('frameworkTabs.requirements.justification')}</Label>
             <Textarea
               id="na-justification"
               rows={4}
               value={applicabilityJustification}
               onChange={(e) => setApplicabilityJustification(e.target.value)}
-              placeholder="Explain why this requirement does not apply to your organization."
+              placeholder={t('frameworkTabs.requirements.justificationPlaceholder')}
             />
           </div>
           <DialogFooter className="gap-2 pt-2">
-            <Button variant="outline" onClick={() => setApplicabilityDialog(null)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setApplicabilityDialog(null)}>{t('frameworkTabs.requirements.cancel')}</Button>
             <Button
               onClick={() => applicabilityDialog && applicabilityMutation.mutate({
                 r: applicabilityDialog,
@@ -227,7 +229,7 @@ export function RequirementsTab({ slug }: { slug: string }) {
               disabled={applicabilityMutation.isPending || !applicabilityJustification.trim()}
             >
               {applicabilityMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : null}
-              Save exclusion
+              {t('frameworkTabs.requirements.saveExclusion')}
             </Button>
           </DialogFooter>
         </DialogContent>

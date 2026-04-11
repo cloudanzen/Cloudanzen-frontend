@@ -9,6 +9,7 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import {
   Shield,
@@ -38,6 +39,7 @@ import { ControlReviewPanel } from './auditorDashboard/ControlReviewPanel';
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function AuditorDashboardPage() {
+  const { t } = useTranslation('auditor');
   const navigate = useNavigate();
   const [selectedControl, setSelectedControl] =
     useState<AuditControlRecord | null>(null);
@@ -89,22 +91,24 @@ export function AuditorDashboardPage() {
 
   if (auditsLoading) {
     return (
-      <PageTemplate title="Auditor Dashboard">
-        <div className="py-20 text-center text-sm text-gray-400">Loading…</div>
+      <PageTemplate title={t('dashboard.title')}>
+        <div className="py-20 text-center text-sm text-gray-400">
+          {t('dashboard.loading')}
+        </div>
       </PageTemplate>
     );
   }
 
   if (!audit) {
     return (
-      <PageTemplate title="Auditor Dashboard">
+      <PageTemplate title={t('dashboard.title')}>
         <div className="py-20 text-center">
           <Shield className="w-12 h-12 mx-auto mb-4 text-gray-200" />
           <p className="text-base font-medium text-gray-600">
-            No audits assigned
+            {t('dashboard.noAudits')}
           </p>
           <p className="text-sm text-gray-400 mt-1">
-            An admin will assign an audit to you. Check back soon.
+            {t('dashboard.noAuditsDescription')}
           </p>
         </div>
       </PageTemplate>
@@ -112,7 +116,7 @@ export function AuditorDashboardPage() {
   }
 
   return (
-    <PageTemplate title="Auditor Dashboard" description={audit.name}>
+    <PageTemplate title={t('dashboard.title')} description={audit.name}>
       {/* Audit meta banner */}
       <div className="flex flex-wrap items-center gap-3 mb-5 p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm text-gray-600">
         <span className="font-medium text-gray-900">{audit.name}</span>
@@ -132,7 +136,7 @@ export function AuditorDashboardPage() {
         </span>
         {(audit as any).isLocked && (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-            <Lock className="w-3 h-3" /> Locked
+            <Lock className="w-3 h-3" /> {t('dashboard.locked')}
           </span>
         )}
         <span className="ml-auto text-xs text-gray-400">
@@ -152,8 +156,8 @@ export function AuditorDashboardPage() {
           >
             <ClipboardList className="w-4 h-4 mr-1" />
             {audit.status === 'COMPLETED'
-              ? 'View Final Report'
-              : 'Final Report'}
+              ? t('dashboard.viewFinalReport')
+              : t('dashboard.finalReport')}
           </Button>
         )}
       </div>
@@ -161,31 +165,43 @@ export function AuditorDashboardPage() {
       {/* 4 KPI panels */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
         <KpiCard
-          label="Controls in Scope"
+          label={t('dashboard.kpis.controlsInScope')}
           value={totalControls}
           icon={<Shield className="w-5 h-5" />}
         />
         <KpiCard
-          label="Controls Reviewed"
+          label={t('dashboard.kpis.controlsReviewed')}
           value={`${reviewed} / ${totalControls}`}
           sub={
             totalControls > 0
-              ? `${Math.round((reviewed / totalControls) * 100)}% complete`
+              ? t('dashboard.kpis.complete', {
+                  percent: Math.round((reviewed / totalControls) * 100),
+                })
               : undefined
           }
           icon={<CheckCircle2 className="w-5 h-5" />}
           color="text-green-700"
         />
         <KpiCard
-          label="Open Findings"
+          label={t('dashboard.kpis.openFindings')}
           value={openFindings}
           icon={<AlertCircle className="w-5 h-5" />}
           color={openFindings > 0 ? 'text-red-600' : 'text-gray-900'}
         />
         <KpiCard
-          label="Days Remaining"
-          value={days === null ? '—' : days < 0 ? 'Overdue' : `${days}d`}
-          sub={audit.endDate ? `Due ${fmt(audit.endDate)}` : undefined}
+          label={t('dashboard.kpis.daysRemaining')}
+          value={
+            days === null
+              ? '—'
+              : days < 0
+                ? t('dashboard.kpis.overdue')
+                : `${days}d`
+          }
+          sub={
+            audit.endDate
+              ? t('dashboard.kpis.due', { date: fmt(audit.endDate) })
+              : undefined
+          }
           icon={<Clock className="w-5 h-5" />}
           color={
             days !== null && days < 0
@@ -201,11 +217,17 @@ export function AuditorDashboardPage() {
       <div className="flex flex-wrap gap-1.5 mb-4">
         {(
           [
-            { value: '', label: 'All' },
-            { value: 'PENDING', label: 'Pending' },
-            { value: 'COMPLIANT', label: 'Compliant' },
-            { value: 'NON_COMPLIANT', label: 'Non-Compliant' },
-            { value: 'NOT_APPLICABLE', label: 'Not Applicable' },
+            { value: '', label: t('dashboard.filters.all') },
+            { value: 'PENDING', label: t('dashboard.filters.pending') },
+            { value: 'COMPLIANT', label: t('dashboard.filters.compliant') },
+            {
+              value: 'NON_COMPLIANT',
+              label: t('dashboard.filters.nonCompliant'),
+            },
+            {
+              value: 'NOT_APPLICABLE',
+              label: t('dashboard.filters.notApplicable'),
+            },
           ] as const
         ).map((f) => (
           <button
@@ -233,11 +255,11 @@ export function AuditorDashboardPage() {
       <Card className="overflow-hidden">
         {controlsLoading ? (
           <div className="p-8 text-center text-sm text-gray-400">
-            Loading controls…
+            {t('dashboard.table.loading')}
           </div>
         ) : filtered.length === 0 ? (
           <div className="p-10 text-center text-sm text-gray-400">
-            No controls match this filter.
+            {t('dashboard.table.empty')}
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -245,13 +267,13 @@ export function AuditorDashboardPage() {
               <thead className="bg-gray-50 border-b border-gray-100">
                 <tr>
                   {[
-                    'Control',
-                    'Title',
-                    'Evidence',
-                    'Tests',
-                    'Review Status',
-                    'Findings',
-                    'Action',
+                    t('dashboard.table.control'),
+                    t('dashboard.table.title'),
+                    t('dashboard.table.evidence'),
+                    t('dashboard.table.tests'),
+                    t('dashboard.table.reviewStatus'),
+                    t('dashboard.table.findings'),
+                    t('dashboard.table.action'),
                   ].map((h) => (
                     <th
                       key={h}
@@ -315,7 +337,7 @@ export function AuditorDashboardPage() {
                           className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-800"
                         >
                           <Eye className="w-3.5 h-3.5" />
-                          Review
+                          {t('dashboard.table.review')}
                         </button>
                       </td>
                     </tr>

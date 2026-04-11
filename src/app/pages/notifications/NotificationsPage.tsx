@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- legacy: to be typed progressively */
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { Bell, Loader2 } from 'lucide-react';
 import { PageTemplate } from '@/app/components/PageTemplate';
@@ -18,6 +19,7 @@ import { useNavigate } from 'react-router';
 const PAGE_SIZE = 25;
 
 export function NotificationsPage() {
+  const { t } = useTranslation('common');
   const navigate = useNavigate();
   const [tab, setTab] = useState<'all' | 'unread' | 'critical'>('all');
   const [eventType, setEventType] = useState<string>('all');
@@ -47,28 +49,28 @@ export function NotificationsPage() {
 
   return (
     <PageTemplate
-      title="Notifications"
-      description="Track critical issues, workflow reminders, and assignment updates across the platform."
-      actions={<Button variant="outline" onClick={() => markAllRead.mutate()} disabled={markAllRead.isPending}>Mark all read</Button>}
+      title={t('notifications.pageTitle')}
+      description={t('notifications.pageDescription')}
+      actions={<Button variant="outline" onClick={() => markAllRead.mutate()} disabled={markAllRead.isPending}>{t('notifications.markAllRead')}</Button>}
     >
       <div className="space-y-6">
         <Card className="p-4 sm:p-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <Tabs value={tab} onValueChange={(value) => { setTab(value as any); setPage(1); }}>
               <TabsList>
-                <TabsTrigger value="all">All</TabsTrigger>
-                <TabsTrigger value="unread">Unread</TabsTrigger>
-                <TabsTrigger value="critical">Critical</TabsTrigger>
+                <TabsTrigger value="all">{t('notifications.tabs.all')}</TabsTrigger>
+                <TabsTrigger value="unread">{t('notifications.tabs.unread')}</TabsTrigger>
+                <TabsTrigger value="critical">{t('notifications.tabs.critical')}</TabsTrigger>
               </TabsList>
             </Tabs>
 
             <div className="w-full lg:w-64">
               <Select value={eventType} onValueChange={(value) => { setEventType(value); setPage(1); }}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Filter by event type" />
+                  <SelectValue placeholder={t('notifications.filterPlaceholder')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All event types</SelectItem>
+                  <SelectItem value="all">{t('notifications.allEventTypes')}</SelectItem>
                   {notificationEventDefinitions.map((definition) => (
                     <SelectItem key={definition.eventType} value={definition.eventType}>{definition.label}</SelectItem>
                   ))}
@@ -85,8 +87,8 @@ export function NotificationsPage() {
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-3xl bg-blue-50 text-blue-600">
               <Bell className="h-6 w-6" />
             </div>
-            <h2 className="mt-4 text-lg font-semibold text-gray-900">Nothing to review right now</h2>
-            <p className="mt-2 text-sm text-gray-500">New alerts will land here as your workflows, tests, and compliance tasks change.</p>
+            <h2 className="mt-4 text-lg font-semibold text-gray-900">{t('notifications.emptyPageTitle')}</h2>
+            <p className="mt-2 text-sm text-gray-500">{t('notifications.emptyPageDesc')}</p>
           </Card>
         ) : (
           <div className="space-y-4">
@@ -105,7 +107,7 @@ export function NotificationsPage() {
                     className={page === 1 ? 'pointer-events-none opacity-50' : ''}
                   />
                 </PaginationItem>
-                <PaginationItem className="px-3 text-sm text-gray-500">Page {page} of {totalPages}</PaginationItem>
+                <PaginationItem className="px-3 text-sm text-gray-500">{t('notifications.pageOf', { page, total: totalPages })}</PaginationItem>
                 <PaginationItem>
                   <PaginationNext
                     href="#"

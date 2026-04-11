@@ -17,7 +17,21 @@
     "description": "必要なインテグレーションが見つかりませんか？リクエストしてください。",
     "toolNameLabel": "ツール名",
     "descriptionLabel": "このインテグレーションが必要な理由は？",
-    "submit": "リクエストを送信"
+    "submit": "リクエストを送信",
+    "modalTitle": "新しいツールをリクエスト",
+    "modalDescription": "必要なインテグレーションをチームに知らせてください。",
+    "toolIntegrationName": "ツール / インテグレーション名",
+    "toolPlaceholder": "例: Datadog, 1Password, Figma",
+    "category": "カテゴリー",
+    "selectCategory": "カテゴリーを選択...",
+    "useCaseJustification": "利用目的 / 正当性",
+    "useCasePlaceholder": "このツールがセキュリティプログラムにどう役立つか説明してください...",
+    "cancel": "キャンセル",
+    "submitting": "送信中...",
+    "submitRequest": "リクエストを送信",
+    "toolNameRequired": "ツール名は必須です。",
+    "useCaseRequired": "利用目的を記載してください。",
+    "submitFailed": "リクエストの送信に失敗しました。もう一度お試しください。"
   },
   "categories": {
     "all": "すべて",
@@ -35,6 +49,53 @@
     "keyName": "キー名",
     "created": "作成日",
     "lastUsed": "最終使用日",
-    "revoke": "失効"
+    "revoke": "失効",
+    "issueKey": {
+      "title": "パートナーAPIキーを発行",
+      "description": "外部チームが自社ツールからスキャン結果を ISMS に送信できるキーを生成します。",
+      "required": "キー名とツールは必須です。",
+      "failed": "キーの発行に失敗しました。",
+      "keyLabel": "キーラベル",
+      "keyPlaceholder": "例: Huntress Team - Production",
+      "keyHint": "後から識別しやすい人間向けの名前です。",
+      "tool": "ツール",
+      "selectTool": "ツールを選択...",
+      "category": "カテゴリー:",
+      "expiry": "有効期限",
+      "optional": "(任意)",
+      "expiryHint": "無期限にする場合は空欄のままにしてください。",
+      "cancel": "キャンセル",
+      "generating": "生成中...",
+      "generate": "キーを生成"
+    },
+    "rawKey": {
+      "title": "APIキーを生成しました",
+      "descriptionPrefix": "このキーは今後",
+      "descriptionMiddle": "表示されません。今すぐコピーし、",
+      "copy": "コピー",
+      "copied": "コピー済み",
+      "securityReminder": "セキュリティ注意:",
+      "securityReminderText": "共有前にパスワードマネージャーまたはシークレット保管庫に保存してください。メールや暗号化されていないチャネルでは送信しないでください。",
+      "done": "保存しました"
+    },
+    "revoke": {
+      "title": "APIキーを失効",
+      "description": "\"{{name}}\" は即時に無効化されます。このキーを使う外部システムはスキャン結果を送信できなくなります。",
+      "cancel": "キャンセル",
+      "revoking": "失効中...",
+      "confirm": "はい、失効します"
+    },
+    "resultDetail": {
+      "scanReport": "スキャンレポート",
+      "pass": "合格",
+      "warning": "警告",
+      "fail": "失敗",
+      "close": "閉じる"
+    },
+    "catalogue": {
+      "tests_one": "{{count}} 件のテスト",
+      "tests_other": "{{count}} 件のテスト",
+      "suggestedIsoTests": "推奨ISOテスト"
+    }
   }
 }

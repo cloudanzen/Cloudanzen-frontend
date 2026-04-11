@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader2, Shield } from 'lucide-react';
 import { PageTemplate } from '@/app/components/PageTemplate';
@@ -27,43 +28,28 @@ const COMPLIANCE_EVENT_TYPES = [
 
 const SEVERITY_OPTIONS: Array<{
   value: TenantPolicy['maxAutoFixSeverity'];
-  label: string;
-  description: string;
+  labelKey: string;
+  descKey: string;
 }> = [
-  {
-    value: 'LOW',
-    label: 'Low only',
-    description: 'Only auto-fix low severity findings',
-  },
-  {
-    value: 'MEDIUM',
-    label: 'Medium and below',
-    description: 'Auto-fix low and medium severity findings',
-  },
-  {
-    value: 'HIGH',
-    label: 'High and below',
-    description: 'Auto-fix low, medium, and high severity findings',
-  },
-  {
-    value: 'CRITICAL',
-    label: 'All severities',
-    description: 'Auto-fix any severity (use with caution)',
-  },
+  { value: 'LOW', labelKey: 'complianceSettings.lowOnly', descKey: 'complianceSettings.lowOnlyDesc' },
+  { value: 'MEDIUM', labelKey: 'complianceSettings.mediumBelow', descKey: 'complianceSettings.mediumBelowDesc' },
+  { value: 'HIGH', labelKey: 'complianceSettings.highBelow', descKey: 'complianceSettings.highBelowDesc' },
+  { value: 'CRITICAL', labelKey: 'complianceSettings.allSeverities', descKey: 'complianceSettings.allSeveritiesDesc' },
 ];
 
 const APPROVAL_CHANNEL_OPTIONS: Array<{
   value: TenantPolicy['defaultApprovalChannel'];
-  label: string;
+  labelKey: string;
 }> = [
-  { value: 'manual', label: 'Manual (in-app review)' },
-  { value: 'slack', label: 'Slack' },
-  { value: 'jira', label: 'Jira' },
+  { value: 'manual', labelKey: 'complianceSettings.manual' },
+  { value: 'slack', labelKey: 'complianceSettings.slack' },
+  { value: 'jira', labelKey: 'complianceSettings.jira' },
 ];
 
 // ── Remediation Policy Section ────────────────────────────────────────────────
 
 function RemediationPolicySection() {
+  const { t } = useTranslation('compliance');
   const queryClient = useQueryClient();
 
   const policyQuery = useQuery({
@@ -128,11 +114,10 @@ function RemediationPolicySection() {
       <div className="flex items-start justify-between gap-4 rounded-xl border border-gray-100 p-4">
         <div>
           <Label htmlFor="auto-fix-enabled" className="text-sm font-medium">
-            Enable automated remediation
+            {t('complianceSettings.enableAutoRemediation')}
           </Label>
           <p className="text-sm text-gray-500 mt-0.5">
-            Allow the remediation engine to automatically fix findings without
-            manual intervention, subject to the rules below.
+            {t('complianceSettings.enableAutoRemediationDesc')}
           </p>
         </div>
         <Switch
@@ -147,10 +132,10 @@ function RemediationPolicySection() {
         className={`space-y-2 transition-opacity ${!autoFixEnabled ? 'opacity-50 pointer-events-none' : ''}`}
       >
         <Label className="text-sm font-medium">
-          Maximum severity for auto-fix
+          {t('complianceSettings.maxSeverity')}
         </Label>
         <p className="text-xs text-gray-500 mb-2">
-          Findings above this severity require human approval before execution.
+          {t('complianceSettings.maxSeverityDesc')}
         </p>
         <div className="grid gap-2 sm:grid-cols-2">
           {SEVERITY_OPTIONS.map((opt) => (
@@ -163,8 +148,8 @@ function RemediationPolicySection() {
                   : 'border-gray-100 hover:border-gray-300'
               }`}
             >
-              <p className="text-sm font-medium text-gray-900">{opt.label}</p>
-              <p className="text-xs text-gray-500">{opt.description}</p>
+              <p className="text-sm font-medium text-gray-900">{t(opt.labelKey)}</p>
+              <p className="text-xs text-gray-500">{t(opt.descKey)}</p>
             </button>
           ))}
         </div>
@@ -174,16 +159,15 @@ function RemediationPolicySection() {
       <div
         className={`space-y-3 transition-opacity ${!autoFixEnabled ? 'opacity-50 pointer-events-none' : ''}`}
       >
-        <Label className="text-sm font-medium">Production guardrails</Label>
+        <Label className="text-sm font-medium">{t('complianceSettings.productionGuardrails')}</Label>
         <div className="space-y-3">
           <div className="flex items-start justify-between gap-4 rounded-xl border border-gray-100 p-4">
             <div>
               <Label htmlFor="require-approval-prod" className="text-sm">
-                Require approval for production resources
+                {t('complianceSettings.requireApprovalProd')}
               </Label>
               <p className="text-sm text-gray-500 mt-0.5">
-                Always require human approval before auto-fixing resources
-                tagged as production environments.
+                {t('complianceSettings.requireApprovalProdDesc')}
               </p>
             </div>
             <Switch
@@ -199,12 +183,10 @@ function RemediationPolicySection() {
                 htmlFor="allow-prod-critical"
                 className="text-sm text-orange-800"
               >
-                Allow critical auto-fix in production
+                {t('complianceSettings.allowCriticalProd')}
               </Label>
               <p className="text-sm text-orange-700 mt-0.5">
-                Permit the engine to auto-fix critical severity findings even on
-                production resources. This overrides the approval requirement
-                above. Use with caution.
+                {t('complianceSettings.allowCriticalProdDesc')}
               </p>
             </div>
             <Switch
@@ -220,9 +202,9 @@ function RemediationPolicySection() {
       <div
         className={`space-y-2 transition-opacity ${!autoFixEnabled ? 'opacity-50 pointer-events-none' : ''}`}
       >
-        <Label className="text-sm font-medium">Default approval channel</Label>
+        <Label className="text-sm font-medium">{t('complianceSettings.defaultApprovalChannel')}</Label>
         <p className="text-xs text-gray-500 mb-2">
-          Where approval requests are sent when human review is required.
+          {t('complianceSettings.defaultApprovalChannelDesc')}
         </p>
         <div className="flex gap-2">
           {APPROVAL_CHANNEL_OPTIONS.map((opt) => (
@@ -235,7 +217,7 @@ function RemediationPolicySection() {
                   : 'border-gray-100 text-gray-700 hover:border-gray-300'
               }`}
             >
-              {opt.label}
+              {t(opt.labelKey)}
             </button>
           ))}
         </div>
@@ -251,13 +233,13 @@ function RemediationPolicySection() {
           {updateMutation.isPending ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : null}
-          Save remediation policy
+          {t('complianceSettings.savePolicy')}
         </Button>
         {updateMutation.isSuccess && (
-          <p className="text-sm text-green-600">Saved.</p>
+          <p className="text-sm text-green-600">{t('complianceSettings.saved')}</p>
         )}
         {updateMutation.isError && (
-          <p className="text-sm text-red-600">Save failed. Please try again.</p>
+          <p className="text-sm text-red-600">{t('complianceSettings.saveFailed')}</p>
         )}
       </div>
     </div>
@@ -267,18 +249,19 @@ function RemediationPolicySection() {
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export function ComplianceSettingsPage() {
+  const { t } = useTranslation('compliance');
   const preferencesQuery = useNotificationPreferences();
   const updatePreference = useUpdateNotificationPreference();
 
   return (
     <PageTemplate
-      title="Compliance Settings"
-      description="Configure compliance module settings and preferences."
+      title={t('complianceSettings.title')}
+      description={t('complianceSettings.description')}
     >
       <div className="space-y-6 max-w-4xl">
         <Card className="p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Notifications
+            {t('complianceSettings.notifications')}
           </h2>
           {preferencesQuery.isLoading || !preferencesQuery.data ? (
             <div className="flex h-24 items-center justify-center">
@@ -327,14 +310,14 @@ export function ComplianceSettingsPage() {
 
         <Card className="p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Framework Settings
+            {t('complianceSettings.frameworkSettings')}
           </h2>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <Label htmlFor="auto-mapping">Auto-map controls</Label>
+                <Label htmlFor="auto-mapping">{t('complianceSettings.autoMapControls')}</Label>
                 <p className="text-sm text-gray-500">
-                  Automatically map controls to frameworks
+                  {t('complianceSettings.autoMapDesc')}
                 </p>
               </div>
               <Switch id="auto-mapping" defaultChecked />
@@ -347,13 +330,11 @@ export function ComplianceSettingsPage() {
           <div className="flex items-center gap-2 mb-1">
             <Shield className="h-5 w-5 text-gray-600" />
             <h2 className="text-lg font-semibold text-gray-900">
-              Remediation Policy
+              {t('complianceSettings.remediationPolicy')}
             </h2>
           </div>
           <p className="text-sm text-gray-500 mb-5">
-            Control how the automated remediation engine behaves for your
-            organization. These settings govern when fixes can be applied
-            automatically versus when human approval is required.
+            {t('complianceSettings.remediationDesc')}
           </p>
           <RemediationPolicySection />
         </Card>

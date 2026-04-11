@@ -1,0 +1,368 @@
+{
+  "testDetail": {
+    "noTestId": "テストIDが指定されていません。",
+    "backToTests": "テスト一覧に戻る",
+    "closePanel": "パネルを閉じる",
+    "failedToLoad": "テスト詳細の読み込みに失敗しました。",
+    "owner": "オーナー",
+    "dueDate": "期限日",
+    "evidence": "エビデンス",
+    "linkedItems_one": "{{count}}件のリンク済み項目",
+    "linkedItems_other": "{{count}}件のリンク済み項目",
+    "lastResult": "最終結果",
+    "completion": "完了状況",
+    "completed": "{{date}}に完了",
+    "pendingCompletion": "完了待ち",
+    "needsFollowUp": "フォローアップが必要",
+    "needsFollowUpDesc": "次のレビューサイクルまでに改善タスクを作成するか、エビデンスを更新してください。",
+    "createNotionTask": "Notionタスクを作成",
+    "taskCreated": "タスク作成済み：",
+    "openInNotion": "Notionで開く",
+    "tabs": {
+      "summary": "概要",
+      "evidence": "エビデンス",
+      "mapping": "マッピング",
+      "activity": "アクティビティ"
+    },
+    "overview": {
+      "title": "概要",
+      "nextDue": "次回期限",
+      "cadence": "実施頻度",
+      "oneTime": "一回のみ",
+      "type": "タイプ",
+      "category": "カテゴリ",
+      "created": "作成日",
+      "riskEngineId": "リスクエンジンID",
+      "automatedVia": "{{provider}}で自動化",
+      "lastScan": "最終スキャン",
+      "ingestPipelineRun": "パイプライン実行を取り込む",
+      "runScanNow": "今すぐスキャン実行",
+      "running": "実行中...",
+      "scanTriggered": "スキャンがトリガーされました。結果はまもなく更新されます。",
+      "scanFailed": "スキャンのトリガーに失敗しました。",
+      "markAsPassed": "合格としてマーク",
+      "markComplete": "完了としてマーク",
+      "marking": "更新中...",
+      "uploadDocument": "ドキュメントをアップロード/添付",
+      "autoRemediate": "自動修復",
+      "autoRemediating": "自動修復中…",
+      "systemDrivenVia": "このテストは{{provider}}経由でシステム駆動されています。結果は各スキャンごとに自動更新されます。",
+      "editPermissions": "このテストを変更できるのは、割り当てられたオーナー、チームリード、またはCISOの上書き権限を持つ役割のみです。",
+      "integrationFallback": "Integration",
+      "integrationNameFallback": "統合先システム",
+      "pipelineProviderFallback": "GitHub Actions",
+      "pipelineImportSummary": "パイプライン実行がCI/CD Webhookから取り込まれました。"
+    },
+    "evidenceTab": {
+      "title": "エビデンス＆ドキュメント",
+      "aiSynthesis": "AIエビデンス統合",
+      "suggestMappings": "管理策マッピングを提案",
+      "selectEvidence": "エビデンス項目を選択して、AIによる管理策マッピング提案を生成します。",
+      "synthesizing": "エビデンスを統合中…",
+      "synthesisFailed": "統合に失敗しました —",
+      "sourceDocuments": "ソースドキュメント",
+      "acceptSuggestion": "提案を承認",
+      "dismiss": "却下",
+      "unknownError": "不明なエラー",
+      "generating": "生成中…",
+      "attachedEvidence": "添付エビデンス",
+      "noEvidence": "このテストにリンクされたエビデンスはまだありません。",
+      "uploadFile": "ファイルをアップロード",
+      "uploading": "アップロード中...",
+      "linkControlFirst": "ファイルアップロードを有効にするには、このテストに管理策をリンクしてください。",
+      "uploadFailed": "アップロードに失敗しました",
+      "detach": "切り離す",
+      "viewEvidence": "エビデンスを表示",
+      "unifiedEvidence": "統合エビデンス",
+      "noUnifiedEvidence": "このテストの統合エビデンスイベントは見つかりません。",
+      "securityEvents": "セキュリティイベント",
+      "noSecurityEvents": "このテストのセキュリティイベントは見つかりません。"
+    },
+    "mappingTab": {
+      "linkedControls": "リンク済み管理策",
+      "noControls": "リンクされた管理策はまだありません。",
+      "detachControl": "管理策のリンクを解除",
+      "linkedFrameworks": "リンク済みフレームワーク",
+      "noFrameworks": "リンクされたフレームワークはまだありません。",
+      "removeFramework": "フレームワークを削除",
+      "linkedAudits": "リンク済み監査",
+      "noAudits": "リンクされた監査はありません。",
+      "auditor": "監査人: {{name}}",
+      "policyDocuments": "リンク済みポリシードキュメント",
+      "noPolicies": "管理策経由でリンクされたポリシーはありません。"
+    },
+    "activityTab": {
+      "scanRuns": "スキャン実行",
+      "trendTitle": "結果トレンド",
+      "history": "変更履歴",
+      "riskContext": "リスクコンテキスト",
+      "securityWorkflow": "セキュリティワークフロー",
+      "siemSoar": "SIEM / SOAR",
+      "securityEvent": "{{eventType}} を {{destination}} へ送信 ({{status}})"
+    },
+    "attestation": {
+      "title": "証明",
+      "requestAttestation": "証明リクエスト先",
+      "selectReviewer": "レビュアーを選択…",
+      "request": "リクエスト",
+      "awaitingReview": "監査人のレビューを待機中。",
+      "signOff": "署名",
+      "signedBy": "{{name}}が{{date}}に署名",
+      "notAvailable": "証明はOKまたはレビュー済みステータスのテストで利用可能です。"
+    },
+    "governance": {
+      "title": "ガバナンス",
+      "attestationStatus": "証明ステータス",
+      "reviewer": "レビュアー: {{name}}",
+      "unassigned": "未割り当て",
+      "signedAt": "{{date}}に署名",
+      "signing": "署名中...",
+      "attestEvidence": "エビデンスを証明",
+      "permissionsHint": "オーナーは編集と完了、監査人は証明、CISO/管理者ロールは上書き権限を保持します。",
+      "attestationStatuses": {
+        "Not_requested": "未依頼",
+        "Pending_review": "レビュー待ち",
+        "Attested": "証明済み"
+      }
+    }
+  },
+  "testLibrary": {
+    "title": "利用可能なフレームワーク",
+    "description": "エンタープライズフレームワーク向けの事前構築されたコンプライアンステストスイート。"
+  },
+  "statusBadge": {
+    "OK": "OK",
+    "Due_soon": "期限間近",
+    "Overdue": "期限超過",
+    "Needs_remediation": "修復が必要"
+  },
+  "lastResultBadge": {
+    "Pass": "合格",
+    "Fail": "不合格",
+    "Warning": "警告",
+    "Not_Run": "未実行"
+  },
+  "history": {
+    "loading": "履歴を読み込み中...",
+    "noHistory": "履歴はまだ記録されていません。"
+  },
+  "riskContext": {
+    "loading": "リンク済みリスクコンテキストを読み込み中...",
+    "noContext": "リンクされたリスクエンジン評価が見つかりません。",
+    "linkedRiskEngine": "リンク済みリスクエンジンテスト",
+    "notLinked": "未リンク",
+    "riskInfo": "{{severity}}リスク · スコア{{score}} · {{status}}"
+  },
+  "runs": {
+    "loading": "スキャン履歴を読み込み中...",
+    "noRuns": "スキャン実行はまだ記録されていません。統合ページからスキャンを実行してください。",
+    "runAt": "実行日時",
+    "result": "結果",
+    "source": "ソース",
+    "summary": "概要",
+    "duration": "所要時間",
+    "noTrend": "トレンドデータはまだありません。",
+    "lastExecutions_one": "最新{{count}}件の実行結果。",
+    "lastExecutions_other": "最新{{count}}件の実行結果。"
+  },
+  "notionTask": {
+    "title": "Notionタスクを作成",
+    "description": "リンク済みNotionデータベースに改善タスクをプッシュします。",
+    "taskTitle": "タスクタイトル",
+    "notionDatabase": "Notionデータベース",
+    "loadingDatabases": "データベースを読み込み中...",
+    "noDatabases": "リンク済みデータベースがありません。まず統合ページからNotionデータベースをリンクしてください。",
+    "selectDatabase": "データベースを選択...",
+    "dueDateLabel": "期限日",
+    "optional": "（任意）",
+    "controlLinked": "管理策: {{controlId}} がタスクにリンクされます。",
+    "creating": "作成中...",
+    "createTask": "Notionにタスクを作成",
+    "cancel": "キャンセル",
+    "selectDbError": "Notionデータベースを選択してください",
+    "loadFailed": "Notionデータベースの読み込みに失敗しました",
+    "createFailed": "Notionタスクの作成に失敗しました"
+  },
+  "documentUpload": {
+    "title": "ドキュメント/エビデンスを添付",
+    "fromPolicy": "リンク済みポリシーから",
+    "uploadNew": "新規アップロード",
+    "selectLinkedPolicy": "このテストの管理策にリンクされたポリシードキュメントを選択してください。",
+    "noLinkedPolicies": "管理策経由でリンクされたポリシーはありません。",
+    "noPolicyDocument": "利用可能なポリシードキュメントがありません。",
+    "linkPolicyFailed": "ポリシードキュメントのリンクに失敗しました。",
+    "useAsEvidence": "エビデンスとして使用",
+    "attaching": "添付中…",
+    "policyAttached": "ポリシードキュメントがエビデンスとして添付されました",
+    "selectFile": "エビデンスとしてアップロードするファイルを選択してください。",
+    "browse": "ファイルを選択",
+    "noFile": "ファイルが選択されていません",
+    "fileSelected": "選択済み: {{name}}",
+    "uploadAndAttach": "アップロード＆添付",
+    "uploadingFile": "アップロード中…",
+    "noControlLinked": "このテストにリンクされた管理策がありません。まず管理策をリンクしてください。",
+    "selectFileError": "アップロードするファイルを選択してください。",
+    "noComplianceDoc": "このテストにリンクされたコンプライアンスドキュメントがまだありません。",
+    "uploadDocFailed": "ドキュメントのアップロードに失敗しました。",
+    "noEvidenceReturned": "ドキュメントはアップロードされましたが、エビデンスレコードが返されませんでした。",
+    "cancel": "キャンセル"
+  },
+  "remediation": {
+    "loadingStatus": "修復ステータスを読み込み中…",
+    "noActions": "この指摘事項に対する自動修復アクションはまだありません。",
+    "statusLabels": {
+      "PENDING": "ドライラン待ち",
+      "DRY_RUN_READY": "ドライラン準備完了",
+      "AWAITING_APPROVAL": "承認待ち",
+      "APPROVED": "承認済み — 実行準備完了",
+      "EXECUTING": "実行中…",
+      "SUCCEEDED": "成功",
+      "FAILED": "失敗",
+      "ROLLED_BACK": "ロールバック済み",
+      "CANCELLED": "キャンセル済み"
+    },
+    "title": "修復ガイド",
+    "noFindings": "このテストにリンクされたコンプライアンス指摘事項はありません。",
+    "loading": "指摘事項を読み込み中…",
+    "severity": "重大度",
+    "findingStatus": "ステータス",
+    "source": "ソース",
+    "recommendation": "推奨事項",
+    "livePanelTitle": "ライブ自動修復",
+    "dryRun": "ドライラン概要",
+    "createdAt": "{{date}}に作成",
+    "lastUpdated": "最終更新 {{date}}",
+    "viewDryRunDiff": "ドライラン差分を表示",
+    "before": "変更前",
+    "after": "変更後",
+    "checkingEngine": "修復エンジンを確認中…",
+    "autoAvailable": "自動修復が利用可能です",
+    "noOpenFindings": "未解決の指摘事項はありません。問題が見つかったときに修復エンジンを起動するにはスキャンを実行してください。",
+    "autoAvailableForFindings_one": "{{count}}件の指摘事項に対して自動修復が利用可能です",
+    "autoAvailableForFindings_other": "{{count}}件の指摘事項に対して自動修復が利用可能です",
+    "useFindingsPage": "Findingsページでドライラン、承認依頼、自動修復の実行ができます。",
+    "integrationFallback": "統合先システム",
+    "connectedSystemFallback": "接続先システム",
+    "alertFailing": "このテストは失敗しており、修復が必要です",
+    "alertOverdue": "このテストは期限超過で、対応が必要です",
+    "alertDescription": "以下の手順に従って問題を解決し、このテストを再び準拠状態に戻してください。",
+    "steps": {
+      "investigateFailure": {
+        "title": "失敗したスキャン結果を調査する",
+        "description": "{{provider}}からの最新スキャン出力を確認してください。詳細な失敗要約と根本原因は上部のスキャン実行履歴セクションで確認できます。"
+      },
+      "reviewRequirements": {
+        "title": "テスト要件を確認する",
+        "description": "このテストは手動確認が必要です。リンク済み管理策とエビデンス要件を確認して、どのようなコンプライアンスギャップがあるかを把握してください。"
+      },
+      "acknowledgeOverdue": {
+        "title": "期限超過ステータスを認識する",
+        "description": "このテストの期限は{{date}}で、現在は期限超過です。コンプライアンスの逸脱を防ぐため、優先して完了してください。"
+      },
+      "reviewStatus": {
+        "title": "現在のテストステータスを確認する",
+        "description": "このテストは現在{{status}}です。継続的な準拠を確保するため、リンク済み管理策とエビデンスを確認してください。"
+      },
+      "verifyControls": {
+        "title": "リンク済み管理策の実装を確認する",
+        "description": "次の管理策が完全に実装されていることを確認してください: {{controls}}。各管理策のステータスを確認し、実装がテスト要件に沿っていることを検証してください。"
+      },
+      "mapControls": {
+        "title": "関連する管理策をマッピングする",
+        "description": "このテストには管理策がリンクされていません。下部のControlsセクションを使って、このテストが検証する該当のISO/SOC管理策をリンクしてください。"
+      },
+      "collectEvidence": {
+        "title": "エビデンスを収集して添付する",
+        "description": "現在、エビデンスは添付されていません。準拠を証明するために必要なドキュメント、スクリーンショット、または自動レポートを収集し、下部のEvidenceセクションから添付してください。"
+      },
+      "updateEvidence": {
+        "title": "修復証跡でエビデンスを更新する",
+        "description": "現在のエビデンス ({{count}}件) は修復前の状態を反映している可能性があります。問題を修正した後、解決済みの状態を示す新しいエビデンスを収集して添付してください。"
+      },
+      "verifyEvidence": {
+        "title": "エビデンスの鮮度を確認する",
+        "description": "{{count}}件のエビデンスが添付されています。最新のエビデンスが現在も有効で、実際のシステム状態を反映していることを確認してください。"
+      },
+      "applyFix": {
+        "title": "{{provider}}で修正を適用する",
+        "description": "必要な設定変更を{{provider}}で直接実施してください。一般的な修正には、セキュリティポリシーの更新、必要機能の有効化、脆弱なコンポーネントの修正などが含まれます。"
+      },
+      "rerunScan": {
+        "title": "自動スキャンを再実行する",
+        "description": "修正を適用した後、上部の\"今すぐスキャン実行\"ボタンで新しいスキャンを実行してください。スキャン完了後、結果がPassに変わることを確認してください。"
+      },
+      "confirmFrameworks": {
+        "title": "フレームワーク整合性を確認する",
+        "description": "このテストは次にマッピングされています: {{frameworks}}。修復アクションがリンクされたすべてのフレームワーク要件を満たしていることを確認してください。"
+      },
+      "markComplete": {
+        "title": "テストを完了としてマークする",
+        "description": "すべての管理策が実装され、エビデンスが収集され、コンプライアンスギャップが解消されたら、\"完了としてマーク\"ボタンを使ってこのテストサイクルを終了してください。"
+      },
+      "auditReadiness": {
+        "title": "監査準備として文書化する",
+        "description": "このテストは{{count}}件の監査にリンクされています。すべての修復アクションとエビデンスが監査人向けに十分文書化されていることを確認してください。"
+      }
+    }
+  },
+  "attachSections": {
+    "attachEvidence": "エビデンスを添付",
+    "searchEvidence": "エビデンスを検索…",
+    "noResults": "一致するエビデンスが見つかりません。",
+    "loadingEvidence": "エビデンスを読み込み中...",
+    "noAvailableEvidence": "添付可能なエビデンスがありません。",
+    "fromLinkedControls": "リンク済み管理策から ({{count}}件)",
+    "showAllOtherEvidence": "その他のエビデンスをすべて表示 ({{count}}件)",
+    "otherEvidence": "その他のエビデンス ({{count}}件)",
+    "attach": "添付",
+    "markAsPassed": {
+      "prompt": "エビデンスが添付されました。このテストを合格としてマークしますか？",
+      "confirm": "合格としてマーク",
+      "dismiss": "まだしない",
+      "updating": "更新中..."
+    },
+    "attachControl": {
+      "title": "管理策を添付",
+      "search": "管理策を検索…",
+      "noResults": "一致する管理策が見つかりません。",
+      "loading": "管理策を読み込み中..."
+    },
+    "attachAudit": {
+      "title": "監査をリンク",
+      "search": "監査を検索…",
+      "noResults": "一致する監査が見つかりません。",
+      "link": "リンク",
+      "select": "リンクする監査を選択",
+      "loading": "監査を読み込み中..."
+    },
+    "addFramework": {
+      "title": "フレームワークを追加",
+      "search": "フレームワークを検索…",
+      "noResults": "一致するフレームワークが見つかりません。",
+      "add": "追加",
+      "placeholder": "フレームワーク名 (例: SOC 2, ISO 27001)"
+    },
+    "policyDocuments": {
+      "title": "リンク済みポリシードキュメント",
+      "noDocuments": "管理策経由でリンクされたポリシーはありません。",
+      "viewPolicy": "表示",
+      "status": "ステータス",
+      "loading": "ポリシードキュメントを読み込み中...",
+      "count": "ポリシードキュメント ({{count}}件)",
+      "autoLinked": "管理策から自動リンク",
+      "linkedControls_one": "{{count}}件の管理策にリンク済み",
+      "linkedControls_other": "{{count}}件の管理策にリンク済み"
+    }
+  },
+  "testsPage": {
+    "columns": "カラム",
+    "toggleColumns": "カラムの切り替え",
+    "loading": "テストを読み込み中…",
+    "loadFailed": "テストの読み込みに失敗しました",
+    "tryAgain": "再試行",
+    "noTestsFound": "テストが見つかりません",
+    "noTestsMatchFilters": "現在のフィルターに一致するテストはありません。",
+    "activateFramework": "フレームワークをアクティベートしてテストを自動作成します。",
+    "clearFilters": "フィルターをクリア"
+  }
+}

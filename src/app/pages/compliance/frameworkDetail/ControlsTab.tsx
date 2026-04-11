@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { Badge } from '@/app/components/ui/badge';
@@ -9,6 +10,7 @@ import { ShieldCheck, AlertTriangle, CheckCircle2, ThumbsUp } from 'lucide-react
 import { mappingTypeBadge, TabPlaceholder } from './shared';
 
 export function ControlsTab({ slug }: { slug: string }) {
+  const { t } = useTranslation('compliance');
   const qc = useQueryClient();
 
   const { data: mappingsRes, isLoading } = useQuery({
@@ -32,14 +34,14 @@ export function ControlsTab({ slug }: { slug: string }) {
     },
   });
 
-  if (isLoading) return <TabPlaceholder icon={ShieldCheck} text="Loading control mappings…" />;
+  if (isLoading) return <TabPlaceholder icon={ShieldCheck} text={t('frameworkTabs.controls.loadingMappings')} />;
 
   if (controlMappings.length === 0) {
     return (
       <TabPlaceholder
         icon={ShieldCheck}
-        text="No control mappings yet"
-        sub="Control mappings are created during framework activation. Activate this framework or add controls in the Controls section."
+        text={t('frameworkTabs.controls.noMappings')}
+        sub={t('frameworkTabs.controls.noMappingsDesc')}
       />
     );
   }
@@ -50,7 +52,7 @@ export function ControlsTab({ slug }: { slug: string }) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between text-xs text-gray-500">
-        <span>{controlMappings.length} total mappings · {suggested.length} pending review · {confirmed.length} confirmed</span>
+        <span>{t('frameworkTabs.controls.totalMappings', { total: controlMappings.length, pending: suggested.length, confirmed: confirmed.length })}</span>
       </div>
 
       {suggested.length > 0 && (
@@ -58,7 +60,7 @@ export function ControlsTab({ slug }: { slug: string }) {
           <CardHeader className="py-3 px-4 bg-amber-50 border-b border-amber-100">
             <CardTitle className="text-xs font-semibold text-amber-700 uppercase tracking-wide flex items-center gap-2">
               <AlertTriangle className="w-3.5 h-3.5" />
-              Suggested Mappings — Needs Review ({suggested.length})
+              {t('frameworkTabs.controls.suggestedMappings', { count: suggested.length })}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
@@ -71,14 +73,14 @@ export function ControlsTab({ slug }: { slug: string }) {
                       <span className="text-xs text-gray-500 truncate">{mapping.requirementTitle}</span>
                     </div>
                     <p className="text-xs text-gray-500">
-                      {controlsById.get(mapping.controlId)?.isoReference ?? 'Unlinked'} · {controlsById.get(mapping.controlId)?.title ?? mapping.controlId}
+                      {controlsById.get(mapping.controlId)?.isoReference ?? t('frameworkTabs.controls.unlinked')} · {controlsById.get(mapping.controlId)?.title ?? mapping.controlId}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <Badge variant="outline" className="text-xs">
                       {controlsById.get(mapping.controlId)?.status ?? 'UNKNOWN'}
                     </Badge>
-                    {mappingTypeBadge(mapping.mappingType)}
+                    {mappingTypeBadge(mapping.mappingType, t)}
                     <Button
                       size="sm"
                       variant="outline"
@@ -86,7 +88,7 @@ export function ControlsTab({ slug }: { slug: string }) {
                       onClick={() => confirmMutation.mutate(mapping)}
                       disabled={confirmMutation.isPending}
                     >
-                      <ThumbsUp className="w-3 h-3 mr-1" /> Confirm
+                      <ThumbsUp className="w-3 h-3 mr-1" /> {t('frameworkTabs.controls.confirm')}
                     </Button>
                   </div>
                 </div>
@@ -101,7 +103,7 @@ export function ControlsTab({ slug }: { slug: string }) {
           <CardHeader className="py-3 px-4 bg-gray-50 border-b border-gray-100">
             <CardTitle className="text-xs font-semibold text-gray-600 uppercase tracking-wide flex items-center gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
-              Confirmed Mappings ({confirmed.length})
+              {t('frameworkTabs.controls.confirmedMappings', { count: confirmed.length })}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
@@ -114,14 +116,14 @@ export function ControlsTab({ slug }: { slug: string }) {
                       <span className="text-xs text-gray-500 truncate">{mapping.requirementTitle}</span>
                     </div>
                     <p className="text-xs text-gray-500">
-                      {controlsById.get(mapping.controlId)?.isoReference ?? 'Unlinked'} · {controlsById.get(mapping.controlId)?.title ?? mapping.controlId}
+                      {controlsById.get(mapping.controlId)?.isoReference ?? t('frameworkTabs.controls.unlinked')} · {controlsById.get(mapping.controlId)?.title ?? mapping.controlId}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <Badge variant="outline" className="text-xs">
                       {controlsById.get(mapping.controlId)?.status ?? 'UNKNOWN'}
                     </Badge>
-                    {mappingTypeBadge(mapping.mappingType)}
+                    {mappingTypeBadge(mapping.mappingType, t)}
                   </div>
                 </div>
               ))}

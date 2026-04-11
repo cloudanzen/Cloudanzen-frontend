@@ -1,17 +1,49 @@
 {
   "profile": {
-    "title": "プロフィール設定",
-    "description": "個人アカウント設定を管理する",
+    "title": "プロフィール",
+    "description": "アカウント情報と組織の詳細。",
+    "displayName": "表示名",
     "nameLabel": "表示名",
+    "namePlaceholder": "フルネーム",
     "emailLabel": "メールアドレス",
     "saveButton": "変更を保存",
-    "saving": "保存中...",
+    "saveName": "名前を保存",
+    "saving": "保存中…",
     "saved": "変更が保存されました",
+    "nameUpdated": "表示名が正常に更新されました。",
+    "nameUpdateFailed": "プロフィールの更新に失敗しました。",
+    "organisation": "組織",
     "changePassword": "パスワードを変更",
+    "changePasswordDesc": "大文字、数字、記号を含む強力なパスワードを使用してください。",
+    "currentPassword": "現在のパスワード",
+    "currentPasswordPlaceholder": "現在のパスワードを入力",
     "currentPasswordLabel": "現在のパスワード",
+    "newPassword": "新しいパスワード",
+    "newPasswordPlaceholder": "8文字以上",
     "newPasswordLabel": "新しいパスワード",
+    "confirmNewPassword": "新しいパスワードの確認",
+    "confirmPasswordPlaceholder": "新しいパスワードを再入力",
     "confirmPasswordLabel": "新しいパスワードの確認",
-    "updatePassword": "パスワードを更新"
+    "updatePassword": "パスワードを更新",
+    "updating": "更新中…",
+    "passwordChanged": "パスワードが正常に変更されました。",
+    "passwordChangeFailed": "パスワードの変更に失敗しました。",
+    "language": "言語",
+    "languageDesc": "お好みの表示言語を選択してください。",
+    "accountInfo": "アカウント情報",
+    "emailAddress": "メールアドレス",
+    "role": "ロール",
+    "accountCreated": "アカウント作成日",
+    "userId": "ユーザーID",
+    "validation": {
+      "nameRequired": "表示名は必須です",
+      "currentPasswordRequired": "現在のパスワードは必須です",
+      "passwordMinLength": "パスワードは8文字以上である必要があります",
+      "passwordUppercase": "大文字を1文字以上含める必要があります",
+      "passwordNumber": "数字を1つ以上含める必要があります",
+      "confirmRequired": "新しいパスワードを確認してください",
+      "passwordMismatch": "パスワードが一致しません"
+    }
   },
   "organization": {
     "title": "組織設定",
@@ -45,7 +77,28 @@
   },
   "ai": {
     "title": "AI設定",
-    "description": "AIアシスタントの設定を構成する"
+    "description": "AIアシスタントの設定を構成する",
+    "byok": {
+      "title": "AI設定",
+      "description": "独自の AI API キーを設定して、エビデンス統合、アンケート支援、画像スキャン、リスク補強などすべての AI 機能を利用します。",
+      "loading": "AI設定を読み込み中...",
+      "saved": "AI設定を保存しました。",
+      "saveFailed": "設定の保存に失敗しました。",
+      "keyVerified": "APIキーを確認しました。モデル: {{model}}",
+      "testFailed": "テストに失敗しました。",
+      "keyRemoved": "APIキーを削除しました。プラットフォーム既定を使用します。"
+    }
+  },
+  "mcp": {
+    "updated": "設定を更新しました",
+    "updateFailed": "設定の更新に失敗しました",
+    "keyRevoked": "APIキーを失効しました",
+    "revokeFailed": "APIキーの失効に失敗しました",
+    "copied": "クリップボードにコピーしました",
+    "serverUrl": "MCPサーバーURL",
+    "serverDescription": "AIエージェント (Claude Desktop、Cursor など) をこのエンドポイントに向け、MCP API キーで認証します。",
+    "serverHint": "この URL をエージェント設定の MCP サーバーエンドポイントとして使用し、下で作成した有効な API キーを Bearer トークンとして指定してください。",
+    "copy": "コピー"
   },
   "billing": {
     "title": "請求",
@@ -60,6 +113,25 @@
     "email": "メール通知",
     "slack": "Slack通知",
     "save": "設定を保存"
+  },
+  "privacy": {
+    "title": "プライバシー設定",
+    "description": "プライバシーモジュールの設定を構成します。",
+    "saveChanges": "変更を保存",
+    "dataManagement": "データ管理",
+    "autoClassify": "データの自動分類",
+    "autoClassifyDesc": "新しいデータ資産を自動的に分類する",
+    "dataInventory": {
+      "title": "データインベントリ",
+      "description": "組織全体のデータ資産を追跡・分類します。",
+      "addAsset": "データ資産を追加",
+      "dataType": "データ種別",
+      "location": "所在地",
+      "classification": "分類",
+      "retentionPeriod": "保存期間",
+      "actions": "操作",
+      "edit": "編集"
+    }
   },
   "access": {
     "users": {

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Activity, Database, FileSearch, Play, RefreshCw, ShieldAlert, HeartPulse, History } from 'lucide-react';
 import { PageTemplate } from '@/app/components/PageTemplate';
@@ -28,6 +29,7 @@ function providerStatusVariant(status: string): 'default' | 'secondary' | 'destr
 }
 
 export function RiskEnginePage() {
+  const { t } = useTranslation('risk');
   const queryClient = useQueryClient();
   const [isRunning, setIsRunning] = useState(false);
 
@@ -52,10 +54,10 @@ export function RiskEnginePage() {
     const snapshot = snapshotQuery.data;
     if (!snapshot) return [];
     return [
-      { label: 'Signals', value: snapshot.signals, icon: Activity },
-      { label: 'Tests', value: snapshot.tests, icon: FileSearch },
-      { label: 'Evidence', value: snapshot.evidenceSnapshots, icon: Database },
-      { label: 'Open risks', value: snapshot.openRisks, icon: ShieldAlert },
+      { label: t('engine.metrics.signals'), value: snapshot.signals, icon: Activity },
+      { label: t('engine.metrics.tests'), value: snapshot.tests, icon: FileSearch },
+      { label: t('engine.metrics.evidence'), value: snapshot.evidenceSnapshots, icon: Database },
+      { label: t('engine.metrics.openRisks'), value: snapshot.openRisks, icon: ShieldAlert },
     ];
   }, [snapshotQuery.data]);
 
@@ -77,21 +79,21 @@ export function RiskEnginePage() {
 
   return (
     <PageTemplate
-      title="Risk Engine"
-      description="Admin and debug surface for normalized signals, control tests, evidence snapshots, and generated risks."
+      title={t('engine.title')}
+      description={t('engine.description')}
       actions={
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={() => queryClient.invalidateQueries()}>
-            <RefreshCw className="mr-2 h-4 w-4" />Refresh
+            <RefreshCw className="mr-2 h-4 w-4" />{t('engine.refresh')}
           </Button>
           <Button size="sm" onClick={handleRun} disabled={isRunning}>
-            <Play className="mr-2 h-4 w-4" />{isRunning ? 'Running...' : 'Run evaluation'}
+            <Play className="mr-2 h-4 w-4" />{isRunning ? t('engine.running') : t('engine.runEvaluation')}
           </Button>
         </div>
       }
     >
       {isLoading ? (
-        <Card className="p-10 text-center text-sm text-gray-500">Loading risk engine state...</Card>
+        <Card className="p-10 text-center text-sm text-gray-500">{t('engine.loading')}</Card>
       ) : (
         <div className="space-y-6">
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -117,7 +119,7 @@ export function RiskEnginePage() {
             <Card className="p-6">
               <div className="mb-4 flex items-center gap-2 text-gray-900">
                 <HeartPulse className="h-4 w-4" />
-                <h3 className="text-base font-semibold">Provider sync status</h3>
+                <h3 className="text-base font-semibold">{t('engine.providerSync')}</h3>
               </div>
               <div className="space-y-3">
                 {providerStatusesQuery.data?.map((status) => (
@@ -130,11 +132,11 @@ export function RiskEnginePage() {
                       <Badge variant={providerStatusVariant(status.status)}>{status.status}</Badge>
                     </div>
                     <div className="mt-3 grid gap-3 text-sm text-gray-600 sm:grid-cols-3">
-                      <span>{status.signalsCollected} signals</span>
-                      <span>{status.testsEvaluated} tests</span>
-                      <span>{status.openRisks} open risks</span>
+                      <span>{t('engine.signalsCount', { count: status.signalsCollected })}</span>
+                      <span>{t('engine.testsCount', { count: status.testsEvaluated })}</span>
+                      <span>{t('engine.openRisksCount', { count: status.openRisks })}</span>
                     </div>
-                    <p className="mt-3 text-xs text-gray-500">Last success {new Date(status.lastSuccessAt).toLocaleString()}</p>
+                    <p className="mt-3 text-xs text-gray-500">{t('engine.lastSuccess', { date: new Date(status.lastSuccessAt).toLocaleString() })}</p>
                   </div>
                 ))}
               </div>
@@ -143,7 +145,7 @@ export function RiskEnginePage() {
             <Card className="p-6">
               <div className="mb-4 flex items-center gap-2 text-gray-900">
                 <History className="h-4 w-4" />
-                <h3 className="text-base font-semibold">Recent scan history</h3>
+                <h3 className="text-base font-semibold">{t('engine.scanHistory')}</h3>
               </div>
               <div className="space-y-3">
                 {scanRunsQuery.data?.slice(0, 6).map((run) => (
@@ -151,16 +153,16 @@ export function RiskEnginePage() {
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
                         <p className="font-medium capitalize text-gray-900">{run.provider.replace('-', ' ')}</p>
-                        <p className="mt-1 text-xs text-gray-500">Trigger: {run.trigger}</p>
+                        <p className="mt-1 text-xs text-gray-500">{t('engine.trigger', { trigger: run.trigger })}</p>
                       </div>
                       <Badge variant={run.status === 'FAILED' ? 'destructive' : run.status === 'RUNNING' ? 'secondary' : 'default'}>{run.status}</Badge>
                     </div>
                     <div className="mt-3 grid gap-3 text-sm text-gray-600 sm:grid-cols-3">
-                      <span>{run.signalsIngested} ingested</span>
-                      <span>{run.testsExecuted} executed</span>
-                      <span>{run.risksGenerated} risks</span>
+                      <span>{t('engine.ingested', { count: run.signalsIngested })}</span>
+                      <span>{t('engine.executed', { count: run.testsExecuted })}</span>
+                      <span>{t('engine.risksCount', { count: run.risksGenerated })}</span>
                     </div>
-                    <p className="mt-3 text-xs text-gray-500">Completed {new Date(run.completedAt).toLocaleString()}</p>
+                    <p className="mt-3 text-xs text-gray-500">{t('engine.completed', { date: new Date(run.completedAt).toLocaleString() })}</p>
                   </div>
                 ))}
               </div>
@@ -169,11 +171,11 @@ export function RiskEnginePage() {
 
           <Tabs defaultValue="signals" className="gap-4">
             <TabsList>
-              <TabsTrigger value="signals">Signals</TabsTrigger>
-              <TabsTrigger value="tests">Test Results</TabsTrigger>
-              <TabsTrigger value="evidence">Evidence</TabsTrigger>
-              <TabsTrigger value="risks">Generated Risks</TabsTrigger>
-              <TabsTrigger value="events">Events</TabsTrigger>
+              <TabsTrigger value="signals">{t('engine.tabs.signals')}</TabsTrigger>
+              <TabsTrigger value="tests">{t('engine.tabs.tests')}</TabsTrigger>
+              <TabsTrigger value="evidence">{t('engine.tabs.evidence')}</TabsTrigger>
+              <TabsTrigger value="risks">{t('engine.tabs.risks')}</TabsTrigger>
+              <TabsTrigger value="events">{t('engine.tabs.events')}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="signals">
@@ -182,7 +184,7 @@ export function RiskEnginePage() {
                   <table className="w-full min-w-[980px]">
                     <thead className="border-b bg-gray-50">
                       <tr>
-                        {['Signal Type', 'Provider', 'Resource', 'Value', 'Observed', 'Integration'].map((header) => (
+                        {(t('engine.signalColumns', { returnObjects: true }) as string[]).map((header) => (
                           <th key={header} className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">{header}</th>
                         ))}
                       </tr>
@@ -210,7 +212,7 @@ export function RiskEnginePage() {
                   <table className="w-full min-w-[980px]">
                     <thead className="border-b bg-gray-50">
                       <tr>
-                        {['Test', 'Signal', 'Status', 'Severity', 'Reason', 'Executed'].map((header) => (
+                        {(t('engine.testColumns', { returnObjects: true }) as string[]).map((header) => (
                           <th key={header} className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">{header}</th>
                         ))}
                       </tr>
@@ -238,7 +240,7 @@ export function RiskEnginePage() {
                   <table className="w-full min-w-[980px]">
                     <thead className="border-b bg-gray-50">
                       <tr>
-                        {['Kind', 'Provider', 'Resource', 'Hash', 'Captured', 'Payload'].map((header) => (
+                        {(t('engine.evidenceColumns', { returnObjects: true }) as string[]).map((header) => (
                           <th key={header} className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">{header}</th>
                         ))}
                       </tr>
@@ -266,7 +268,7 @@ export function RiskEnginePage() {
                   <table className="w-full min-w-[1100px]">
                     <thead className="border-b bg-gray-50">
                       <tr>
-                        {['Title', 'Category', 'Severity', 'Score', 'Owner Team', 'Status', 'Resource', 'Created'].map((header) => (
+                        {(t('engine.riskColumns', { returnObjects: true }) as string[]).map((header) => (
                           <th key={header} className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">{header}</th>
                         ))}
                       </tr>
@@ -296,7 +298,7 @@ export function RiskEnginePage() {
                   <table className="w-full min-w-[1100px]">
                     <thead className="border-b bg-gray-50">
                       <tr>
-                        {['Event', 'Severity', 'Provider', 'Resource', 'Message', 'Timestamp'].map((header) => (
+                        {(t('engine.eventColumns', { returnObjects: true }) as string[]).map((header) => (
                           <th key={header} className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">{header}</th>
                         ))}
                       </tr>

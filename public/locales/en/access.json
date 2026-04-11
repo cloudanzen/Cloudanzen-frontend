@@ -1,20 +1,40 @@
 {
   "users": {
-    "title": "Users",
-    "description": "Manage users and their access levels",
+    "title": "User Management",
+    "description": "Manage users, roles, and access across your organisation.",
     "inviteUser": "Invite User",
-    "searchPlaceholder": "Search users...",
-    "noUsers": "No users found",
+    "searchPlaceholder": "Search by name or email…",
+    "noUsers": "No users match your search.",
     "columns": {
-      "name": "Name",
-      "email": "Email",
+      "user": "User",
       "role": "Role",
-      "status": "Status",
-      "createdAt": "Joined",
+      "onboarding": "Onboarding",
+      "github": "GitHub",
+      "joined": "Joined",
       "actions": "Actions"
     },
     "removeUser": "Remove User",
-    "confirmRemove": "Are you sure you want to remove this user?",
+    "confirmRemove": "Remove {{name}} from the organisation? This cannot be undone.",
+    "thisUser": "this user",
+    "refresh": "Refresh",
+    "noName": "No name",
+    "you": "(you)",
+    "changeRole": "Change role",
+    "viewDetails": "View details",
+    "removeUserAction": "Remove user",
+    "failedToLoad": "Failed to load users",
+    "showing": "Showing {{filtered}} of {{total}} users",
+    "filteredBy": "filtered by {{role}}",
+    "clearFilter": "Clear filter",
+    "kpi": {
+      "totalUsers": "Total Users",
+      "privilegedUsers": "Privileged Users",
+      "privilegedSub": "Admin / Security Owner",
+      "fullyOnboarded": "Fully Onboarded",
+      "onboardedPercent": "{{percent}}% complete",
+      "rolesInUse": "Roles In Use"
+    },
+    "roleDistribution": "Role Distribution",
     "roles": {
       "SUPER_ADMIN": "Super Admin",
       "ORG_ADMIN": "Org Admin",
@@ -25,23 +45,179 @@
     }
   },
   "roles": {
-    "title": "Roles",
-    "description": "Define and manage role-based access control",
+    "title": "Roles & Permissions",
+    "description": "Understand what each role can do across every module.",
     "noRoles": "No custom roles defined",
     "createRole": "Create Role",
-    "permissions": "Permissions"
+    "permissions": "Permissions",
+    "tabs": {
+      "roleCards": "Role Cards",
+      "permissionMatrix": "Permission Matrix"
+    },
+    "permissionsCount": "{{count}} permissions",
+    "usersCount_one": "{{count}} user",
+    "usersCount_other": "{{count}} users",
+    "filterByRole": "Filter by role:",
+    "allRoles": "All Roles",
+    "modulePermission": "Module / Permission",
+    "detail": {
+      "permissionsLabel": "Permissions",
+      "usersAssigned": "Users assigned",
+      "grantedPermissions": "Granted Permissions",
+      "deniedPermissions": "Denied Permissions"
+    },
+    "roleDescriptions": {
+      "SUPER_ADMIN": "Platform operator. Full access to all tenants and platform settings.",
+      "ORG_ADMIN": "Full control of tenant. Manages users, roles, and all compliance modules.",
+      "SECURITY_OWNER": "Owns the compliance program. Can manage all GRC content and approve policies.",
+      "AUDITOR": "Read-only audit access. Can conduct audits and log findings.",
+      "CONTRIBUTOR": "Can update evidence, tests, and risks. Cannot manage users or approve policies.",
+      "VIEWER": "Read-only access to all compliance content."
+    },
+    "modules": {
+      "risks": "Risks",
+      "controls": "Controls",
+      "evidence": "Evidence",
+      "policies": "Policies",
+      "tests": "Tests",
+      "users": "Users",
+      "integrations": "Integrations",
+      "audits": "Audits",
+      "reports": "Reports",
+      "accessrequests": "Access Requests",
+      "orgsettings": "Org Settings"
+    },
+    "permissionLabels": {
+      "read": "Read",
+      "write": "Write",
+      "accept": "Accept",
+      "delete": "Delete",
+      "upload": "Upload",
+      "approve": "Approve",
+      "run": "Run",
+      "manage": "Manage",
+      "roles_assign": "Assign Roles",
+      "conduct": "Conduct",
+      "export": "Export",
+      "create": "Create",
+      "settings": "Manage",
+      "billing": "Billing"
+    }
   },
   "requests": {
     "title": "Access Requests",
-    "description": "Review pending access requests",
+    "description": "Self-service access requests and approval workflow.",
     "noRequests": "No pending access requests",
     "approve": "Approve",
-    "deny": "Deny",
+    "reject": "Reject",
+    "cancel": "Cancel",
     "columns": {
       "user": "User",
       "requestedRole": "Requested Role",
       "reason": "Reason",
       "requestedAt": "Requested At"
+    },
+    "newRequest": "New Request",
+    "pending": "{{count}} pending",
+    "statusLabels": {
+      "PENDING": "Pending Review",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "EXPIRED": "Expired"
+    },
+    "typeLabels": {
+      "ROLE_UPGRADE": "Role Upgrade",
+      "TEMPORARY_ACCESS": "Temporary Access",
+      "POLICY_EXCEPTION": "Policy Exception"
+    },
+    "typeDescriptions": {
+      "ROLE_UPGRADE": "Permanent role change",
+      "TEMPORARY_ACCESS": "Time-limited access"
+    },
+    "tabs": {
+      "pendingReview": "Pending Review",
+      "myRequests": "My Requests",
+      "allRequests": "All Requests"
+    },
+    "noPending": "No pending requests",
+    "allReviewed": "All access requests have been reviewed.",
+    "noRequestsYet": "No requests yet",
+    "noRequestsYetSub": "Submit a request when you need elevated access.",
+    "status": "Status:",
+    "allCount": "All ({{count}})",
+    "noMatchFilter": "No requests match the selected filter.",
+    "modal": {
+      "title": "New Access Request",
+      "subtitle": "Requests are reviewed by Org Admins and Security Owners.",
+      "requestType": "Request Type",
+      "requestedRole": "Requested Role",
+      "justification": "Justification *",
+      "justificationPlaceholder": "Explain why you need this access and how it relates to your job responsibilities...",
+      "provideJustification": "Please provide a justification",
+      "failedToSubmit": "Failed to submit request",
+      "submitting": "Submitting…",
+      "submitRequest": "Submit Request"
+    },
+    "card": {
+      "expires": "Expires {{date}}",
+      "justification": "Justification",
+      "reviewerNote": "Reviewer Note — {{reviewer}}",
+      "reviewRequest": "Review Request",
+      "reviewNotePlaceholder": "Add a review note (optional)..."
+    }
+  },
+  "invite": {
+    "title": "Invite User",
+    "subtitle": "An email invitation will be sent with a secure signup link.",
+    "emailLabel": "Work Email *",
+    "emailPlaceholder": "colleague@company.com",
+    "assignRole": "Assign Role",
+    "cancel": "Cancel",
+    "sending": "Sending…",
+    "sendInvite": "Send Invite",
+    "failedToSend": "Failed to send invitation",
+    "sentTitle": "Invitation sent!",
+    "sentMessage": "An email was sent to {{email}} with a signup link.",
+    "done": "Done"
+  },
+  "userDetail": {
+    "noName": "No name",
+    "joined": "Joined {{date}}",
+    "kpi": {
+      "permissions": "Permissions",
+      "githubAccounts": "GitHub accounts",
+      "onboarded": "Onboarded"
+    },
+    "tabs": {
+      "roleAccess": "Role & Access",
+      "permissions": "Permissions ({{count}})",
+      "onboarding": "Onboarding",
+      "github": "GitHub"
+    },
+    "roleAssignment": "Role Assignment",
+    "currentRole": "Current Role",
+    "change": "Change",
+    "saveRole": "Save Role",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "failedToUpdateRole": "Failed to update role",
+    "grantedPermissions": "Granted Permissions",
+    "total": "{{count}} total",
+    "noOnboarding": "No onboarding data available.",
+    "progress": "Progress",
+    "onboardingTasks": {
+      "acceptPolicies": "Accept All Policies",
+      "installMdm": "Install MDM Agent",
+      "securityTraining": "Security Training"
+    },
+    "onboardingDetail": {
+      "accepted": "Accepted {{date}}",
+      "notAccepted": "Not yet accepted",
+      "enrolled": "Enrolled {{date}}",
+      "awaitingEnrollment": "Awaiting enrollment",
+      "completed": "Completed {{date}}",
+      "inProgress": "In progress",
+      "notStarted": "Not started"
     }
   }
 }

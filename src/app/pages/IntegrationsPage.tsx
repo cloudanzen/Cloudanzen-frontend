@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { TOAST_DURATION_LONG_MS } from '@/lib/constants';
 import { useSearchParams, useNavigate } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
@@ -16,6 +17,7 @@ import { IntegrationsCardGrid } from '@/app/pages/integrations/IntegrationsCardG
 const PAGE_SIZE = 24;
 
 export function IntegrationsPage() {
+  const { t } = useTranslation('integrations');
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -69,19 +71,19 @@ export function IntegrationsPage() {
     const connected = searchParams.get('connected');
     const error = searchParams.get('error');
     if (connected === 'github')
-      showToast('success', 'GitHub connected successfully!');
+      showToast('success', t('page.githubConnected'));
     if (connected === 'google_drive')
       showToast(
         'success',
-        'Google Drive connected! Folder structure is being created.',
+        t('page.googleDriveConnected'),
       );
     if (connected === 'slack')
-      showToast('success', 'Slack connected successfully!');
+      showToast('success', t('page.slackConnected'));
     const intercomConnected = searchParams.get('intercom');
     if (intercomConnected === 'connected')
       showToast(
         'success',
-        'Intercom connected! 3 automated Policy tests are being seeded.',
+        t('page.intercomConnected'),
       );
     if (error) showToast('error', decodeURIComponent(error));
     loadStatus();

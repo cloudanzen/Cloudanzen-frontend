@@ -79,5 +79,13 @@
       "MEDIUM": "中",
       "LOW": "低"
     }
+  },
+  "settings": {
+    "title": "アセット設定",
+    "description": "アセット管理の設定を構成します。",
+    "saveChanges": "変更を保存",
+    "scanningSettings": "スキャン設定",
+    "autoScanning": "自動スキャン",
+    "autoScanningDesc": "スケジュールに基づいてアセットを自動的にスキャンする"
   }
 }

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -16,6 +17,7 @@ interface Props {
 }
 
 export function AddCustomServiceDialog({ onClose }: Props) {
+  const { t } = useTranslation('personnel');
   const queryClient = useQueryClient();
   const [name, setName] = useState('');
   const [error, setError] = useState('');
@@ -33,17 +35,22 @@ export function AddCustomServiceDialog({ onClose }: Props) {
     <Dialog open onOpenChange={() => onClose()}>
       <DialogContent className="max-w-sm">
         <DialogHeader>
-          <DialogTitle>Add Custom Service</DialogTitle>
+          <DialogTitle>
+            {t('accessManagement.addCustomService.title')}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-3">
           <p className="text-sm text-muted-foreground">
-            Track a tool that isn't integrated. You can upload a CSV of accounts after creating it.
+            {t('accessManagement.addCustomService.description')}
           </p>
           <Input
-            placeholder="e.g. Jira, AWS, Okta"
+            placeholder={t('accessManagement.addCustomService.placeholder')}
             value={name}
-            onChange={(e) => { setName(e.target.value); setError(''); }}
+            onChange={(e) => {
+              setName(e.target.value);
+              setError('');
+            }}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && name.trim()) mutation.mutate();
             }}
@@ -52,9 +59,14 @@ export function AddCustomServiceDialog({ onClose }: Props) {
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={() => mutation.mutate()} disabled={!name.trim() || mutation.isPending}>
-            {mutation.isPending ? 'Creating...' : 'Create'}
+          <Button variant="outline" onClick={onClose}>
+            {t('common.cancel')}
+          </Button>
+          <Button
+            onClick={() => mutation.mutate()}
+            disabled={!name.trim() || mutation.isPending}
+          >
+            {mutation.isPending ? t('common.creating') : t('common.create')}
           </Button>
         </DialogFooter>
       </DialogContent>

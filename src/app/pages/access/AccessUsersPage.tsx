@@ -13,6 +13,7 @@
 
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import {
   RefreshCw,
   Search,
@@ -48,6 +49,7 @@ import { InviteUserModal } from './accessUsers/InviteUserModal';
 // ── Main Page ──────────────────────────────────────────────────────────────────
 
 export function AccessUsersPage() {
+  const { t } = useTranslation('access');
   const qc = useQueryClient();
   const currentUser = useCurrentUser();
   const canManageUsers = useHasPermission(PERMISSIONS.USERS_MANAGE);
@@ -125,9 +127,7 @@ export function AccessUsersPage() {
 
   const handleDelete = async (id: string, name: string) => {
     if (
-      !confirm(
-        `Remove ${name || 'this user'} from the organisation? This cannot be undone.`,
-      )
+      !confirm(t('users.confirmRemove', { name: name || t('users.thisUser') }))
     )
       return;
     deleteMutation.mutate(id);
@@ -152,10 +152,10 @@ export function AccessUsersPage() {
       <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0 z-10 shadow-sm">
         <div>
           <h1 className="text-xl font-semibold text-gray-900 tracking-tight">
-            User Management
+            {t('users.title')}
           </h1>
           <p className="text-sm text-gray-500 mt-0.5">
-            Manage users, roles, and access across your organisation.
+            {t('users.description')}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -169,7 +169,7 @@ export function AccessUsersPage() {
             <RefreshCw
               className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`}
             />
-            Refresh
+            {t('users.refresh')}
           </button>
           {canManageUsers && (
             <button
@@ -177,7 +177,7 @@ export function AccessUsersPage() {
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white transition-colors shadow-sm"
             >
               <UserPlus className="w-4 h-4" />
-              Invite User
+              {t('users.inviteUser')}
             </button>
           )}
         </div>
@@ -186,23 +186,30 @@ export function AccessUsersPage() {
       <div className="px-6 py-5 space-y-5">
         {/* KPI row */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <KpiCard label="Total Users" value={totalUsers} />
+          <KpiCard label={t('users.kpi.totalUsers')} value={totalUsers} />
           <KpiCard
-            label="Privileged Users"
+            label={t('users.kpi.privilegedUsers')}
             value={adminCount}
-            sub="Admin / Security Owner"
+            sub={t('users.kpi.privilegedSub')}
             color="text-orange-600"
           />
           <KpiCard
-            label="Fully Onboarded"
+            label={t('users.kpi.fullyOnboarded')}
             value={onboardedCount}
-            sub={`${totalUsers > 0 ? Math.round((onboardedCount / totalUsers) * 100) : 0}% complete`}
+            sub={t('users.kpi.onboardedPercent', {
+              percent:
+                totalUsers > 0
+                  ? Math.round((onboardedCount / totalUsers) * 100)
+                  : 0,
+            })}
             color="text-green-600"
           />
           <KpiCard
-            label="Roles In Use"
+            label={t('users.kpi.rolesInUse')}
             value={roleBreakdown.length}
-            sub={roleBreakdown.map((r) => ROLE_LABELS[r.role]).join(', ')}
+            sub={roleBreakdown
+              .map((r) => t(`users.roles.${r.role}`, ROLE_LABELS[r.role]))
+              .join(', ')}
           />
         </div>
 
@@ -210,7 +217,7 @@ export function AccessUsersPage() {
         {users.length > 0 && (
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm px-5 py-4">
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
-              Role Distribution
+              {t('users.roleDistribution')}
             </p>
             <div className="flex gap-3 flex-wrap">
               {ALL_ROLES.map((r) => {
@@ -228,7 +235,8 @@ export function AccessUsersPage() {
                     }`}
                   >
                     <span className={`w-2 h-2 rounded-full ${rc.dot}`} />
-                    {ROLE_LABELS[r]} <span className="font-bold">{count}</span>
+                    {t(`users.roles.${r}`, ROLE_LABELS[r])}{' '}
+                    <span className="font-bold">{count}</span>
                   </button>
                 );
               })}
@@ -237,7 +245,7 @@ export function AccessUsersPage() {
                   onClick={() => setRoleFilter('')}
                   className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs text-gray-500 border border-gray-200 hover:bg-gray-50"
                 >
-                  <X className="w-3 h-3" /> Clear filter
+                  <X className="w-3 h-3" /> {t('users.clearFilter')}
                 </button>
               )}
             </div>
@@ -254,7 +262,7 @@ export function AccessUsersPage() {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search by name or email…"
+                placeholder={t('users.searchPlaceholder')}
                 className="w-full pl-9 pr-8 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"
               />
               {search && (
@@ -273,23 +281,23 @@ export function AccessUsersPage() {
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    User
+                    {t('users.columns.user')}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Role
+                    {t('users.columns.role')}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Onboarding
+                    {t('users.columns.onboarding')}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    GitHub
+                    {t('users.columns.github')}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Joined
+                    {t('users.columns.joined')}
                   </th>
                   {(canManageUsers || canAssignRoles) && (
                     <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                      Actions
+                      {t('users.columns.actions')}
                     </th>
                   )}
                 </tr>
@@ -310,7 +318,7 @@ export function AccessUsersPage() {
                       colSpan={6}
                       className="px-4 py-10 text-center text-sm text-red-500"
                     >
-                      {(error as any)?.message ?? 'Failed to load users'}
+                      {(error as any)?.message ?? t('users.failedToLoad')}
                     </td>
                   </tr>
                 ) : filtered.length === 0 ? (
@@ -319,7 +327,7 @@ export function AccessUsersPage() {
                       colSpan={6}
                       className="px-4 py-10 text-center text-sm text-gray-400"
                     >
-                      No users match your search.
+                      {t('users.noUsers')}
                     </td>
                   </tr>
                 ) : (
@@ -344,12 +352,12 @@ export function AccessUsersPage() {
                               <p className="font-medium text-gray-900">
                                 {user.name ?? (
                                   <span className="italic text-gray-400">
-                                    No name
+                                    {t('users.noName')}
                                   </span>
                                 )}
                                 {isMe && (
                                   <span className="ml-1.5 text-xs text-blue-500 font-normal">
-                                    (you)
+                                    {t('users.you')}
                                   </span>
                                 )}
                               </p>
@@ -381,11 +389,11 @@ export function AccessUsersPage() {
                                   user.role as AppRole
                                 ]?.border.replace('border-', ''),
                               }}
-                              title="Change role"
+                              title={t('users.changeRole')}
                             >
                               {ALL_ROLES.map((r) => (
                                 <option key={r} value={r}>
-                                  {ROLE_LABELS[r]}
+                                  {t(`users.roles.${r}`, ROLE_LABELS[r])}
                                 </option>
                               ))}
                             </select>
@@ -442,7 +450,7 @@ export function AccessUsersPage() {
                               <button
                                 onClick={() => setSelectedUser(user)}
                                 className="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
-                                title="View details"
+                                title={t('users.viewDetails')}
                               >
                                 <ChevronRight className="w-4 h-4" />
                               </button>
@@ -455,7 +463,7 @@ export function AccessUsersPage() {
                                     )
                                   }
                                   className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-                                  title="Remove user"
+                                  title={t('users.removeUserAction')}
                                 >
                                   <Trash2 className="w-4 h-4" />
                                 </button>
@@ -473,10 +481,19 @@ export function AccessUsersPage() {
 
           {!isLoading && users.length > 0 && (
             <div className="px-4 py-2.5 bg-gray-50 border-t border-gray-100 text-xs text-gray-500">
-              Showing {filtered.length} of {users.length} users
+              {t('users.showing', {
+                filtered: filtered.length,
+                total: users.length,
+              })}
               {roleFilter && (
                 <span className="ml-1 text-gray-400">
-                  · filtered by {ROLE_LABELS[roleFilter]}
+                  ·{' '}
+                  {t('users.filteredBy', {
+                    role: t(
+                      `users.roles.${roleFilter}`,
+                      ROLE_LABELS[roleFilter],
+                    ),
+                  })}
                 </span>
               )}
             </div>

@@ -1,10 +1,24 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import { Key, Loader2, Trash2, CheckCircle, XCircle, Sparkles } from 'lucide-react';
+import {
+  Key,
+  Loader2,
+  Trash2,
+  CheckCircle,
+  XCircle,
+  Sparkles,
+} from 'lucide-react';
 import { aiService } from '@/services/api/ai';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
 import { Input } from '@/app/components/ui/input';
 import { Label } from '@/app/components/ui/label';
@@ -20,6 +34,7 @@ import {
 } from '@/app/components/ui/select';
 
 export function AiSettingsPage() {
+  const { t } = useTranslation('settings');
   const queryClient = useQueryClient();
   const [apiKey, setApiKey] = useState('');
   const [provider, setProvider] = useState('openai');
@@ -61,10 +76,10 @@ export function AiSettingsPage() {
       queryClient.invalidateQueries({ queryKey: ['ai-config'] });
       queryClient.invalidateQueries({ queryKey: ['ai-settings'] });
       setApiKey('');
-      toast.success('AI settings saved.');
+      toast.success(t('ai.byok.saved'));
     },
     onError: (err: Error) => {
-      toast.error(err.message || 'Failed to save settings.');
+      toast.error(err.message || t('ai.byok.saveFailed'));
     },
   });
 
@@ -73,13 +88,13 @@ export function AiSettingsPage() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['ai-config'] });
       if (data.success) {
-        toast.success(`API key verified! Model: ${data.model}`);
+        toast.success(t('ai.byok.keyVerified', { model: data.model }));
       } else {
-        toast.error(data.error || 'Test failed.');
+        toast.error(data.error || t('ai.byok.testFailed'));
       }
     },
     onError: (err: Error) => {
-      toast.error(err.message || 'Test failed.');
+      toast.error(err.message || t('ai.byok.testFailed'));
     },
   });
 
@@ -90,12 +105,16 @@ export function AiSettingsPage() {
       queryClient.invalidateQueries({ queryKey: ['ai-settings'] });
       setApiKey('');
       setEnabled(false);
-      toast.success('API key removed. Using platform default.');
+      toast.success(t('ai.byok.keyRemoved'));
     },
   });
 
   if (configQuery.isLoading) {
-    return <div className="text-sm text-muted-foreground p-4">Loading AI settings...</div>;
+    return (
+      <div className="text-sm text-muted-foreground p-4">
+        {t('ai.byok.loading')}
+      </div>
+    );
   }
 
   const usingOrgKey = statusQuery.data?.data?.usingOrgKey ?? false;
@@ -103,10 +122,9 @@ export function AiSettingsPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6 p-6">
       <div>
-        <h1 className="text-2xl font-semibold">AI Settings</h1>
+        <h1 className="text-2xl font-semibold">{t('ai.byok.title')}</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Configure your own AI API key to power all AI features (evidence synthesis, questionnaire
-          assistant, image scanning, risk enrichment, and more).
+          {t('ai.byok.description')}
         </p>
       </div>
 
@@ -167,8 +185,8 @@ export function AiSettingsPage() {
             API Key Configuration
           </CardTitle>
           <CardDescription>
-            Enter your OpenAI or Anthropic API key. The key is encrypted at rest and never displayed
-            after saving.
+            Enter your OpenAI or Anthropic API key. The key is encrypted at rest
+            and never displayed after saving.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -185,8 +203,8 @@ export function AiSettingsPage() {
             </Select>
             {provider === 'anthropic' && (
               <p className="text-xs text-muted-foreground">
-                Anthropic does not provide embeddings. The platform's OpenAI key will be used for
-                embeddings automatically.
+                Anthropic does not provide embeddings. The platform's OpenAI key
+                will be used for embeddings automatically.
               </p>
             )}
           </div>
@@ -210,7 +228,9 @@ export function AiSettingsPage() {
           <div className="space-y-2">
             <Label>Completion Model (optional)</Label>
             <Input
-              placeholder={provider === 'openai' ? 'gpt-4o' : 'claude-sonnet-4-20250514'}
+              placeholder={
+                provider === 'openai' ? 'gpt-4o' : 'claude-sonnet-4-20250514'
+              }
               value={completionModel}
               onChange={(e) => setCompletionModel(e.target.value)}
             />
@@ -234,7 +254,8 @@ export function AiSettingsPage() {
             <div>
               <Label>Enable BYOK</Label>
               <p className="text-xs text-muted-foreground">
-                When enabled, all AI features will use your key instead of the platform's.
+                When enabled, all AI features will use your key instead of the
+                platform's.
               </p>
             </div>
             <Switch checked={enabled} onCheckedChange={setEnabled} />
@@ -276,7 +297,11 @@ export function AiSettingsPage() {
                   variant="destructive"
                   size="icon"
                   onClick={() => {
-                    if (confirm('Remove your API key? AI features will revert to the platform default.')) {
+                    if (
+                      confirm(
+                        'Remove your API key? AI features will revert to the platform default.',
+                      )
+                    ) {
                       removeMutation.mutate();
                     }
                   }}
@@ -294,7 +319,8 @@ export function AiSettingsPage() {
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Powered AI Features</CardTitle>
           <CardDescription>
-            Your API key will be used for all of these features when BYOK is enabled.
+            Your API key will be used for all of these features when BYOK is
+            enabled.
           </CardDescription>
         </CardHeader>
         <CardContent>

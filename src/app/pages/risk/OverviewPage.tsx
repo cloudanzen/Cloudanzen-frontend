@@ -43,7 +43,7 @@ export function RiskOverviewPage() {
       actions={
         <Button variant="outline" size="sm" disabled={isFetching} onClick={() => qc.invalidateQueries({ queryKey: QK.riskCenterOverview() })}>
           <RefreshCw className={`mr-2 h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
-          Refresh
+          {t('overview.refresh')}
         </Button>
       }
     >
@@ -200,7 +200,7 @@ export function RiskOverviewPage() {
                     <div key={item.team} className="rounded-xl bg-muted p-4">
                       <div className="flex items-center justify-between text-sm">
                         <span className="font-medium text-foreground">{item.team}</span>
-                        <span className="text-muted-foreground">{item.count} risks</span>
+                        <span className="text-muted-foreground">{t('overview.risks', { count: item.count })}</span>
                       </div>
                       <Progress value={pct} className="mt-3 h-2" />
                     </div>

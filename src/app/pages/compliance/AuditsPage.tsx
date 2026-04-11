@@ -19,7 +19,7 @@ import {
 } from '@/services/api/audits';
 import { ScheduleAuditModal } from './ScheduleAuditModal';
 import {
-  AUDIT_TYPE_LABELS,
+  AUDIT_TYPE_KEYS,
   StatusBadge,
   fmt,
 } from './AuditDetailPanel';
@@ -262,7 +262,7 @@ export function AuditsPage() {
                           : fmt(audit.startDate)}
                       </td>
                       <td className="px-4 py-3 text-muted-foreground text-xs">
-                        {AUDIT_TYPE_LABELS[audit.type]}
+                        {t(`auditPanel.typeLabels.${AUDIT_TYPE_KEYS[audit.type]}`)}
                       </td>
                       <td className="px-4 py-3">
                         <StatusBadge status={audit.status} />

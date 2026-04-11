@@ -17,14 +17,14 @@ const _sc = (s: string) => getStatusColors(s);
 
 export const STATUS_CONFIG: Record<
   string,
-  { label: string; bg: string; text: string; dot: string; icon: React.ElementType }
+  { key: string; label: string; bg: string; text: string; dot: string; icon: React.ElementType }
 > = {
-  PUBLISHED: { label: 'Published',  ..._sc('PUBLISHED'), icon: CheckCircle2 },
-  DRAFT:     { label: 'Draft',      ..._sc('DRAFT'),     icon: Edit3 },
-  REVIEW:    { label: 'In Review',  ..._sc('REVIEW'),    icon: Clock },
-  ARCHIVED:  { label: 'Archived',   ..._sc('ARCHIVED'),  icon: AlertCircle },
+  PUBLISHED: { key: 'PUBLISHED', label: 'Published',  ..._sc('PUBLISHED'), icon: CheckCircle2 },
+  DRAFT:     { key: 'DRAFT',     label: 'Draft',      ..._sc('DRAFT'),     icon: Edit3 },
+  REVIEW:    { key: 'REVIEW',    label: 'In Review',  ..._sc('REVIEW'),    icon: Clock },
+  ARCHIVED:  { key: 'ARCHIVED',  label: 'Archived',   ..._sc('ARCHIVED'),  icon: AlertCircle },
 };
 
 export function getStatusCfg(status: string) {
-  return STATUS_CONFIG[status] ?? { label: status, ..._sc('UNKNOWN'), icon: FileText };
+  return STATUS_CONFIG[status] ?? { key: status, label: status, ..._sc('UNKNOWN'), icon: FileText };
 }

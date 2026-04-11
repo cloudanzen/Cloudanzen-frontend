@@ -79,5 +79,13 @@
       "MEDIUM": "Medium",
       "LOW": "Low"
     }
+  },
+  "settings": {
+    "title": "Assets Settings",
+    "description": "Configure asset management settings.",
+    "saveChanges": "Save Changes",
+    "scanningSettings": "Scanning Settings",
+    "autoScanning": "Automatic Scanning",
+    "autoScanningDesc": "Scan assets automatically on a schedule"
   }
 }

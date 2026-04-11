@@ -11,6 +11,8 @@
  */
 
 import { useState, useMemo, lazy, Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { useParams, useNavigate } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { PageTemplate } from '@/app/components/PageTemplate';
@@ -65,49 +67,49 @@ const CoverageChart = lazy(() =>
 
 type FilterMode = 'all' | 'gaps' | 'excluded';
 
-function controlStatusBadge(status: string) {
+function controlStatusBadge(status: string, t: TFunction) {
   if (status === 'IMPLEMENTED')
     return (
       <Badge className="bg-green-100 text-green-700 border-green-200 text-[11px]">
-        Implemented
+        {t('frameworkDetail.badge.implemented')}
       </Badge>
     );
   if (status === 'PARTIALLY_IMPLEMENTED')
     return (
       <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-[11px]">
-        Partial
+        {t('frameworkDetail.badge.partial')}
       </Badge>
     );
   return (
     <Badge variant="outline" className="text-gray-400 text-[11px]">
-      Not Implemented
+      {t('frameworkDetail.badge.notImplemented')}
     </Badge>
   );
 }
 
-function testStatusBadge(status: string) {
+function testStatusBadge(status: string, t: TFunction) {
   if (status === 'OK')
     return (
       <Badge className="bg-green-100 text-green-700 border-green-200 text-[11px]">
-        OK
+        {t('frameworkDetail.badge.ok')}
       </Badge>
     );
   if (status === 'Overdue')
     return (
       <Badge className="bg-red-100 text-red-700 border-red-200 text-[11px]">
-        Overdue
+        {t('frameworkDetail.badge.overdue')}
       </Badge>
     );
   if (status === 'Due_soon')
     return (
       <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-[11px]">
-        Due Soon
+        {t('frameworkDetail.badge.dueSoon')}
       </Badge>
     );
   if (status === 'Needs_remediation')
     return (
       <Badge className="bg-orange-100 text-orange-700 border-orange-200 text-[11px]">
-        Needs Remediation
+        {t('frameworkDetail.badge.needsRemediation')}
       </Badge>
     );
   return (
@@ -117,17 +119,17 @@ function testStatusBadge(status: string) {
   );
 }
 
-function policyStatusBadge(status: string) {
+function policyStatusBadge(status: string, t: TFunction) {
   if (status === 'PUBLISHED')
     return (
       <Badge className="bg-green-100 text-green-700 border-green-200 text-[11px]">
-        Published
+        {t('frameworkDetail.badge.published')}
       </Badge>
     );
   if (status === 'DRAFT')
     return (
       <Badge variant="outline" className="text-gray-400 text-[11px]">
-        Draft
+        {t('frameworkDetail.badge.draft')}
       </Badge>
     );
   return (
@@ -137,84 +139,84 @@ function policyStatusBadge(status: string) {
   );
 }
 
-function riskLevelBadge(level: string | null) {
+function riskLevelBadge(level: string | null, t: TFunction) {
   if (level === 'CRITICAL')
     return (
       <Badge className="bg-red-100 text-red-700 border-red-200 text-[11px]">
-        Critical
+        {t('frameworkDetail.badge.critical')}
       </Badge>
     );
   if (level === 'HIGH')
     return (
       <Badge className="bg-orange-100 text-orange-700 border-orange-200 text-[11px]">
-        High
+        {t('frameworkDetail.badge.high')}
       </Badge>
     );
   if (level === 'MEDIUM')
     return (
       <Badge className="bg-yellow-100 text-yellow-700 border-yellow-200 text-[11px]">
-        Medium
+        {t('frameworkDetail.badge.medium')}
       </Badge>
     );
   if (level === 'LOW')
     return (
       <Badge className="bg-green-100 text-green-700 border-green-200 text-[11px]">
-        Low
+        {t('frameworkDetail.badge.low')}
       </Badge>
     );
   return null;
 }
 
-function applicabilityBadge(status: string) {
+function applicabilityBadge(status: string, t: TFunction) {
   if (status === 'not_applicable')
     return (
       <Badge variant="outline" className="text-gray-400 border-gray-200 text-[11px]">
-        N/A
+        {t('frameworkDetail.badge.notApplicable')}
       </Badge>
     );
   return (
     <Badge variant="outline" className="text-blue-600 border-blue-200 text-[11px]">
-      Applicable
+      {t('frameworkDetail.badge.applicable')}
     </Badge>
   );
 }
 
-function reviewBadge(status: string) {
+function reviewBadge(status: string, t: TFunction) {
   if (status === 'accepted')
     return (
       <Badge className="bg-green-100 text-green-700 border-green-200 text-[11px]">
-        Accepted
+        {t('frameworkDetail.badge.accepted')}
       </Badge>
     );
   if (status === 'in_review')
     return (
       <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-[11px]">
-        In Review
+        {t('frameworkDetail.badge.inReview')}
       </Badge>
     );
   return (
     <Badge variant="outline" className="text-gray-400 text-[11px]">
-      Not started
+      {t('frameworkDetail.badge.notStarted')}
     </Badge>
   );
 }
 
-function mappingTypeBadge(type: string) {
+function mappingTypeBadge(type: string, t: TFunction) {
   if (type === 'direct')
     return (
       <Badge className="bg-green-100 text-green-700 border-green-200 text-[10px] px-1.5">
-        Confirmed
+        {t('frameworkDetail.badge.confirmed')}
       </Badge>
     );
   if (type === 'inherited')
     return (
       <Badge className="bg-blue-100 text-blue-700 border-blue-200 text-[10px] px-1.5">
-        Inherited
+        {t('frameworkDetail.badge.inherited')}
       </Badge>
     );
   return (
     <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-[10px] px-1.5">
-      Suggested
+      {t('frameworkDetail.badge.suggested')}
     </Badge>
   );
 }
@@ -222,34 +224,35 @@ function mappingTypeBadge(type: string) {
 // ── Coverage Tiles ───────────────────────────────────────────────────────────
 
 function CoverageTiles({ snap }: { snap: CoverageSnapshotDto | null }) {
+  const { t } = useTranslation('compliance');
   const tiles = [
     {
-      label: 'Total Requirements',
+      label: t('frameworkDetail.tiles.totalRequirements'),
       value: snap?.totalRequirements ?? '—',
       color: 'text-gray-700',
     },
     {
-      label: 'Applicable',
+      label: t('frameworkDetail.tiles.applicable'),
       value: snap?.applicable ?? '—',
       color: 'text-blue-700',
     },
     {
-      label: 'Covered',
+      label: t('frameworkDetail.tiles.covered'),
       value: snap?.covered ?? '—',
       color: 'text-green-700',
     },
     {
-      label: 'Open Gaps',
+      label: t('frameworkDetail.tiles.openGaps'),
       value: snap?.openGaps ?? '—',
       color: 'text-red-700',
     },
     {
-      label: 'Control Coverage',
+      label: t('frameworkDetail.tiles.controlCoverage'),
       value: snap ? `${snap.controlCoveragePct}%` : '—',
       color: 'text-blue-700',
     },
     {
-      label: 'Test Pass Rate',
+      label: t('frameworkDetail.tiles.testPassRate'),
       value: snap ? `${snap.testPassRatePct}%` : '—',
       color: 'text-green-700',
     },
@@ -257,13 +260,13 @@ function CoverageTiles({ snap }: { snap: CoverageSnapshotDto | null }) {
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-      {tiles.map((t) => (
-        <Card key={t.label} className="border-gray-100">
+      {tiles.map((tile) => (
+        <Card key={tile.label} className="border-gray-100">
           <CardContent className="py-3 px-4">
             <p className="text-[11px] text-gray-400 uppercase tracking-wide">
-              {t.label}
+              {tile.label}
             </p>
-            <p className={`text-2xl font-bold mt-0.5 ${t.color}`}>{t.value}</p>
+            <p className={`text-2xl font-bold mt-0.5 ${tile.color}`}>{tile.value}</p>
           </CardContent>
         </Card>
       ))}
@@ -286,10 +289,11 @@ function FilterBar({
   onSearchChange: (s: string) => void;
   counts: { all: number; gaps: number; excluded: number };
 }) {
+  const { t } = useTranslation('compliance');
   const modes: { key: FilterMode; label: string; count: number }[] = [
-    { key: 'all', label: 'All', count: counts.all },
-    { key: 'gaps', label: 'Gaps Only', count: counts.gaps },
-    { key: 'excluded', label: 'Excluded', count: counts.excluded },
+    { key: 'all', label: t('frameworkDetail.filter.all'), count: counts.all },
+    { key: 'gaps', label: t('frameworkDetail.filter.gapsOnly'), count: counts.gaps },
+    { key: 'excluded', label: t('frameworkDetail.filter.excluded'), count: counts.excluded },
   ];
 
   return (
@@ -318,7 +322,7 @@ function FilterBar({
         <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
         <input
           type="text"
-          placeholder="Search requirements…"
+          placeholder={t('frameworkDetail.filter.searchPlaceholder')}
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           className="w-full pl-8 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
@@ -347,6 +351,7 @@ function RequirementRow({
   onMarkApplicable: () => void;
   navigate: (path: string) => void;
 }) {
+  const { t } = useTranslation('compliance');
   const hasControls = req.controls.length > 0;
   const hasTests = req.tests.length > 0;
   const hasPolicies = req.policies.length > 0;
@@ -393,18 +398,17 @@ function RequirementRow({
             )}
             {entityCount > 0 && (
               <span className="text-xs text-gray-300">
-                {entityCount} linked{' '}
-                {entityCount === 1 ? 'item' : 'items'}
+                {t('frameworkDetail.requirement.linkedItems', { count: entityCount })}
               </span>
             )}
           </div>
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
-          {reviewBadge(req.reviewStatus)}
-          {applicabilityBadge(req.applicabilityStatus)}
+          {reviewBadge(req.reviewStatus, t)}
+          {applicabilityBadge(req.applicabilityStatus, t)}
           <button
             className="p-1 text-gray-300 hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity"
-            title="Assign owner"
+            title={t('frameworkDetail.requirement.assignOwner')}
             onClick={(e) => {
               e.stopPropagation();
               onOwnerClick();
@@ -415,7 +419,7 @@ function RequirementRow({
           {req.applicabilityStatus === 'applicable' ? (
             <button
               className="p-1 text-gray-300 hover:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity"
-              title="Mark N/A"
+              title={t('frameworkDetail.requirement.markNA')}
               onClick={(e) => {
                 e.stopPropagation();
                 onNAClick();
@@ -426,7 +430,7 @@ function RequirementRow({
           ) : (
             <button
               className="p-1 text-gray-300 hover:text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity"
-              title="Mark applicable"
+              title={t('frameworkDetail.requirement.markApplicable')}
               onClick={(e) => {
                 e.stopPropagation();
                 onMarkApplicable();
@@ -444,7 +448,7 @@ function RequirementRow({
           {/* N/A justification */}
           {req.applicabilityStatus === 'not_applicable' && req.justification && (
             <div className="text-xs text-gray-400 italic bg-gray-50 rounded-lg px-3 py-2 border border-gray-100">
-              N/A — {req.justification}
+              {t('frameworkDetail.badge.notApplicable')} — {req.justification}
             </div>
           )}
 
@@ -452,7 +456,7 @@ function RequirementRow({
           {hasControls && (
             <div>
               <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
-                <Shield className="w-3 h-3" /> Controls ({req.controls.length})
+                <Shield className="w-3 h-3" /> {t('frameworkDetail.requirement.controlsCount', { count: req.controls.length })}
               </p>
               <div className="space-y-1">
                 {req.controls.map((c) => (
@@ -468,8 +472,8 @@ function RequirementRow({
                       {c.controlTitle}
                     </span>
                     <div className="flex items-center gap-1.5 shrink-0">
-                      {mappingTypeBadge(c.mappingType)}
-                      {controlStatusBadge(c.controlStatus)}
+                      {mappingTypeBadge(c.mappingType, t)}
+                      {controlStatusBadge(c.controlStatus, t)}
                     </div>
                   </div>
                 ))}
@@ -481,25 +485,25 @@ function RequirementRow({
           {hasTests && (
             <div>
               <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
-                <FlaskConical className="w-3 h-3" /> Tests ({req.tests.length})
+                <FlaskConical className="w-3 h-3" /> {t('frameworkDetail.requirement.testsCount', { count: req.tests.length })}
               </p>
               <div className="space-y-1">
-                {req.tests.map((t) => (
+                {req.tests.map((test) => (
                   <div
-                    key={t.testId}
+                    key={test.testId}
                     className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-gray-50/70 hover:bg-gray-100 cursor-pointer text-sm"
-                    onClick={() => navigate(`/tests/${t.testId}`)}
+                    onClick={() => navigate(`/tests/${test.testId}`)}
                   >
                     <span className="text-gray-700 flex-1 truncate text-xs">
-                      {t.testName}
+                      {test.testName}
                     </span>
                     <div className="flex items-center gap-1.5 shrink-0">
-                      {t.dueDate && !t.completedAt && (
+                      {test.dueDate && !test.completedAt && (
                         <span className="text-[10px] text-gray-400">
-                          Due {new Date(t.dueDate).toLocaleDateString()}
+                          {t('frameworkDetail.requirement.due', { date: new Date(test.dueDate).toLocaleDateString() })}
                         </span>
                       )}
-                      {testStatusBadge(t.testStatus)}
+                      {testStatusBadge(test.testStatus, t)}
                     </div>
                   </div>
                 ))}
@@ -511,7 +515,7 @@ function RequirementRow({
           {hasPolicies && (
             <div>
               <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
-                <FileText className="w-3 h-3" /> Policies ({req.policies.length})
+                <FileText className="w-3 h-3" /> {t('frameworkDetail.requirement.policiesCount', { count: req.policies.length })}
               </p>
               <div className="space-y-1">
                 {req.policies.map((p) => (
@@ -523,7 +527,7 @@ function RequirementRow({
                     <span className="text-gray-700 flex-1 truncate text-xs">
                       {p.policyName}
                     </span>
-                    {policyStatusBadge(p.policyStatus)}
+                    {policyStatusBadge(p.policyStatus, t)}
                   </div>
                 ))}
               </div>
@@ -534,7 +538,7 @@ function RequirementRow({
           {hasRisks && (
             <div>
               <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
-                <AlertTriangle className="w-3 h-3" /> Risks ({req.risks.length})
+                <AlertTriangle className="w-3 h-3" /> {t('frameworkDetail.requirement.risksCount', { count: req.risks.length })}
               </p>
               <div className="space-y-1">
                 {req.risks.map((r) => (
@@ -547,7 +551,7 @@ function RequirementRow({
                       {r.riskTitle}
                     </span>
                     <div className="flex items-center gap-1.5 shrink-0">
-                      {riskLevelBadge(r.riskLevel)}
+                      {riskLevelBadge(r.riskLevel, t)}
                       <Badge
                         variant="outline"
                         className="text-[11px] text-gray-500"
@@ -591,6 +595,7 @@ function DomainSection({
   onMarkApplicable: (req: RequirementDetailRow) => void;
   navigate: (path: string) => void;
 }) {
+  const { t } = useTranslation('compliance');
   const implemented = requirements.filter((r) =>
     r.controls.some((c) => c.controlStatus === 'IMPLEMENTED'),
   ).length;
@@ -614,7 +619,7 @@ function DomainSection({
           {domain}
         </span>
         <span className="text-xs text-gray-400 mr-3">
-          {requirements.length} requirements
+          {t('frameworkDetail.requirement.requirementsCount', { count: requirements.length })}
         </span>
         <div className="w-24 h-1.5 bg-gray-200 rounded-full overflow-hidden shrink-0">
           <div
@@ -659,6 +664,7 @@ function ExportButton({
   coverage: CoverageSnapshotDto | null;
   requirements: RequirementDetailRow[];
 }) {
+  const { t } = useTranslation('compliance');
   const [open, setOpen] = useState(false);
 
   const downloadCsv = () => {
@@ -767,7 +773,7 @@ function ExportButton({
   return (
     <div className="relative">
       <Button variant="outline" size="sm" onClick={() => setOpen(!open)}>
-        <Download className="w-4 h-4 mr-1.5" /> Export
+        <Download className="w-4 h-4 mr-1.5" /> {t('frameworkDetail.export.export')}
       </Button>
       {open && (
         <>
@@ -777,13 +783,13 @@ function ExportButton({
               onClick={downloadCsv}
               className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
             >
-              <Download className="w-3.5 h-3.5" /> Download CSV
+              <Download className="w-3.5 h-3.5" /> {t('frameworkDetail.export.downloadCsv')}
             </button>
             <button
               onClick={printPdf}
               className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
             >
-              <FileDown className="w-3.5 h-3.5" /> Print / PDF
+              <FileDown className="w-3.5 h-3.5" /> {t('frameworkDetail.export.printPdf')}
             </button>
           </div>
         </>
@@ -795,6 +801,7 @@ function ExportButton({
 // ── Main Page ────────────────────────────────────────────────────────────────
 
 export function FrameworkDetailPage() {
+  const { t } = useTranslation('compliance');
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const qc = useQueryClient();
@@ -874,9 +881,9 @@ export function FrameworkDetailPage() {
     onSuccess: () => {
       setOwnerDialog(null);
       invalidateAll();
-      toast.success('Owner assigned');
+      toast.success(t('frameworkDetail.ownerDialog.success'));
     },
-    onError: () => toast.error('Failed to assign owner'),
+    onError: () => toast.error(t('frameworkDetail.ownerDialog.error')),
   });
 
   const applicabilityMutation = useMutation({
@@ -978,7 +985,7 @@ export function FrameworkDetailPage() {
   // Loading state
   if (fwLoading) {
     return (
-      <PageTemplate title="Framework">
+      <PageTemplate title={t('frameworkDetail.loading')}>
         <div className="animate-pulse space-y-5">
           <div className="h-8 w-32 rounded-md bg-muted" />
           <div className="grid grid-cols-6 gap-3">
@@ -999,19 +1006,19 @@ export function FrameworkDetailPage() {
 
   if (!fw) {
     return (
-      <PageTemplate title="Framework not found">
+      <PageTemplate title={t('frameworkDetail.notFoundTitle')}>
         <Card className="border-border">
           <CardContent className="py-16 text-center">
             <AlertTriangle className="w-10 h-10 text-amber-400 mx-auto mb-3" />
             <p className="text-sm font-medium text-foreground">
-              Framework "{slug}" not found
+              {t('frameworkDetail.notFoundMessage', { slug })}
             </p>
             <Button
               variant="outline"
               className="mt-4"
               onClick={() => navigate('/compliance/frameworks')}
             >
-              <ArrowLeft className="w-4 h-4 mr-1.5" /> Back to Frameworks
+              <ArrowLeft className="w-4 h-4 mr-1.5" /> {t('frameworkDetail.backToFrameworks')}
             </Button>
           </CardContent>
         </Card>
@@ -1040,7 +1047,7 @@ export function FrameworkDetailPage() {
           className="-ml-2 text-muted-foreground"
           onClick={() => navigate('/compliance/frameworks')}
         >
-          <ArrowLeft className="w-4 h-4 mr-1" /> All frameworks
+          <ArrowLeft className="w-4 h-4 mr-1" /> {t('frameworkDetail.allFrameworks')}
         </Button>
 
         {/* Coverage tiles */}
@@ -1051,12 +1058,12 @@ export function FrameworkDetailPage() {
           <Card className="border-gray-100">
             <CardContent className="py-5 px-5">
               <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-3">
-                Readiness over time
+                {t('frameworkDetail.readinessOverTime')}
               </p>
               <Suspense
                 fallback={
                   <div className="h-64 flex items-center justify-center text-xs text-gray-400">
-                    Loading chart…
+                    {t('frameworkDetail.loadingChart')}
                   </div>
                 }
               >
@@ -1078,7 +1085,7 @@ export function FrameworkDetailPage() {
         {/* Domain sections */}
         {detailLoading ? (
           <div className="flex items-center gap-3 py-8 justify-center text-sm text-gray-400">
-            <Loader2 className="w-5 h-5 animate-spin" /> Loading requirements…
+            <Loader2 className="w-5 h-5 animate-spin" /> {t('frameworkDetail.loadingRequirements')}
           </div>
         ) : filteredRequirements.length === 0 ? (
           <Card className="border-dashed border-gray-200 bg-gray-50">
@@ -1086,12 +1093,12 @@ export function FrameworkDetailPage() {
               <ListChecks className="w-10 h-10 text-gray-300 mx-auto mb-3" />
               <p className="text-sm font-medium text-gray-500">
                 {allRequirements.length === 0
-                  ? 'No requirements loaded yet'
-                  : 'No requirements match your filter'}
+                  ? t('frameworkDetail.noRequirements')
+                  : t('frameworkDetail.noMatchingRequirements')}
               </p>
               {allRequirements.length === 0 && (
                 <p className="text-xs text-gray-400 mt-1">
-                  Activate this framework to load requirements.
+                  {t('frameworkDetail.activateToLoad')}
                 </p>
               )}
             </CardContent>
@@ -1134,7 +1141,7 @@ export function FrameworkDetailPage() {
       <Dialog open={!!ownerDialog} onOpenChange={() => setOwnerDialog(null)}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Assign owner & due date</DialogTitle>
+            <DialogTitle>{t('frameworkDetail.ownerDialog.title')}</DialogTitle>
             <DialogDescription className="text-sm">
               <span className="font-mono text-xs text-gray-500">
                 {ownerDialog?.code}
@@ -1145,7 +1152,7 @@ export function FrameworkDetailPage() {
           <div className="space-y-3 pt-1">
             <div>
               <Label htmlFor="owner" className="text-sm font-medium">
-                Owner
+                {t('frameworkDetail.ownerDialog.ownerLabel')}
               </Label>
               <select
                 id="owner"
@@ -1153,7 +1160,7 @@ export function FrameworkDetailPage() {
                 onChange={(e) => setOwnerInput(e.target.value)}
                 className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               >
-                <option value="">— Select a user —</option>
+                <option value="">{t('frameworkDetail.ownerDialog.selectUser')}</option>
                 {users.map((u) => (
                   <option key={u.id} value={u.id}>
                     {u.name ?? u.email}
@@ -1163,7 +1170,7 @@ export function FrameworkDetailPage() {
             </div>
             <div>
               <Label htmlFor="dueDate" className="text-sm font-medium">
-                Due date
+                {t('frameworkDetail.ownerDialog.dueDateLabel')}
               </Label>
               <Input
                 id="dueDate"
@@ -1176,7 +1183,7 @@ export function FrameworkDetailPage() {
           </div>
           <DialogFooter className="gap-2 pt-2">
             <Button variant="outline" onClick={() => setOwnerDialog(null)}>
-              Cancel
+              {t('frameworkDetail.ownerDialog.cancel')}
             </Button>
             <Button
               onClick={() => ownerDialog && ownerMutation.mutate(ownerDialog)}
@@ -1185,7 +1192,7 @@ export function FrameworkDetailPage() {
               {ownerMutation.isPending ? (
                 <Loader2 className="w-4 h-4 animate-spin mr-1.5" />
               ) : null}
-              Save
+              {t('frameworkDetail.ownerDialog.save')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1198,7 +1205,7 @@ export function FrameworkDetailPage() {
       >
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Mark requirement not applicable</DialogTitle>
+            <DialogTitle>{t('frameworkDetail.naDialog.title')}</DialogTitle>
             <DialogDescription className="text-sm">
               <span className="font-mono text-xs text-gray-500">
                 {applicabilityDialog?.code}
@@ -1208,7 +1215,7 @@ export function FrameworkDetailPage() {
           </DialogHeader>
           <div className="space-y-2">
             <Label htmlFor="na-justification" className="text-sm font-medium">
-              Justification
+              {t('frameworkDetail.naDialog.justificationLabel')}
             </Label>
             <Textarea
               id="na-justification"
@@ -1217,7 +1224,7 @@ export function FrameworkDetailPage() {
               onChange={(e) =>
                 setApplicabilityJustification(e.target.value)
               }
-              placeholder="Explain why this requirement does not apply to your organization."
+              placeholder={t('frameworkDetail.naDialog.justificationPlaceholder')}
             />
           </div>
           <DialogFooter className="gap-2 pt-2">
@@ -1225,7 +1232,7 @@ export function FrameworkDetailPage() {
               variant="outline"
               onClick={() => setApplicabilityDialog(null)}
             >
-              Cancel
+              {t('frameworkDetail.naDialog.cancel')}
             </Button>
             <Button
               onClick={() =>
@@ -1244,7 +1251,7 @@ export function FrameworkDetailPage() {
               {applicabilityMutation.isPending ? (
                 <Loader2 className="w-4 h-4 animate-spin mr-1.5" />
               ) : null}
-              Save exclusion
+              {t('frameworkDetail.naDialog.saveExclusion')}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/app/components/ui/card';
 import { Badge } from '@/app/components/ui/badge';
 import { Button } from '@/app/components/ui/button';
@@ -13,9 +14,12 @@ import { AddCustomServiceDialog } from './AddCustomServiceDialog';
 import { CsvUploadDialog } from './CsvUploadDialog';
 
 export function ServicesPage() {
+  const { t } = useTranslation('personnel');
   const queryClient = useQueryClient();
   const [showAddDialog, setShowAddDialog] = useState(false);
-  const [uploadService, setUploadService] = useState<AccessService | null>(null);
+  const [uploadService, setUploadService] = useState<AccessService | null>(
+    null,
+  );
 
   const { data: services, isLoading } = useQuery({
     queryKey: ['access-services'],
@@ -46,18 +50,30 @@ export function ServicesPage() {
   });
 
   const safeServices: AccessService[] = Array.isArray(services) ? services : [];
-  const safeStats: AccountStats = stats ?? { total: 0, mapped: 0, unmapped: 0, serviceAccounts: 0, byService: [] };
-  const countByService = new Map(safeStats.byService.map((s) => [s.serviceName, s.count]));
+  const safeStats: AccountStats = stats ?? {
+    total: 0,
+    mapped: 0,
+    unmapped: 0,
+    serviceAccounts: 0,
+    byService: [],
+  };
+  const countByService = new Map(
+    safeStats.byService.map((s) => [s.serviceName, s.count]),
+  );
 
   if (isLoading) {
-    return <div className="text-sm text-muted-foreground p-4">Loading services...</div>;
+    return (
+      <div className="text-sm text-muted-foreground p-4">
+        {t('accessManagement.services.loading')}
+      </div>
+    );
   }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          Manage integrated and manually-tracked services. Upload CSV files to import accounts for non-integrated tools.
+          {t('accessManagement.services.description')}
         </p>
         <div className="flex gap-2">
           <Button
@@ -66,21 +82,23 @@ export function ServicesPage() {
             onClick={() => syncMutation.mutate()}
             disabled={syncMutation.isPending}
           >
-            <RefreshCw className={`w-4 h-4 mr-1 ${syncMutation.isPending ? 'animate-spin' : ''}`} />
-            Sync Integrations
+            <RefreshCw
+              className={`w-4 h-4 mr-1 ${syncMutation.isPending ? 'animate-spin' : ''}`}
+            />
+            {t('accessManagement.services.syncIntegrations')}
           </Button>
           <Button size="sm" onClick={() => setShowAddDialog(true)}>
             <Plus className="w-4 h-4 mr-1" />
-            Add Custom Service
+            {t('accessManagement.services.addCustomService')}
           </Button>
         </div>
       </div>
 
       {safeServices.length === 0 ? (
         <Card className="p-8 text-center text-muted-foreground">
-          <p>No services tracked yet.</p>
+          <p>{t('accessManagement.services.empty')}</p>
           <p className="text-sm mt-1">
-            Click "Sync Integrations" to pull from connected tools, or "Add Custom Service" to manually track a tool.
+            {t('accessManagement.services.emptyDescription')}
           </p>
         </Card>
       ) : (
@@ -95,9 +113,21 @@ export function ServicesPage() {
                     <FileText className="w-5 h-5 text-muted-foreground" />
                   )}
                   <div>
-                    <h3 className="font-medium text-sm">{service.serviceName}</h3>
-                    <Badge variant={service.serviceType === 'integrated' ? 'default' : 'secondary'} className="text-xs mt-0.5">
-                      {service.serviceType}
+                    <h3 className="font-medium text-sm">
+                      {service.serviceName}
+                    </h3>
+                    <Badge
+                      variant={
+                        service.serviceType === 'integrated'
+                          ? 'default'
+                          : 'secondary'
+                      }
+                      className="text-xs mt-0.5"
+                    >
+                      {t(
+                        `accessManagement.services.serviceTypes.${service.serviceType}`,
+                        service.serviceType,
+                      )}
                     </Badge>
                   </div>
                 </div>
@@ -107,7 +137,13 @@ export function ServicesPage() {
                     size="sm"
                     className="h-7 w-7 p-0 text-muted-foreground hover:text-red-600"
                     onClick={() => {
-                      if (confirm(`Delete "${service.serviceName}" and all its accounts?`)) {
+                      if (
+                        confirm(
+                          t('accessManagement.services.confirmDelete', {
+                            name: service.serviceName,
+                          }),
+                        )
+                      ) {
                         deleteMutation.mutate(service.id);
                       }
                     }}
@@ -118,16 +154,26 @@ export function ServicesPage() {
               </div>
 
               <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span>{countByService.get(service.serviceName) ?? 0} accounts</span>
+                <span>
+                  {t('accessManagement.services.accounts', {
+                    count: countByService.get(service.serviceName) ?? 0,
+                  })}
+                </span>
                 {service.lastSyncedAt && (
-                  <span>Last synced: {new Date(service.lastSyncedAt).toLocaleDateString()}</span>
+                  <span>
+                    {t('accessManagement.services.lastSynced', {
+                      date: new Date(service.lastSyncedAt).toLocaleDateString(),
+                    })}
+                  </span>
                 )}
               </div>
 
               {service.evidenceFileName && (
                 <div className="text-xs text-muted-foreground flex items-center gap-1">
                   <FileText className="w-3 h-3" />
-                  Evidence: {service.evidenceFileName}
+                  {t('accessManagement.services.evidence', {
+                    name: service.evidenceFileName,
+                  })}
                 </div>
               )}
 
@@ -139,7 +185,7 @@ export function ServicesPage() {
                   onClick={() => setUploadService(service)}
                 >
                   <Upload className="w-4 h-4 mr-1" />
-                  Import Accounts
+                  {t('accessManagement.services.importAccounts')}
                 </Button>
               )}
             </Card>

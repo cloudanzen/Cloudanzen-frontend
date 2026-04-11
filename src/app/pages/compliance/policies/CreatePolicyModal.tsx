@@ -1,7 +1,8 @@
 import React, { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { policiesService } from '@/services/api/policies';
 import { Policy } from '@/services/api/types';
-import { POLICY_STATUSES, STATUS_CONFIG } from './types';
+import { POLICY_STATUSES } from './types';
 import { X, Upload, Plus, Loader2 } from 'lucide-react';
 
 export function CreatePolicyModal({
@@ -13,6 +14,7 @@ export function CreatePolicyModal({
   onCreated: (p: Policy) => void;
   prefill?: { name?: string; version?: string; status?: string };
 }) {
+  const { t } = useTranslation('compliance');
   const [form, setForm] = useState({
     name: prefill?.name ?? '',
     version: prefill?.version ?? '1.0',
@@ -27,7 +29,7 @@ export function CreatePolicyModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name.trim() || !form.version.trim()) {
-      setError('Name and version are required');
+      setError(t('policiesPage.createModal.nameVersionRequired'));
       return;
     }
     setSaving(true);
@@ -52,7 +54,7 @@ export function CreatePolicyModal({
         onCreated(created);
       }
     } catch (err: unknown) {
-      setError((err as { message?: string })?.message ?? 'Failed to create policy');
+      setError((err as { message?: string })?.message ?? t('policiesPage.createModal.createFailed'));
       setSaving(false);
     }
   };
@@ -65,7 +67,7 @@ export function CreatePolicyModal({
         onSubmit={handleSubmit}
       >
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-base font-semibold text-gray-900">New Policy</h2>
+          <h2 className="text-base font-semibold text-gray-900">{t('policiesPage.createModal.title')}</h2>
           <button type="button" onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400">
             <X className="w-4 h-4" />
           </button>
@@ -73,55 +75,55 @@ export function CreatePolicyModal({
 
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Policy Name *</label>
+            <label className="block text-xs font-medium text-gray-600 mb-1">{t('policiesPage.createModal.policyName')}</label>
             <input
               type="text"
               value={form.name}
               onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-              placeholder="e.g. Access Control Policy"
+              placeholder={t('policiesPage.createModal.policyNamePlaceholder')}
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Version *</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">{t('policiesPage.createModal.version')}</label>
               <input
                 type="text"
                 value={form.version}
                 onChange={e => setForm(f => ({ ...f, version: e.target.value }))}
-                placeholder="1.0"
+                placeholder={t('policiesPage.createModal.versionPlaceholder')}
                 className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Status</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">{t('policiesPage.createModal.status')}</label>
               <select
                 value={form.status}
                 onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
                 className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
               >
                 {POLICY_STATUSES.map(s => (
-                  <option key={s} value={s}>{STATUS_CONFIG[s]?.label ?? s}</option>
+                  <option key={s} value={s}>{t(`policiesPage.statusLabels.${s}`, { defaultValue: s })}</option>
                 ))}
               </select>
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Approved By</label>
+            <label className="block text-xs font-medium text-gray-600 mb-1">{t('policiesPage.createModal.approvedBy')}</label>
             <input
               type="text"
               value={form.approvedBy}
               onChange={e => setForm(f => ({ ...f, approvedBy: e.target.value }))}
-              placeholder="e.g. Jane Smith"
+              placeholder={t('policiesPage.createModal.approvedByPlaceholder')}
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           {/* Optional document upload */}
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Attach Document (optional)</label>
+            <label className="block text-xs font-medium text-gray-600 mb-1">{t('policiesPage.createModal.attachDocument')}</label>
             <div
               onClick={() => inputRef.current?.click()}
               className={`flex items-center gap-3 px-3 py-2.5 border rounded-lg cursor-pointer transition-colors text-sm ${
@@ -139,7 +141,7 @@ export function CreatePolicyModal({
               {file ? (
                 <span className="truncate text-blue-700 font-medium">{file.name}</span>
               ) : (
-                <span className="text-gray-400">Click to attach a file…</span>
+                <span className="text-gray-400">{t('policiesPage.createModal.clickToAttach')}</span>
               )}
               {file && (
                 <button
@@ -164,7 +166,7 @@ export function CreatePolicyModal({
             onClick={onClose}
             className="flex-1 px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50"
           >
-            Cancel
+            {t('policiesPage.createModal.cancel')}
           </button>
           <button
             type="submit"
@@ -172,7 +174,7 @@ export function CreatePolicyModal({
             className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white text-sm font-medium"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-            {saving ? 'Creating…' : 'Create'}
+            {saving ? t('policiesPage.createModal.creating') : t('policiesPage.createModal.create')}
           </button>
         </div>
       </form>

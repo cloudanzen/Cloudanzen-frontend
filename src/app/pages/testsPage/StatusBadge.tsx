@@ -1,12 +1,14 @@
+import { useTranslation } from 'react-i18next';
 import type { TestStatus } from '@/services/api/tests';
 import { STATUS_CONFIG } from './config';
 
 export function StatusBadge({ status }: { status: TestStatus }) {
+  const { t } = useTranslation('tests');
   const cfg = STATUS_CONFIG[status] ?? { label: status, bg: 'bg-gray-50', text: 'text-gray-600', dot: 'bg-gray-400' };
   return (
     <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${cfg.bg} ${cfg.text}`}>
       <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
-      {cfg.label}
+      {t(`statusBadge.${status}`, cfg.label)}
     </span>
   );
 }

@@ -9,6 +9,7 @@
  */
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ClipboardList,
   Plus,
@@ -119,7 +120,7 @@ const MOCK_REQUESTS: AccessRequest[] = [
 const STATUS_CONFIG: Record<
   RequestStatus,
   {
-    label: string;
+    key: RequestStatus;
     bg: string;
     text: string;
     border: string;
@@ -127,39 +128,33 @@ const STATUS_CONFIG: Record<
   }
 > = {
   PENDING: {
-    label: 'Pending Review',
+    key: 'PENDING',
     bg: 'bg-amber-50',
     text: 'text-amber-700',
     border: 'border-amber-200',
     Icon: Clock,
   },
   APPROVED: {
-    label: 'Approved',
+    key: 'APPROVED',
     bg: 'bg-green-50',
     text: 'text-green-700',
     border: 'border-green-200',
     Icon: CheckCircle2,
   },
   REJECTED: {
-    label: 'Rejected',
+    key: 'REJECTED',
     bg: 'bg-red-50',
     text: 'text-red-600',
     border: 'border-red-200',
     Icon: XCircle,
   },
   EXPIRED: {
-    label: 'Expired',
+    key: 'EXPIRED',
     bg: 'bg-gray-50',
     text: 'text-gray-500',
     border: 'border-gray-200',
     Icon: AlertCircle,
   },
-};
-
-const TYPE_LABELS: Record<RequestType, string> = {
-  ROLE_UPGRADE: 'Role Upgrade',
-  TEMPORARY_ACCESS: 'Temporary Access',
-  POLICY_EXCEPTION: 'Policy Exception',
 };
 
 // ── New Request Modal ──────────────────────────────────────────────────────────
@@ -171,6 +166,7 @@ function NewRequestModal({
   onClose: () => void;
   onCreated: (req: AccessRequest) => void;
 }) {
+  const { t } = useTranslation('access');
   const currentUser = useCurrentUser();
   const [type, setType] = useState<RequestType>('ROLE_UPGRADE');
   const [requestedRole, setRequestedRole] = useState<AppRole>('SECURITY_OWNER');
@@ -190,7 +186,7 @@ function NewRequestModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!justification.trim()) {
-      setError('Please provide a justification');
+      setError(t('requests.modal.provideJustification'));
       return;
     }
     setSubmitting(true);
@@ -214,7 +210,7 @@ function NewRequestModal({
       await new Promise((r) => setTimeout(r, 600));
       onCreated(newReq);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to submit request');
+      setError(err instanceof Error ? err.message : t('requests.modal.failedToSubmit'));
     } finally {
       setSubmitting(false);
     }
@@ -232,10 +228,10 @@ function NewRequestModal({
         <div className="flex items-center justify-between mb-5">
           <div>
             <h2 className="text-base font-semibold text-gray-900">
-              New Access Request
+              {t('requests.modal.title')}
             </h2>
             <p className="text-xs text-gray-500 mt-0.5">
-              Requests are reviewed by Org Admins and Security Owners.
+              {t('requests.modal.subtitle')}
             </p>
           </div>
           <button
@@ -250,22 +246,20 @@ function NewRequestModal({
           {/* Request type */}
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1.5">
-              Request Type
+              {t('requests.modal.requestType')}
             </label>
             <div className="grid grid-cols-2 gap-2">
               {(['ROLE_UPGRADE', 'TEMPORARY_ACCESS'] as RequestType[]).map(
-                (t) => (
+                (item) => (
                   <button
-                    key={t}
+                    key={item}
                     type="button"
-                    onClick={() => setType(t)}
-                    className={`p-3 rounded-xl border text-left text-xs font-medium transition-all ${type === t ? 'border-blue-500 bg-blue-50 text-blue-700 ring-1 ring-blue-500' : 'border-gray-200 text-gray-700 hover:border-gray-300'}`}
+                    onClick={() => setType(item)}
+                    className={`p-3 rounded-xl border text-left text-xs font-medium transition-all ${type === item ? 'border-blue-500 bg-blue-50 text-blue-700 ring-1 ring-blue-500' : 'border-gray-200 text-gray-700 hover:border-gray-300'}`}
                   >
-                    <p className="font-semibold">{TYPE_LABELS[t]}</p>
+                    <p className="font-semibold">{t(`requests.typeLabels.${item}`)}</p>
                     <p className="text-xs text-gray-500 mt-0.5 font-normal">
-                      {t === 'ROLE_UPGRADE'
-                        ? 'Permanent role change'
-                        : 'Time-limited access'}
+                      {t(`requests.typeDescriptions.${item}`)}
                     </p>
                   </button>
                 ),
@@ -276,7 +270,7 @@ function NewRequestModal({
           {/* Requested role */}
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1.5">
-              Requested Role
+              {t('requests.modal.requestedRole')}
             </label>
             <div className="grid grid-cols-2 gap-2">
               {allRoles
@@ -308,12 +302,12 @@ function NewRequestModal({
           {/* Justification */}
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">
-              Justification *
+              {t('requests.modal.justification')}
             </label>
             <textarea
               value={justification}
               onChange={(e) => setJustification(e.target.value)}
-              placeholder="Explain why you need this access and how it relates to your job responsibilities..."
+              placeholder={t('requests.modal.justificationPlaceholder')}
               rows={4}
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
               required
@@ -332,7 +326,7 @@ function NewRequestModal({
               onClick={onClose}
               className="flex-1 px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
-              Cancel
+              {t('requests.cancel')}
             </button>
             <button
               type="submit"
@@ -344,7 +338,7 @@ function NewRequestModal({
               ) : (
                 <ClipboardList className="w-4 h-4" />
               )}
-              {submitting ? 'Submitting…' : 'Submit Request'}
+              {submitting ? t('requests.modal.submitting') : t('requests.modal.submitRequest')}
             </button>
           </div>
         </form>
@@ -366,6 +360,7 @@ function RequestCard({
   onReject: (id: string, note: string) => void;
   canReview: boolean;
 }) {
+  const { t } = useTranslation('access');
   const [showReview, setShowReview] = useState(false);
   const [note, setNote] = useState('');
   const [processing, setProcessing] = useState(false);
@@ -394,7 +389,7 @@ function RequestCard({
           className={`flex items-center gap-1.5 text-xs font-semibold ${st.text}`}
         >
           <StatusIcon className="w-3.5 h-3.5" />
-          {st.label}
+          {t(`requests.statusLabels.${st.key}`)}
         </div>
         <span className="text-xs text-gray-400">
           {fmtDateTime(request.createdAt)}
@@ -417,7 +412,7 @@ function RequestCard({
           </div>
           <div className="ml-auto text-xs text-gray-500 flex items-center gap-1 flex-shrink-0">
             <span className="bg-gray-100 px-2 py-0.5 rounded-full font-medium">
-              {TYPE_LABELS[request.type]}
+              {t(`requests.typeLabels.${request.type}`)}
             </span>
           </div>
         </div>
@@ -426,12 +421,11 @@ function RequestCard({
         {request.requestedRole && (
           <div className="flex items-center gap-2">
             {request.currentRole && <RoleBadge role={request.currentRole} />}
-            <span className="text-xs text-gray-400">→</span>
+            <span className="text-xs text-gray-400">&rarr;</span>
             <RoleBadge role={request.requestedRole} />
             {request.expiresAt && (
               <span className="ml-auto text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5 flex items-center gap-1">
-                <Calendar className="w-3 h-3" /> Expires{' '}
-                {fmtDate(request.expiresAt)}
+                <Calendar className="w-3 h-3" /> {t('requests.card.expires', { date: fmtDate(request.expiresAt) })}
               </span>
             )}
           </div>
@@ -440,7 +434,7 @@ function RequestCard({
         {/* Justification */}
         <div className="bg-gray-50 rounded-lg px-3 py-2.5 border border-gray-100">
           <p className="text-xs font-medium text-gray-500 mb-1 flex items-center gap-1">
-            <MessageSquare className="w-3 h-3" /> Justification
+            <MessageSquare className="w-3 h-3" /> {t('requests.card.justification')}
           </p>
           <p className="text-sm text-gray-700 leading-relaxed">
             {request.justification}
@@ -460,7 +454,7 @@ function RequestCard({
               ) : (
                 <XCircle className="w-3 h-3" />
               )}
-              Reviewer Note — {request.reviewedBy}
+              {t('requests.card.reviewerNote', { reviewer: request.reviewedBy })}
             </p>
             <p className="text-sm text-gray-700 leading-relaxed">
               {request.reviewNote}
@@ -476,14 +470,14 @@ function RequestCard({
                 onClick={() => setShowReview(true)}
                 className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-gray-300 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors"
               >
-                <Shield className="w-3.5 h-3.5" /> Review Request
+                <Shield className="w-3.5 h-3.5" /> {t('requests.card.reviewRequest')}
               </button>
             ) : (
               <div className="space-y-2.5">
                 <textarea
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
-                  placeholder="Add a review note (optional)..."
+                  placeholder={t('requests.card.reviewNotePlaceholder')}
                   rows={2}
                   className="w-full px-3 py-2 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                 />
@@ -498,7 +492,7 @@ function RequestCard({
                     ) : (
                       <CheckCircle2 className="w-3.5 h-3.5" />
                     )}
-                    Approve
+                    {t('requests.approve')}
                   </button>
                   <button
                     onClick={() => handleAction('reject')}
@@ -510,13 +504,13 @@ function RequestCard({
                     ) : (
                       <XCircle className="w-3.5 h-3.5" />
                     )}
-                    Reject
+                    {t('requests.reject')}
                   </button>
                   <button
                     onClick={() => setShowReview(false)}
                     className="px-3 py-2 rounded-lg border border-gray-200 text-xs text-gray-500 hover:bg-gray-50"
                   >
-                    Cancel
+                    {t('requests.cancel')}
                   </button>
                 </div>
               </div>
@@ -531,6 +525,7 @@ function RequestCard({
 // ── Main Page ──────────────────────────────────────────────────────────────────
 
 export function AccessRequestsPage() {
+  const { t } = useTranslation('access');
   const currentUser = useCurrentUser();
   const canApprove = useHasPermission(PERMISSIONS.ACCESS_REQUESTS_APPROVE);
   const [requests, setRequests] = useState<AccessRequest[]>(MOCK_REQUESTS);
@@ -599,16 +594,16 @@ export function AccessRequestsPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-xl font-semibold text-gray-900 tracking-tight">
-              Access Requests
+              {t('requests.title')}
             </h1>
             {pendingCount > 0 && (
               <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700 border border-amber-200">
-                <Bell className="w-3 h-3" /> {pendingCount} pending
+                <Bell className="w-3 h-3" /> {t('requests.pending', { count: pendingCount })}
               </span>
             )}
           </div>
           <p className="text-sm text-gray-500 mt-0.5">
-            Self-service access requests and approval workflow.
+            {t('requests.description')}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -617,7 +612,7 @@ export function AccessRequestsPage() {
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white transition-colors shadow-sm"
           >
             <Plus className="w-4 h-4" />
-            New Request
+            {t('requests.newRequest')}
           </button>
         </div>
       </div>
@@ -627,7 +622,7 @@ export function AccessRequestsPage() {
           <TabsList className="rounded-xl bg-white border border-gray-200 shadow-sm p-1 h-auto mb-5">
             {canApprove && (
               <TabsTrigger value="pending">
-                Pending Review
+                {t('requests.tabs.pendingReview')}
                 {pendingReview.length > 0 && (
                   <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700">
                     {pendingReview.length}
@@ -635,8 +630,8 @@ export function AccessRequestsPage() {
                 )}
               </TabsTrigger>
             )}
-            <TabsTrigger value="mine">My Requests</TabsTrigger>
-            {canApprove && <TabsTrigger value="all">All Requests</TabsTrigger>}
+            <TabsTrigger value="mine">{t('requests.tabs.myRequests')}</TabsTrigger>
+            {canApprove && <TabsTrigger value="all">{t('requests.tabs.allRequests')}</TabsTrigger>}
           </TabsList>
 
           {/* Pending review tab */}
@@ -645,9 +640,9 @@ export function AccessRequestsPage() {
               {pendingReview.length === 0 ? (
                 <div className="flex flex-col items-center py-20 text-gray-400">
                   <CheckCircle2 className="w-12 h-12 mb-3 opacity-30" />
-                  <p className="text-sm font-medium">No pending requests</p>
+                  <p className="text-sm font-medium">{t('requests.noPending')}</p>
                   <p className="text-xs mt-1">
-                    All access requests have been reviewed.
+                    {t('requests.allReviewed')}
                   </p>
                 </div>
               ) : (
@@ -669,15 +664,15 @@ export function AccessRequestsPage() {
             {myRequests.length === 0 ? (
               <div className="flex flex-col items-center py-16 text-gray-400">
                 <ClipboardList className="w-12 h-12 mb-3 opacity-30" />
-                <p className="text-sm font-medium">No requests yet</p>
+                <p className="text-sm font-medium">{t('requests.noRequestsYet')}</p>
                 <p className="text-xs mt-1">
-                  Submit a request when you need elevated access.
+                  {t('requests.noRequestsYetSub')}
                 </p>
                 <button
                   onClick={() => setShowNew(true)}
                   className="mt-4 flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium"
                 >
-                  <Plus className="w-4 h-4" /> New Request
+                  <Plus className="w-4 h-4" /> {t('requests.newRequest')}
                 </button>
               </div>
             ) : (
@@ -699,7 +694,7 @@ export function AccessRequestsPage() {
               {/* Filter */}
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-xs font-medium text-gray-500">
-                  Status:
+                  {t('requests.status')}
                 </span>
                 {(['', 'PENDING', 'APPROVED', 'REJECTED'] as const).map((s) => {
                   const cfg = s ? STATUS_CONFIG[s] : null;
@@ -715,7 +710,7 @@ export function AccessRequestsPage() {
                           : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
                       }`}
                     >
-                      {s ? STATUS_CONFIG[s].label : `All (${requests.length})`}
+                      {s ? t(`requests.statusLabels.${s}`) : t('requests.allCount', { count: requests.length })}
                     </button>
                   );
                 })}
@@ -723,7 +718,7 @@ export function AccessRequestsPage() {
 
               {filtered.length === 0 ? (
                 <div className="text-center py-10 text-gray-400 text-sm">
-                  No requests match the selected filter.
+                  {t('requests.noMatchFilter')}
                 </div>
               ) : (
                 filtered.map((req) => (

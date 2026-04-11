@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
@@ -5,6 +6,7 @@ import { frameworksService } from '@/services/api/frameworks';
 import { Download, FileDown } from 'lucide-react';
 
 export function ExportsTab({ slug }: { slug: string }) {
+  const { t } = useTranslation('compliance');
   const { data: fwRes } = useQuery({
     queryKey: ['frameworks', 'catalog-item', slug],
     queryFn: () => frameworksService.getFramework(slug),
@@ -106,12 +108,12 @@ export function ExportsTab({ slug }: { slug: string }) {
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Audit Pack Exports</CardTitle>
-          <p className="text-sm text-gray-500">Download framework requirements with N/A rationale and print a PDF-friendly audit pack with current coverage metrics.</p>
+          <CardTitle className="text-base">{t('frameworkTabs.exports.auditPackExports')}</CardTitle>
+          <p className="text-sm text-gray-500">{t('frameworkTabs.exports.auditPackDesc')}</p>
         </CardHeader>
         <CardContent className="flex flex-col sm:flex-row gap-3">
-          <Button onClick={downloadCsv}><Download className="w-4 h-4 mr-2" /> Download CSV</Button>
-          <Button variant="outline" onClick={printPdf}><FileDown className="w-4 h-4 mr-2" /> Print / Save PDF</Button>
+          <Button onClick={downloadCsv}><Download className="w-4 h-4 mr-2" /> {t('frameworkTabs.exports.downloadCsv')}</Button>
+          <Button variant="outline" onClick={printPdf}><FileDown className="w-4 h-4 mr-2" /> {t('frameworkTabs.exports.printPdf')}</Button>
         </CardContent>
       </Card>
     </div>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -79,6 +80,7 @@ interface EvidenceSynthesisPanelProps {
 }
 
 function EvidenceSynthesisPanel({ evidences }: EvidenceSynthesisPanelProps) {
+  const { t } = useTranslation('tests');
   const [selectedEvidenceId, setSelectedEvidenceId] = useState<string | null>(
     null,
   );
@@ -120,18 +122,17 @@ function EvidenceSynthesisPanel({ evidences }: EvidenceSynthesisPanelProps) {
       <div className="flex items-center gap-2">
         <Sparkles className="h-4 w-4 text-violet-600" />
         <span className="text-sm font-semibold text-violet-800">
-          AI Evidence Synthesis
+          {t('testDetail.evidenceTab.aiSynthesis')}
         </span>
         <span className="ml-auto text-xs text-violet-500">
-          Suggest control mappings
+          {t('testDetail.evidenceTab.suggestMappings')}
         </span>
       </div>
 
       {!generationId && (
         <div className="space-y-2">
           <p className="text-xs text-gray-600">
-            Select an evidence item to generate an AI-suggested control mapping
-            with citations.
+            {t('testDetail.evidenceTab.selectEvidence')}
           </p>
           <div className="flex flex-wrap gap-2">
             {evidences.map(({ evidenceId, evidence }) => (
@@ -157,13 +158,14 @@ function EvidenceSynthesisPanel({ evidences }: EvidenceSynthesisPanelProps) {
           {synthesisMutation.isPending && (
             <div className="flex items-center gap-2 text-xs text-violet-600">
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              Synthesizing evidence…
+              {t('testDetail.evidenceTab.synthesizing')}
             </div>
           )}
           {synthesisMutation.isError && (
             <p className="text-xs text-red-600">
-              Synthesis failed —{' '}
-              {(synthesisMutation.error as Error)?.message ?? 'unknown error'}
+              {t('testDetail.evidenceTab.synthesisFailed')}{' '}
+              {(synthesisMutation.error as Error)?.message ??
+                t('testDetail.evidenceTab.unknownError')}
             </p>
           )}
         </div>
@@ -173,13 +175,15 @@ function EvidenceSynthesisPanel({ evidences }: EvidenceSynthesisPanelProps) {
         <div className="space-y-3 bg-white rounded-xl border border-violet-100 p-3">
           <div className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">
             {generation.outputText || (
-              <span className="text-gray-400 italic">Generating…</span>
+              <span className="text-gray-400 italic">
+                {t('testDetail.evidenceTab.generating')}
+              </span>
             )}
           </div>
           {generation.citationsJson && generation.citationsJson.length > 0 && (
             <CitationViewer
               citations={generation.citationsJson}
-              label="Source documents"
+              label={t('testDetail.evidenceTab.sourceDocuments')}
               className="pt-1"
             />
           )}
@@ -196,7 +200,7 @@ function EvidenceSynthesisPanel({ evidences }: EvidenceSynthesisPanelProps) {
                 ) : (
                   <ThumbsUp className="h-3.5 w-3.5" />
                 )}
-                Accept suggestion
+                {t('testDetail.evidenceTab.acceptSuggestion')}
               </button>
               <button
                 type="button"
@@ -205,7 +209,7 @@ function EvidenceSynthesisPanel({ evidences }: EvidenceSynthesisPanelProps) {
                 className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
               >
                 <ThumbsDown className="h-3.5 w-3.5" />
-                Dismiss
+                {t('testDetail.evidenceTab.dismiss')}
               </button>
             </div>
           )}
@@ -231,6 +235,7 @@ export function TestDetailPanel({
   onMutated,
   pageMode = false,
 }: TestDetailPanelProps) {
+  const { t } = useTranslation('tests');
   const qc = useQueryClient();
   const navigate = useNavigate();
   const [runMsg, setRunMsg] = useState<string | null>(null);
@@ -269,7 +274,7 @@ export function TestDetailPanel({
     queryFn: async () => {
       const res = await testsService.getTest(testId);
       if (res.success && res.data) return res.data as TestRecord;
-      throw new Error('Failed to load test');
+      throw new Error(t('testDetail.failedToLoad'));
     },
     staleTime: STALE.TESTS,
   });
@@ -314,7 +319,7 @@ export function TestDetailPanel({
       return dispatchScan(provider, meta);
     },
     onSuccess: () => {
-      setRunMsg('Scan triggered. Results will update shortly.');
+      setRunMsg(t('testDetail.overview.scanTriggered'));
       setTimeout(() => {
         qc.invalidateQueries({ queryKey: ['tests'] });
         qc.invalidateQueries({ queryKey: QK.testRuns(testId) });
@@ -322,7 +327,7 @@ export function TestDetailPanel({
       }, 4000);
     },
     onError: () => {
-      setRunMsg('Failed to trigger scan.');
+      setRunMsg(t('testDetail.overview.scanFailed'));
       setTimeout(() => setRunMsg(null), 3000);
     },
   });
@@ -426,7 +431,7 @@ export function TestDetailPanel({
                   d="M15 19l-7-7 7-7"
                 />
               </svg>
-              Back to Tests
+              {t('testDetail.backToTests')}
             </button>
           )}
           <h2
@@ -435,7 +440,9 @@ export function TestDetailPanel({
             {test.name}
           </h2>
           {test.description && (
-            <p className={`text-gray-500 leading-relaxed mt-1 ${pageMode ? 'text-sm' : 'text-xs'}`}>
+            <p
+              className={`text-gray-500 leading-relaxed mt-1 ${pageMode ? 'text-sm' : 'text-xs'}`}
+            >
               {test.description}
             </p>
           )}
@@ -458,7 +465,7 @@ export function TestDetailPanel({
         <button
           onClick={handleClose}
           className="ml-4 p-1.5 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors flex-shrink-0"
-          aria-label="Close panel"
+          aria-label={t('testDetail.closePanel')}
         >
           <X className="w-5 h-5" />
         </button>
@@ -483,7 +490,7 @@ export function TestDetailPanel({
 
       {isError && (
         <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-700">
-          Failed to load test details.
+          {t('testDetail.failedToLoad')}
         </div>
       )}
 
@@ -492,11 +499,11 @@ export function TestDetailPanel({
           <div className="rounded-3xl border border-gray-200 bg-gradient-to-br from-slate-50 via-white to-slate-100 p-5 shadow-sm">
             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
               <DetailStatCard
-                label="Owner"
+                label={t('testDetail.owner')}
                 value={test.owner?.name ?? test.owner?.email ?? test.ownerId}
               />
               <DetailStatCard
-                label="Due Date"
+                label={t('testDetail.dueDate')}
                 value={fmtDate(test.dueDate)}
                 tone={
                   test.status === 'Overdue' || test.status === 'Due_soon'
@@ -505,18 +512,26 @@ export function TestDetailPanel({
                 }
               />
               <DetailStatCard
-                label="Evidence"
-                value={`${test.evidences.length} linked item${test.evidences.length === 1 ? '' : 's'}`}
+                label={t('testDetail.evidence')}
+                value={t('testDetail.linkedItems', {
+                  count: test.evidences.length,
+                })}
               />
               <DetailStatCard
-                label={isSystemDriven ? 'Last Result' : 'Completion'}
+                label={
+                  isSystemDriven
+                    ? t('testDetail.lastResult')
+                    : t('testDetail.completion')
+                }
                 value={
                   isSystemDriven ? (
                     <LastResultBadge result={test.lastResult ?? 'Not_Run'} />
                   ) : test.status === 'OK' ? (
-                    `Completed ${fmtDate(test.completedAt)}`
+                    t('testDetail.completed', {
+                      date: fmtDate(test.completedAt),
+                    })
                   ) : (
-                    'Pending completion'
+                    t('testDetail.pendingCompletion')
                   )
                 }
                 tone={
@@ -534,11 +549,10 @@ export function TestDetailPanel({
               <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3">
                 <div className="flex-1 min-w-[220px]">
                   <p className="text-sm font-semibold text-amber-900">
-                    Needs follow-up
+                    {t('testDetail.needsFollowUp')}
                   </p>
                   <p className="text-xs text-amber-700">
-                    Create a remediation task or update evidence before the next
-                    review cycle.
+                    {t('testDetail.needsFollowUpDesc')}
                   </p>
                 </div>
                 <button
@@ -546,20 +560,20 @@ export function TestDetailPanel({
                   className="inline-flex items-center gap-2 rounded-lg border border-amber-300 bg-white px-4 py-2 text-sm font-medium text-amber-900 transition-colors hover:bg-amber-100"
                 >
                   <NotionPanelIcon />
-                  Create Notion Task
+                  {t('testDetail.createNotionTask')}
                 </button>
               </div>
             )}
             {notionTaskUrl && (
               <p className="mt-3 text-xs text-green-700">
-                Task created:{' '}
+                {t('testDetail.taskCreated')}{' '}
                 <a
                   href={notionTaskUrl}
                   target="_blank"
                   rel="noreferrer"
                   className="underline hover:text-green-900"
                 >
-                  Open in Notion
+                  {t('testDetail.openInNotion')}
                 </a>
               </p>
             )}
@@ -567,34 +581,57 @@ export function TestDetailPanel({
 
           <Tabs defaultValue="summary" className="space-y-4">
             <TabsList className="h-auto flex-wrap justify-start rounded-2xl bg-slate-100 p-1">
-              <TabsTrigger value="summary">Summary</TabsTrigger>
-              <TabsTrigger value="evidence">Evidence</TabsTrigger>
-              <TabsTrigger value="mapping">Mappings</TabsTrigger>
-              <TabsTrigger value="activity">Activity</TabsTrigger>
+              <TabsTrigger value="summary">
+                {t('testDetail.tabs.summary')}
+              </TabsTrigger>
+              <TabsTrigger value="evidence">
+                {t('testDetail.tabs.evidence')}
+              </TabsTrigger>
+              <TabsTrigger value="mapping">
+                {t('testDetail.tabs.mapping')}
+              </TabsTrigger>
+              <TabsTrigger value="activity">
+                {t('testDetail.tabs.activity')}
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="summary" className="space-y-4 mt-0">
               <Section
-                title="Overview"
+                title={t('testDetail.overview.title')}
                 icon={<FileText className="w-4 h-4 text-gray-500" />}
               >
                 <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                   {[
-                    { label: 'Due Date', value: fmtDate(test.dueDate) },
-                    { label: 'Next Due', value: fmtDate(test.nextDueDate) },
                     {
-                      label: 'Cadence',
+                      label: t('testDetail.dueDate'),
+                      value: fmtDate(test.dueDate),
+                    },
+                    {
+                      label: t('testDetail.overview.nextDue'),
+                      value: fmtDate(test.nextDueDate),
+                    },
+                    {
+                      label: t('testDetail.overview.cadence'),
                       value: test.recurrenceRule
                         ? test.recurrenceRule[0]!.toUpperCase() +
                           test.recurrenceRule.slice(1)
-                        : 'One-time',
+                        : t('testDetail.overview.oneTime'),
                     },
-                    { label: 'Completed', value: fmtDate(test.completedAt) },
-                    { label: 'Type', value: test.type },
-                    { label: 'Category', value: test.category },
-                    { label: 'Created', value: fmtDate(test.createdAt) },
                     {
-                      label: 'Risk Engine ID',
+                      label: t('testDetail.completion'),
+                      value: fmtDate(test.completedAt),
+                    },
+                    { label: t('testDetail.overview.type'), value: test.type },
+                    {
+                      label: t('testDetail.overview.category'),
+                      value: test.category,
+                    },
+                    {
+                      label: t('testDetail.overview.created'),
+                      value: fmtDate(test.createdAt),
+                    },
+                    {
+                      label: t('testDetail.overview.riskEngineId'),
                       value: test.riskEngineTestId ?? '—',
                     },
                   ].map(({ label, value }) => (
@@ -609,7 +646,7 @@ export function TestDetailPanel({
                   ))}
                   <div className="sm:col-span-2">
                     <dt className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">
-                      Owner
+                      {t('testDetail.owner')}
                     </dt>
                     {canEditTest && usersData && usersData.length > 0 ? (
                       <select
@@ -636,13 +673,17 @@ export function TestDetailPanel({
                   <div className="mt-4 rounded-2xl border border-violet-200 bg-violet-50 p-4 space-y-2">
                     <div className="flex items-center gap-2 text-xs font-semibold text-violet-700 uppercase tracking-wide">
                       <Zap className="w-3.5 h-3.5" />
-                      Automated via{' '}
-                      {providerLabel ?? test.pipelineProvider ?? 'Integration'}
+                      {t('testDetail.overview.automatedVia', {
+                        provider:
+                          providerLabel ??
+                          test.pipelineProvider ??
+                          t('testDetail.overview.integrationFallback'),
+                      })}
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                       <div>
                         <dt className="text-xs font-medium text-gray-400 uppercase tracking-wide">
-                          Last Scan
+                          {t('testDetail.overview.lastScan')}
                         </dt>
                         <dd className="mt-0.5 font-medium text-gray-800">
                           {fmtDateTime(test.lastRunAt)}
@@ -650,7 +691,7 @@ export function TestDetailPanel({
                       </div>
                       <div>
                         <dt className="text-xs font-medium text-gray-400 uppercase tracking-wide">
-                          Last Result
+                          {t('testDetail.lastResult')}
                         </dt>
                         <dd className="mt-0.5">
                           <LastResultBadge
@@ -677,10 +718,14 @@ export function TestDetailPanel({
                             await testsService.ingestPipelineRun({
                               pipelineName: test.name,
                               provider:
-                                test.pipelineProvider ?? 'GitHub Actions',
+                                test.pipelineProvider ??
+                                t(
+                                  'testDetail.overview.pipelineProviderFallback',
+                                ),
                               status: 'success',
-                              summary:
-                                'Pipeline execution imported from CI/CD webhook.',
+                              summary: t(
+                                'testDetail.overview.pipelineImportSummary',
+                              ),
                               branch: 'main',
                             });
                             qc.invalidateQueries({
@@ -694,7 +739,7 @@ export function TestDetailPanel({
                           className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium shadow-sm transition-colors"
                         >
                           <RefreshCw className="w-4 h-4" />
-                          Ingest Pipeline Run
+                          {t('testDetail.overview.ingestPipelineRun')}
                         </button>
                       ) : (
                         <button
@@ -706,8 +751,8 @@ export function TestDetailPanel({
                             className={`w-4 h-4 ${runMutation.isPending ? 'animate-spin' : ''}`}
                           />
                           {runMutation.isPending
-                            ? 'Running...'
-                            : 'Run Scan Now'}
+                            ? t('testDetail.overview.running')
+                            : t('testDetail.overview.runScanNow')}
                         </button>
                       )}
                       {test.autoRemediationSupported &&
@@ -719,8 +764,8 @@ export function TestDetailPanel({
                           >
                             <Wrench className="w-4 h-4" />
                             {autoRemediateMutation.isPending
-                              ? 'Executing remediation...'
-                              : 'Run Auto-remediation'}
+                              ? t('testDetail.overview.autoRemediating')
+                              : t('testDetail.overview.autoRemediate')}
                           </button>
                         )}
                     </>
@@ -731,7 +776,7 @@ export function TestDetailPanel({
                         className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium shadow-sm transition-colors"
                       >
                         <FileText className="w-4 h-4" />
-                        Upload Document
+                        {t('testDetail.overview.uploadDocument')}
                       </button>
                     ) : (
                       <button
@@ -741,14 +786,16 @@ export function TestDetailPanel({
                       >
                         <CheckCircle className="w-4 h-4" />
                         {completeMutation.isPending
-                          ? 'Marking...'
-                          : 'Mark Complete'}
+                          ? t('testDetail.overview.marking')
+                          : t('testDetail.overview.markComplete')}
                       </button>
                     )
                   ) : test.status === 'OK' ? (
                     <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-green-50 text-green-700 text-sm font-medium border border-green-200">
                       <CheckCircle className="w-4 h-4" />
-                      Completed {fmtDate(test.completedAt)}
+                      {t('testDetail.completed', {
+                        date: fmtDate(test.completedAt),
+                      })}
                     </div>
                   ) : null}
                 </div>
@@ -757,42 +804,52 @@ export function TestDetailPanel({
                 )}
                 {isSystemDriven && (
                   <p className="mt-2 text-xs text-gray-400">
-                    This test is system-driven via{' '}
-                    {providerLabel ??
-                      test.pipelineProvider ??
-                      'the integration'}
-                    . Results update automatically on every scan.
+                    {t('testDetail.overview.systemDrivenVia', {
+                      provider:
+                        providerLabel ??
+                        test.pipelineProvider ??
+                        t('testDetail.overview.integrationNameFallback'),
+                    })}
                   </p>
                 )}
                 {!canEditTest && !isSystemDriven && (
                   <p className="mt-2 text-xs text-gray-500">
-                    Only the assigned owner, team lead, or CISO override roles
-                    can change this test.
+                    {t('testDetail.overview.editPermissions')}
                   </p>
                 )}
               </Section>
 
               <Section
-                title="Governance"
+                title={t('testDetail.governance.title')}
                 icon={<ClipboardCheck className="w-4 h-4 text-gray-500" />}
               >
                 <div className="space-y-3 text-sm">
                   <div className="rounded-lg border border-gray-100 p-3">
                     <p className="text-xs uppercase tracking-wide text-gray-500">
-                      Attestation Status
+                      {t('testDetail.governance.attestationStatus')}
                     </p>
                     <p className="mt-1 font-medium text-gray-900">
-                      {(test.attestationStatus ?? 'Not_requested').replace(
-                        /_/g,
-                        ' ',
+                      {t(
+                        `testDetail.governance.attestationStatuses.${test.attestationStatus ?? 'Not_requested'}`,
+                        {
+                          defaultValue: (
+                            test.attestationStatus ?? 'Not_requested'
+                          ).replace(/_/g, ' '),
+                        },
                       )}
                     </p>
                     <p className="mt-1 text-xs text-gray-500">
-                      Reviewer: {test.reviewer?.name ?? 'Unassigned'}
+                      {t('testDetail.governance.reviewer', {
+                        name:
+                          test.reviewer?.name ??
+                          t('testDetail.governance.unassigned'),
+                      })}
                     </p>
                     {test.attestedAt && (
                       <p className="mt-1 text-xs text-gray-500">
-                        Signed {fmtDateTime(test.attestedAt)}
+                        {t('testDetail.governance.signedAt', {
+                          date: fmtDateTime(test.attestedAt),
+                        })}
                       </p>
                     )}
                   </div>
@@ -808,7 +865,7 @@ export function TestDetailPanel({
                           disabled={requestAttestationMutation.isPending}
                           className="px-3 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-sm font-medium disabled:opacity-50"
                         >
-                          Request Attestation
+                          {t('testDetail.attestation.requestAttestation')}
                         </button>
                       )}
                     {canAttest &&
@@ -822,20 +879,19 @@ export function TestDetailPanel({
                           className="px-3 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-sm font-medium disabled:opacity-50"
                         >
                           {signAttestationMutation.isPending
-                            ? 'Signing...'
-                            : 'Attest Evidence'}
+                            ? t('testDetail.governance.signing')
+                            : t('testDetail.governance.attestEvidence')}
                         </button>
                       )}
                   </div>
                   <p className="text-xs text-gray-500">
-                    Owners can edit and complete, auditors can attest, and
-                    CISO/admin roles retain override authority.
+                    {t('testDetail.governance.permissionsHint')}
                   </p>
                 </div>
               </Section>
 
               <Section
-                title="How to Remediate"
+                title={t('remediation.title')}
                 icon={<Wrench className="w-4 h-4 text-gray-500" />}
               >
                 <RemediationGuide test={test} />
@@ -844,11 +900,16 @@ export function TestDetailPanel({
 
             <TabsContent value="evidence" className="space-y-4 mt-0">
               <Section
-                title={`Evidence (${test.evidences.length})`}
+                title={
+                  t('testDetail.evidenceTab.attachedEvidence') +
+                  ` (${test.evidences.length})`
+                }
                 icon={<Shield className="w-4 h-4 text-gray-500" />}
               >
                 {test.evidences.length === 0 ? (
-                  <p className="text-sm text-gray-400">No evidence attached.</p>
+                  <p className="text-sm text-gray-400">
+                    {t('testDetail.evidenceTab.noEvidence')}
+                  </p>
                 ) : (
                   <ul className="space-y-2">
                     {test.evidences.map(({ id, evidenceId, evidence }) => (
@@ -867,7 +928,8 @@ export function TestDetailPanel({
                               rel="noreferrer"
                               className="text-xs text-blue-600 hover:underline inline-flex items-center gap-1 mt-1"
                             >
-                              <ExternalLink className="w-3 h-3" /> View file
+                              <ExternalLink className="w-3 h-3" />{' '}
+                              {t('testDetail.evidenceTab.viewEvidence')}
                             </a>
                           )}
                           <p className="text-xs text-gray-400 mt-1">
@@ -878,7 +940,7 @@ export function TestDetailPanel({
                           onClick={() => detachEvidence.mutate(evidenceId)}
                           disabled={!canEditTest}
                           className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
-                          title="Detach evidence"
+                          title={t('testDetail.evidenceTab.detach')}
                         >
                           <X className="w-4 h-4" />
                         </button>
@@ -917,12 +979,15 @@ export function TestDetailPanel({
               </Section>
 
               <Section
-                title={`Unified Evidence (${unifiedEvidence.length})`}
+                title={
+                  t('testDetail.evidenceTab.unifiedEvidence') +
+                  ` (${unifiedEvidence.length})`
+                }
                 icon={<Shield className="w-4 h-4 text-gray-500" />}
               >
                 {unifiedEvidence.length === 0 ? (
                   <p className="text-sm text-gray-400">
-                    No unified evidence records yet.
+                    {t('testDetail.evidenceTab.noUnifiedEvidence')}
                   </p>
                 ) : (
                   <div className="space-y-2">
@@ -959,11 +1024,16 @@ export function TestDetailPanel({
 
             <TabsContent value="mapping" className="space-y-4 mt-0">
               <Section
-                title={`Controls (${test.controls.length})`}
+                title={
+                  t('testDetail.mappingTab.linkedControls') +
+                  ` (${test.controls.length})`
+                }
                 icon={<Shield className="w-4 h-4 text-gray-500" />}
               >
                 {test.controls.length === 0 ? (
-                  <p className="text-sm text-gray-400">No controls linked.</p>
+                  <p className="text-sm text-gray-400">
+                    {t('testDetail.mappingTab.noControls')}
+                  </p>
                 ) : (
                   <ul className="space-y-2">
                     {test.controls.map(({ id, controlId, control }) => (
@@ -988,7 +1058,7 @@ export function TestDetailPanel({
                           onClick={() => detachControl.mutate(controlId)}
                           disabled={!canEditTest}
                           className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
-                          title="Detach control"
+                          title={t('testDetail.mappingTab.detachControl')}
                         >
                           <X className="w-4 h-4" />
                         </button>
@@ -1005,11 +1075,16 @@ export function TestDetailPanel({
               </Section>
 
               <Section
-                title={`Frameworks (${test.frameworks.length})`}
+                title={
+                  t('testDetail.mappingTab.linkedFrameworks') +
+                  ` (${test.frameworks.length})`
+                }
                 icon={<Tag className="w-4 h-4 text-gray-500" />}
               >
                 {test.frameworks.length === 0 ? (
-                  <p className="text-sm text-gray-400">No frameworks linked.</p>
+                  <p className="text-sm text-gray-400">
+                    {t('testDetail.mappingTab.noFrameworks')}
+                  </p>
                 ) : (
                   <div className="flex flex-wrap gap-2">
                     {test.frameworks.map(({ id, frameworkName }) => (
@@ -1021,7 +1096,7 @@ export function TestDetailPanel({
                         <button
                           onClick={() => detachFramework.mutate(id)}
                           className="hover:text-red-500 transition-colors"
-                          title="Remove framework"
+                          title={t('testDetail.mappingTab.removeFramework')}
                         >
                           <X className="w-3 h-3" />
                         </button>
@@ -1033,11 +1108,16 @@ export function TestDetailPanel({
               </Section>
 
               <Section
-                title={`Audits (${test.audits.length})`}
+                title={
+                  t('testDetail.mappingTab.linkedAudits') +
+                  ` (${test.audits.length})`
+                }
                 icon={<Link2 className="w-4 h-4 text-gray-500" />}
               >
                 {test.audits.length === 0 ? (
-                  <p className="text-sm text-gray-400">No audits linked.</p>
+                  <p className="text-sm text-gray-400">
+                    {t('testDetail.mappingTab.noAudits')}
+                  </p>
                 ) : (
                   <ul className="space-y-2">
                     {test.audits.map(({ id, audit }) => (
@@ -1049,7 +1129,9 @@ export function TestDetailPanel({
                           {audit.type}
                         </p>
                         <p className="text-xs text-gray-500 mt-0.5">
-                          Auditor: {audit.auditor}
+                          {t('testDetail.mappingTab.auditor', {
+                            name: audit.auditor,
+                          })}
                         </p>
                         {audit.scope && (
                           <p className="text-xs text-gray-400 mt-0.5">
@@ -1071,7 +1153,7 @@ export function TestDetailPanel({
 
             <TabsContent value="activity" className="space-y-4 mt-0">
               <Section
-                title="Result Trend"
+                title={t('testDetail.activityTab.trendTitle')}
                 icon={<Activity className="w-4 h-4 text-gray-500" />}
               >
                 <TrendSparkline testId={testId} />
@@ -1079,7 +1161,7 @@ export function TestDetailPanel({
 
               {isSystemDriven && (
                 <Section
-                  title="Scan Run History"
+                  title={t('testDetail.activityTab.scanRuns')}
                   icon={<Zap className="w-4 h-4 text-gray-500" />}
                 >
                   <RunsSection testId={testId} />
@@ -1087,7 +1169,7 @@ export function TestDetailPanel({
               )}
 
               <Section
-                title="Risk Context"
+                title={t('testDetail.activityTab.riskContext')}
                 icon={<AlertTriangle className="w-4 h-4 text-gray-500" />}
               >
                 <RiskContextSection testId={testId} />
@@ -1095,17 +1177,21 @@ export function TestDetailPanel({
 
               {securityEvents.length > 0 && (
                 <Section
-                  title="Security Workflow"
+                  title={t('testDetail.activityTab.securityWorkflow')}
                   icon={<ArrowRight className="w-4 h-4 text-gray-500" />}
                 >
                   <div className="rounded-lg border border-amber-100 bg-amber-50 p-3">
                     <p className="text-xs uppercase tracking-wide text-amber-700">
-                      SIEM / SOAR
+                      {t('testDetail.activityTab.siemSoar')}
                     </p>
                     <div className="mt-2 space-y-1">
                       {securityEvents.slice(0, 6).map((item) => (
                         <p key={item.id} className="text-xs text-amber-900">
-                          {item.eventType} to {item.destination} ({item.status})
+                          {t('testDetail.activityTab.securityEvent', {
+                            eventType: item.eventType,
+                            destination: item.destination,
+                            status: item.status,
+                          })}
                         </p>
                       ))}
                     </div>
@@ -1114,7 +1200,7 @@ export function TestDetailPanel({
               )}
 
               <Section
-                title="History"
+                title={t('testDetail.activityTab.history')}
                 icon={<History className="w-4 h-4 text-gray-500" />}
               >
                 <HistorySection testId={testId} />

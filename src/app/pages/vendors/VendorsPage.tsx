@@ -7,10 +7,7 @@ import { PageTemplate } from '@/app/components/PageTemplate';
 import { PageFilterBar } from '@/app/components/filters/PageFilterBar';
 import { useUrlFilterState } from '@/app/hooks/useUrlFilterState';
 import { Button } from '@/app/components/ui/button';
-import {
-  Card,
-  CardContent,
-} from '@/app/components/ui/card';
+import { Card, CardContent } from '@/app/components/ui/card';
 import { Badge } from '@/app/components/ui/badge';
 import { Progress } from '@/app/components/ui/progress';
 import { Input } from '@/app/components/ui/input';
@@ -39,20 +36,38 @@ import { QK } from '@/lib/queryKeys';
 
 type TabKey = 'ALL' | 'DUE' | 'HIGH_RISK';
 
-import { getStatusColors, getSeverityColors } from '@/app/theme/semantic-colors';
+import {
+  getStatusColors,
+  getSeverityColors,
+} from '@/app/theme/semantic-colors';
 
 const statusMeta: Record<VendorStatus, { label: string; className: string }> = {
-  MONITORED:      { label: 'Monitored',      className: getStatusColors('MONITORED').className },
-  ASSESSMENT_DUE: { label: 'Assessment due',  className: getStatusColors('ASSESSMENT_DUE').className },
-  IN_REVIEW:      { label: 'In review',       className: getStatusColors('IN_REVIEW').className },
-  BLOCKED:        { label: 'Blocked',         className: getStatusColors('BLOCKED').className },
+  MONITORED: {
+    label: 'Monitored',
+    className: getStatusColors('MONITORED').className,
+  },
+  ASSESSMENT_DUE: {
+    label: 'Assessment due',
+    className: getStatusColors('ASSESSMENT_DUE').className,
+  },
+  IN_REVIEW: {
+    label: 'In review',
+    className: getStatusColors('IN_REVIEW').className,
+  },
+  BLOCKED: {
+    label: 'Blocked',
+    className: getStatusColors('BLOCKED').className,
+  },
 };
 
 const tierMeta: Record<VendorTier, { label: string; className: string }> = {
-  LOW:      { label: 'Low',      className: getSeverityColors('LOW').className },
-  MEDIUM:   { label: 'Medium',   className: getSeverityColors('MEDIUM').className },
-  HIGH:     { label: 'High',     className: getSeverityColors('HIGH').className },
-  CRITICAL: { label: 'Critical', className: getSeverityColors('CRITICAL').className },
+  LOW: { label: 'Low', className: getSeverityColors('LOW').className },
+  MEDIUM: { label: 'Medium', className: getSeverityColors('MEDIUM').className },
+  HIGH: { label: 'High', className: getSeverityColors('HIGH').className },
+  CRITICAL: {
+    label: 'Critical',
+    className: getSeverityColors('CRITICAL').className,
+  },
 };
 
 const emptyVendorInput: CreateVendorInput = {
@@ -64,7 +79,10 @@ const emptyVendorInput: CreateVendorInput = {
   dataClass: 'Sensitive',
 };
 
-function isDueWithinDays(isoDate: string | null | undefined, days: number): boolean {
+function isDueWithinDays(
+  isoDate: string | null | undefined,
+  days: number,
+): boolean {
   if (!isoDate) return false;
   const now = new Date();
   const due = new Date(isoDate);
@@ -94,15 +112,23 @@ export function VendorsPage() {
   const [form, setForm] = useState<CreateVendorInput>(emptyVendorInput);
   const [creating, setCreating] = useState(false);
 
-  const { data: vendors = [], isLoading, error } = useQuery({
+  const {
+    data: vendors = [],
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: QK.vendors(),
     queryFn: () => vendorsService.list(),
     staleTime: 30_000,
   });
 
   const stats = useMemo(() => {
-    const dueSoon = vendors.filter((v) => isDueWithinDays(v.nextAssessmentAt, 30)).length;
-    const highRisk = vendors.filter((v) => v.tier === 'HIGH' || v.tier === 'CRITICAL').length;
+    const dueSoon = vendors.filter((v) =>
+      isDueWithinDays(v.nextAssessmentAt, 30),
+    ).length;
+    const highRisk = vendors.filter(
+      (v) => v.tier === 'HIGH' || v.tier === 'CRITICAL',
+    ).length;
     const openFindings = vendors.reduce((sum, v) => sum + v.openFindings, 0);
     return { dueSoon, highRisk, openFindings };
   }, [vendors]);
@@ -118,8 +144,10 @@ export function VendorsPage() {
           v.owner.toLowerCase().includes(normalized)
         );
       })
-      .filter((v) => statusFilter === 'ALL' ? true : v.status === statusFilter)
-      .filter((v) => tierFilter === 'ALL' ? true : v.tier === tierFilter)
+      .filter((v) =>
+        statusFilter === 'ALL' ? true : v.status === statusFilter,
+      )
+      .filter((v) => (tierFilter === 'ALL' ? true : v.tier === tierFilter))
       .filter((v) => {
         if (tab === 'ALL') return true;
         if (tab === 'DUE') return isDueWithinDays(v.nextAssessmentAt, 30);
@@ -127,19 +155,59 @@ export function VendorsPage() {
       })
       .sort(
         (a, b) =>
-          new Date(a.nextAssessmentAt).getTime() - new Date(b.nextAssessmentAt).getTime(),
+          new Date(a.nextAssessmentAt).getTime() -
+          new Date(b.nextAssessmentAt).getTime(),
       );
   }, [vendors, search, statusFilter, tierFilter, tab]);
 
   const activeFilters = [
-    ...(search.trim() ? [{ key: 'search', label: `Search: ${search.trim()}`, onRemove: () => update({ search: '' }) }] : []),
-    ...(statusFilter !== 'ALL' ? [{ key: 'status', label: `Status: ${statusMeta[statusFilter].label}`, onRemove: () => update({ status: 'ALL' }) }] : []),
-    ...(tierFilter !== 'ALL' ? [{ key: 'tier', label: `Tier: ${tierMeta[tierFilter].label}`, onRemove: () => update({ tier: 'ALL' }) }] : []),
-    ...(tab !== 'ALL' ? [{ key: 'tab', label: `View: ${tab === 'DUE' ? 'Due soon' : 'High risk'}`, onRemove: () => update({ tab: 'ALL' }) }] : []),
+    ...(search.trim()
+      ? [
+          {
+            key: 'search',
+            label: t('filters.searchLabel', { value: search.trim() }),
+            onRemove: () => update({ search: '' }),
+          },
+        ]
+      : []),
+    ...(statusFilter !== 'ALL'
+      ? [
+          {
+            key: 'status',
+            label: t('filters.statusLabel', {
+              value: t(`status.${statusFilter}`),
+            }),
+            onRemove: () => update({ status: 'ALL' }),
+          },
+        ]
+      : []),
+    ...(tierFilter !== 'ALL'
+      ? [
+          {
+            key: 'tier',
+            label: t('filters.tierLabel', {
+              value: t(`riskLevel.${tierFilter}`),
+            }),
+            onRemove: () => update({ tier: 'ALL' }),
+          },
+        ]
+      : []),
+    ...(tab !== 'ALL'
+      ? [
+          {
+            key: 'tab',
+            label: t('filters.viewLabel', {
+              value: tab === 'DUE' ? t('tabs.dueSoon') : t('tabs.highRisk'),
+            }),
+            onRemove: () => update({ tab: 'ALL' }),
+          },
+        ]
+      : []),
   ];
 
   async function onCreateVendor() {
-    if (!form.name.trim() || !form.category.trim() || !form.owner.trim()) return;
+    if (!form.name.trim() || !form.category.trim() || !form.owner.trim())
+      return;
     setCreating(true);
     try {
       await vendorsService.create({
@@ -170,7 +238,7 @@ export function VendorsPage() {
     >
       {error && (
         <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          Failed to load vendors. Please refresh.
+          {t('failedToLoad')}
         </div>
       )}
       <div className="space-y-6">
@@ -178,36 +246,52 @@ export function VendorsPage() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardContent className="pt-6">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Vendors</p>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                {t('stats.vendors')}
+              </p>
               <div className="mt-2 flex items-center justify-between">
-                <p className="text-2xl font-bold text-foreground">{vendors.length}</p>
+                <p className="text-2xl font-bold text-foreground">
+                  {vendors.length}
+                </p>
                 <Building2 className="h-5 w-5 text-muted-foreground" />
               </div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-6">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">High risk</p>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                {t('stats.highRisk')}
+              </p>
               <div className="mt-2 flex items-center justify-between">
-                <p className="text-2xl font-bold text-foreground">{stats.highRisk}</p>
+                <p className="text-2xl font-bold text-foreground">
+                  {stats.highRisk}
+                </p>
                 <AlertTriangle className="h-5 w-5 text-orange-500" />
               </div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-6">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Assessments due (30d)</p>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                {t('stats.assessmentsDue')}
+              </p>
               <div className="mt-2 flex items-center justify-between">
-                <p className="text-2xl font-bold text-foreground">{stats.dueSoon}</p>
+                <p className="text-2xl font-bold text-foreground">
+                  {stats.dueSoon}
+                </p>
                 <CalendarClock className="h-5 w-5 text-amber-500" />
               </div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-6">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Open findings</p>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                {t('stats.openFindings')}
+              </p>
               <div className="mt-2 flex items-center justify-between">
-                <p className="text-2xl font-bold text-foreground">{stats.openFindings}</p>
+                <p className="text-2xl font-bold text-foreground">
+                  {stats.openFindings}
+                </p>
                 <FileWarning className="h-5 w-5 text-red-500" />
               </div>
             </CardContent>
@@ -225,41 +309,46 @@ export function VendorsPage() {
                 {
                   key: 'status',
                   value: statusFilter,
-                  placeholder: 'Status',
-                  onChange: (value) => update({ status: value as 'ALL' | VendorStatus }),
+                  placeholder: t('filters.status'),
+                  onChange: (value) =>
+                    update({ status: value as 'ALL' | VendorStatus }),
                   options: [
-                    { value: 'ALL', label: 'All statuses' },
-                    { value: 'MONITORED', label: 'Monitored' },
-                    { value: 'ASSESSMENT_DUE', label: 'Assessment due' },
-                    { value: 'IN_REVIEW', label: 'In review' },
-                    { value: 'BLOCKED', label: 'Blocked' },
+                    { value: 'ALL', label: t('filters.allStatuses') },
+                    { value: 'MONITORED', label: t('status.MONITORED') },
+                    {
+                      value: 'ASSESSMENT_DUE',
+                      label: t('status.ASSESSMENT_DUE'),
+                    },
+                    { value: 'IN_REVIEW', label: t('status.IN_REVIEW') },
+                    { value: 'BLOCKED', label: t('status.BLOCKED') },
                   ],
                 },
                 {
                   key: 'tier',
                   value: tierFilter,
-                  placeholder: 'Risk tier',
-                  onChange: (value) => update({ tier: value as 'ALL' | VendorTier }),
+                  placeholder: t('filters.riskTier'),
+                  onChange: (value) =>
+                    update({ tier: value as 'ALL' | VendorTier }),
                   options: [
-                    { value: 'ALL', label: 'All risk tiers' },
-                    { value: 'LOW', label: 'Low' },
-                    { value: 'MEDIUM', label: 'Medium' },
-                    { value: 'HIGH', label: 'High' },
-                    { value: 'CRITICAL', label: 'Critical' },
+                    { value: 'ALL', label: t('filters.allRiskTiers') },
+                    { value: 'LOW', label: t('riskLevel.LOW') },
+                    { value: 'MEDIUM', label: t('riskLevel.MEDIUM') },
+                    { value: 'HIGH', label: t('riskLevel.HIGH') },
+                    { value: 'CRITICAL', label: t('riskLevel.CRITICAL') },
                   ],
                 },
               ]}
               resultCount={filteredVendors.length}
-              resultLabel="vendors"
+              resultLabel={t('stats.vendors').toLowerCase()}
               activeFilters={activeFilters}
               onClearAll={reset}
             />
 
             <div className="mt-4 flex flex-wrap gap-2">
               {[
-                { key: 'ALL', label: 'All vendors' },
-                { key: 'DUE', label: 'Due soon' },
-                { key: 'HIGH_RISK', label: 'High risk' },
+                { key: 'ALL', label: t('tabs.allVendors') },
+                { key: 'DUE', label: t('tabs.dueSoon') },
+                { key: 'HIGH_RISK', label: t('tabs.highRisk') },
               ].map((item) => (
                 <Button
                   key={item.key}
@@ -276,27 +365,33 @@ export function VendorsPage() {
               <table className="w-full min-w-[900px] text-sm">
                 <thead>
                   <tr className="border-b text-left text-xs uppercase tracking-wide text-muted-foreground">
-                    <th className="py-3 pr-4">Vendor</th>
-                    <th className="py-3 pr-4">Category</th>
-                    <th className="py-3 pr-4">Tier</th>
-                    <th className="py-3 pr-4">Score</th>
-                    <th className="py-3 pr-4">Questionnaire</th>
-                    <th className="py-3 pr-4">Open findings</th>
-                    <th className="py-3 pr-4">Next review</th>
-                    <th className="py-3 pr-0">Status</th>
+                    <th className="py-3 pr-4">{t('columns.name')}</th>
+                    <th className="py-3 pr-4">{t('columns.category')}</th>
+                    <th className="py-3 pr-4">{t('table.tier')}</th>
+                    <th className="py-3 pr-4">{t('detail.score')}</th>
+                    <th className="py-3 pr-4">{t('detail.questionnaire')}</th>
+                    <th className="py-3 pr-4">{t('detail.openFindings')}</th>
+                    <th className="py-3 pr-4">{t('table.nextReview')}</th>
+                    <th className="py-3 pr-0">{t('columns.status')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {isLoading && (
                     <tr>
-                      <td colSpan={8} className="py-10 text-center text-muted-foreground">
-                        Loading vendors...
+                      <td
+                        colSpan={8}
+                        className="py-10 text-center text-muted-foreground"
+                      >
+                        {t('detail.loadingDescription')}
                       </td>
                     </tr>
                   )}
                   {!isLoading && filteredVendors.length === 0 && (
                     <tr>
-                      <td colSpan={8} className="py-10 text-center text-muted-foreground">
+                      <td
+                        colSpan={8}
+                        className="py-10 text-center text-muted-foreground"
+                      >
                         {t('noResults')}
                       </td>
                     </tr>
@@ -309,34 +404,54 @@ export function VendorsPage() {
                     >
                       <td className="py-3 pr-4">
                         <div>
-                          <p className="font-medium text-foreground">{vendor.name}</p>
-                          <p className="text-xs text-muted-foreground">Owner: {vendor.owner}</p>
+                          <p className="font-medium text-foreground">
+                            {vendor.name}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {t('detail.ownerLabel', { owner: vendor.owner })}
+                          </p>
                         </div>
                       </td>
-                      <td className="py-3 pr-4 text-foreground">{vendor.category}</td>
+                      <td className="py-3 pr-4 text-foreground">
+                        {vendor.category}
+                      </td>
                       <td className="py-3 pr-4">
-                        <Badge variant="outline" className={tierMeta[vendor.tier].className}>
-                          {tierMeta[vendor.tier].label}
+                        <Badge
+                          variant="outline"
+                          className={tierMeta[vendor.tier].className}
+                        >
+                          {t(`riskLevel.${vendor.tier}`)}
                         </Badge>
                       </td>
-                      <td className={`py-3 pr-4 ${scoreColor(vendor.securityScore)}`}>
+                      <td
+                        className={`py-3 pr-4 ${scoreColor(vendor.securityScore)}`}
+                      >
                         {vendor.securityScore}
                       </td>
                       <td className="py-3 pr-4">
                         <div className="w-28">
                           <Progress value={vendor.questionnaireCompletion} />
-                          <p className="mt-1 text-xs text-muted-foreground">{vendor.questionnaireCompletion}%</p>
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            {vendor.questionnaireCompletion}%
+                          </p>
                         </div>
                       </td>
-                      <td className="py-3 pr-4 text-foreground">{vendor.openFindings}</td>
+                      <td className="py-3 pr-4 text-foreground">
+                        {vendor.openFindings}
+                      </td>
                       <td className="py-3 pr-4 text-foreground">
                         {vendor.nextAssessmentAt
-                          ? new Date(vendor.nextAssessmentAt).toLocaleDateString()
-                          : '—'}
+                          ? new Date(
+                              vendor.nextAssessmentAt,
+                            ).toLocaleDateString()
+                          : t('emptyValue')}
                       </td>
                       <td className="py-3 pr-0">
-                        <Badge variant="outline" className={statusMeta[vendor.status].className}>
-                          {statusMeta[vendor.status].label}
+                        <Badge
+                          variant="outline"
+                          className={statusMeta[vendor.status].className}
+                        >
+                          {t(`status.${vendor.status}`)}
                         </Badge>
                       </td>
                     </tr>
@@ -352,9 +467,9 @@ export function VendorsPage() {
       <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add vendor</DialogTitle>
+            <DialogTitle>{t('dialog.addVendorTitle')}</DialogTitle>
             <DialogDescription>
-              Capture basic details and start the assessment workflow.
+              {t('dialog.addVendorDescription')}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-3">
@@ -366,22 +481,33 @@ export function VendorsPage() {
             <Input
               placeholder="Category (e.g. Identity, Payroll)"
               value={form.category}
-              onChange={(e) => setForm((p) => ({ ...p, category: e.target.value }))}
+              onChange={(e) =>
+                setForm((p) => ({ ...p, category: e.target.value }))
+              }
             />
             <Input
               placeholder="Business owner"
               value={form.owner}
-              onChange={(e) => setForm((p) => ({ ...p, owner: e.target.value }))}
+              onChange={(e) =>
+                setForm((p) => ({ ...p, owner: e.target.value }))
+              }
             />
             <Input
               placeholder="Website (optional)"
               value={form.website}
-              onChange={(e) => setForm((p) => ({ ...p, website: e.target.value }))}
+              onChange={(e) =>
+                setForm((p) => ({ ...p, website: e.target.value }))
+              }
             />
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <select
                 value={form.businessCriticality}
-                onChange={(e) => setForm((p) => ({ ...p, businessCriticality: e.target.value as any }))}
+                onChange={(e) =>
+                  setForm((p) => ({
+                    ...p,
+                    businessCriticality: e.target.value as any,
+                  }))
+                }
                 className="rounded-md border border-border px-3 py-2 text-sm"
               >
                 <option value="Mission-critical">Mission-critical</option>
@@ -390,7 +516,9 @@ export function VendorsPage() {
               </select>
               <select
                 value={form.dataClass}
-                onChange={(e) => setForm((p) => ({ ...p, dataClass: e.target.value as any }))}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, dataClass: e.target.value as any }))
+                }
                 className="rounded-md border border-border px-3 py-2 text-sm"
               >
                 <option value="PII">PII</option>
@@ -401,7 +529,9 @@ export function VendorsPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsAddOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setIsAddOpen(false)}>
+              Cancel
+            </Button>
             <Button onClick={onCreateVendor} disabled={creating}>
               {creating ? 'Creating...' : 'Create vendor'}
             </Button>
