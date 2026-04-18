@@ -61,7 +61,7 @@ export function ActionTrackerPage() {
                     <tr key={item.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 text-sm">
                         <button type="button" onClick={() => navigate(`/risk/risks/${item.riskId}`)} className="text-left font-medium text-gray-900 hover:text-blue-700">{item.title}</button>
-                        <p className="mt-1 text-xs text-gray-500">Playbook: {item.playbook}</p>
+                        <p className="mt-1 text-xs text-gray-500">{t('actionTracker.playbook', { name: item.playbook })}</p>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600">
                         <p>{item.owner.name}</p>

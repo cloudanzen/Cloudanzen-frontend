@@ -11,6 +11,14 @@
     "noPoliciesDesc": "Create your first policy or use a template to get started",
     "filtersActive": "Filters active",
     "refresh": "Refresh",
+    "refreshTitle": "Refresh policies",
+    "statusPlaceholder": "Status",
+    "allStatuses": "All statuses",
+    "filterLabels": {
+      "search": "Search",
+      "status": "Status",
+      "framework": "Framework"
+    },
     "publicationRate": "Publication rate",
     "draftArchived": "Draft / Archived",
     "showingCount_one": "{{count}} policy",

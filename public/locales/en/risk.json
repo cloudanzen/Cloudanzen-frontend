@@ -84,7 +84,13 @@
     "alreadyAdded": "This risk is already in your register",
     "addFailed": "Failed to add risk",
     "impact": "Impact",
-    "likelihood": "Likelihood"
+    "likelihood": "Likelihood",
+    "stats": {
+      "libraryItems": "Library Items",
+      "categories": "Categories",
+      "inRegister": "In Register",
+      "available": "Available"
+    }
   },
   "actionTracker": {
     "title": "Action Tracker",

@@ -363,6 +363,43 @@
     "noTestsFound": "テストが見つかりません",
     "noTestsMatchFilters": "現在のフィルターに一致するテストはありません。",
     "activateFramework": "フレームワークをアクティベートしてテストを自動作成します。",
-    "clearFilters": "フィルターをクリア"
+    "clearFilters": "フィルターをクリア",
+    "searchPlaceholder": "テスト名で検索",
+    "filteredTests": "フィルター済みテスト",
+    "tests": "テスト",
+    "passRate": "合格率",
+    "completedOfTotal": "{{total}}件中{{completed}}件完了",
+    "needsAttention": "要対応",
+    "overdue": "期限超過",
+    "filters": {
+      "category": "カテゴリ",
+      "allCategories": "すべてのカテゴリ",
+      "status": "ステータス",
+      "allStatuses": "すべてのステータス",
+      "type": "タイプ",
+      "allTypes": "すべてのタイプ",
+      "owner": "オーナー",
+      "allOwners": "すべてのオーナー",
+      "integration": "インテグレーション",
+      "allIntegrations": "すべてのインテグレーション",
+      "control": "管理策",
+      "allControls": "すべての管理策"
+    },
+    "actions": {
+      "view": "表示",
+      "upload": "アップロード",
+      "complete": "完了"
+    },
+    "bulk": {
+      "selected_one": "{{count}}件のテストを選択中",
+      "selected_other": "{{count}}件のテストを選択中",
+      "clear": "クリア",
+      "completing": "完了処理中...",
+      "batchComplete": "一括完了",
+      "assignOwner": "オーナーを割り当て...",
+      "assign": "割り当て",
+      "linkControlPlaceholder": "管理策をリンク...",
+      "linkControl": "管理策をリンク"
+    }
   }
 }

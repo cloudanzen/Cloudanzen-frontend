@@ -40,7 +40,13 @@
     "description": "グローバルポリシーテンプレートライブラリを管理する",
     "newTemplate": "新規テンプレート",
     "searchPlaceholder": "ポリシーテンプレートを検索...",
-    "noTemplates": "テンプレートが見つかりません"
+    "noTemplates": "テンプレートが見つかりません",
+    "stats": {
+      "totalPolicies": "ポリシー総数",
+      "categories": "カテゴリ",
+      "requirementLinks": "要件リンク",
+      "controlLinks": "管理策リンク"
+    }
   },
   "frameworks": {
     "title": "フレームワーク",
@@ -60,6 +66,11 @@
       "plan": "プラン",
       "users": "ユーザー数",
       "createdAt": "作成日"
+    },
+    "stats": {
+      "organizations": "組織",
+      "totalUsers": "ユーザー総数",
+      "activeFrameworks": "アクティブなフレームワーク"
     }
   }
 }

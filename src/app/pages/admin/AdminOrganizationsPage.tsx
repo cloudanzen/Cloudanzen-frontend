@@ -42,8 +42,8 @@ export function AdminOrganizationsPage() {
 
   if (!isSuperAdmin) {
     return (
-      <PageTemplate title="Access Denied">
-        <p className="text-muted-foreground">SUPER_ADMIN role required.</p>
+      <PageTemplate title={t('common.accessDenied')}>
+        <p className="text-muted-foreground">{t('common.superAdminRequired')}</p>
       </PageTemplate>
     );
   }
@@ -68,19 +68,19 @@ export function AdminOrganizationsPage() {
         <Card>
           <CardContent className="pt-4">
             <div className="text-2xl font-bold">{list.length}</div>
-            <div className="text-xs text-muted-foreground">Organizations</div>
+            <div className="text-xs text-muted-foreground">{t('organizations.stats.organizations')}</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4">
             <div className="text-2xl font-bold">{list.reduce((s, o) => s + o.userCount, 0)}</div>
-            <div className="text-xs text-muted-foreground">Total Users</div>
+            <div className="text-xs text-muted-foreground">{t('organizations.stats.totalUsers')}</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4">
             <div className="text-2xl font-bold">{list.reduce((s, o) => s + o.activeFrameworks, 0)}</div>
-            <div className="text-xs text-muted-foreground">Active Frameworks</div>
+            <div className="text-xs text-muted-foreground">{t('organizations.stats.activeFrameworks')}</div>
           </CardContent>
         </Card>
       </div>

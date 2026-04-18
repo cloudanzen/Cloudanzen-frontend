@@ -76,6 +76,12 @@
     "completedAt": "Completed {{date}}",
     "dueLabel": "Due {{date}}",
     "complete": "Complete",
-    "nDone": "{{count}}/3 done"
+    "nDone": "{{count}}/3 done",
+    "statusLabels": {
+      "complete": "Complete",
+      "dueSoon": "Due Soon",
+      "overdue": "Overdue",
+      "needsRemediation": "Needs Remediation"
+    }
   }
 }

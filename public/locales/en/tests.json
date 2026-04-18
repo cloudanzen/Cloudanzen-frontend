@@ -363,6 +363,43 @@
     "noTestsFound": "No tests found",
     "noTestsMatchFilters": "No tests match your current filters.",
     "activateFramework": "Activate a framework to create tests automatically.",
-    "clearFilters": "Clear filters"
+    "clearFilters": "Clear filters",
+    "searchPlaceholder": "Search test name",
+    "filteredTests": "filtered tests",
+    "tests": "tests",
+    "passRate": "Pass Rate",
+    "completedOfTotal": "{{completed}} of {{total}} completed",
+    "needsAttention": "Needs Attention",
+    "overdue": "Overdue",
+    "filters": {
+      "category": "Category",
+      "allCategories": "All categories",
+      "status": "Status",
+      "allStatuses": "All statuses",
+      "type": "Type",
+      "allTypes": "All types",
+      "owner": "Owner",
+      "allOwners": "All owners",
+      "integration": "Integration",
+      "allIntegrations": "All integrations",
+      "control": "Control",
+      "allControls": "All controls"
+    },
+    "actions": {
+      "view": "View",
+      "upload": "Upload",
+      "complete": "Complete"
+    },
+    "bulk": {
+      "selected_one": "{{count}} test selected",
+      "selected_other": "{{count}} tests selected",
+      "clear": "Clear",
+      "completing": "Completing...",
+      "batchComplete": "Batch complete",
+      "assignOwner": "Assign owner...",
+      "assign": "Assign",
+      "linkControlPlaceholder": "Link control...",
+      "linkControl": "Link control"
+    }
   }
 }

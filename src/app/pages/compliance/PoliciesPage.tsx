@@ -120,7 +120,7 @@ export function PoliciesPage() {
       ? [
           {
             key: 'search',
-            label: `Search: ${filter.search.trim()}`,
+            label: `${t('policies.filterLabels.search')}: ${filter.search.trim()}`,
             onRemove: () => handleFilterChange('search', ''),
           },
         ]
@@ -129,14 +129,14 @@ export function PoliciesPage() {
       ? [
           {
             key: 'status',
-            label: `Status: ${STATUS_CONFIG[filter.status]?.label ?? filter.status}`,
+            label: `${t('policies.filterLabels.status')}: ${STATUS_CONFIG[filter.status]?.label ?? filter.status}`,
             onRemove: () => handleFilterChange('status', ''),
           },
         ]
       : []),
     ...frameworkFilter.map((slug) => ({
       key: `framework-${slug}`,
-      label: `Framework: ${slug.replace(/-/g, ' ')}`,
+      label: `${t('policies.filterLabels.framework')}: ${slug.replace(/-/g, ' ')}`,
       onRemove: () =>
         setFrameworkFilter((current) =>
           current.filter((item) => item !== slug),
@@ -211,7 +211,7 @@ export function PoliciesPage() {
             onClick={fetchPolicies}
             disabled={isFetching}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border border-border bg-card hover:bg-muted text-foreground transition-colors shadow-sm disabled:opacity-50"
-            title="Refresh policies"
+            title={t('policies.refreshTitle')}
           >
             <RefreshCw
               className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`}
@@ -244,10 +244,10 @@ export function PoliciesPage() {
             {
               key: 'status',
               value: filter.status,
-              placeholder: 'Status',
+              placeholder: t('policies.statusPlaceholder'),
               onChange: (value) => handleFilterChange('status', value),
               options: [
-                { value: '', label: 'All statuses' },
+                { value: '', label: t('policies.allStatuses') },
                 ...POLICY_STATUSES.map((status) => ({
                   value: status,
                   label: STATUS_CONFIG[status]?.label ?? status,

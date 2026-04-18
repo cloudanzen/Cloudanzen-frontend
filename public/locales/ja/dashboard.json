@@ -76,6 +76,12 @@
     "completedAt": "{{date}}に完了",
     "dueLabel": "期限: {{date}}",
     "complete": "完了",
-    "nDone": "{{count}}/3 完了"
+    "nDone": "{{count}}/3 完了",
+    "statusLabels": {
+      "complete": "完了",
+      "dueSoon": "期限間近",
+      "overdue": "期限超過",
+      "needsRemediation": "是正が必要"
+    }
   }
 }

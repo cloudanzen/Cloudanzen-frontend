@@ -91,8 +91,8 @@ export function AdminFrameworksPage() {
 
   if (!isSuperAdmin) {
     return (
-      <PageTemplate title="Access Denied">
-        <p className="text-muted-foreground">SUPER_ADMIN role required.</p>
+      <PageTemplate title={t('common.accessDenied')}>
+        <p className="text-muted-foreground">{t('common.superAdminRequired')}</p>
       </PageTemplate>
     );
   }

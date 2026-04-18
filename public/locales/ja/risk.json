@@ -84,7 +84,13 @@
     "alreadyAdded": "このリスクはすでに登録簿に存在します",
     "addFailed": "リスクの追加に失敗しました",
     "impact": "影響度",
-    "likelihood": "発生可能性"
+    "likelihood": "発生可能性",
+    "stats": {
+      "libraryItems": "ライブラリ項目",
+      "categories": "カテゴリ",
+      "inRegister": "登録済み",
+      "available": "利用可能"
+    }
   },
   "actionTracker": {
     "title": "アクショントラッカー",

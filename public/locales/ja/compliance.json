@@ -11,6 +11,14 @@
     "noPoliciesDesc": "最初のポリシーを作成するか、テンプレートを使用してください",
     "filtersActive": "フィルター適用中",
     "refresh": "更新",
+    "refreshTitle": "ポリシーを更新",
+    "statusPlaceholder": "ステータス",
+    "allStatuses": "すべてのステータス",
+    "filterLabels": {
+      "search": "検索",
+      "status": "ステータス",
+      "framework": "フレームワーク"
+    },
     "publicationRate": "公開率",
     "draftArchived": "ドラフト / アーカイブ済み",
     "showingCount_one": "{{count}}件のポリシー",

@@ -350,7 +350,7 @@ export function TestsPage() {
               onClick={() => navigate(`/tests/${test.id}`)}
               className="px-2.5 py-1 rounded-lg text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
             >
-              View
+              {t('testsPage.actions.view')}
             </button>
             {test.status !== 'OK' && (
               test.type === 'Document' ? (
@@ -361,7 +361,7 @@ export function TestsPage() {
                   }}
                   className="px-2.5 py-1 rounded-lg text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
                 >
-                  Upload
+                  {t('testsPage.actions.upload')}
                 </button>
               ) : (
                 <button
@@ -372,7 +372,7 @@ export function TestsPage() {
                   }}
                   className="px-2.5 py-1 rounded-lg text-xs font-medium bg-green-50 text-green-700 hover:bg-green-100 transition-colors"
                 >
-                  Complete
+                  {t('testsPage.actions.complete')}
                 </button>
               )
             )}
@@ -416,28 +416,28 @@ export function TestsPage() {
         <PageFilterBar
           searchValue={filter.search}
           onSearchChange={(value) => { update({ search: value }); setPage(1); }}
-          searchPlaceholder="Search test name"
+          searchPlaceholder={t('testsPage.searchPlaceholder')}
           selects={[
             {
               key: 'category',
               value: filter.category,
-              placeholder: 'Category',
+              placeholder: t('testsPage.filters.category'),
               onChange: (value) => { update({ category: value }); setPage(1); },
-              options: [{ value: '', label: 'All categories' }, ...CATEGORY_OPTIONS.map((item) => ({ value: item, label: item }))],
+              options: [{ value: '', label: t('testsPage.filters.allCategories') }, ...CATEGORY_OPTIONS.map((item) => ({ value: item, label: item }))],
             },
             {
               key: 'status',
               value: effectiveFilter.status,
-              placeholder: 'Status',
+              placeholder: t('testsPage.filters.status'),
               onChange: (value) => { setStatusFilterOverride(''); update({ status: value }); setPage(1); },
-              options: [{ value: '', label: 'All statuses' }, ...STATUS_OPTIONS.map((item) => ({ value: item, label: STATUS_CONFIG[item].label }))],
+              options: [{ value: '', label: t('testsPage.filters.allStatuses') }, ...STATUS_OPTIONS.map((item) => ({ value: item, label: STATUS_CONFIG[item].label }))],
             },
             {
               key: 'type',
               value: filter.type,
-              placeholder: 'Type',
+              placeholder: t('testsPage.filters.type'),
               onChange: (value) => { update({ type: value }); setPage(1); },
-              options: [{ value: '', label: 'All types' }, ...TYPE_OPTIONS.map((item) => ({ value: item, label: item }))],
+              options: [{ value: '', label: t('testsPage.filters.allTypes') }, ...TYPE_OPTIONS.map((item) => ({ value: item, label: item }))],
             },
           ]}
           auxiliary={(
@@ -445,29 +445,29 @@ export function TestsPage() {
               <FrameworkFilter selected={frameworkFilter} onChange={(value) => { update({ frameworks: value }); setPage(1); }} />
               <SelectFilter
                 value={filter.owner}
-                placeholder="Owner"
-                allLabel="All owners"
+                placeholder={t('testsPage.filters.owner')}
+                allLabel={t('testsPage.filters.allOwners')}
                 options={ownerOptions}
                 onChange={(value) => { update({ owner: value }); setPage(1); }}
               />
               <SelectFilter
                 value={filter.integration}
-                placeholder="Integration"
-                allLabel="All integrations"
+                placeholder={t('testsPage.filters.integration')}
+                allLabel={t('testsPage.filters.allIntegrations')}
                 options={integrationOptions}
                 onChange={(value) => { update({ integration: value }); setPage(1); }}
               />
               <SelectFilter
                 value={filter.control}
-                placeholder="Control"
-                allLabel="All controls"
+                placeholder={t('testsPage.filters.control')}
+                allLabel={t('testsPage.filters.allControls')}
                 options={controlOptions}
                 onChange={(value) => { update({ control: value }); setPage(1); }}
               />
             </div>
           )}
           resultCount={sorted.length}
-          resultLabel={hasActiveFilters ? 'filtered tests' : 'tests'}
+          resultLabel={hasActiveFilters ? t('testsPage.filteredTests') : t('testsPage.tests')}
           activeFilters={activeFilters}
           onClearAll={clearFilters}
         />
@@ -484,7 +484,7 @@ export function TestsPage() {
               <div className="flex items-end gap-4">
                 <div>
                   <p className="text-4xl font-bold text-foreground">{summary.passPercentage}%</p>
-                  <p className="text-sm text-muted-foreground mt-1">{summary.completed} of {summary.total} completed</p>
+                  <p className="text-sm text-muted-foreground mt-1">{t('testsPage.completedOfTotal', { completed: summary.completed, total: summary.total })}</p>
                 </div>
                 <div className="flex-1 mb-2">
                   <div className="h-3 bg-muted rounded-full overflow-hidden">
@@ -555,12 +555,12 @@ export function TestsPage() {
           {selectedCount > 0 && (
             <div className="bg-slate-900 text-white rounded-xl shadow-sm px-4 py-3 flex flex-col lg:flex-row lg:items-center gap-3">
               <div className="flex items-center gap-3">
-                <span className="text-sm font-semibold">{selectedCount} test{selectedCount === 1 ? '' : 's'} selected</span>
+                <span className="text-sm font-semibold">{t('testsPage.bulk.selected', { count: selectedCount })}</span>
                 <button
                   onClick={() => setSelectedIds([])}
                   className="text-xs text-slate-300 hover:text-white transition-colors"
                 >
-                  Clear
+                  {t('testsPage.bulk.clear')}
                 </button>
               </div>
               <div className="flex flex-col sm:flex-row gap-2 lg:ml-auto">
@@ -569,7 +569,7 @@ export function TestsPage() {
                   disabled={bulkCompleteMutation.isPending}
                   className="px-3 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-sm font-medium disabled:opacity-50"
                 >
-                  {bulkCompleteMutation.isPending ? 'Completing...' : 'Batch complete'}
+                  {bulkCompleteMutation.isPending ? t('testsPage.bulk.completing') : t('testsPage.bulk.batchComplete')}
                 </button>
                 <div className="flex gap-2">
                   <select
@@ -577,7 +577,7 @@ export function TestsPage() {
                     onChange={(e) => setBulkOwnerId(e.target.value)}
                     className="px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm min-w-44"
                   >
-                    <option value="">Assign owner...</option>
+                    <option value="">{t('testsPage.bulk.assignOwner')}</option>
                     {usersData.map((user) => (
                       <option key={user.id} value={user.id}>{user.name ?? user.email}</option>
                     ))}
@@ -587,7 +587,7 @@ export function TestsPage() {
                     disabled={!bulkOwnerId || bulkAssignMutation.isPending}
                     className="px-3 py-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-sm font-medium disabled:opacity-50"
                   >
-                    Assign
+                    {t('testsPage.bulk.assign')}
                   </button>
                 </div>
                 <div className="flex gap-2">
@@ -596,7 +596,7 @@ export function TestsPage() {
                     onChange={(e) => setBulkControlId(e.target.value)}
                     className="px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm min-w-52"
                   >
-                    <option value="">Link control...</option>
+                    <option value="">{t('testsPage.bulk.linkControlPlaceholder')}</option>
                     {controlsData.map((control) => (
                       <option key={control.id} value={control.id}>{control.isoReference} - {control.title}</option>
                     ))}
@@ -606,7 +606,7 @@ export function TestsPage() {
                     disabled={!bulkControlId || bulkLinkControlMutation.isPending}
                     className="px-3 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-sm font-medium text-slate-950 disabled:opacity-50"
                   >
-                    Link control
+                    {t('testsPage.bulk.linkControl')}
                   </button>
                 </div>
               </div>

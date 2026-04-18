@@ -61,8 +61,8 @@ export function AdminPolicyTemplatesPage() {
 
   if (!isSuperAdmin) {
     return (
-      <PageTemplate title="Unauthorized">
-        <p className="text-gray-500">SUPER_ADMIN role required.</p>
+      <PageTemplate title={t('common.unauthorized')}>
+        <p className="text-gray-500">{t('common.superAdminRequired')}</p>
       </PageTemplate>
     );
   }
@@ -72,19 +72,19 @@ export function AdminPolicyTemplatesPage() {
       {/* Stats row */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-500">Total Policies</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-500">{t('policyTemplates.stats.totalPolicies')}</CardTitle></CardHeader>
           <CardContent><p className="text-2xl font-bold">{templates.length}</p></CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-500">Categories</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-500">{t('policyTemplates.stats.categories')}</CardTitle></CardHeader>
           <CardContent><p className="text-2xl font-bold">{categories.length}</p></CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-500">Requirement Links</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-500">{t('policyTemplates.stats.requirementLinks')}</CardTitle></CardHeader>
           <CardContent><p className="text-2xl font-bold">{totalReqMappings}</p></CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-500">Control Links</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-500">{t('policyTemplates.stats.controlLinks')}</CardTitle></CardHeader>
           <CardContent><p className="text-2xl font-bold">{totalCtrlMappings}</p></CardContent>
         </Card>
       </div>

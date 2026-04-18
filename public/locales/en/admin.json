@@ -40,7 +40,13 @@
     "description": "Manage global policy template library",
     "newTemplate": "New Template",
     "searchPlaceholder": "Search policy templates...",
-    "noTemplates": "No templates found"
+    "noTemplates": "No templates found",
+    "stats": {
+      "totalPolicies": "Total Policies",
+      "categories": "Categories",
+      "requirementLinks": "Requirement Links",
+      "controlLinks": "Control Links"
+    }
   },
   "frameworks": {
     "title": "Frameworks",
@@ -60,6 +66,11 @@
       "plan": "Plan",
       "users": "Users",
       "createdAt": "Created"
+    },
+    "stats": {
+      "organizations": "Organizations",
+      "totalUsers": "Total Users",
+      "activeFrameworks": "Active Frameworks"
     }
   }
 }

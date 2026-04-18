@@ -96,28 +96,28 @@ export function RiskLibraryPage() {
             <Card className="p-4">
               <div className="flex items-center gap-2 mb-1">
                 <Library className="w-4 h-4 text-gray-400" />
-                <span className="text-xs text-gray-500">Library Items</span>
+                <span className="text-xs text-gray-500">{t('library.stats.libraryItems')}</span>
               </div>
               <p className="text-2xl font-bold">{items.length}</p>
             </Card>
             <Card className="p-4">
               <div className="flex items-center gap-2 mb-1">
                 <AlertTriangle className="w-4 h-4 text-blue-500" />
-                <span className="text-xs text-gray-500">Categories</span>
+                <span className="text-xs text-gray-500">{t('library.stats.categories')}</span>
               </div>
               <p className="text-2xl font-bold">{categories.length}</p>
             </Card>
             <Card className="p-4">
               <div className="flex items-center gap-2 mb-1">
                 <CheckCircle2 className="w-4 h-4 text-green-500" />
-                <span className="text-xs text-gray-500">In Register</span>
+                <span className="text-xs text-gray-500">{t('library.stats.inRegister')}</span>
               </div>
               <p className="text-2xl font-bold text-green-600">{registeredIds.size}</p>
             </Card>
             <Card className="p-4">
               <div className="flex items-center gap-2 mb-1">
                 <Plus className="w-4 h-4 text-orange-500" />
-                <span className="text-xs text-gray-500">Available</span>
+                <span className="text-xs text-gray-500">{t('library.stats.available')}</span>
               </div>
               <p className="text-2xl font-bold text-orange-600">{items.length - registeredIds.size}</p>
             </Card>
