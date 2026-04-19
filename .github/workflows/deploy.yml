@@ -39,10 +39,15 @@ jobs:
       - name: Pull Vercel project settings
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: vercel pull --yes --token "$VERCEL_TOKEN"
 
       - name: Build for staging
         env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
           VITE_API_URL: https://staging-api.cloudanzen.com
           VITE_SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
         run: vercel build --token "$VERCEL_TOKEN"
@@ -50,6 +55,8 @@ jobs:
       - name: Deploy to Vercel (staging)
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
           URL=$(vercel deploy --prebuilt --token "$VERCEL_TOKEN")
           echo "Deployed to: $URL"
@@ -79,10 +86,15 @@ jobs:
       - name: Pull Vercel project settings
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: vercel pull --yes --environment=production --token "$VERCEL_TOKEN"
 
       - name: Build for production
         env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
           VITE_API_URL: https://api.cloudanzen.com
           VITE_SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
         run: vercel build --prod --token "$VERCEL_TOKEN"
@@ -90,6 +102,8 @@ jobs:
       - name: Deploy to Vercel (production)
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
           URL=$(vercel deploy --prebuilt --prod --token "$VERCEL_TOKEN")
           echo "Deployed to production: $URL"
