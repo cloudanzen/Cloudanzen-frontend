@@ -32,7 +32,7 @@ import {
   PERMISSION_MATRIX,
   getPermissionsForRole,
 } from '@/lib/rbac/permissions';
-import { RoleBadge } from '@/app/components/rbac/RequirePermission';
+
 import {
   Tabs,
   TabsContent,

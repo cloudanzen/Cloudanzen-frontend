@@ -116,7 +116,7 @@ export function McpSettingsPage() {
   const copyToClipboard = useCallback(async (text: string) => {
     await navigator.clipboard.writeText(text);
     toast.success(t('mcp.copied'));
-  }, []);
+  }, [t]);
 
   // ── Render ─────────────────────────────────────────────────────────────────
 

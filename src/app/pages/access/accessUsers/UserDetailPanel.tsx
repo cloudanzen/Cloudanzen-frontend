@@ -30,7 +30,7 @@ import {
   AppRole,
   getPermissionsForRole,
 } from '@/lib/rbac/permissions';
-import { RoleBadge } from '@/app/components/rbac/RequirePermission';
+
 import { PERMISSIONS } from '@/lib/rbac/permissions';
 import { useCurrentUser, useHasPermission } from '@/hooks/useCurrentUser';
 import { ALL_ROLES, initials } from './helpers';

@@ -175,7 +175,7 @@ export function RegisterPage() {
         navigate('/login');
       }
     }).catch(() => {});
-  }, [navigate]);
+  }, [navigate, t]);
 
   const form = useForm<z.input<typeof registerSchema>, any, RegisterFormData>({
     resolver: zodResolver(registerSchema),

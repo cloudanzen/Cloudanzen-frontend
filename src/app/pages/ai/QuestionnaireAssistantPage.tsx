@@ -16,7 +16,7 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { TFunction } from 'i18next';
+
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   BookOpen,

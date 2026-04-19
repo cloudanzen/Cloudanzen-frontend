@@ -54,7 +54,7 @@ export function TemplatesModal({
         setDone(existingNames);
       }
     }).catch(() => setError(t('policiesPage.templates.failedToLoad'))).finally(() => setLoading(false));
-  }, []);
+  }, [t]);
 
   const handleUse = async (template: PolicyTemplate) => {
     if (creating || done.has(template.name)) return;

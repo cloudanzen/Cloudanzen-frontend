@@ -36,12 +36,6 @@ const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
   CLOSED: { label: 'Closed', color: 'bg-green-100 text-green-800 border-green-200' },
 };
 
-const TREATMENT_LABELS: Record<string, string> = {
-  MITIGATE: 'Mitigate',
-  ACCEPT: 'Accept',
-  TRANSFER: 'Transfer',
-  AVOID: 'Avoid',
-};
 
 const CATEGORY_COLORS: Record<string, string> = {
   Governance: 'bg-blue-100 text-blue-800',

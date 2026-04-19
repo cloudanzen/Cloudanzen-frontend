@@ -59,7 +59,7 @@ export function RiskEnginePage() {
       { label: t('engine.metrics.evidence'), value: snapshot.evidenceSnapshots, icon: Database },
       { label: t('engine.metrics.openRisks'), value: snapshot.openRisks, icon: ShieldAlert },
     ];
-  }, [snapshotQuery.data]);
+  }, [snapshotQuery.data, t]);
 
   async function handleRun() {
     setIsRunning(true);
