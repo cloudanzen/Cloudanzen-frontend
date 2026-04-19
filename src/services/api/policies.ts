@@ -146,6 +146,38 @@ export class PoliciesService {
     URL.revokeObjectURL(url);
   }
 
+  /**
+   * Fetch a preview URL for a policy document.
+   *
+   * - Google Drive / external URLs: backend returns `{ external: true, url }`.
+   *   The caller should open `url` in a new tab.
+   * - S3 / local files: backend redirects to the file stream.
+   *   We read it as a Blob and create an object URL so it can be displayed in
+   *   an <iframe> without triggering a download.
+   */
+  async previewPolicyDocument(
+    policyId: string,
+  ): Promise<{ blobUrl: string; contentType: string } | { external: true; url: string }> {
+    const token = getAuthToken();
+    const response = await fetch(
+      `${API_BASE_URL}/api/policies/${policyId}/preview`,
+      {
+        credentials: 'include',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      },
+    );
+    if (!response.ok) throw new Error('Preview failed');
+
+    const ct = response.headers.get('content-type') ?? '';
+    if (ct.includes('application/json')) {
+      const json = (await response.json()) as { external: boolean; url: string };
+      return { external: true, url: json.url };
+    }
+
+    const blob = await response.blob();
+    return { blobUrl: URL.createObjectURL(blob), contentType: blob.type || ct };
+  }
+
   /** Get policies linked to given control IDs (for test evidence tab) */
   async getPoliciesByControls(controlIds: string[]): Promise<ApiResponse<Array<{
     id: string;

@@ -14,8 +14,10 @@ import {
   Tag,
   Loader2,
   User,
+  Eye,
 } from 'lucide-react';
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
+import { PolicyPreviewSheet } from './PolicyPreviewSheet';
 import {
   Tabs,
   TabsContent,
@@ -104,6 +106,7 @@ export function PolicyDetailPanel({
   const [downloading, setDownloading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadErr, setUploadErr] = useState<string | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const updateMutation = useMutation({
@@ -172,6 +175,8 @@ export function PolicyDetailPanel({
     }
   };
 
+  const handlePreview = useCallback(() => setPreviewOpen(true), []);
+
   const handleUpload = async (file: File) => {
     setUploading(true);
     setUploadErr(null);
@@ -186,6 +191,16 @@ export function PolicyDetailPanel({
   };
 
   return (
+    <>
+    {previewOpen && currentPolicy.documentUrl && (
+      <PolicyPreviewSheet
+        policyId={currentPolicy.id}
+        policyName={currentPolicy.name}
+        documentUrl={currentPolicy.documentUrl}
+        onClose={() => setPreviewOpen(false)}
+        onDownload={() => { setPreviewOpen(false); void handleDownload(); }}
+      />
+    )}
     <div className="fixed inset-0 z-40 flex justify-end" aria-modal="true">
       <div className="absolute inset-0 bg-black/30" onClick={onClose} />
       <div className="relative z-50 w-full max-w-2xl bg-white shadow-2xl flex flex-col h-full overflow-hidden">
@@ -545,6 +560,13 @@ export function PolicyDetailPanel({
                   </div>
                   <div className="flex gap-2">
                     <button
+                      onClick={handlePreview}
+                      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
+                    >
+                      <Eye className="w-4 h-4" />
+                      Preview
+                    </button>
+                    <button
                       onClick={handleDownload}
                       disabled={downloading}
                       className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
@@ -617,5 +639,6 @@ export function PolicyDetailPanel({
         </div>
       </div>
     </div>
+    </>
   );
 }
