@@ -17,7 +17,9 @@ import {
   AuditType,
   AuditStatus,
 } from '@/services/api/audits';
+import { usersService } from '@/services/api/users';
 import { ScheduleAuditModal } from './ScheduleAuditModal';
+import { resolveAuditorLabel } from '@/lib/audits';
 import {
   AUDIT_TYPE_KEYS,
   StatusBadge,
@@ -57,6 +59,14 @@ export function AuditsPage() {
         type: typeFilter || undefined,
       } as any),
   });
+  const { data: users = [] } = useQuery({
+    queryKey: ['users'],
+    queryFn: () => usersService.listUsers(),
+  });
+
+  const usersById = new Map(
+    users.map((user) => [user.id, user] as const),
+  );
 
   const audits = data?.data ?? [];
 
@@ -231,11 +241,7 @@ export function AuditsPage() {
                   const minorCount = findings.filter(
                     (f) => f.severity === 'MINOR',
                   ).length;
-                  const auditorLabel = audit.externalAuditorEmail
-                    ? audit.externalAuditorEmail
-                    : audit.assignedAuditorId
-                      ? 'Internal'
-                      : '—';
+                  const auditorLabel = resolveAuditorLabel(audit, usersById);
 
                   const auditControls = audit.auditControls ?? [];
                   const totalControls = auditControls.length || audit._count?.auditControls || 0;

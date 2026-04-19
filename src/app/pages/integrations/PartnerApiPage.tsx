@@ -55,7 +55,11 @@ import { CatalogueCard } from './partnerApi/CatalogueCard';
 
 export function PartnerApiPage() {
   const { t } = useTranslation('integrations');
-  const isSuperAdmin = useHasRole('SUPER_ADMIN');
+  const hasPartnerAdminAccess = useHasRole(
+    'SUPER_ADMIN',
+    'ORG_ADMIN',
+    'SECURITY_OWNER',
+  );
 
   // State
   const [tab, setTab] = useState<'keys' | 'results' | 'catalogue' | 'requests'>(
@@ -166,8 +170,8 @@ export function PartnerApiPage() {
     }
   }
 
-  // Access guard — Super Admin only
-  if (!isSuperAdmin) {
+  // Access guard — admin roles only, aligned with backend partner routes.
+  if (!hasPartnerAdminAccess) {
     return (
       <PageTemplate
         title={t('partnerApi.title')}

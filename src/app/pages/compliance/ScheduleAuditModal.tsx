@@ -84,6 +84,18 @@ export function ScheduleAuditModal({
   async function handleSubmit() {
     if (!name.trim()) return setError(t('scheduleAudit.nameRequired'));
     if (!startDate) return setError(t('scheduleAudit.startRequired'));
+    if (auditorType === 'internal' && !assignedAuditorId)
+      return setError(
+        t('scheduleAudit.internalAuditorRequired', {
+          defaultValue: 'Select an internal auditor.',
+        }),
+      );
+    if (auditorType === 'external' && !externalAuditorEmail.trim())
+      return setError(
+        t('scheduleAudit.externalAuditorRequired', {
+          defaultValue: 'Provide an external auditor email.',
+        }),
+      );
     if (!scopeAll && selectedControlIds.length === 0)
       return setError(t('scheduleAudit.scopeRequired'));
 

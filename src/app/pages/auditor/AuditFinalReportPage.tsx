@@ -43,8 +43,10 @@ import {
   AuditReportMetrics,
   AuditSnapshot,
 } from '@/services/api/audits';
+import { usersService } from '@/services/api/users';
 import { useCanAudit } from '@/hooks/useCurrentUser';
 import { useConfirmDialog } from '@/app/hooks/useConfirmDialog';
+import { resolveAuditorLabel } from '@/lib/audits';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -207,6 +209,10 @@ export function AuditFinalReportPage() {
     queryFn: () => auditsService.getReport(auditId!),
     enabled: !!auditId,
   });
+  const { data: users = [] } = useQuery({
+    queryKey: ['users'],
+    queryFn: () => usersService.listUsers(),
+  });
 
   // Pre-fill form fields when data loads, respecting dirty state.
   useEffect(() => {
@@ -226,6 +232,9 @@ export function AuditFinalReportPage() {
   )?.data;
   const audit: AuditRecord | undefined = report?.audit;
   const metrics: AuditReportMetrics | undefined = report?.metrics;
+  const usersById = new Map(
+    users.map((user) => [user.id, user] as const),
+  );
   // Prefer snapshot for locked audits
   const display: AuditReportMetrics | AuditSnapshot | undefined =
     audit?.snapshot ?? metrics;
@@ -409,8 +418,7 @@ export function AuditFinalReportPage() {
               },
               {
                 label: 'Auditor',
-                value:
-                  audit.externalAuditorEmail ?? audit.assignedAuditorId ?? '—',
+                value: resolveAuditorLabel(audit, usersById),
               },
               { label: 'Controls in Scope', value: display.totalControls },
             ].map((r) => (

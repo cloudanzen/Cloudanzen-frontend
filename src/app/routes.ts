@@ -2,7 +2,7 @@ import { createBrowserRouter, redirect } from 'react-router';
 import { lazy, Suspense } from 'react';
 import { Layout } from '@/app/components/Layout';
 import { SettingsLayout } from '@/app/components/settings/SettingsLayout';
-import { requireAuth } from '@/app/authGuard';
+import { requireAuth, requireRoles } from '@/app/authGuard';
 import { NotFoundPage, RouteErrorBoundary } from '@/app/pages/NotFoundPage';
 
 // ── Eager imports (needed immediately on load) ────────────────────────────────
@@ -294,6 +294,15 @@ const AiSettingsPage = lazy(() =>
   })),
 );
 
+const accessAdminLoader = requireRoles(
+  ['SUPER_ADMIN', 'ORG_ADMIN', 'SECURITY_OWNER'],
+  '/settings/access/requests',
+);
+const partnerAdminLoader = requireRoles(
+  ['SUPER_ADMIN', 'ORG_ADMIN', 'SECURITY_OWNER'],
+  '/integrations',
+);
+
 // Platform Admin (SUPER_ADMIN only)
 const AdminTemplatesPage = lazy(() =>
   import('@/app/pages/admin/AdminTemplatesPage').then((m) => ({
@@ -427,7 +436,11 @@ export const router = createBrowserRouter([
 
       // Other
       { path: 'integrations', Component: IntegrationsPage },
-      { path: 'integrations/partner-api', Component: PartnerApiPage },
+      {
+        path: 'integrations/partner-api',
+        loader: partnerAdminLoader,
+        Component: PartnerApiPage,
+      },
       { path: 'my-security-tasks', Component: MySecurityTasksPage },
 
       // Settings shell
@@ -437,8 +450,16 @@ export const router = createBrowserRouter([
         children: [
           { path: 'profile', Component: AccountSettingsPage },
           { path: 'notifications', Component: NotificationSettingsPage },
-          { path: 'access/users', Component: AccessUsersPage },
-          { path: 'access/roles', Component: AccessRolesPage },
+          {
+            path: 'access/users',
+            loader: accessAdminLoader,
+            Component: AccessUsersPage,
+          },
+          {
+            path: 'access/roles',
+            loader: accessAdminLoader,
+            Component: AccessRolesPage,
+          },
           { path: 'access/requests', Component: AccessRequestsPage },
           { path: 'compliance', Component: ComplianceSettingsPage },
           { path: 'risk', Component: RiskSettingsPage },

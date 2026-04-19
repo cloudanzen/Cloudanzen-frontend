@@ -31,11 +31,13 @@ import {
   AuditStatus,
   AuditComment,
 } from '@/services/api/audits';
+import { usersService } from '@/services/api/users';
 import { vendorsService, VendorRecord } from '@/services/api/vendors';
 import { useCanAudit, useCurrentUser } from '@/hooks/useCurrentUser';
 import { useConfirmDialog } from '@/app/hooks/useConfirmDialog';
 import { ControlReviewPanel } from '@/app/pages/auditor/auditorDashboard/ControlReviewPanel';
 import { AddFindingModal } from '@/app/pages/auditor/auditorDashboard/AddFindingModal';
+import { resolveAuditorLabel, type AuditorIdentity } from '@/lib/audits';
 import { AUDIT_TYPE_KEYS, StatusBadge, fmt } from './AuditDetailPanel';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -69,7 +71,13 @@ const FINDING_SEVERITY_COLORS: Record<string, string> = {
 
 // ── Overview Tab ─────────────────────────────────────────────────────────────
 
-function OverviewTab({ audit }: { audit: AuditRecord }) {
+function OverviewTab({
+  audit,
+  usersById,
+}: {
+  audit: AuditRecord;
+  usersById: Map<string, AuditorIdentity>;
+}) {
   const { t } = useTranslation('compliance');
   const controls = audit.auditControls ?? [];
   const findings = audit.findings ?? [];
@@ -169,6 +177,10 @@ function OverviewTab({ audit }: { audit: AuditRecord }) {
               <p className="font-medium">{fmt(audit.endDate)}</p>
             </div>
           )}
+          <div>
+            <p className="text-xs text-muted-foreground">{t('auditPanel.auditor')}</p>
+            <p className="font-medium">{resolveAuditorLabel(audit, usersById)}</p>
+          </div>
           {audit.closedAt && (
             <div>
               <p className="text-xs text-muted-foreground">{t('auditDetail.overview.closed')}</p>
@@ -882,8 +894,15 @@ export function AuditDetailPage() {
     queryFn: () => auditsService.get(auditId!),
     enabled: !!auditId,
   });
+  const { data: users = [] } = useQuery({
+    queryKey: ['users'],
+    queryFn: () => usersService.listUsers(),
+  });
 
   const audit = data?.data;
+  const usersById = new Map(
+    users.map((user) => [user.id, user] as const),
+  );
 
   function refresh() {
     queryClient.invalidateQueries({ queryKey: ['audit', auditId] });
@@ -949,7 +968,7 @@ export function AuditDetailPage() {
         </TabsList>
 
         <TabsContent value="overview">
-          <OverviewTab audit={audit} />
+          <OverviewTab audit={audit} usersById={usersById} />
         </TabsContent>
 
         <TabsContent value="evidence">
