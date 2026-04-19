@@ -15,6 +15,8 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   BookOpen,
@@ -57,33 +59,33 @@ import { COPY_FEEDBACK_MS } from '@/lib/constants';
 const CONFIDENCE_META: Record<
   'HIGH' | 'MEDIUM' | 'LOW',
   {
-    label: string;
+    labelKey: string;
     tone: string;
     chip: string;
     panel: string;
-    hint: string;
+    hintKey: string;
   }
 > = {
   HIGH: {
-    label: 'High confidence',
+    labelKey: 'questionnaire.confidence.high.label',
     tone: 'text-emerald-800',
     chip: 'border-emerald-200 bg-emerald-50 text-emerald-700',
     panel: 'border-emerald-200 bg-emerald-50/80',
-    hint: 'Grounded in strong source coverage and ready for a final human pass.',
+    hintKey: 'questionnaire.confidence.high.hint',
   },
   MEDIUM: {
-    label: 'Medium confidence',
+    labelKey: 'questionnaire.confidence.medium.label',
     tone: 'text-amber-800',
     chip: 'border-amber-200 bg-amber-50 text-amber-700',
     panel: 'border-amber-200 bg-amber-50/80',
-    hint: 'Useful draft, but reviewers should tighten wording and verify scope.',
+    hintKey: 'questionnaire.confidence.medium.hint',
   },
   LOW: {
-    label: 'Low confidence',
+    labelKey: 'questionnaire.confidence.low.label',
     tone: 'text-rose-800',
     chip: 'border-rose-200 bg-rose-50 text-rose-700',
     panel: 'border-rose-200 bg-rose-50/80',
-    hint: 'Limited evidence found. Treat this as a starting point only.',
+    hintKey: 'questionnaire.confidence.low.hint',
   },
 };
 
@@ -129,6 +131,7 @@ function GenerationPanel({
   isApproving: boolean;
   isDismissing: boolean;
 }) {
+  const { t } = useTranslation('ai');
   const [editedText, setEditedText] = useState(result.draftAnswer);
   const [copied, setCopied] = useState(false);
   const confidenceMeta = CONFIDENCE_META[result.confidence];
@@ -155,11 +158,11 @@ function GenerationPanel({
                   AI draft ready for review
                 </p>
                 <Badge className={confidenceMeta.chip} variant="outline">
-                  {confidenceMeta.label}
+                  {t(confidenceMeta.labelKey)}
                 </Badge>
               </div>
               <p className="mt-1 text-sm leading-6 text-slate-600">
-                {confidenceMeta.hint}
+                {t(confidenceMeta.hintKey)}
               </p>
             </div>
           </div>

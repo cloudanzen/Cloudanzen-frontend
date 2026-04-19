@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
 import { Badge } from '@/app/components/ui/badge';
@@ -47,6 +48,7 @@ function SlackAddChannelModal({
   onClose: () => void;
   onAdded: () => void;
 }) {
+  const { t } = useTranslation('integrations');
   const [channelId, setChannelId] = useState('');
   const [channelName, setChannelName] = useState('');
   const [eventType, setEventType] = useState<SlackEventType>(
@@ -58,7 +60,7 @@ function SlackAddChannelModal({
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!channelId.trim() || !channelName.trim()) {
-      setError('Channel ID and name are required');
+      setError(t('cards.slack.channelRequired'));
       return;
     }
     setLoading(true);
@@ -77,7 +79,7 @@ function SlackAddChannelModal({
     } catch (err: unknown) {
       setError(
         (err as { message?: string })?.message ??
-          'Failed to add channel mapping',
+          t('cards.slack.addMappingFailed'),
       );
     } finally {
       setLoading(false);
@@ -87,11 +89,13 @@ function SlackAddChannelModal({
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
-        <h2 className="text-lg font-semibold mb-4">Add Channel Mapping</h2>
+        <h2 className="text-lg font-semibold mb-4">
+          {t('cards.slack.addChannelMapping')}
+        </h2>
         <form onSubmit={submit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Slack Channel ID{' '}
+              {t('cards.slack.channelId')}{' '}
               <span className="text-gray-400 font-normal">
                 (e.g. C0123ABCDE)
               </span>
@@ -106,7 +110,7 @@ function SlackAddChannelModal({
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Channel Name
+              {t('cards.slack.channelName')}
             </label>
             <input
               type="text"
@@ -118,7 +122,7 @@ function SlackAddChannelModal({
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Event Type
+              {t('cards.slack.eventType')}
             </label>
             <select
               value={eventType}
@@ -139,7 +143,7 @@ function SlackAddChannelModal({
               disabled={loading}
               className="flex-1 bg-[#4A154B] hover:bg-[#3a1039] text-white"
             >
-              {loading ? 'Adding...' : 'Add Mapping'}
+              {loading ? t('cards.slack.adding') : t('cards.slack.addMapping')}
             </Button>
             <Button
               type="button"
@@ -147,7 +151,7 @@ function SlackAddChannelModal({
               onClick={onClose}
               className="flex-1"
             >
-              Cancel
+              {t('cards.shared.cancel')}
             </Button>
           </div>
         </form>
@@ -171,6 +175,7 @@ export function SlackCard({
   onChannelsChange: (channels: SlackChannel[]) => void;
   onToast: (type: 'success' | 'error', msg: string) => void;
 }) {
+  const { t } = useTranslation('integrations');
   const confirm = useConfirmDialog();
   const isConnected = !!slackIntegration;
   const [disconnecting, setDisconnecting] = useState(false);
@@ -179,9 +184,9 @@ export function SlackCard({
 
   async function handleDisconnect() {
     const confirmed = await confirm({
-      title: 'Disconnect Slack',
-      description: 'Disconnect Slack? This will remove all channel mappings.',
-      confirmLabel: 'Disconnect',
+      title: t('cards.slack.disconnectTitle'),
+      description: t('cards.slack.disconnectDescription'),
+      confirmLabel: t('cards.shared.disconnect'),
       variant: 'destructive',
     });
     if (!confirmed) return;
@@ -189,9 +194,9 @@ export function SlackCard({
     try {
       await slackService.disconnect();
       onDisconnect();
-      onToast('success', 'Slack disconnected');
+      onToast('success', t('cards.slack.disconnected'));
     } catch {
-      onToast('error', 'Failed to disconnect Slack');
+      onToast('error', t('cards.slack.disconnectFailed'));
     } finally {
       setDisconnecting(false);
     }
@@ -202,7 +207,7 @@ export function SlackCard({
       await slackService.removeChannel(id);
       onChannelsChange(channels.filter((c) => c.id !== id));
     } catch {
-      onToast('error', 'Failed to remove channel mapping');
+      onToast('error', t('cards.slack.removeMappingFailed'));
     }
   }
 
@@ -213,7 +218,7 @@ export function SlackCard({
     } catch (err) {
       // Channel refresh is non-fatal — the user's mapping was saved; the list
       // will update on the next full page refresh.
-      onToast('error', 'Could not refresh channel list — please reload');
+      onToast('error', t('cards.slack.refreshChannelsFailed'));
       console.warn('[SlackCard] getChannels failed after channel add:', err);
     }
   }
@@ -232,31 +237,29 @@ export function SlackCard({
             <div>
               <h3 className="text-lg font-semibold text-gray-900">Slack</h3>
               <p className="text-sm text-gray-500">
-                Communication · Alerts &amp; interactive notifications
+                {t('cards.slack.subtitle')}
               </p>
             </div>
           </div>
           <Badge variant={isConnected ? 'default' : 'outline'}>
             {loadingStatus
-              ? 'Checking...'
+              ? t('cards.shared.checking')
               : isConnected
-                ? 'Connected'
-                : 'Available'}
+                ? t('cards.shared.connected')
+                : t('cards.shared.available')}
           </Badge>
         </div>
 
         <p className="text-sm text-gray-600 mb-4">
-          Receive automated alerts for critical risks, audit findings, overdue
-          tests, and audit events. Respond with interactive buttons directly
-          from Slack — accept risks, start remediation, and more.
+          {t('cards.slack.description')}
         </p>
 
         <div className="flex flex-wrap gap-2 mb-5">
           {[
-            'Critical Risks',
-            'Audit Findings',
-            'Overdue Tests',
-            'Audit Events',
+            t('cards.slack.alertTypes.criticalRisks'),
+            t('cards.slack.alertTypes.auditFindings'),
+            t('cards.slack.alertTypes.overdueTests'),
+            t('cards.slack.alertTypes.auditEvents'),
           ].map((l) => (
             <span
               key={l}
@@ -269,9 +272,10 @@ export function SlackCard({
 
         {isConnected && slackIntegration && (
           <p className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2 mb-4">
-            Connected to workspace{' '}
-            <strong>{slackIntegration.workspaceName}</strong> since{' '}
-            {new Date(slackIntegration.createdAt).toLocaleDateString()}.
+            {t('cards.slack.connectedWorkspace', {
+              workspace: slackIntegration.workspaceName,
+              date: new Date(slackIntegration.createdAt).toLocaleDateString(),
+            })}
           </p>
         )}
 
@@ -280,7 +284,7 @@ export function SlackCard({
             <a href={slackService.getInstallUrl()}>
               <Button className="gap-2 bg-[#4A154B] hover:bg-[#3a1039] text-white">
                 <SlackIcon className="w-4 h-4" />
-                Connect Slack
+                {t('cards.slack.connect')}
               </Button>
             </a>
           )}
@@ -292,8 +296,10 @@ export function SlackCard({
                 onClick={() => setShowChannels((v) => !v)}
               >
                 {showChannels
-                  ? 'Hide Channels'
-                  : `Channel Mappings (${channels.length})`}
+                  ? t('cards.slack.hideChannels')
+                  : t('cards.slack.channelMappings', {
+                      count: channels.length,
+                    })}
               </Button>
               <Button
                 variant="outline"
@@ -304,7 +310,7 @@ export function SlackCard({
                 }}
                 className="bg-[#4A154B] hover:bg-[#3a1039] text-white border-0"
               >
-                + Add Mapping
+                {t('cards.slack.addMappingCta')}
               </Button>
               <Button
                 variant="outline"
@@ -313,7 +319,9 @@ export function SlackCard({
                 disabled={disconnecting}
                 className="text-red-600 border-red-200 hover:bg-red-50"
               >
-                {disconnecting ? 'Disconnecting...' : 'Disconnect'}
+                {disconnecting
+                  ? t('cards.shared.disconnecting')
+                  : t('cards.shared.disconnect')}
               </Button>
             </>
           )}
@@ -323,22 +331,29 @@ export function SlackCard({
         {isConnected && showChannels && (
           <div className="mt-5 border-t border-gray-100 pt-4">
             <h4 className="text-sm font-semibold text-gray-700 mb-3">
-              Channel Mappings
+              {t('cards.slack.channelMappingsTitle')}
             </h4>
             {channels.length === 0 ? (
               <p className="text-sm text-gray-400">
-                No channel mappings yet. Use "+ Add Mapping" to route events to
-                Slack channels.
+                {t('cards.slack.noChannelMappings')}
               </p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-gray-100 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
-                      <th className="py-2 pr-4">Channel</th>
-                      <th className="py-2 pr-4">Event</th>
-                      <th className="py-2 pr-4">Added</th>
-                      <th className="py-2 text-right">Actions</th>
+                      <th className="py-2 pr-4">
+                        {t('cards.slack.table.channel')}
+                      </th>
+                      <th className="py-2 pr-4">
+                        {t('cards.slack.table.event')}
+                      </th>
+                      <th className="py-2 pr-4">
+                        {t('cards.slack.table.added')}
+                      </th>
+                      <th className="py-2 text-right">
+                        {t('cards.slack.table.actions')}
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
@@ -363,7 +378,7 @@ export function SlackCard({
                             onClick={() => handleRemoveChannel(ch.id)}
                             className="text-xs text-red-500 hover:text-red-700 font-medium"
                           >
-                            Remove
+                            {t('cards.slack.remove')}
                           </button>
                         </td>
                       </tr>

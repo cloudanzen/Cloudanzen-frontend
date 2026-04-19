@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- legacy: to be typed progressively */
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { useConfirmDialog } from '@/app/hooks/useConfirmDialog';
 import { Button } from '@/app/components/ui/button';
@@ -24,34 +25,34 @@ import {
 
 // ── Shared helpers (also exported for use in AuditsPage) ─────────────────────
 
-export const AUDIT_TYPE_LABELS: Record<AuditType, string> = {
-  INTERNAL: 'Internal',
-  EXTERNAL: 'External',
-  SURVEILLANCE: 'Surveillance',
-  RECERTIFICATION: 'Recertification',
+export const AUDIT_TYPE_KEYS: Record<AuditType, string> = {
+  INTERNAL: 'INTERNAL',
+  EXTERNAL: 'EXTERNAL',
+  SURVEILLANCE: 'SURVEILLANCE',
+  RECERTIFICATION: 'RECERTIFICATION',
 };
 
 export const STATUS_META: Record<
   AuditStatus,
-  { label: string; color: string; icon: React.ReactNode }
+  { key: string; color: string; icon: React.ReactNode }
 > = {
   DRAFT: {
-    label: 'Draft',
+    key: 'DRAFT',
     color: 'bg-gray-100 text-gray-600',
     icon: <FileText className="w-3 h-3" />,
   },
   PLANNED: {
-    label: 'Planned',
+    key: 'PLANNED',
     color: 'bg-blue-50 text-blue-700',
     icon: <Clock className="w-3 h-3" />,
   },
   IN_PROGRESS: {
-    label: 'In Progress',
+    key: 'IN_PROGRESS',
     color: 'bg-amber-50 text-amber-700',
     icon: <AlertCircle className="w-3 h-3" />,
   },
   COMPLETED: {
-    label: 'Completed',
+    key: 'COMPLETED',
     color: 'bg-green-50 text-green-700',
     icon: <CheckCircle2 className="w-3 h-3" />,
   },
@@ -67,13 +68,14 @@ export function fmt(iso: string | null | undefined) {
 }
 
 export function StatusBadge({ status }: { status: AuditStatus }) {
+  const { t } = useTranslation('compliance');
   const m = STATUS_META[status] ?? STATUS_META.DRAFT;
   return (
     <span
       className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${m.color}`}
     >
       {m.icon}
-      {m.label}
+      {t(`auditPanel.statusLabels.${m.key}`)}
     </span>
   );
 }
@@ -107,6 +109,7 @@ export function AuditDetailPanel({
   onClose: () => void;
   onRefresh: () => void;
 }) {
+  const { t } = useTranslation('compliance');
   const navigate = useNavigate();
   const confirm = useConfirmDialog();
   const [acting, setActing] = useState(false);
@@ -125,9 +128,9 @@ export function AuditDetailPanel({
 
   async function handleClose() {
     const confirmed = await confirm({
-      title: 'Complete Audit',
-      description: 'Mark this audit as Completed?',
-      confirmLabel: 'Complete',
+      title: t('auditPanel.completeTitle'),
+      description: t('auditPanel.completeDesc'),
+      confirmLabel: t('auditPanel.completeConfirm'),
       variant: 'default',
     });
     if (!confirmed) return;
@@ -162,7 +165,7 @@ export function AuditDetailPanel({
             <div className="flex items-center gap-2 mt-1 flex-wrap">
               <StatusBadge status={audit.status} />
               <span className="text-xs text-gray-400">
-                {AUDIT_TYPE_LABELS[audit.type]}
+                {t(`auditPanel.typeLabels.${audit.type}`)}
               </span>
               {audit.frameworkName && (
                 <span className="text-xs text-gray-400">
@@ -171,7 +174,7 @@ export function AuditDetailPanel({
               )}
               {(audit as any).isLocked && (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700">
-                  <Lock className="w-3 h-3" /> Locked
+                  <Lock className="w-3 h-3" /> {t('auditPanel.locked')}
                 </span>
               )}
             </div>
@@ -191,19 +194,19 @@ export function AuditDetailPanel({
               {totalControls}
             </div>
             <div className="text-xs text-gray-400 mt-0.5">
-              Controls in Scope
+              {t('auditPanel.controlsInScope')}
             </div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-red-600">{major}</div>
-            <div className="text-xs text-gray-400 mt-0.5">Major Findings</div>
+            <div className="text-xs text-gray-400 mt-0.5">{t('auditPanel.majorFindings')}</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-amber-600">
               {minor + obs}
             </div>
             <div className="text-xs text-gray-400 mt-0.5">
-              Minor / Observations
+              {t('auditPanel.minorObservations')}
             </div>
           </div>
         </div>
@@ -212,30 +215,30 @@ export function AuditDetailPanel({
         <div className="p-5 space-y-3 border-b border-gray-100">
           <Row
             icon={<Calendar className="w-4 h-4" />}
-            label="Scheduled"
+            label={t('auditPanel.scheduled')}
             value={`${fmt(audit.startDate)} → ${fmt(audit.endDate)}`}
           />
           {(audit.periodStart || audit.periodEnd) && (
             <Row
               icon={<Shield className="w-4 h-4" />}
-              label="Audit Period"
+              label={t('auditPanel.auditPeriod')}
               value={`${fmt(audit.periodStart)} → ${fmt(audit.periodEnd)}`}
             />
           )}
           <Row
             icon={<User className="w-4 h-4" />}
-            label="Auditor"
+            label={t('auditPanel.auditor')}
             value={
               audit.externalAuditorEmail ??
               (audit.assignedAuditorId
-                ? `Internal (${audit.assignedAuditorId.slice(0, 8)}…)`
-                : 'Not assigned')
+                ? `${t('auditPanel.typeLabels.INTERNAL')} (${audit.assignedAuditorId.slice(0, 8)}…)`
+                : t('auditPanel.notAssigned'))
             }
           />
           {audit.closedAt && (
             <Row
               icon={<CheckCircle2 className="w-4 h-4" />}
-              label="Closed"
+              label={t('auditPanel.closed')}
               value={fmt(audit.closedAt)}
             />
           )}
@@ -245,7 +248,7 @@ export function AuditDetailPanel({
         {findings.length > 0 && (
           <div className="p-5 border-b border-gray-100">
             <h3 className="text-sm font-semibold text-gray-800 mb-3">
-              Findings ({findings.length})
+              {t('auditPanel.findingsCount', { count: findings.length })}
             </h3>
             <div className="space-y-2">
               {findings.map((f) => (
@@ -282,7 +285,7 @@ export function AuditDetailPanel({
         <div className="p-5 flex gap-2 mt-auto flex-wrap">
           {(audit.status === 'DRAFT' || audit.status === 'PLANNED') && (
             <Button onClick={handleStart} disabled={acting} className="flex-1">
-              {acting ? 'Starting…' : 'Start Audit'}
+              {acting ? t('auditPanel.starting') : t('auditPanel.startAudit')}
             </Button>
           )}
           {audit.status === 'IN_PROGRESS' && (
@@ -291,7 +294,7 @@ export function AuditDetailPanel({
               disabled={acting}
               className="flex-1 bg-green-700 hover:bg-green-600"
             >
-              {acting ? 'Closing…' : 'Close / Complete Audit'}
+              {acting ? t('auditPanel.closing') : t('auditPanel.closeAudit')}
             </Button>
           )}
           {(audit.status === 'IN_PROGRESS' || audit.status === 'COMPLETED') && (
@@ -304,7 +307,7 @@ export function AuditDetailPanel({
               className="flex-1"
             >
               <ClipboardList className="w-4 h-4 mr-1" />
-              Final Report
+              {t('auditPanel.finalReport')}
             </Button>
           )}
         </div>

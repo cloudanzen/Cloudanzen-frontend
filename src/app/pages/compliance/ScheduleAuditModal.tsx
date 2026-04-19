@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/app/components/ui/button';
 import { Search, X } from 'lucide-react';
@@ -30,6 +31,7 @@ export function ScheduleAuditModal({
   onClose: () => void;
   onCreated: () => void;
 }) {
+  const { t } = useTranslation('compliance');
   const [step, setStep] = useState<1 | 2>(1);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -80,12 +82,22 @@ export function ScheduleAuditModal({
   }
 
   async function handleSubmit() {
-    if (!name.trim()) return setError('Audit name is required.');
-    if (!startDate) return setError('Start date is required.');
-    if (!scopeAll && selectedControlIds.length === 0)
+    if (!name.trim()) return setError(t('scheduleAudit.nameRequired'));
+    if (!startDate) return setError(t('scheduleAudit.startRequired'));
+    if (auditorType === 'internal' && !assignedAuditorId)
       return setError(
-        'Select at least one control, or choose "Entire Framework".',
+        t('scheduleAudit.internalAuditorRequired', {
+          defaultValue: 'Select an internal auditor.',
+        }),
       );
+    if (auditorType === 'external' && !externalAuditorEmail.trim())
+      return setError(
+        t('scheduleAudit.externalAuditorRequired', {
+          defaultValue: 'Provide an external auditor email.',
+        }),
+      );
+    if (!scopeAll && selectedControlIds.length === 0)
+      return setError(t('scheduleAudit.scopeRequired'));
 
     setSaving(true);
     setError(null);
@@ -113,7 +125,7 @@ export function ScheduleAuditModal({
       onCreated();
       onClose();
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Failed to create audit');
+      setError(e instanceof Error ? e.message : t('scheduleAudit.createFailed'));
     } finally {
       setSaving(false);
     }
@@ -149,11 +161,11 @@ export function ScheduleAuditModal({
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <div>
             <h2 className="text-lg font-semibold text-gray-900">
-              Schedule New Audit
+              {t('scheduleAudit.title')}
             </h2>
             <p className="text-xs text-gray-400 mt-0.5">
-              Step {step} of 2 —{' '}
-              {step === 1 ? 'Audit Details' : 'Scope & Auditor'}
+              {t('scheduleAudit.stepOf', { step })} —{' '}
+              {step === 1 ? t('scheduleAudit.step1Label') : t('scheduleAudit.step2Label')}
             </p>
           </div>
           <button
@@ -174,29 +186,29 @@ export function ScheduleAuditModal({
 
           {step === 1 && (
             <>
-              <Field label="Audit Name" required>
+              <Field label={t('scheduleAudit.auditName')} required>
                 <input
                   className={inputCls}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. ISO 27001 Annual Surveillance Audit"
+                  placeholder={t('scheduleAudit.auditNamePlaceholder')}
                 />
               </Field>
 
               <div className="grid grid-cols-2 gap-3">
-                <Field label="Audit Type" required>
+                <Field label={t('scheduleAudit.auditType')} required>
                   <select
                     className={selectCls}
                     value={type}
                     onChange={(e) => setType(e.target.value as AuditType)}
                   >
-                    <option value="INTERNAL">Internal</option>
-                    <option value="EXTERNAL">External</option>
-                    <option value="SURVEILLANCE">Surveillance</option>
-                    <option value="RECERTIFICATION">Recertification</option>
+                    <option value="INTERNAL">{t('scheduleAudit.internal')}</option>
+                    <option value="EXTERNAL">{t('scheduleAudit.external')}</option>
+                    <option value="SURVEILLANCE">{t('scheduleAudit.surveillance')}</option>
+                    <option value="RECERTIFICATION">{t('scheduleAudit.recertification')}</option>
                   </select>
                 </Field>
-                <Field label="Framework">
+                <Field label={t('scheduleAudit.framework')}>
                   <input
                     className={inputCls}
                     value={frameworkName}
@@ -207,7 +219,7 @@ export function ScheduleAuditModal({
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <Field label="Audit Period Start">
+                <Field label={t('scheduleAudit.auditPeriodStart')}>
                   <input
                     type="date"
                     className={inputCls}
@@ -215,7 +227,7 @@ export function ScheduleAuditModal({
                     onChange={(e) => setPeriodStart(e.target.value)}
                   />
                 </Field>
-                <Field label="Audit Period End">
+                <Field label={t('scheduleAudit.auditPeriodEnd')}>
                   <input
                     type="date"
                     className={inputCls}
@@ -226,7 +238,7 @@ export function ScheduleAuditModal({
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <Field label="Scheduled Start Date" required>
+                <Field label={t('scheduleAudit.scheduledStart')} required>
                   <input
                     type="date"
                     className={inputCls}
@@ -234,7 +246,7 @@ export function ScheduleAuditModal({
                     onChange={(e) => setStartDate(e.target.value)}
                   />
                 </Field>
-                <Field label="Scheduled End Date">
+                <Field label={t('scheduleAudit.scheduledEnd')}>
                   <input
                     type="date"
                     className={inputCls}
@@ -251,7 +263,7 @@ export function ScheduleAuditModal({
               {/* Scope */}
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-2">
-                  Audit Scope
+                  {t('scheduleAudit.auditScope')}
                 </label>
                 <div className="flex gap-3 mb-3">
                   <label
@@ -264,10 +276,10 @@ export function ScheduleAuditModal({
                       onChange={() => setScopeAll(true)}
                     />
                     <span className="text-sm font-medium text-gray-800">
-                      Entire Framework
+                      {t('scheduleAudit.entireFramework')}
                     </span>
                     <span className="text-xs text-gray-400 ml-auto">
-                      All {controls.length} controls
+                      {t('scheduleAudit.allControls', { count: controls.length })}
                     </span>
                   </label>
                   <label
@@ -280,7 +292,7 @@ export function ScheduleAuditModal({
                       onChange={() => setScopeAll(false)}
                     />
                     <span className="text-sm font-medium text-gray-800">
-                      Specific Controls
+                      {t('scheduleAudit.specificControls')}
                     </span>
                     {!scopeAll && selectedControlIds.length > 0 && (
                       <span className="text-xs bg-blue-600 text-white rounded-full px-1.5 py-0.5 ml-auto">
@@ -296,7 +308,7 @@ export function ScheduleAuditModal({
                       <Search className="w-3.5 h-3.5 text-gray-400" />
                       <input
                         className="flex-1 text-sm bg-transparent outline-none placeholder-gray-400"
-                        placeholder="Search controls..."
+                        placeholder={t('scheduleAudit.searchControls')}
                         value={controlSearch}
                         onChange={(e) => setControlSearch(e.target.value)}
                       />
@@ -304,7 +316,7 @@ export function ScheduleAuditModal({
                     <div className="max-h-48 overflow-y-auto divide-y divide-gray-50">
                       {filteredControls.length === 0 ? (
                         <p className="text-xs text-gray-400 text-center py-4">
-                          No controls found
+                          {t('scheduleAudit.noControlsFound')}
                         </p>
                       ) : (
                         filteredControls.map((c) => (
@@ -335,35 +347,35 @@ export function ScheduleAuditModal({
               {/* Auditor */}
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-2">
-                  Assign Auditor
+                  {t('scheduleAudit.assignAuditor')}
                 </label>
                 <div className="flex gap-3 mb-3">
-                  {(['internal', 'external'] as const).map((t) => (
+                  {(['internal', 'external'] as const).map((aType) => (
                     <label
-                      key={t}
-                      className={`flex-1 flex items-center gap-2 border rounded-lg px-3 py-2.5 cursor-pointer transition-colors ${auditorType === t ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:bg-gray-50'}`}
+                      key={aType}
+                      className={`flex-1 flex items-center gap-2 border rounded-lg px-3 py-2.5 cursor-pointer transition-colors ${auditorType === aType ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:bg-gray-50'}`}
                     >
                       <input
                         type="radio"
                         className="accent-blue-600"
-                        checked={auditorType === t}
-                        onChange={() => setAuditorType(t)}
+                        checked={auditorType === aType}
+                        onChange={() => setAuditorType(aType)}
                       />
                       <span className="text-sm font-medium text-gray-800 capitalize">
-                        {t}
+                        {t(`scheduleAudit.${aType}`)}
                       </span>
                     </label>
                   ))}
                 </div>
 
                 {auditorType === 'internal' ? (
-                  <Field label="Select Internal Auditor">
+                  <Field label={t('scheduleAudit.selectInternalAuditor')}>
                     <select
                       className={selectCls}
                       value={assignedAuditorId}
                       onChange={(e) => setAssignedAuditorId(e.target.value)}
                     >
-                      <option value="">— None assigned —</option>
+                      <option value="">{t('scheduleAudit.noneAssigned')}</option>
                       {users.map((u) => (
                         <option key={u.id} value={u.id}>
                           {u.name ?? u.email} ({u.role})
@@ -372,7 +384,7 @@ export function ScheduleAuditModal({
                     </select>
                   </Field>
                 ) : (
-                  <Field label="External Auditor Email">
+                  <Field label={t('scheduleAudit.externalAuditorEmail')}>
                     <input
                       type="email"
                       className={inputCls}
@@ -393,23 +405,23 @@ export function ScheduleAuditModal({
             onClick={step === 1 ? onClose : () => setStep(1)}
             className="text-sm text-gray-500 hover:text-gray-700"
           >
-            {step === 1 ? 'Cancel' : '← Back'}
+            {step === 1 ? t('scheduleAudit.cancel') : t('scheduleAudit.backStep')}
           </button>
           <div className="flex gap-2">
             {step === 1 ? (
               <Button
                 onClick={() => {
-                  if (!name.trim()) return setError('Audit name is required.');
-                  if (!startDate) return setError('Start date is required.');
+                  if (!name.trim()) return setError(t('scheduleAudit.nameRequired'));
+                  if (!startDate) return setError(t('scheduleAudit.startRequired'));
                   setError(null);
                   setStep(2);
                 }}
               >
-                Next: Scope & Auditor →
+                {t('scheduleAudit.nextStep')}
               </Button>
             ) : (
               <Button onClick={handleSubmit} disabled={saving}>
-                {saving ? 'Creating...' : 'Create Audit'}
+                {saving ? t('scheduleAudit.creating') : t('scheduleAudit.createAudit')}
               </Button>
             )}
           </div>

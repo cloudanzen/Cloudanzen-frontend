@@ -6,6 +6,8 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
+import type { TFunction } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import type { TestRecord } from '@/services/api/tests';
 import { findingsService, type FindingRecord } from '@/services/api/findings';
 import {
@@ -26,29 +28,11 @@ const ACTIVE_STATUSES: RemediationAction['status'][] = [
   'EXECUTING',
 ];
 
-function statusLabel(status: RemediationAction['status']) {
-  switch (status) {
-    case 'PENDING':
-      return 'Pending dry run';
-    case 'DRY_RUN_READY':
-      return 'Dry run ready';
-    case 'AWAITING_APPROVAL':
-      return 'Awaiting approval';
-    case 'APPROVED':
-      return 'Approved — ready to execute';
-    case 'EXECUTING':
-      return 'Executing…';
-    case 'SUCCEEDED':
-      return 'Succeeded';
-    case 'FAILED':
-      return 'Failed';
-    case 'ROLLED_BACK':
-      return 'Rolled back';
-    case 'CANCELLED':
-      return 'Cancelled';
-    default:
-      return status;
-  }
+function statusLabel(
+  status: RemediationAction['status'],
+  t: TFunction<'tests'>,
+) {
+  return t(`remediation.statusLabels.${status}`, { defaultValue: status });
 }
 
 function statusColor(status: RemediationAction['status']) {
@@ -64,6 +48,7 @@ function statusColor(status: RemediationAction['status']) {
 }
 
 function LiveRemediationPanel({ finding }: { finding: FindingRecord }) {
+  const { t } = useTranslation('tests');
   const { data: actions = [], isLoading } = useQuery({
     queryKey: ['remediation-actions', finding.id],
     queryFn: () => remediationService.listActions(finding.id),
@@ -79,7 +64,7 @@ function LiveRemediationPanel({ finding }: { finding: FindingRecord }) {
     return (
       <div className="flex items-center gap-2 text-sm text-gray-400 py-2">
         <RefreshCw className="w-4 h-4 animate-spin" />
-        Loading remediation status…
+        {t('remediation.loadingStatus')}
       </div>
     );
   }
@@ -87,7 +72,7 @@ function LiveRemediationPanel({ finding }: { finding: FindingRecord }) {
   if (actions.length === 0) {
     return (
       <div className="text-sm text-gray-400 py-2">
-        No automated remediation actions available for this finding yet.
+        {t('remediation.noActions')}
       </div>
     );
   }
@@ -105,17 +90,19 @@ function LiveRemediationPanel({ finding }: { finding: FindingRecord }) {
               {action.provider} — {action.actionType}
             </div>
             <span className="text-xs font-medium px-2 py-0.5 rounded-full border">
-              {statusLabel(action.status)}
+              {statusLabel(action.status, t)}
             </span>
           </div>
           {action.latestExecution?.diffJson && (
             <details className="mt-2">
               <summary className="cursor-pointer text-xs opacity-70 hover:opacity-100">
-                View dry-run diff
+                {t('remediation.viewDryRunDiff')}
               </summary>
               <div className="mt-2 grid grid-cols-2 gap-2 text-xs font-mono">
                 <div>
-                  <p className="font-semibold mb-1 opacity-60">Before</p>
+                  <p className="font-semibold mb-1 opacity-60">
+                    {t('remediation.before')}
+                  </p>
                   <pre className="whitespace-pre-wrap break-all bg-white/50 rounded p-2 border">
                     {JSON.stringify(
                       action.latestExecution.diffJson.before,
@@ -125,7 +112,9 @@ function LiveRemediationPanel({ finding }: { finding: FindingRecord }) {
                   </pre>
                 </div>
                 <div>
-                  <p className="font-semibold mb-1 opacity-60">After</p>
+                  <p className="font-semibold mb-1 opacity-60">
+                    {t('remediation.after')}
+                  </p>
                   <pre className="whitespace-pre-wrap break-all bg-white/50 rounded p-2 border">
                     {JSON.stringify(
                       action.latestExecution.diffJson.after,
@@ -152,6 +141,7 @@ function LiveRemediationPanel({ finding }: { finding: FindingRecord }) {
 }
 
 function AutoRemediationSection({ testId }: { testId: string }) {
+  const { t } = useTranslation('tests');
   const { data: findings = [], isLoading } = useQuery({
     queryKey: ['test-findings', testId],
     queryFn: () => findingsService.listByTestId(testId),
@@ -162,7 +152,7 @@ function AutoRemediationSection({ testId }: { testId: string }) {
     return (
       <div className="flex items-center gap-2 text-sm text-gray-400 py-2">
         <RefreshCw className="w-4 h-4 animate-spin" />
-        Checking remediation engine…
+        {t('remediation.checkingEngine')}
       </div>
     );
   }
@@ -172,11 +162,10 @@ function AutoRemediationSection({ testId }: { testId: string }) {
       <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
         <div className="flex items-center gap-2 font-semibold">
           <Zap className="w-4 h-4" />
-          Automated remediation is available
+          {t('remediation.autoAvailable')}
         </div>
         <p className="mt-1 text-xs opacity-80">
-          No open findings detected. Run a scan to trigger the remediation
-          engine when issues are found.
+          {t('remediation.noOpenFindings')}
         </p>
       </div>
     );
@@ -187,12 +176,12 @@ function AutoRemediationSection({ testId }: { testId: string }) {
       <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
         <div className="flex items-center gap-2 font-semibold">
           <Zap className="w-4 h-4" />
-          Automated remediation is available for {findings.length} finding
-          {findings.length !== 1 ? 's' : ''}
+          {t('remediation.autoAvailableForFindings', {
+            count: findings.length,
+          })}
         </div>
         <p className="mt-1 text-xs opacity-80">
-          Use the Findings page to run dry runs, request approval, and execute
-          automated fixes.
+          {t('remediation.useFindingsPage')}
         </p>
       </div>
       {findings.map((finding) => (
@@ -223,6 +212,7 @@ function AutoRemediationSection({ testId }: { testId: string }) {
 // ── Main component ─────────────────────────────────────────────────────────────
 
 export function RemediationGuide({ test }: { test: TestRecord }) {
+  const { t } = useTranslation('tests');
   // When autoRemediationSupported=true, show live engine status instead of static steps
   if (test.autoRemediationSupported && test.type !== 'Document') {
     return <AutoRemediationSection testId={test.id} />;
@@ -244,26 +234,37 @@ export function RemediationGuide({ test }: { test: TestRecord }) {
 
   if (isFailing && isAutomated) {
     steps.push({
-      title: 'Investigate the failing scan result',
-      description: `Review the latest scan output from ${providerLabel ?? 'the integration'}. Check the Scan Run History section above for the detailed failure summary and root cause.`,
+      title: t('remediation.steps.investigateFailure.title'),
+      description: t('remediation.steps.investigateFailure.description', {
+        provider: providerLabel ?? t('remediation.integrationFallback'),
+      }),
       severity: 'critical',
     });
   } else if (isFailing) {
     steps.push({
-      title: 'Review the test requirements',
-      description: `This test requires manual verification. Review the linked controls and evidence requirements to understand what compliance gap exists.`,
+      title: t('remediation.steps.reviewRequirements.title'),
+      description: t('remediation.steps.reviewRequirements.description'),
       severity: 'critical',
     });
   } else if (isOverdue) {
     steps.push({
-      title: 'Acknowledge the overdue status',
-      description: `This test was due on ${fmtDate(test.dueDate)} and is now overdue. Prioritize completing this test to avoid compliance drift.`,
+      title: t('remediation.steps.acknowledgeOverdue.title'),
+      description: t('remediation.steps.acknowledgeOverdue.description', {
+        date: fmtDate(test.dueDate),
+      }),
       severity: 'warning',
     });
   } else {
     steps.push({
-      title: 'Review current test status',
-      description: `This test is currently ${STATUS_CONFIG[test.status]?.label ?? test.status}. Review linked controls and evidence to ensure continued compliance.`,
+      title: t('remediation.steps.reviewStatus.title'),
+      description: t('remediation.steps.reviewStatus.description', {
+        status: t(
+          `statusBadge.${STATUS_CONFIG[test.status]?.key ?? test.status}`,
+          {
+            defaultValue: STATUS_CONFIG[test.status]?.label ?? test.status,
+          },
+        ),
+      }),
       severity: 'info',
     });
   }
@@ -273,77 +274,87 @@ export function RemediationGuide({ test }: { test: TestRecord }) {
       .map((c) => c.control.isoReference)
       .join(', ');
     steps.push({
-      title: 'Verify linked control implementation',
-      description: `Ensure the following controls are fully implemented: ${controlNames}. Check each control's status and verify its implementation aligns with the test requirements.`,
+      title: t('remediation.steps.verifyControls.title'),
+      description: t('remediation.steps.verifyControls.description', {
+        controls: controlNames,
+      }),
       severity: test.controls.some((c) => c.control.status !== 'IMPLEMENTED')
         ? 'warning'
         : 'info',
     });
   } else {
     steps.push({
-      title: 'Map relevant controls',
-      description:
-        'No controls are linked to this test. Use the Controls section below to link the applicable ISO/SOC controls that this test validates.',
+      title: t('remediation.steps.mapControls.title'),
+      description: t('remediation.steps.mapControls.description'),
       severity: 'warning',
     });
   }
 
   if (test.evidences.length === 0) {
     steps.push({
-      title: 'Collect and attach evidence',
-      description:
-        'No evidence is currently attached. Gather the required documentation, screenshots, or automated reports that prove compliance and attach them using the Evidence section below.',
+      title: t('remediation.steps.collectEvidence.title'),
+      description: t('remediation.steps.collectEvidence.description'),
       severity: 'warning',
     });
   } else if (isFailing) {
     steps.push({
-      title: 'Update evidence with remediation proof',
-      description: `Current evidence (${test.evidences.length} items) may reflect the pre-remediation state. After fixing the issue, collect fresh evidence showing the resolved state and attach it.`,
+      title: t('remediation.steps.updateEvidence.title'),
+      description: t('remediation.steps.updateEvidence.description', {
+        count: test.evidences.length,
+      }),
       severity: 'warning',
     });
   } else {
     steps.push({
-      title: 'Verify evidence freshness',
-      description: `${test.evidences.length} evidence item(s) attached. Ensure the latest evidence is still current and reflects the actual state of the system.`,
+      title: t('remediation.steps.verifyEvidence.title'),
+      description: t('remediation.steps.verifyEvidence.description', {
+        count: test.evidences.length,
+      }),
       severity: 'info',
     });
   }
 
   if (isAutomated && isFailing) {
     steps.push({
-      title: `Apply the fix in ${providerLabel ?? 'the integration'}`,
-      description: `Make the necessary configuration changes directly in ${providerLabel ?? 'the connected system'}. Common fixes include updating security policies, enabling required features, or patching vulnerable components.`,
+      title: t('remediation.steps.applyFix.title', {
+        provider: providerLabel ?? t('remediation.integrationFallback'),
+      }),
+      description: t('remediation.steps.applyFix.description', {
+        provider: providerLabel ?? t('remediation.connectedSystemFallback'),
+      }),
       severity: 'critical',
     });
     steps.push({
-      title: 'Re-run the automated scan',
-      description:
-        'After applying the fix, trigger a new scan using the "Run Scan Now" button above. Wait for the scan to complete and verify the result changes to Pass.',
+      title: t('remediation.steps.rerunScan.title'),
+      description: t('remediation.steps.rerunScan.description'),
       severity: 'info',
     });
   }
 
   if (test.frameworks.length > 0) {
     steps.push({
-      title: 'Confirm framework alignment',
-      description: `This test maps to: ${test.frameworks.map((f) => f.frameworkName).join(', ')}. Verify that remediation actions satisfy the requirements of all linked frameworks.`,
+      title: t('remediation.steps.confirmFrameworks.title'),
+      description: t('remediation.steps.confirmFrameworks.description', {
+        frameworks: test.frameworks.map((f) => f.frameworkName).join(', '),
+      }),
       severity: 'info',
     });
   }
 
   if (!isAutomated) {
     steps.push({
-      title: 'Mark the test as complete',
-      description:
-        'Once all controls are implemented, evidence is collected, and the compliance gap is resolved, use the "Mark Complete" button to close this test cycle.',
+      title: t('remediation.steps.markComplete.title'),
+      description: t('remediation.steps.markComplete.description'),
       severity: 'info',
     });
   }
 
   if (test.audits.length > 0) {
     steps.push({
-      title: 'Document for audit readiness',
-      description: `This test is linked to ${test.audits.length} audit(s). Ensure all remediation actions and evidence are thoroughly documented for the auditor.`,
+      title: t('remediation.steps.auditReadiness.title'),
+      description: t('remediation.steps.auditReadiness.description', {
+        count: test.audits.length,
+      }),
       severity: 'info',
     });
   }
@@ -371,12 +382,11 @@ export function RemediationGuide({ test }: { test: TestRecord }) {
           <div className="flex items-center gap-2 font-semibold">
             <AlertTriangle className="w-4 h-4" />
             {isFailing
-              ? 'This test is failing and requires remediation'
-              : 'This test is overdue and needs attention'}
+              ? t('remediation.alertFailing')
+              : t('remediation.alertOverdue')}
           </div>
           <p className="mt-1 text-xs opacity-80">
-            Follow the steps below to resolve the issue and bring this test back
-            into compliance.
+            {t('remediation.alertDescription')}
           </p>
         </div>
       )}

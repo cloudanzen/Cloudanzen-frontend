@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type React from 'react';
+import { useTranslation } from 'react-i18next';
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { PageFilterBar } from '@/app/components/filters/PageFilterBar';
 import { useUrlFilterState } from '@/app/hooks/useUrlFilterState';
@@ -50,6 +51,7 @@ interface AssetItem {
 }
 
 export function InventoryPage() {
+  const { t } = useTranslation('assets');
   const [assets, setAssets] = useState<AssetItem[]>([]);
   const [loading, setLoading] = useState(true);
   const { filters, update, reset } = useUrlFilterState({
@@ -136,8 +138,8 @@ export function InventoryPage() {
 
   return (
     <PageTemplate
-      title="Asset Inventory"
-      description="All assets discovered across your organisation — including GitHub repositories."
+      title={t('inventory.title')}
+      description={t('inventory.description')}
     >
       {loadError && (
         <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -153,7 +155,7 @@ export function InventoryPage() {
           <PageFilterBar
             searchValue={filters.search}
             onSearchChange={(value) => update({ search: value })}
-            searchPlaceholder="Search asset name or description"
+            searchPlaceholder={t('inventory.searchPlaceholder')}
             selects={[
               {
                 key: 'type',
@@ -216,12 +218,12 @@ export function InventoryPage() {
                 <thead className="bg-gray-50 border-b" role="rowgroup">
                   <tr role="row">
                     {[
-                      'Asset Name',
-                      'Type',
-                      'Criticality',
-                      'Risks',
-                      'Description',
-                      'Added',
+                      t('inventory.columns.name'),
+                      t('inventory.columns.type'),
+                      t('inventory.columns.criticality'),
+                      t('inventory.columns.risks'),
+                      t('inventory.columns.owner'),
+                      t('inventory.columns.createdAt'),
                     ].map((h) => (
                       <th
                         key={h}
@@ -244,8 +246,7 @@ export function InventoryPage() {
                         colSpan={6}
                         className="px-6 py-10 text-center text-sm text-gray-400"
                       >
-                        No assets yet. Connect GitHub to auto-discover
-                        repositories.
+                        {t('inventory.noAssets')}
                       </td>
                     </tr>
                   ) : (

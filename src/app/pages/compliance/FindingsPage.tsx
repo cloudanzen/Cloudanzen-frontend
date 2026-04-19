@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- legacy: to be typed progressively */
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   AlertTriangle,
@@ -847,6 +848,7 @@ function FindingDetailPanel({
 }
 
 export function FindingsPage() {
+  const { t } = useTranslation('compliance');
   const qc = useQueryClient();
   const [filterSeverity, setFilterSeverity] = useState<FindingSeverity | ''>(
     '',
@@ -863,22 +865,23 @@ export function FindingsPage() {
 
   return (
     <PageTemplate
-      title="Findings"
-      description="Track automated findings raised from test executions"
+      title={t('findings.title')}
+      description={t('findings.description')}
     >
       <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-5">
         {[
-          { label: 'Total', value: stats.total, color: 'text-gray-700' },
-          { label: 'Open', value: stats.open, color: 'text-red-600' },
+          { key: 'total', label: t('findings.total'), value: stats.total, color: 'text-gray-700' },
+          { key: 'open', label: t('findings.open'), value: stats.open, color: 'text-red-600' },
           {
-            label: 'In Remediation',
+            key: 'inRemediation',
+            label: t('findings.inRemediation'),
             value: stats.inRemediation,
             color: 'text-amber-600',
           },
-          { label: 'Closed', value: stats.closed, color: 'text-green-600' },
-          { label: 'Overdue', value: stats.overdue, color: 'text-red-700' },
+          { key: 'closed', label: t('findings.closed'), value: stats.closed, color: 'text-green-600' },
+          { key: 'overdue', label: t('findings.overdue'), value: stats.overdue, color: 'text-red-700' },
         ].map((stat) => (
-          <Card key={stat.label} className="p-4 text-center">
+          <Card key={stat.key} className="p-4 text-center">
             <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
             <p className="mt-0.5 text-xs text-gray-500">{stat.label}</p>
           </Card>
@@ -892,7 +895,7 @@ export function FindingsPage() {
             className="w-full rounded-lg border border-gray-200 pl-9 pr-3 py-1.5 text-sm"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search findings..."
+            placeholder={t('findings.searchPlaceholder')}
           />
         </div>
         <Select
@@ -907,7 +910,7 @@ export function FindingsPage() {
             <SelectValue placeholder="Severity" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="__all_severity__">All severities</SelectItem>
+            <SelectItem value="__all_severity__">{t('findings.allSeverities')}</SelectItem>
             <SelectItem value="CRITICAL">Critical</SelectItem>
             <SelectItem value="HIGH">High</SelectItem>
             <SelectItem value="MEDIUM">Medium</SelectItem>
@@ -924,7 +927,7 @@ export function FindingsPage() {
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="__all_status__">All statuses</SelectItem>
+            <SelectItem value="__all_status__">{t('findings.allStatuses')}</SelectItem>
             {(
               ['OPEN', 'IN_REMEDIATION', 'READY_FOR_REVIEW', 'CLOSED'] as const
             ).map((status) => (

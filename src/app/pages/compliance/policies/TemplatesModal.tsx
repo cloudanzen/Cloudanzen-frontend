@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- legacy: to be typed progressively */
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { policiesService, PolicyTemplate } from '@/services/api/policies';
 import { Policy } from '@/services/api/types';
 import { FileText, Search, X, AlertCircle, CheckCircle2, Plus, Loader2 } from 'lucide-react';
@@ -30,6 +31,7 @@ export function TemplatesModal({
   onClose: () => void;
   onCreated: (policy: Policy) => void;
 }) {
+  const { t } = useTranslation('compliance');
   const [templates, setTemplates] = useState<PolicyTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -45,14 +47,14 @@ export function TemplatesModal({
       policiesService.getPolicies(),
     ]).then(([tplRes, polRes]) => {
       if (tplRes.success && tplRes.data) setTemplates(tplRes.data);
-      else setError('Failed to load templates');
+      else setError(t('policiesPage.templates.failedToLoad'));
       // Pre-mark templates that already have a matching policy
       if (polRes.success && polRes.data) {
         const existingNames = new Set(polRes.data.map((p: Policy) => p.name));
         setDone(existingNames);
       }
-    }).catch(() => setError('Failed to load templates')).finally(() => setLoading(false));
-  }, []);
+    }).catch(() => setError(t('policiesPage.templates.failedToLoad'))).finally(() => setLoading(false));
+  }, [t]);
 
   const handleUse = async (template: PolicyTemplate) => {
     if (creating || done.has(template.name)) return;
@@ -69,7 +71,7 @@ export function TemplatesModal({
         // Policy was already created (e.g. via framework activation) — mark as done
         setDone(prev => new Set([...prev, template.name]));
       } else {
-        setCardError(msg ?? 'Failed to create policy');
+        setCardError(msg ?? t('policiesPage.templates.createFailed'));
       }
     } finally {
       setCreating(null);
@@ -102,9 +104,9 @@ export function TemplatesModal({
     <Dialog open onOpenChange={() => onClose()}>
       <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Policy Templates</DialogTitle>
+          <DialogTitle>{t('policiesPage.templates.title')}</DialogTitle>
           <DialogDescription>
-            {templates.length} policy templates — creates the policy with an editable .docx document attached
+            {t('policiesPage.templates.description', { count: templates.length })}
           </DialogDescription>
         </DialogHeader>
 
@@ -116,7 +118,7 @@ export function TemplatesModal({
               type="text"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              placeholder="Search by name, category, or requirement code…"
+              placeholder={t('policiesPage.templates.searchPlaceholder')}
               className="w-full pl-9 pr-8 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               autoFocus
             />
@@ -141,7 +143,7 @@ export function TemplatesModal({
           {loading ? (
             <div className="flex flex-col items-center justify-center py-16">
               <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-3" />
-              <p className="text-sm text-gray-500">Loading templates…</p>
+              <p className="text-sm text-gray-500">{t('policiesPage.templates.loadingTemplates')}</p>
             </div>
           ) : error ? (
             <div className="flex flex-col items-center justify-center py-16">
@@ -151,7 +153,7 @@ export function TemplatesModal({
           ) : Object.keys(grouped).length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16">
               <FileText className="w-8 h-8 text-gray-300 mb-3" />
-              <p className="text-sm text-gray-500">No templates match your search.</p>
+              <p className="text-sm text-gray-500">{t('policiesPage.templates.noMatch')}</p>
             </div>
           ) : (
             <div className="space-y-6">
@@ -163,7 +165,7 @@ export function TemplatesModal({
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${cfg.bg} ${cfg.color} ${cfg.border} border`}>
                         {category}
                       </span>
-                      <span className="text-xs text-gray-400">{items.length} template{items.length !== 1 ? 's' : ''}</span>
+                      <span className="text-xs text-gray-400">{t('policiesPage.templates.templateCount', { count: items.length })}</span>
                     </div>
                     <div className="space-y-2">
                       {items.map(template => {
@@ -197,7 +199,7 @@ export function TemplatesModal({
                                 </div>
                               )}
                               {isDone && (
-                                <p className="text-xs text-green-700 font-medium mt-1.5">Policy already exists in your organization</p>
+                                <p className="text-xs text-green-700 font-medium mt-1.5">{t('policiesPage.templates.alreadyExists')}</p>
                               )}
                             </div>
                             <button
@@ -214,11 +216,11 @@ export function TemplatesModal({
                               }`}
                             >
                               {isCreating ? (
-                                <><Loader2 className="w-3.5 h-3.5 animate-spin" />Generating…</>
+                                <><Loader2 className="w-3.5 h-3.5 animate-spin" />{t('policiesPage.templates.generating')}</>
                               ) : isDone ? (
-                                <><CheckCircle2 className="w-3.5 h-3.5" />Created</>
+                                <><CheckCircle2 className="w-3.5 h-3.5" />{t('policiesPage.templates.created')}</>
                               ) : (
-                                <><Plus className="w-3.5 h-3.5" />Use This Template</>
+                                <><Plus className="w-3.5 h-3.5" />{t('policiesPage.templates.useTemplate')}</>
                               )}
                             </button>
                           </div>

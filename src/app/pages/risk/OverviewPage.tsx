@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { Card } from '@/app/components/ui/card';
 import { Badge } from '@/app/components/ui/badge';
@@ -19,6 +20,7 @@ const severityColors: Record<string, string> = {
 };
 
 export function RiskOverviewPage() {
+  const { t } = useTranslation('risk');
   const qc = useQueryClient();
   const navigate = useNavigate();
   const { data, isLoading, isFetching } = useQuery({
@@ -28,20 +30,20 @@ export function RiskOverviewPage() {
   });
 
   const stats = [
-    { label: 'Open risks', value: data?.open ?? 0, icon: Siren, tone: 'text-red-600', detail: `${data?.overdue ?? 0} overdue` },
-    { label: 'High-risk assets', value: data?.highRiskAssets ?? 0, icon: Radar, tone: 'text-orange-600', detail: 'Critical or high exposure' },
-    { label: 'Evidence coverage', value: `${data?.evidenceCoverage ?? 0}%`, icon: Files, tone: 'text-blue-600', detail: 'Risks with evidence snapshots' },
-    { label: 'Framework coverage', value: `${data?.frameworkCoverage ?? 0}%`, icon: ShieldCheck, tone: 'text-emerald-600', detail: `MTTR ${data?.mttrDays ?? 0} days` },
+    { key: 'open', label: t('overview.stats.openRisks'), value: data?.open ?? 0, icon: Siren, tone: 'text-red-600', detail: t('overview.stats.overdueDetail', { count: data?.overdue ?? 0 }) },
+    { key: 'assets', label: t('overview.stats.highRiskAssets'), value: data?.highRiskAssets ?? 0, icon: Radar, tone: 'text-orange-600', detail: t('overview.stats.highRiskDetail') },
+    { key: 'evidence', label: t('overview.stats.evidenceCoverage'), value: `${data?.evidenceCoverage ?? 0}%`, icon: Files, tone: 'text-blue-600', detail: t('overview.stats.evidenceDetail') },
+    { key: 'framework', label: t('overview.stats.frameworkCoverage'), value: `${data?.frameworkCoverage ?? 0}%`, icon: ShieldCheck, tone: 'text-emerald-600', detail: t('overview.stats.mttrDetail', { days: data?.mttrDays ?? 0 }) },
   ];
 
   return (
     <PageTemplate
-      title="Risk Overview"
-      description="Enterprise risk posture across automated monitoring, evidence, and remediation workflows."
+      title={t('overview.title')}
+      description={t('overview.description')}
       actions={
         <Button variant="outline" size="sm" disabled={isFetching} onClick={() => qc.invalidateQueries({ queryKey: QK.riskCenterOverview() })}>
           <RefreshCw className={`mr-2 h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
-          Refresh
+          {t('overview.refresh')}
         </Button>
       }
     >
@@ -53,7 +55,7 @@ export function RiskOverviewPage() {
             {stats.map((stat) => {
               const Icon = stat.icon;
               return (
-                <Card key={stat.label} className="p-6">
+                <Card key={stat.key} className="p-6">
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <p className="text-sm text-muted-foreground">{stat.label}</p>
@@ -73,10 +75,10 @@ export function RiskOverviewPage() {
             <Card className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-base font-semibold text-foreground">Severity posture</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">Current exposure split across the risk engine.</p>
+                  <h3 className="text-base font-semibold text-foreground">{t('overview.severityPosture')}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{t('overview.severityDesc')}</p>
                 </div>
-                <Badge variant="outline">{data.total} tracked</Badge>
+                <Badge variant="outline">{t('overview.tracked', { count: data.total })}</Badge>
               </div>
               <div className="mt-6 space-y-4">
                 {data.severityBreakdown.map((item) => {
@@ -97,15 +99,15 @@ export function RiskOverviewPage() {
               </div>
               <div className="mt-6 grid gap-4 border-t pt-4 sm:grid-cols-3">
                 <div>
-                  <p className="text-xs uppercase tracking-wide text-muted-foreground">Automated controls</p>
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground">{t('overview.automatedControls')}</p>
                   <p className="mt-1 text-xl font-semibold text-foreground">{data.automatedCoverage}%</p>
                 </div>
                 <div>
-                  <p className="text-xs uppercase tracking-wide text-muted-foreground">Accepted risks</p>
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground">{t('overview.acceptedRisks')}</p>
                   <p className="mt-1 text-xl font-semibold text-foreground">{data.accepted}</p>
                 </div>
                 <div>
-                  <p className="text-xs uppercase tracking-wide text-muted-foreground">Transferred risks</p>
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground">{t('overview.transferredRisks')}</p>
                   <p className="mt-1 text-xl font-semibold text-foreground">{data.transferred}</p>
                 </div>
               </div>
@@ -114,8 +116,8 @@ export function RiskOverviewPage() {
             <Card className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-base font-semibold text-foreground">Risk concentration</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">Where the platform is detecting the most risk pressure.</p>
+                  <h3 className="text-base font-semibold text-foreground">{t('overview.riskConcentration')}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{t('overview.riskConcentrationDesc')}</p>
                 </div>
                 <Clock3 className="h-5 w-5 text-muted-foreground/70" />
               </div>
@@ -134,7 +136,7 @@ export function RiskOverviewPage() {
                 })}
               </div>
               <div className="mt-6 border-t pt-4">
-                <p className="text-xs uppercase tracking-wide text-muted-foreground">Most impacted frameworks</p>
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">{t('overview.mostImpactedFrameworks')}</p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {data.frameworkBreakdown.slice(0, 5).map((item) => (
                     <Badge key={item.framework} variant="outline">{item.framework} ({item.count})</Badge>
@@ -148,10 +150,10 @@ export function RiskOverviewPage() {
             <Card className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-base font-semibold text-foreground">Recently created or updated risks</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">Latest detections from the automated monitoring pipeline.</p>
+                  <h3 className="text-base font-semibold text-foreground">{t('overview.recentRisks')}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{t('overview.recentRisksDesc')}</p>
                 </div>
-                <Badge variant="secondary">Continuous monitoring</Badge>
+                <Badge variant="secondary">{t('overview.continuousMonitoring')}</Badge>
               </div>
               <div className="mt-5 space-y-3">
                 {data.recentRisks.map((risk) => (
@@ -172,9 +174,9 @@ export function RiskOverviewPage() {
                       </div>
                     </div>
                     <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                      <span>Score {risk.riskScore}</span>
+                      <span>{t('overview.riskScore', { score: risk.riskScore })}</span>
                       <span>•</span>
-                      <span>{risk.evidenceCount} evidence items</span>
+                      <span>{t('overview.evidenceItems', { count: risk.evidenceCount })}</span>
                       <span>•</span>
                       <span>{trendLabel(risk.trend)}</span>
                     </div>
@@ -186,10 +188,10 @@ export function RiskOverviewPage() {
             <Card className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-base font-semibold text-foreground">Owner workload</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">Who is carrying current remediation demand.</p>
+                  <h3 className="text-base font-semibold text-foreground">{t('overview.ownerWorkload')}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{t('overview.ownerWorkloadDesc')}</p>
                 </div>
-                <Badge variant="outline">Auto-assigned owners</Badge>
+                <Badge variant="outline">{t('overview.autoAssignedOwners')}</Badge>
               </div>
               <div className="mt-5 space-y-4">
                 {data.ownerBreakdown.map((item) => {
@@ -198,7 +200,7 @@ export function RiskOverviewPage() {
                     <div key={item.team} className="rounded-xl bg-muted p-4">
                       <div className="flex items-center justify-between text-sm">
                         <span className="font-medium text-foreground">{item.team}</span>
-                        <span className="text-muted-foreground">{item.count} risks</span>
+                        <span className="text-muted-foreground">{t('overview.risks', { count: item.count })}</span>
                       </div>
                       <Progress value={pct} className="mt-3 h-2" />
                     </div>

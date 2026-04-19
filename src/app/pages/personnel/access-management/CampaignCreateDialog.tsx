@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -24,6 +25,7 @@ interface Props {
 }
 
 export function CampaignCreateDialog({ onClose }: Props) {
+  const { t } = useTranslation('personnel');
   const queryClient = useQueryClient();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -80,15 +82,19 @@ export function CampaignCreateDialog({ onClose }: Props) {
     <Dialog open onOpenChange={() => onClose()}>
       <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create Access Review Campaign</DialogTitle>
+          <DialogTitle>
+            {t('accessManagement.campaignCreate.title')}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           {/* Name */}
           <div className="space-y-1">
-            <label className="text-sm font-medium">Campaign Name</label>
+            <label className="text-sm font-medium">
+              {t('accessManagement.campaignCreate.name')}
+            </label>
             <Input
-              placeholder="e.g. Q1 2026 Access Review"
+              placeholder={t('accessManagement.campaignCreate.namePlaceholder')}
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
@@ -96,9 +102,13 @@ export function CampaignCreateDialog({ onClose }: Props) {
 
           {/* Description */}
           <div className="space-y-1">
-            <label className="text-sm font-medium">Description (optional)</label>
+            <label className="text-sm font-medium">
+              {t('accessManagement.campaignCreate.description')}
+            </label>
             <Input
-              placeholder="Purpose of this review..."
+              placeholder={t(
+                'accessManagement.campaignCreate.descriptionPlaceholder',
+              )}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
@@ -106,11 +116,18 @@ export function CampaignCreateDialog({ onClose }: Props) {
 
           {/* Scope — services */}
           <div className="space-y-1">
-            <label className="text-sm font-medium">Scope (services to review)</label>
-            <p className="text-xs text-muted-foreground">Leave empty to include all services.</p>
+            <label className="text-sm font-medium">
+              {t('accessManagement.campaignCreate.scope')}
+            </label>
+            <p className="text-xs text-muted-foreground">
+              {t('accessManagement.campaignCreate.scopeHint')}
+            </p>
             <div className="max-h-[120px] overflow-y-auto border rounded p-2 space-y-1">
               {safeServices.map((s) => (
-                <label key={s.id} className="flex items-center gap-2 text-sm cursor-pointer">
+                <label
+                  key={s.id}
+                  className="flex items-center gap-2 text-sm cursor-pointer"
+                >
                   <input
                     type="checkbox"
                     checked={selectedServiceIds.includes(s.id)}
@@ -121,18 +138,27 @@ export function CampaignCreateDialog({ onClose }: Props) {
                 </label>
               ))}
               {safeServices.length === 0 && (
-                <span className="text-xs text-muted-foreground">No services found. Sync first.</span>
+                <span className="text-xs text-muted-foreground">
+                  {t('accessManagement.campaignCreate.noServices')}
+                </span>
               )}
             </div>
           </div>
 
           {/* Reviewers */}
           <div className="space-y-1">
-            <label className="text-sm font-medium">Reviewers</label>
-            <p className="text-xs text-muted-foreground">Select who will review the accounts.</p>
+            <label className="text-sm font-medium">
+              {t('accessManagement.campaignCreate.reviewers')}
+            </label>
+            <p className="text-xs text-muted-foreground">
+              {t('accessManagement.campaignCreate.reviewersHint')}
+            </p>
             <div className="max-h-[120px] overflow-y-auto border rounded p-2 space-y-1">
               {safeUsers.map((u) => (
-                <label key={u.id} className="flex items-center gap-2 text-sm cursor-pointer">
+                <label
+                  key={u.id}
+                  className="flex items-center gap-2 text-sm cursor-pointer"
+                >
                   <input
                     type="checkbox"
                     checked={selectedReviewerIds.includes(u.id)}
@@ -147,7 +173,9 @@ export function CampaignCreateDialog({ onClose }: Props) {
 
           {/* Deadline */}
           <div className="space-y-1">
-            <label className="text-sm font-medium">Deadline (optional)</label>
+            <label className="text-sm font-medium">
+              {t('accessManagement.campaignCreate.deadline')}
+            </label>
             <Input
               type="date"
               value={deadline}
@@ -157,29 +185,57 @@ export function CampaignCreateDialog({ onClose }: Props) {
 
           {/* Cadence */}
           <div className="space-y-1">
-            <label className="text-sm font-medium">Recurring Cadence</label>
+            <label className="text-sm font-medium">
+              {t('accessManagement.campaignCreate.cadence')}
+            </label>
             <Select value={cadence} onValueChange={setCadence}>
               <SelectTrigger>
-                <SelectValue placeholder="No recurrence" />
+                <SelectValue
+                  placeholder={t(
+                    'accessManagement.campaignCreate.noRecurrence',
+                  )}
+                />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">No recurrence</SelectItem>
-                <SelectItem value="monthly">Monthly</SelectItem>
-                <SelectItem value="quarterly">Quarterly</SelectItem>
-                <SelectItem value="semi_annual">Semi-annual</SelectItem>
-                <SelectItem value="annual">Annual</SelectItem>
+                <SelectItem value="none">
+                  {t('accessManagement.campaignCreate.noRecurrence')}
+                </SelectItem>
+                <SelectItem value="monthly">
+                  {t('accessManagement.campaignCreate.cadenceOptions.monthly')}
+                </SelectItem>
+                <SelectItem value="quarterly">
+                  {t(
+                    'accessManagement.campaignCreate.cadenceOptions.quarterly',
+                  )}
+                </SelectItem>
+                <SelectItem value="semi_annual">
+                  {t(
+                    'accessManagement.campaignCreate.cadenceOptions.semiAnnual',
+                  )}
+                </SelectItem>
+                <SelectItem value="annual">
+                  {t('accessManagement.campaignCreate.cadenceOptions.annual')}
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button variant="outline" onClick={onClose}>
+            {t('common.cancel')}
+          </Button>
           <Button
             onClick={() => mutation.mutate()}
-            disabled={!name.trim() || selectedReviewerIds.length === 0 || mutation.isPending}
+            disabled={
+              !name.trim() ||
+              selectedReviewerIds.length === 0 ||
+              mutation.isPending
+            }
           >
-            {mutation.isPending ? 'Creating...' : 'Create Campaign'}
+            {mutation.isPending
+              ? t('common.creating')
+              : t('accessManagement.campaignCreate.create')}
           </Button>
         </DialogFooter>
       </DialogContent>

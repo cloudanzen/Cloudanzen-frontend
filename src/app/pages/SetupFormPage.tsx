@@ -4,6 +4,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
+import { TFunction } from 'i18next';
 import { Card } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
 import { Input } from '@/app/components/ui/input';
@@ -24,51 +26,57 @@ import { Eye, EyeOff, Settings, ShieldCheck, Users } from 'lucide-react';
 import { Checkbox } from '@/app/components/ui/checkbox';
 import { FRAMEWORK_SUITE_OPTIONS } from '@/app/features/tests/frameworkSuites';
 
-const setupSchema = z
-  .object({
-    organizationName: z
-      .string()
-      .min(2, 'Organization name must be at least 2 characters'),
-    adminName: z.string().min(2, 'Admin name must be at least 2 characters'),
-    adminEmail: z.string().email('Please enter a valid email address'),
-    adminPassword: z
-      .string()
-      .min(8, 'Password must be at least 8 characters')
-      .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
-      .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
-      .regex(/[0-9]/, 'Password must contain at least one number')
-      .regex(
-        /[^A-Za-z0-9]/,
-        'Password must contain at least one special character',
-      ),
-    orgAdminName: z
-      .string()
-      .min(2, 'Organization admin name must be at least 2 characters'),
-    orgAdminEmail: z.string().email('Please enter a valid email address'),
-    orgAdminPassword: z
-      .string()
-      .min(8, 'Password must be at least 8 characters')
-      .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
-      .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
-      .regex(/[0-9]/, 'Password must contain at least one number')
-      .regex(
-        /[^A-Za-z0-9]/,
-        'Password must contain at least one special character',
-      ),
-    selectedFrameworks: z.array(z.string()).default([]),
-  })
-  .refine((data) => data.adminEmail !== data.orgAdminEmail, {
-    message: 'Admin emails must be different',
-    path: ['orgAdminEmail'],
-  });
+function createSetupSchema(t: TFunction<'common'>) {
+  return z
+    .object({
+      organizationName: z
+        .string()
+        .min(2, t('setup.validation.organizationNameMin')),
+      adminName: z.string().min(2, t('setup.validation.adminNameMin')),
+      adminEmail: z.string().email(t('setup.validation.invalidEmail')),
+      adminPassword: z
+        .string()
+        .min(8, t('setup.validation.passwordMin'))
+        .regex(/[A-Z]/, t('setup.validation.passwordUppercase'))
+        .regex(/[a-z]/, t('setup.validation.passwordLowercase'))
+        .regex(/[0-9]/, t('setup.validation.passwordNumber'))
+        .regex(/[^A-Za-z0-9]/, t('setup.validation.passwordSpecial')),
+      orgAdminName: z.string().min(2, t('setup.validation.orgAdminNameMin')),
+      orgAdminEmail: z.string().email(t('setup.validation.invalidEmail')),
+      orgAdminPassword: z
+        .string()
+        .min(8, t('setup.validation.passwordMin'))
+        .regex(/[A-Z]/, t('setup.validation.passwordUppercase'))
+        .regex(/[a-z]/, t('setup.validation.passwordLowercase'))
+        .regex(/[0-9]/, t('setup.validation.passwordNumber'))
+        .regex(/[^A-Za-z0-9]/, t('setup.validation.passwordSpecial')),
+      selectedFrameworks: z.array(z.string()).default([]),
+    })
+    .refine((data) => data.adminEmail !== data.orgAdminEmail, {
+      message: t('setup.validation.emailsMustDiffer'),
+      path: ['orgAdminEmail'],
+    });
+}
 
-type SetupFormData = z.output<typeof setupSchema>;
+const PASSWORD_REQUIREMENT_KEYS = [
+  'minLength',
+  'uppercase',
+  'lowercase',
+  'number',
+  'specialCharacter',
+] as const;
+
+const STRENGTH_LEVELS = ['weak', 'medium', 'strong'] as const;
+
+type SetupFormData = z.output<ReturnType<typeof createSetupSchema>>;
 
 export function SetupFormPage() {
+  const { t } = useTranslation('common');
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [showAdminPassword, setShowAdminPassword] = useState(false);
   const [showOrgAdminPassword, setShowOrgAdminPassword] = useState(false);
+  const setupSchema = createSetupSchema(t);
 
   const form = useForm<z.input<typeof setupSchema>, any, SetupFormData>({
     resolver: zodResolver(setupSchema),
@@ -90,7 +98,7 @@ export function SetupFormPage() {
       const response = await setupService.setup(data as SetupRequest);
 
       if (response.success) {
-        toast.success('System setup completed successfully!');
+        toast.success(t('setup.toasts.setupCompleted'));
 
         // Store the token for future use
         if (response.data?.token) {
@@ -116,22 +124,27 @@ export function SetupFormPage() {
           ) ?? 0;
         if (activatedFrameworks > 0) {
           toast.success(
-            `Activated ${activatedFrameworks} framework${activatedFrameworks === 1 ? '' : 's'} during setup.`,
+            t('setup.toasts.frameworksActivated', {
+              count: activatedFrameworks,
+            }),
           );
         }
         if (createdSuites > 0) {
           toast.success(
-            `Created ${createdSuites} starter test${createdSuites === 1 ? '' : 's'} during setup.`,
+            t('setup.toasts.starterTestsCreated', { count: createdSuites }),
           );
         }
 
         // Navigate to home page after successful setup
         navigate('/');
       } else {
-        toast.error(response.error || 'Setup failed');
+        toast.error(response.error || t('setup.toasts.setupFailed'));
       }
     } catch (error: unknown) {
-      const msg = error instanceof ApiError ? error.message : 'An error occurred during setup';
+      const msg =
+        error instanceof ApiError
+          ? error.message
+          : t('setup.toasts.setupError');
       toast.error(msg);
     } finally {
       setIsLoading(false);
@@ -142,11 +155,11 @@ export function SetupFormPage() {
     if (!password) return null;
 
     const requirements = [
-      { label: '8+ characters', met: password.length >= 8 },
-      { label: 'Uppercase letter', met: /[A-Z]/.test(password) },
-      { label: 'Lowercase letter', met: /[a-z]/.test(password) },
-      { label: 'Number', met: /[0-9]/.test(password) },
-      { label: 'Special character', met: /[^A-Za-z0-9]/.test(password) },
+      { key: PASSWORD_REQUIREMENT_KEYS[0], met: password.length >= 8 },
+      { key: PASSWORD_REQUIREMENT_KEYS[1], met: /[A-Z]/.test(password) },
+      { key: PASSWORD_REQUIREMENT_KEYS[2], met: /[a-z]/.test(password) },
+      { key: PASSWORD_REQUIREMENT_KEYS[3], met: /[0-9]/.test(password) },
+      { key: PASSWORD_REQUIREMENT_KEYS[4], met: /[^A-Za-z0-9]/.test(password) },
     ];
 
     const metCount = requirements.filter((req) => req.met).length;
@@ -160,8 +173,10 @@ export function SetupFormPage() {
     return (
       <div className="mt-2 space-y-1">
         <div className={`text-xs font-medium ${strengthColor}`}>
-          Password strength:{' '}
-          {metCount <= 2 ? 'Weak' : metCount <= 4 ? 'Medium' : 'Strong'}
+          {t('setup.passwordStrength.label')}{' '}
+          {t(
+            `setup.passwordStrength.levels.${STRENGTH_LEVELS[metCount <= 2 ? 0 : metCount <= 4 ? 1 : 2]}`,
+          )}
         </div>
         <div className="grid grid-cols-1 gap-1">
           {requirements.map((req, index) => (
@@ -172,7 +187,7 @@ export function SetupFormPage() {
               <span
                 className={`text-xs ${req.met ? 'text-green-700' : 'text-gray-500'}`}
               >
-                {req.label}
+                {t(`setup.passwordStrength.requirements.${req.key}`)}
               </span>
             </div>
           ))}
@@ -190,10 +205,10 @@ export function SetupFormPage() {
               <Settings className="w-10 h-10 text-white" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">System Setup</h1>
-          <p className="text-gray-600 mt-2">
-            Initialize your ISMS platform with organization and admin accounts
-          </p>
+          <h1 className="text-3xl font-bold text-gray-900">
+            {t('setup.title')}
+          </h1>
+          <p className="text-gray-600 mt-2">{t('setup.description')}</p>
         </div>
 
         <Card className="p-8">
@@ -203,7 +218,7 @@ export function SetupFormPage() {
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                   <ShieldCheck className="w-5 h-5" />
-                  Organization Information
+                  {t('setup.sections.organization.title')}
                 </h3>
 
                 <FormField
@@ -211,10 +226,14 @@ export function SetupFormPage() {
                   name="organizationName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Organization Name</FormLabel>
+                      <FormLabel>
+                        {t('setup.fields.organizationName.label')}
+                      </FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="Enter your organization name"
+                          placeholder={t(
+                            'setup.fields.organizationName.placeholder',
+                          )}
                           {...field}
                         />
                       </FormControl>
@@ -228,10 +247,10 @@ export function SetupFormPage() {
               <div className="space-y-4 pt-6 border-t">
                 <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                   <Users className="w-5 h-5" />
-                  System Administrator (Super Admin)
+                  {t('setup.sections.superAdmin.title')}
                 </h3>
                 <p className="text-sm text-gray-600">
-                  This user will have system-wide access
+                  {t('setup.sections.superAdmin.description')}
                 </p>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -240,9 +259,16 @@ export function SetupFormPage() {
                     name="adminName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Admin Name</FormLabel>
+                        <FormLabel>
+                          {t('setup.fields.adminName.label')}
+                        </FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter admin name" {...field} />
+                          <Input
+                            placeholder={t(
+                              'setup.fields.adminName.placeholder',
+                            )}
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -254,11 +280,15 @@ export function SetupFormPage() {
                     name="adminEmail"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Admin Email</FormLabel>
+                        <FormLabel>
+                          {t('setup.fields.adminEmail.label')}
+                        </FormLabel>
                         <FormControl>
                           <Input
                             type="email"
-                            placeholder="Enter admin email"
+                            placeholder={t(
+                              'setup.fields.adminEmail.placeholder',
+                            )}
                             {...field}
                           />
                         </FormControl>
@@ -273,12 +303,16 @@ export function SetupFormPage() {
                   name="adminPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Admin Password</FormLabel>
+                      <FormLabel>
+                        {t('setup.fields.adminPassword.label')}
+                      </FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Input
                             type={showAdminPassword ? 'text' : 'password'}
-                            placeholder="Create a strong password"
+                            placeholder={t(
+                              'setup.fields.adminPassword.placeholder',
+                            )}
                             {...field}
                           />
                           <button
@@ -307,10 +341,10 @@ export function SetupFormPage() {
               <div className="space-y-4 pt-6 border-t">
                 <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                   <Users className="w-5 h-5" />
-                  Organization Administrator
+                  {t('setup.sections.organizationAdmin.title')}
                 </h3>
                 <p className="text-sm text-gray-600">
-                  This user will have organization-wide access
+                  {t('setup.sections.organizationAdmin.description')}
                 </p>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -319,10 +353,14 @@ export function SetupFormPage() {
                     name="orgAdminName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Organization Admin Name</FormLabel>
+                        <FormLabel>
+                          {t('setup.fields.orgAdminName.label')}
+                        </FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="Enter organization admin name"
+                            placeholder={t(
+                              'setup.fields.orgAdminName.placeholder',
+                            )}
                             {...field}
                           />
                         </FormControl>
@@ -336,11 +374,15 @@ export function SetupFormPage() {
                     name="orgAdminEmail"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Organization Admin Email</FormLabel>
+                        <FormLabel>
+                          {t('setup.fields.orgAdminEmail.label')}
+                        </FormLabel>
                         <FormControl>
                           <Input
                             type="email"
-                            placeholder="Enter organization admin email"
+                            placeholder={t(
+                              'setup.fields.orgAdminEmail.placeholder',
+                            )}
                             {...field}
                           />
                         </FormControl>
@@ -355,12 +397,16 @@ export function SetupFormPage() {
                   name="orgAdminPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Organization Admin Password</FormLabel>
+                      <FormLabel>
+                        {t('setup.fields.orgAdminPassword.label')}
+                      </FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Input
                             type={showOrgAdminPassword ? 'text' : 'password'}
-                            placeholder="Create a strong password"
+                            placeholder={t(
+                              'setup.fields.orgAdminPassword.placeholder',
+                            )}
                             {...field}
                           />
                           <button
@@ -388,11 +434,10 @@ export function SetupFormPage() {
               <div className="space-y-4 pt-6 border-t">
                 <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                   <ShieldCheck className="w-5 h-5" />
-                  Framework Setup
+                  {t('setup.sections.frameworks.title')}
                 </h3>
                 <p className="text-sm text-gray-600">
-                  Choose which framework-aligned suites should be created
-                  immediately after setup.
+                  {t('setup.sections.frameworks.description')}
                 </p>
 
                 <FormField
@@ -427,10 +472,16 @@ export function SetupFormPage() {
                                     {option.framework}
                                   </p>
                                   <p className="mt-1 text-sm font-semibold text-gray-900">
-                                    {option.name}
+                                    {t(
+                                      `setup.frameworkOptions.${option.key}.name`,
+                                      { defaultValue: option.name },
+                                    )}
                                   </p>
                                   <p className="mt-1 text-xs leading-5 text-gray-600">
-                                    {option.description}
+                                    {t(
+                                      `setup.frameworkOptions.${option.key}.description`,
+                                      { defaultValue: option.description },
+                                    )}
                                   </p>
                                 </div>
                               </label>
@@ -445,21 +496,20 @@ export function SetupFormPage() {
               </div>
 
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Setting up system...' : 'Setup System'}
+                {isLoading
+                  ? t('setup.submit.settingUp')
+                  : t('setup.submit.setupSystem')}
               </Button>
 
               <div className="text-center text-sm text-gray-500">
-                <p>
-                  Note: Setup can only be performed once. Controls and policies
-                  seeded will reflect the frameworks selected above.
-                </p>
+                <p>{t('setup.note')}</p>
               </div>
             </form>
           </Form>
         </Card>
 
         <div className="mt-8 text-center text-sm text-gray-500">
-          <p>© 2024 Manzen Security Platform. All rights reserved.</p>
+          <p>{t('setup.footer')}</p>
         </div>
       </div>
     </div>

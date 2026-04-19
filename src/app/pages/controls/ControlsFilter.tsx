@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { ControlFilter, ControlStatus } from './types';
 
 interface ControlsFilterProps {
@@ -9,24 +10,39 @@ interface ControlsFilterProps {
   mobileDrawer?: boolean;
 }
 
-export function ControlsFilter({ filter, onFilterChange, onClearFilters, mobileDrawer }: ControlsFilterProps) {
+export function ControlsFilter({
+  filter,
+  onFilterChange,
+  onClearFilters,
+  mobileDrawer,
+}: ControlsFilterProps) {
+  const { t } = useTranslation('compliance');
+
   const handleChange = (field: keyof ControlFilter, value: string) => {
     onFilterChange({ ...filter, [field]: value });
   };
 
-  const hasActiveFilters = !!(filter.search || filter.status || filter.isoReference);
+  const hasActiveFilters = !!(
+    filter.search ||
+    filter.status ||
+    filter.isoReference
+  );
 
   return (
-    <div className={`bg-white border border-gray-200 shadow-sm overflow-hidden ${mobileDrawer ? 'rounded-b-xl lg:rounded-xl' : 'rounded-xl'}`}>
+    <div
+      className={`bg-white border border-gray-200 shadow-sm overflow-hidden ${mobileDrawer ? 'rounded-b-xl lg:rounded-xl' : 'rounded-xl'}`}
+    >
       {/* Panel header */}
       <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Filters</h2>
+        <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">
+          {t('controls.filter.title')}
+        </h2>
         {hasActiveFilters && (
           <button
             onClick={onClearFilters}
             className="text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
           >
-            Clear all
+            {t('controls.filter.clearAll')}
           </button>
         )}
       </div>
@@ -39,7 +55,7 @@ export function ControlsFilter({ filter, onFilterChange, onClearFilters, mobileD
             htmlFor="ctrl-search"
             className="block text-xs font-medium text-gray-600 mb-1.5 uppercase tracking-wide"
           >
-            Search
+            {t('controls.filter.search')}
           </label>
           <div className="relative">
             <svg
@@ -60,17 +76,27 @@ export function ControlsFilter({ filter, onFilterChange, onClearFilters, mobileD
               type="text"
               value={filter.search}
               onChange={(e) => handleChange('search', e.target.value)}
-              placeholder="Search title or description…"
+              placeholder={t('controls.filter.searchPlaceholder')}
               className="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400 transition-colors"
             />
             {filter.search && (
               <button
                 onClick={() => handleChange('search', '')}
                 className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                aria-label="Clear search"
+                aria-label={t('controls.filter.clearSearch')}
               >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="w-3.5 h-3.5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             )}
@@ -83,7 +109,7 @@ export function ControlsFilter({ filter, onFilterChange, onClearFilters, mobileD
             htmlFor="ctrl-status"
             className="block text-xs font-medium text-gray-600 mb-1.5 uppercase tracking-wide"
           >
-            Status
+            {t('controls.filter.status')}
           </label>
           <select
             id="ctrl-status"
@@ -91,10 +117,16 @@ export function ControlsFilter({ filter, onFilterChange, onClearFilters, mobileD
             onChange={(e) => handleChange('status', e.target.value)}
             className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-colors"
           >
-            <option value="">All statuses</option>
-            <option value={ControlStatus.IMPLEMENTED}>Implemented</option>
-            <option value={ControlStatus.PARTIALLY_IMPLEMENTED}>Partially Implemented</option>
-            <option value={ControlStatus.NOT_IMPLEMENTED}>Not Implemented</option>
+            <option value="">{t('controls.filter.allStatuses')}</option>
+            <option value={ControlStatus.IMPLEMENTED}>
+              {t('controls.status.IMPLEMENTED')}
+            </option>
+            <option value={ControlStatus.PARTIALLY_IMPLEMENTED}>
+              {t('controls.status.PARTIALLY_IMPLEMENTED')}
+            </option>
+            <option value={ControlStatus.NOT_IMPLEMENTED}>
+              {t('controls.status.NOT_IMPLEMENTED')}
+            </option>
           </select>
         </div>
 
@@ -104,14 +136,14 @@ export function ControlsFilter({ filter, onFilterChange, onClearFilters, mobileD
             htmlFor="ctrl-iso"
             className="block text-xs font-medium text-gray-600 mb-1.5 uppercase tracking-wide"
           >
-            Reference
+            {t('controls.filter.reference')}
           </label>
           <input
             id="ctrl-iso"
             type="text"
             value={filter.isoReference}
             onChange={(e) => handleChange('isoReference', e.target.value)}
-            placeholder="e.g. A.5.1"
+            placeholder={t('controls.filter.referencePlaceholder')}
             className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400 transition-colors"
           />
         </div>
@@ -121,16 +153,31 @@ export function ControlsFilter({ filter, onFilterChange, onClearFilters, mobileD
       {hasActiveFilters && (
         <div className="px-5 pb-4 flex flex-wrap gap-2">
           {filter.search && (
-            <Chip label={`"${filter.search}"`} onRemove={() => handleChange('search', '')} />
+            <Chip
+              label={`"${filter.search}"`}
+              removeLabel={t('controls.filter.removeSearchFilter', {
+                value: filter.search,
+              })}
+              onRemove={() => handleChange('search', '')}
+            />
           )}
           {filter.status && (
             <Chip
-              label={filter.status.replace(/_/g, ' ').toLowerCase()}
+              label={t(`controls.status.${filter.status}`)}
+              removeLabel={t('controls.filter.removeStatusFilter', {
+                value: t(`controls.status.${filter.status}`),
+              })}
               onRemove={() => handleChange('status', '')}
             />
           )}
           {filter.isoReference && (
-            <Chip label={filter.isoReference} onRemove={() => handleChange('isoReference', '')} />
+            <Chip
+              label={filter.isoReference}
+              removeLabel={t('controls.filter.removeReferenceFilter', {
+                value: filter.isoReference,
+              })}
+              onRemove={() => handleChange('isoReference', '')}
+            />
           )}
         </div>
       )}
@@ -138,17 +185,35 @@ export function ControlsFilter({ filter, onFilterChange, onClearFilters, mobileD
   );
 }
 
-function Chip({ label, onRemove }: { label: string; onRemove: () => void }) {
+function Chip({
+  label,
+  removeLabel,
+  onRemove,
+}: {
+  label: string;
+  removeLabel: string;
+  onRemove: () => void;
+}) {
   return (
     <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 capitalize">
       {label}
       <button
         onClick={onRemove}
         className="ml-0.5 text-blue-500 hover:text-blue-700 transition-colors"
-        aria-label={`Remove ${label} filter`}
+        aria-label={removeLabel}
       >
-        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+        <svg
+          className="w-3 h-3"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2.5}
+            d="M6 18L18 6M6 6l12 12"
+          />
         </svg>
       </button>
     </span>

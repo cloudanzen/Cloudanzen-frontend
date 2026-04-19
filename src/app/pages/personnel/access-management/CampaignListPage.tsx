@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/app/components/ui/card';
 import { Badge } from '@/app/components/ui/badge';
 import { Button } from '@/app/components/ui/button';
@@ -19,6 +20,7 @@ const statusColors: Record<string, string> = {
 };
 
 export function CampaignListPage() {
+  const { t } = useTranslation('personnel');
   const queryClient = useQueryClient();
   const [showCreate, setShowCreate] = useState(false);
   const [reviewCampaignId, setReviewCampaignId] = useState<string | null>(null);
@@ -30,15 +32,19 @@ export function CampaignListPage() {
 
   const launchMutation = useMutation({
     mutationFn: (id: string) => accessManagementService.launchCampaign(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['access-campaigns'] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ['access-campaigns'] }),
   });
 
   const completeMutation = useMutation({
     mutationFn: (id: string) => accessManagementService.completeCampaign(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['access-campaigns'] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ['access-campaigns'] }),
   });
 
-  const safeCampaigns: AccessReviewCampaign[] = Array.isArray(campaigns) ? campaigns : [];
+  const safeCampaigns: AccessReviewCampaign[] = Array.isArray(campaigns)
+    ? campaigns
+    : [];
 
   // If reviewing a campaign, show the review page
   if (reviewCampaignId) {
@@ -54,26 +60,33 @@ export function CampaignListPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          Create access review campaigns to periodically verify that all accounts are legitimate and properly authorized.
+          {t('accessManagement.campaignList.description')}
         </p>
         <Button size="sm" onClick={() => setShowCreate(true)}>
           <Plus className="w-4 h-4 mr-1" />
-          New Campaign
+          {t('accessManagement.campaignList.newCampaign')}
         </Button>
       </div>
 
       {isLoading ? (
-        <div className="text-sm text-muted-foreground p-4">Loading campaigns...</div>
+        <div className="text-sm text-muted-foreground p-4">
+          {t('accessManagement.campaignList.loading')}
+        </div>
       ) : safeCampaigns.length === 0 ? (
         <Card className="p-8 text-center text-muted-foreground">
-          <p>No access review campaigns yet.</p>
-          <p className="text-sm mt-1">Create one to start reviewing account access across your services.</p>
+          <p>{t('accessManagement.campaignList.empty')}</p>
+          <p className="text-sm mt-1">
+            {t('accessManagement.campaignList.emptyDescription')}
+          </p>
         </Card>
       ) : (
         <div className="space-y-3">
           {safeCampaigns.map((c) => {
             const prog = c.progress;
-            const pct = prog && prog.total > 0 ? Math.round((prog.reviewed / prog.total) * 100) : 0;
+            const pct =
+              prog && prog.total > 0
+                ? Math.round((prog.reviewed / prog.total) * 100)
+                : 0;
             return (
               <Card key={c.id} className="p-4">
                 <div className="flex items-start justify-between gap-4">
@@ -81,23 +94,51 @@ export function CampaignListPage() {
                     <div className="flex items-center gap-2 mb-1">
                       <h3 className="font-medium text-sm truncate">{c.name}</h3>
                       <Badge
-                        variant={statusColors[c.status] as 'default' | 'secondary' | 'outline' | 'destructive'}
+                        variant={
+                          statusColors[c.status] as
+                            | 'default'
+                            | 'secondary'
+                            | 'outline'
+                            | 'destructive'
+                        }
                         className="text-xs"
                       >
                         {c.status.replace('_', ' ')}
                       </Badge>
                     </div>
                     {c.description && (
-                      <p className="text-xs text-muted-foreground mb-2">{c.description}</p>
+                      <p className="text-xs text-muted-foreground mb-2">
+                        {c.description}
+                      </p>
                     )}
                     {prog && (
                       <div className="space-y-1">
                         <div className="flex gap-3 text-xs text-muted-foreground">
-                          <span>{prog.total} accounts</span>
-                          <span>{prog.reviewed} reviewed</span>
-                          <span className="text-green-600">{prog.accepted} accepted</span>
-                          <span className="text-red-600">{prog.revoked} revoked</span>
-                          <span>{prog.pending} pending</span>
+                          <span>
+                            {t('accessManagement.campaignList.accounts', {
+                              count: prog.total,
+                            })}
+                          </span>
+                          <span>
+                            {t('accessManagement.campaignList.reviewed', {
+                              count: prog.reviewed,
+                            })}
+                          </span>
+                          <span className="text-green-600">
+                            {t('accessManagement.campaignList.accepted', {
+                              count: prog.accepted,
+                            })}
+                          </span>
+                          <span className="text-red-600">
+                            {t('accessManagement.campaignList.revoked', {
+                              count: prog.revoked,
+                            })}
+                          </span>
+                          <span>
+                            {t('accessManagement.campaignList.pending', {
+                              count: prog.pending,
+                            })}
+                          </span>
                         </div>
                         {c.status === 'in_progress' && (
                           <div className="w-full bg-muted rounded-full h-1.5">
@@ -110,9 +151,27 @@ export function CampaignListPage() {
                       </div>
                     )}
                     <div className="flex gap-3 text-xs text-muted-foreground mt-2">
-                      {c.deadline && <span>Deadline: {new Date(c.deadline).toLocaleDateString()}</span>}
-                      {c.cadence && <span>Cadence: {c.cadence.replace('_', ' ')}</span>}
-                      {c.nextReviewAt && <span>Next review: {new Date(c.nextReviewAt).toLocaleDateString()}</span>}
+                      {c.deadline && (
+                        <span>
+                          {t('accessManagement.campaignList.deadline', {
+                            date: new Date(c.deadline).toLocaleDateString(),
+                          })}
+                        </span>
+                      )}
+                      {c.cadence && (
+                        <span>
+                          {t('accessManagement.campaignList.cadence', {
+                            value: c.cadence.replace('_', ' '),
+                          })}
+                        </span>
+                      )}
+                      {c.nextReviewAt && (
+                        <span>
+                          {t('accessManagement.campaignList.nextReview', {
+                            date: new Date(c.nextReviewAt).toLocaleDateString(),
+                          })}
+                        </span>
+                      )}
                     </div>
                   </div>
 
@@ -125,7 +184,7 @@ export function CampaignListPage() {
                         disabled={launchMutation.isPending}
                       >
                         <Play className="w-4 h-4 mr-1" />
-                        Launch
+                        {t('accessManagement.campaignList.launch')}
                       </Button>
                     )}
                     {c.status === 'in_progress' && (
@@ -135,7 +194,7 @@ export function CampaignListPage() {
                           size="sm"
                           onClick={() => setReviewCampaignId(c.id)}
                         >
-                          Review
+                          {t('accessManagement.campaignList.review')}
                         </Button>
                         <Button
                           variant="outline"
@@ -144,7 +203,7 @@ export function CampaignListPage() {
                           disabled={completeMutation.isPending}
                         >
                           <CheckCircle2 className="w-4 h-4 mr-1" />
-                          Complete
+                          {t('accessManagement.campaignList.complete')}
                         </Button>
                       </>
                     )}
@@ -153,12 +212,14 @@ export function CampaignListPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => {
-                          const url = accessManagementService.getReportUrl(c.id);
+                          const url = accessManagementService.getReportUrl(
+                            c.id,
+                          );
                           window.open(url, '_blank');
                         }}
                       >
                         <Download className="w-4 h-4 mr-1" />
-                        Report
+                        {t('accessManagement.campaignList.report')}
                       </Button>
                     )}
                   </div>

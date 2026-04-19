@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- legacy: to be typed progressively */
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -48,18 +49,19 @@ function GoogleIcon() {
   );
 }
 
-const loginSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
-  password: z.string().min(1, 'Password is required'),
-});
-
-type LoginFormData = z.infer<typeof loginSchema>;
+type LoginFormData = { email: string; password: string };
 
 export function LoginPage() {
+  const { t } = useTranslation('auth');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [canSetup, setCanSetup] = useState(false);
   const [searchParams] = useSearchParams();
+
+  const loginSchema = useMemo(() => z.object({
+    email: z.string().email(t('login.errors.emailInvalid')),
+    password: z.string().min(1, t('login.errors.passwordRequired')),
+  }), [t]);
 
   // Check if first-time setup is available (no users yet)
   useEffect(() => {
@@ -72,14 +74,14 @@ export function LoginPage() {
   useEffect(() => {
     const error = searchParams.get('error');
     if (error === 'oauth_failed')
-      toast.error('Google sign-in failed. Please try again.');
+      toast.error(t('login.errors.oauthFailed'));
     if (error === 'google_profile_failed')
-      toast.error('Could not retrieve your Google profile.');
+      toast.error(t('login.errors.googleProfileFailed'));
     if (error === 'no_email')
-      toast.error('Your Google account has no verified email.');
+      toast.error(t('login.errors.noEmail'));
     if (error === 'no_org')
-      toast.error('No organisation found. Please register first.');
-  }, [searchParams]);
+      toast.error(t('login.errors.noOrg'));
+  }, [searchParams, t]);
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -138,7 +140,7 @@ export function LoginPage() {
             CloudAnzen
           </h1>
           <p className="text-gray-500 mt-1 text-sm">
-            Information Security Management
+            {t('login.tagline')}
           </p>
         </div>
 
@@ -146,10 +148,10 @@ export function LoginPage() {
         <Card className="p-8 shadow-xl border border-gray-100 rounded-2xl">
           <div className="mb-6">
             <h2 className="text-xl font-semibold text-gray-900">
-              Sign in to your account
+              {t('login.signInTitle')}
             </h2>
             <p className="text-sm text-gray-500 mt-1">
-              Enter your credentials to continue
+              {t('login.signInSubtitle')}
             </p>
           </div>
 
@@ -162,14 +164,14 @@ export function LoginPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-sm font-medium text-gray-700">
-                      Email address
+                      {t('login.emailLabel')}
                     </FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <Input
                           type="email"
-                          placeholder="you@organization.com"
+                          placeholder={t('login.emailPlaceholder')}
                           autoComplete="email"
                           className="pl-10"
                           {...field}
@@ -188,14 +190,14 @@ export function LoginPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-sm font-medium text-gray-700">
-                      Password
+                      {t('login.passwordLabel')}
                     </FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <Input
                           type={showPassword ? 'text' : 'password'}
-                          placeholder="Enter your password"
+                          placeholder={t('login.passwordPlaceholder')}
                           autoComplete="current-password"
                           className="pl-10 pr-10"
                           {...field}
@@ -230,10 +232,10 @@ export function LoginPage() {
                 {isLoading ? (
                   <span className="flex items-center gap-2">
                     <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    Signing in...
+                    {t('login.submitting')}
                   </span>
                 ) : (
-                  'Sign in'
+                  t('login.submitButton')
                 )}
               </Button>
             </form>
@@ -246,7 +248,7 @@ export function LoginPage() {
             </div>
             <div className="relative flex justify-center text-xs">
               <span className="px-3 bg-white text-gray-400">
-                or continue with
+                {t('login.orContinueWith')}
               </span>
             </div>
           </div>
@@ -259,7 +261,7 @@ export function LoginPage() {
               className="w-full h-11 border-gray-300 text-gray-700 hover:bg-gray-50 font-medium rounded-lg transition-colors flex items-center justify-center gap-3"
             >
               <GoogleIcon />
-              Sign in with Google
+              {t('login.googleButton')}
             </Button>
           </a>
 
@@ -272,7 +274,7 @@ export function LoginPage() {
               </div>
               <div className="relative flex justify-center text-xs">
                 <span className="px-3 bg-white text-gray-500">
-                  New to Manzen?
+                  {t('login.newToManzen')}
                 </span>
               </div>
             </div>
@@ -285,7 +287,7 @@ export function LoginPage() {
                 variant="outline"
                 className="w-full h-11 border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300 font-medium rounded-lg transition-colors"
               >
-                Register your organization
+                {t('login.registerOrg')}
               </Button>
             </Link>
           )}

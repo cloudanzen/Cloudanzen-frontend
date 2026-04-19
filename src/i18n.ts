@@ -21,6 +21,7 @@ i18n
       'dashboard',
       'access',
       'assets',
+      'tests',
     ],
     defaultNS: 'common',
     backend: {

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { Card, CardContent } from '@/app/components/ui/card';
@@ -67,6 +68,7 @@ function domainBadge(domain: string | null) {
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function AdminFrameworksPage() {
+  const { t } = useTranslation('admin');
   const isSuperAdmin = useHasRole('SUPER_ADMIN');
   const qc = useQueryClient();
   const [selectedFramework, setSelectedFramework] = useState<FrameworkListDto | null>(null);
@@ -89,8 +91,8 @@ export function AdminFrameworksPage() {
 
   if (!isSuperAdmin) {
     return (
-      <PageTemplate title="Access Denied">
-        <p className="text-muted-foreground">SUPER_ADMIN role required.</p>
+      <PageTemplate title={t('common.accessDenied')}>
+        <p className="text-muted-foreground">{t('common.superAdminRequired')}</p>
       </PageTemplate>
     );
   }
@@ -106,8 +108,8 @@ export function AdminFrameworksPage() {
 
   return (
     <PageTemplate
-      title="Framework Management"
-      description="Browse frameworks, requirements, and manage template mappings across the platform."
+      title={t('frameworks.title')}
+      description={t('frameworks.description')}
     >
       {/* Framework selector cards */}
       {frameworksLoading ? (
@@ -154,7 +156,7 @@ export function AdminFrameworksPage() {
             <div className="relative max-w-sm">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search requirements..."
+                placeholder={t('frameworks.searchPlaceholder')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-9"

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { policiesService } from '@/services/api/policies';
 import { Policy } from '@/services/api/types';
 import { SortKey, getStatusCfg } from './types';
@@ -28,6 +29,7 @@ export function PoliciesTable({
   onUpload: (p: Policy) => void;
   onSelect?: (p: Policy) => void;
 }) {
+  const { t } = useTranslation('compliance');
   const [downloading, setDownloading] = useState<string | null>(null);
 
   const handleDownload = async (policy: Policy) => {
@@ -45,10 +47,10 @@ export function PoliciesTable({
   };
 
   const columns: { key: SortKey; label: string; sortable?: boolean; minWidth?: number }[] = [
-    { key: 'name',      label: 'Policy Name', sortable: true, minWidth: 240 },
-    { key: 'version',   label: 'Version',     sortable: true, minWidth: 90  },
-    { key: 'status',    label: 'Status',      sortable: true, minWidth: 120 },
-    { key: 'createdAt', label: 'Created',     sortable: true, minWidth: 130 },
+    { key: 'name',      label: t('policiesPage.table.policyName'), sortable: true, minWidth: 240 },
+    { key: 'version',   label: t('policiesPage.table.version'),    sortable: true, minWidth: 90  },
+    { key: 'status',    label: t('policiesPage.table.status'),     sortable: true, minWidth: 120 },
+    { key: 'createdAt', label: t('policiesPage.table.created'),    sortable: true, minWidth: 130 },
   ];
 
   return (
@@ -74,13 +76,13 @@ export function PoliciesTable({
                 </th>
               ))}
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider" style={{ minWidth: 140 }}>
-                Owner
+                {t('policiesPage.table.owner')}
               </th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider" style={{ minWidth: 120 }}>
-                Approved By
+                {t('policiesPage.table.approvedBy')}
               </th>
               <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider" style={{ minWidth: 140 }}>
-                Document
+                {t('policiesPage.table.document')}
               </th>
             </tr>
           </thead>
@@ -120,7 +122,7 @@ export function PoliciesTable({
                   <td className="px-4 py-3.5 align-middle" style={{ minWidth: 120 }}>
                     <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${cfg.bg} ${cfg.text}`}>
                       <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
-                      {cfg.label}
+                      {t(`policiesPage.statusLabels.${cfg.key}`, { defaultValue: cfg.label })}
                     </span>
                   </td>
 
@@ -141,7 +143,7 @@ export function PoliciesTable({
                         </span>
                       </span>
                     ) : (
-                      <span className="text-gray-300">Unassigned</span>
+                      <span className="text-gray-300">{t('policiesPage.table.unassigned')}</span>
                     )}
                   </td>
 
@@ -165,11 +167,11 @@ export function PoliciesTable({
                       {/* Upload / Replace */}
                       <button
                         onClick={() => onUpload(policy)}
-                        title={hasFile ? 'Replace document' : 'Upload document'}
+                        title={hasFile ? t('policiesPage.table.replaceDocument') : t('policiesPage.table.uploadDocument')}
                         className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium border border-gray-200 bg-white hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 text-gray-600 transition-colors"
                       >
                         <Upload className="w-3.5 h-3.5" />
-                        {hasFile ? 'Replace' : 'Upload'}
+                        {hasFile ? t('policiesPage.table.replace') : t('policiesPage.table.upload')}
                       </button>
 
                       {/* Download */}
@@ -177,13 +179,13 @@ export function PoliciesTable({
                         <button
                           onClick={() => handleDownload(policy)}
                           disabled={isDownloading}
-                          title="Download document"
+                          title={t('policiesPage.table.downloadDocument')}
                           className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium border border-gray-200 bg-white hover:bg-green-50 hover:border-green-300 hover:text-green-700 text-gray-600 transition-colors disabled:opacity-50"
                         >
                           {isDownloading
                             ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
                             : <Download className="w-3.5 h-3.5" />}
-                          {isDownloading ? '…' : 'Download'}
+                          {isDownloading ? '…' : t('policiesPage.table.download')}
                         </button>
                       )}
 
@@ -193,11 +195,11 @@ export function PoliciesTable({
                           href={policy.documentUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          title="View in new tab"
+                          title={t('policiesPage.table.viewInNewTab')}
                           className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium border border-gray-200 bg-white hover:bg-purple-50 hover:border-purple-300 hover:text-purple-700 text-gray-600 transition-colors"
                         >
                           <Eye className="w-3.5 h-3.5" />
-                          View
+                          {t('policiesPage.table.view')}
                         </a>
                       )}
                     </div>

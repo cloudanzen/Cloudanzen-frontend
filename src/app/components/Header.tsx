@@ -188,8 +188,8 @@ export function Header() {
           <button
             onClick={() => setAiChatOpen((prev) => !prev)}
             className="relative p-2 text-muted-foreground hover:bg-accent rounded-md"
-            title="AI Assistant"
-            aria-label="Toggle AI Assistant"
+            title={t('header.aiAssistant')}
+            aria-label={t('header.toggleAiAssistant')}
           >
             <Sparkles className="w-5 h-5" />
             <span className="absolute top-1 right-1 flex h-2 w-2">
@@ -198,7 +198,7 @@ export function Header() {
             </span>
           </button>
 
-          <button className="hidden sm:flex relative p-2 text-muted-foreground hover:bg-accent rounded-md" title="Help">
+          <button className="hidden sm:flex relative p-2 text-muted-foreground hover:bg-accent rounded-md" title={t('header.help')}>
             <HelpCircle className="w-5 h-5" />
           </button>
 
@@ -216,8 +216,8 @@ export function Header() {
           <button
             onClick={() => navigate("/settings/profile")}
             className="hidden sm:flex p-2 text-muted-foreground hover:bg-accent rounded-md"
-            title="Settings"
-            aria-label="Open settings"
+            title={t('header.settings')}
+            aria-label={t('header.openSettings')}
           >
             <Settings className="w-5 h-5" />
           </button>
@@ -236,7 +236,7 @@ export function Header() {
             </div>
             <button
               onClick={handleLogout}
-              title="Sign out"
+              title={t('header.signOut')}
               className="p-2 text-muted-foreground hover:bg-red-50 hover:text-red-600 rounded-md transition-colors"
             >
               <LogOut className="w-4 h-4" />

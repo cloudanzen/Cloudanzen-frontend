@@ -1,8 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import {
-  BarChart2, TrendingUp, Shield, ClipboardList,
-  FileCheck, Users, BookOpen, Calendar, ChevronRight,
+  BarChart2,
+  TrendingUp,
+  Shield,
+  ClipboardList,
+  FileCheck,
+  Users,
+  BookOpen,
+  Calendar,
+  ChevronRight,
 } from 'lucide-react';
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { Card } from '@/app/components/ui/card';
@@ -11,124 +19,137 @@ import { Card } from '@/app/components/ui/card';
 
 interface ReportDef {
   id: string;
-  name: string;
-  description: string;
-  period?: string;
+  nameKey: string;
+  descriptionKey: string;
+  periodKey?: string;
   icon: React.ReactNode;
   iconBg: string;
-  category: string;
+  categoryKey: string;
   viewPath: string;
 }
 
 const REPORTS: ReportDef[] = [
   {
     id: 'monthly-overview',
-    name: 'Monthly Overview Report',
-    description: 'High-level compliance posture for a selected month — framework progress, risk distribution, test completion and audit summary.',
-    period: 'Select month',
+    nameKey: 'catalog.monthlyOverview.name',
+    descriptionKey: 'catalog.monthlyOverview.description',
+    periodKey: 'catalog.monthlyOverview.period',
     icon: <Calendar className="w-5 h-5" />,
     iconBg: 'bg-blue-100 text-blue-600',
-    category: 'Overview',
+    categoryKey: 'overview',
     viewPath: '/reports/viewer/monthly-overview',
   },
   {
     id: 'quarterly-overview',
-    name: 'Quarterly Overview Report',
-    description: 'Executive summary for a selected quarter — ideal for board reporting and quarterly business reviews.',
-    period: 'Select quarter',
+    nameKey: 'catalog.quarterlyOverview.name',
+    descriptionKey: 'catalog.quarterlyOverview.description',
+    periodKey: 'catalog.quarterlyOverview.period',
     icon: <TrendingUp className="w-5 h-5" />,
     iconBg: 'bg-indigo-100 text-indigo-600',
-    category: 'Overview',
+    categoryKey: 'overview',
     viewPath: '/reports/viewer/quarterly-overview',
   },
   {
     id: 'framework-progress',
-    name: 'Framework Progress Report',
-    description: 'Detailed breakdown of controls by status — implemented, partially implemented, and not yet implemented.',
+    nameKey: 'catalog.frameworkProgress.name',
+    descriptionKey: 'catalog.frameworkProgress.description',
     icon: <BarChart2 className="w-5 h-5" />,
     iconBg: 'bg-violet-100 text-violet-600',
-    category: 'Compliance',
+    categoryKey: 'compliance',
     viewPath: '/reports/viewer/framework-progress',
   },
   {
     id: 'risk-register',
-    name: 'Risk Register Report',
-    description: 'All active risks grouped by severity (Critical / High / Medium / Low) with trend over selected period.',
-    period: 'Last 90 days',
+    nameKey: 'catalog.riskRegister.name',
+    descriptionKey: 'catalog.riskRegister.description',
+    periodKey: 'catalog.riskRegister.period',
     icon: <Shield className="w-5 h-5" />,
     iconBg: 'bg-red-100 text-red-600',
-    category: 'Risk',
+    categoryKey: 'risk',
     viewPath: '/reports/viewer/risk-register',
   },
   {
     id: 'test-effectiveness',
-    name: 'Test Effectiveness Report',
-    description: 'Test performance and remediation efficiency — on-time vs late completions, pass rate, and overdue breakdown.',
+    nameKey: 'catalog.testEffectiveness.name',
+    descriptionKey: 'catalog.testEffectiveness.description',
     icon: <ClipboardList className="w-5 h-5" />,
     iconBg: 'bg-amber-100 text-amber-600',
-    category: 'Tests',
+    categoryKey: 'tests',
     viewPath: '/reports/viewer/test-effectiveness',
   },
   {
     id: 'audit-status',
-    name: 'Audit Status Report',
-    description: 'All audits with completion status, major/minor findings counts and open vs closed findings summary.',
+    nameKey: 'catalog.auditStatus.name',
+    descriptionKey: 'catalog.auditStatus.description',
     icon: <BookOpen className="w-5 h-5" />,
     iconBg: 'bg-cyan-100 text-cyan-600',
-    category: 'Audit',
+    categoryKey: 'audit',
     viewPath: '/reports/viewer/audit-status',
   },
   {
     id: 'evidence-coverage',
-    name: 'Evidence Coverage Report',
-    description: 'Controls vs attached evidence — shows which controls have sufficient evidence and which are gaps.',
+    nameKey: 'catalog.evidenceCoverage.name',
+    descriptionKey: 'catalog.evidenceCoverage.description',
     icon: <FileCheck className="w-5 h-5" />,
     iconBg: 'bg-green-100 text-green-600',
-    category: 'Compliance',
+    categoryKey: 'compliance',
     viewPath: '/reports/viewer/evidence-coverage',
   },
   {
     id: 'personnel-compliance',
-    name: 'Personnel Compliance Report',
-    description: 'Security onboarding completion by personnel — policy acceptance, MDM enrollment and security training.',
+    nameKey: 'catalog.personnelCompliance.name',
+    descriptionKey: 'catalog.personnelCompliance.description',
     icon: <Users className="w-5 h-5" />,
     iconBg: 'bg-pink-100 text-pink-600',
-    category: 'Personnel',
+    categoryKey: 'personnel',
     viewPath: '/reports/viewer/personnel-compliance',
   },
 ];
 
-const CATEGORIES = ['All', ...Array.from(new Set(REPORTS.map(r => r.category)))];
+const CATEGORY_KEYS = [
+  'all',
+  ...Array.from(new Set(REPORTS.map((report) => report.categoryKey))),
+];
 
 const CATEGORY_BADGE: Record<string, string> = {
-  Overview:   'bg-blue-50 text-blue-700',
-  Compliance: 'bg-violet-50 text-violet-700',
-  Risk:       'bg-red-50 text-red-700',
-  Tests:      'bg-amber-50 text-amber-700',
-  Audit:      'bg-cyan-50 text-cyan-700',
-  Personnel:  'bg-pink-50 text-pink-700',
+  overview: 'bg-blue-50 text-blue-700',
+  compliance: 'bg-violet-50 text-violet-700',
+  risk: 'bg-red-50 text-red-700',
+  tests: 'bg-amber-50 text-amber-700',
+  audit: 'bg-cyan-50 text-cyan-700',
+  personnel: 'bg-pink-50 text-pink-700',
 };
 
 // ─── Report card ──────────────────────────────────────────────────────────────
 
 function ReportCard({ report }: { report: ReportDef }) {
   const navigate = useNavigate();
+  const { t } = useTranslation('common');
+
   return (
     <Card className="flex flex-col p-5 hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between mb-3">
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${report.iconBg}`}>
+        <div
+          className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${report.iconBg}`}
+        >
           {report.icon}
         </div>
-        <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${CATEGORY_BADGE[report.category] ?? 'bg-gray-50 text-gray-600'}`}>
-          {report.category}
+        <span
+          className={`text-xs font-medium px-2 py-0.5 rounded-full ${CATEGORY_BADGE[report.categoryKey] ?? 'bg-gray-50 text-gray-600'}`}
+        >
+          {t(`reports.categories.${report.categoryKey}`)}
         </span>
       </div>
-      <h3 className="text-sm font-semibold text-gray-900 mb-1 leading-snug">{report.name}</h3>
-      <p className="text-xs text-gray-500 leading-relaxed flex-1">{report.description}</p>
-      {report.period && (
+      <h3 className="text-sm font-semibold text-gray-900 mb-1 leading-snug">
+        {t(`reports.${report.nameKey}`)}
+      </h3>
+      <p className="text-xs text-gray-500 leading-relaxed flex-1">
+        {t(`reports.${report.descriptionKey}`)}
+      </p>
+      {report.periodKey && (
         <div className="mt-3 flex items-center gap-1.5 text-xs text-gray-400">
           <Calendar className="w-3.5 h-3.5" />
-          {report.period}
+          {t(`reports.${report.periodKey}`)}
         </div>
       )}
       <div className="mt-4">
@@ -136,7 +157,7 @@ function ReportCard({ report }: { report: ReportDef }) {
           onClick={() => navigate(report.viewPath)}
           className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-gray-900 hover:bg-gray-700 text-white text-xs font-medium transition-colors"
         >
-          View Report <ChevronRight className="w-3.5 h-3.5" />
+          {t('reports.viewReport')} <ChevronRight className="w-3.5 h-3.5" />
         </button>
       </div>
     </Card>
@@ -146,52 +167,79 @@ function ReportCard({ report }: { report: ReportDef }) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export function ReportsPage() {
-  const [activeCategory, setActiveCategory] = useState('All');
+  const { t } = useTranslation('common');
+  const [activeCategory, setActiveCategory] = useState('all');
 
-  const filtered = activeCategory === 'All'
-    ? REPORTS
-    : REPORTS.filter(r => r.category === activeCategory);
+  const filtered =
+    activeCategory === 'all'
+      ? REPORTS
+      : REPORTS.filter((report) => report.categoryKey === activeCategory);
 
   return (
     <PageTemplate
-      title="Reports"
-      description="Generate and view compliance, risk, and security posture reports."
+      title={t('reports.title')}
+      description={t('reports.description')}
     >
       {/* Stat strip */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         {[
-          { label: 'Available Reports', value: REPORTS.length,                                                               color: 'text-gray-800' },
-          { label: 'Overview',          value: REPORTS.filter(r => r.category === 'Overview').length,                        color: 'text-blue-700' },
-          { label: 'Compliance',        value: REPORTS.filter(r => r.category === 'Compliance').length,                      color: 'text-violet-700' },
-          { label: 'Risk & Audit',      value: REPORTS.filter(r => ['Risk','Audit'].includes(r.category)).length,            color: 'text-red-700' },
-        ].map(s => (
-          <Card key={s.label} className="p-4">
-            <div className={`text-2xl font-bold ${s.color}`}>{s.value}</div>
-            <div className="text-xs text-gray-500 mt-0.5">{s.label}</div>
+          {
+            labelKey: 'stats.availableReports',
+            value: REPORTS.length,
+            color: 'text-gray-800',
+          },
+          {
+            labelKey: 'categories.overview',
+            value: REPORTS.filter((report) => report.categoryKey === 'overview')
+              .length,
+            color: 'text-blue-700',
+          },
+          {
+            labelKey: 'categories.compliance',
+            value: REPORTS.filter(
+              (report) => report.categoryKey === 'compliance',
+            ).length,
+            color: 'text-violet-700',
+          },
+          {
+            labelKey: 'stats.riskAndAudit',
+            value: REPORTS.filter((report) =>
+              ['risk', 'audit'].includes(report.categoryKey),
+            ).length,
+            color: 'text-red-700',
+          },
+        ].map((stat) => (
+          <Card key={stat.labelKey} className="p-4">
+            <div className={`text-2xl font-bold ${stat.color}`}>
+              {stat.value}
+            </div>
+            <div className="text-xs text-gray-500 mt-0.5">
+              {t(`reports.${stat.labelKey}`)}
+            </div>
           </Card>
         ))}
       </div>
 
       {/* Category filter */}
       <div className="flex flex-wrap gap-2 mb-5">
-        {CATEGORIES.map(cat => (
+        {CATEGORY_KEYS.map((categoryKey) => (
           <button
-            key={cat}
-            onClick={() => setActiveCategory(cat)}
+            key={categoryKey}
+            onClick={() => setActiveCategory(categoryKey)}
             className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-              activeCategory === cat
+              activeCategory === categoryKey
                 ? 'bg-gray-900 text-white border-gray-900'
                 : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
             }`}
           >
-            {cat}
+            {t(`reports.categories.${categoryKey}`)}
           </button>
         ))}
       </div>
 
       {/* Report grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {filtered.map(report => (
+        {filtered.map((report) => (
           <ReportCard key={report.id} report={report} />
         ))}
       </div>

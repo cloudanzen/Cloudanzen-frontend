@@ -1,5 +1,6 @@
 import React from 'react';
-import { PolicyFilter, POLICY_STATUSES, STATUS_CONFIG } from './types';
+import { useTranslation } from 'react-i18next';
+import { PolicyFilter, POLICY_STATUSES } from './types';
 import { Search, X } from 'lucide-react';
 
 export function FilterChip({ label, onRemove }: { label: string; onRemove: () => void }) {
@@ -22,24 +23,25 @@ export function FilterPanel({
   hasActiveFilters: boolean;
   mobileDrawer?: boolean;
 }) {
+  const { t } = useTranslation('compliance');
   return (
     <div className={`bg-card border border-border shadow-sm overflow-hidden ${mobileDrawer ? 'rounded-b-xl lg:rounded-xl' : 'rounded-xl'}`}>
       <div className={`px-5 py-4 border-b border-border flex items-center justify-between ${mobileDrawer ? 'hidden lg:flex' : ''}`}>
-        <h2 className="text-sm font-semibold text-foreground uppercase tracking-wide">Filters</h2>
+        <h2 className="text-sm font-semibold text-foreground uppercase tracking-wide">{t('policiesPage.filter.title')}</h2>
         {hasActiveFilters && (
-          <button onClick={onClear} className="text-xs font-medium text-primary hover:text-primary/80">Clear all</button>
+          <button onClick={onClear} className="text-xs font-medium text-primary hover:text-primary/80">{t('policiesPage.filter.clearAll')}</button>
         )}
       </div>
       <div className="px-5 py-4 space-y-5">
         <div>
-          <label className="block text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wide">Search</label>
+          <label className="block text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wide">{t('policiesPage.filter.search')}</label>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70 pointer-events-none" />
             <input
               type="text"
               value={filter.search}
               onChange={e => onChange('search', e.target.value)}
-              placeholder="Search by policy name…"
+              placeholder={t('policiesPage.filter.searchPlaceholder')}
               className="w-full pl-9 pr-8 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring placeholder-muted-foreground/70"
             />
             {filter.search && (
@@ -50,15 +52,15 @@ export function FilterPanel({
           </div>
         </div>
         <div>
-          <label className="block text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wide">Status</label>
+          <label className="block text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wide">{t('policiesPage.filter.status')}</label>
           <select
             value={filter.status}
             onChange={e => onChange('status', e.target.value)}
             className="w-full px-3 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring bg-card"
           >
-            <option value="">All statuses</option>
+            <option value="">{t('policiesPage.filter.allStatuses')}</option>
             {POLICY_STATUSES.map(s => (
-              <option key={s} value={s}>{STATUS_CONFIG[s]?.label ?? s}</option>
+              <option key={s} value={s}>{t(`policiesPage.statusLabels.${s}`, { defaultValue: s })}</option>
             ))}
           </select>
         </div>

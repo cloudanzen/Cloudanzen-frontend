@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- legacy: to be typed progressively */
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { Card, CardContent } from '@/app/components/ui/card';
@@ -20,6 +21,7 @@ import { fmtDate } from '@/lib/format-date';
 import { toast } from 'sonner';
 
 export function AdminOrganizationsPage() {
+  const { t } = useTranslation('admin');
   const isSuperAdmin = useHasRole('SUPER_ADMIN');
   const qc = useQueryClient();
   const [search, setSearch] = useState('');
@@ -40,8 +42,8 @@ export function AdminOrganizationsPage() {
 
   if (!isSuperAdmin) {
     return (
-      <PageTemplate title="Access Denied">
-        <p className="text-muted-foreground">SUPER_ADMIN role required.</p>
+      <PageTemplate title={t('common.accessDenied')}>
+        <p className="text-muted-foreground">{t('common.superAdminRequired')}</p>
       </PageTemplate>
     );
   }
@@ -53,11 +55,11 @@ export function AdminOrganizationsPage() {
 
   return (
     <PageTemplate
-      title="Organizations"
-      description="Manage customer organizations, create new orgs, and view their compliance posture."
+      title={t('organizations.title')}
+      description={t('organizations.description')}
       actions={
         <Button onClick={() => setShowCreate(true)}>
-          <Plus className="h-4 w-4 mr-1" /> New Organization
+          <Plus className="h-4 w-4 mr-1" /> {t('organizations.newOrganization')}
         </Button>
       }
     >
@@ -66,19 +68,19 @@ export function AdminOrganizationsPage() {
         <Card>
           <CardContent className="pt-4">
             <div className="text-2xl font-bold">{list.length}</div>
-            <div className="text-xs text-muted-foreground">Organizations</div>
+            <div className="text-xs text-muted-foreground">{t('organizations.stats.organizations')}</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4">
             <div className="text-2xl font-bold">{list.reduce((s, o) => s + o.userCount, 0)}</div>
-            <div className="text-xs text-muted-foreground">Total Users</div>
+            <div className="text-xs text-muted-foreground">{t('organizations.stats.totalUsers')}</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4">
             <div className="text-2xl font-bold">{list.reduce((s, o) => s + o.activeFrameworks, 0)}</div>
-            <div className="text-xs text-muted-foreground">Active Frameworks</div>
+            <div className="text-xs text-muted-foreground">{t('organizations.stats.activeFrameworks')}</div>
           </CardContent>
         </Card>
       </div>
@@ -87,7 +89,7 @@ export function AdminOrganizationsPage() {
       <div className="relative mb-4 max-w-sm">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Search organizations..."
+          placeholder={t('organizations.searchPlaceholder')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="pl-9"
@@ -124,7 +126,7 @@ export function AdminOrganizationsPage() {
             </Card>
           ))}
           {filtered.length === 0 && (
-            <p className="text-center text-muted-foreground py-8">No organizations found.</p>
+            <p className="text-center text-muted-foreground py-8">{t('organizations.noOrganizations')}</p>
           )}
         </div>
       )}

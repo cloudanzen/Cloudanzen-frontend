@@ -7,6 +7,7 @@
  */
 
 import { lazy, Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import {
   Card,
@@ -28,6 +29,7 @@ const CoverageChart = lazy(() =>
 );
 
 export function OverviewTab({ slug }: { slug: string }) {
+  const { t } = useTranslation('compliance');
   const { data: covRes, isLoading } = useQuery({
     queryKey: ['frameworks', 'coverage', slug],
     queryFn: () => frameworksService.getCoverage(slug),
@@ -40,7 +42,7 @@ export function OverviewTab({ slug }: { slug: string }) {
   const history: CoverageSnapshotDto[] = historyRes?.data ?? [];
 
   if (isLoading)
-    return <TabPlaceholder icon={Gauge} text="Loading coverage data…" />;
+    return <TabPlaceholder icon={Gauge} text={t('frameworkTabs.overview.loadingCoverage')} />;
 
   if (!snap) {
     return (
@@ -48,11 +50,10 @@ export function OverviewTab({ slug }: { slug: string }) {
         <CardContent className="py-16 text-center">
           <Gauge className="w-10 h-10 text-gray-300 mx-auto mb-3" />
           <p className="text-sm font-medium text-gray-600">
-            No coverage data yet
+            {t('frameworkTabs.overview.noCoverageData')}
           </p>
           <p className="text-xs text-gray-400 mt-1">
-            Coverage snapshots will appear here once the framework is active and
-            requirements are mapped.
+            {t('frameworkTabs.overview.noCoverageDesc')}
           </p>
         </CardContent>
       </Card>
@@ -65,22 +66,22 @@ export function OverviewTab({ slug }: { slug: string }) {
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-            Coverage Summary
+            {t('frameworkTabs.overview.coverageSummary')}
           </CardTitle>
           <p className="text-xs text-gray-400">
-            Latest snapshot · {new Date(snap.calculatedAt).toLocaleString()}
+            {t('frameworkTabs.overview.latestSnapshot')} · {new Date(snap.calculatedAt).toLocaleString()}
           </p>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap items-center justify-around gap-8 py-4">
             <CoverageRing
               pct={snap.controlCoveragePct}
-              label="Control coverage"
+              label={t('frameworkTabs.overview.controlCoverage')}
               color="#2563eb"
             />
             <CoverageRing
               pct={snap.testPassRatePct}
-              label="Test pass rate"
+              label={t('frameworkTabs.overview.testPassRate')}
               color="#16a34a"
             />
             <CoverageRing
@@ -91,7 +92,7 @@ export function OverviewTab({ slug }: { slug: string }) {
                     )
                   : 0
               }
-              label="N/A ratio"
+              label={t('frameworkTabs.overview.naRatio')}
               color="#9ca3af"
             />
           </div>
@@ -102,17 +103,17 @@ export function OverviewTab({ slug }: { slug: string }) {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           {
-            label: 'Total requirements',
+            label: t('frameworkTabs.overview.totalRequirements'),
             value: snap.totalRequirements,
             color: 'text-gray-700',
           },
           {
-            label: 'Applicable',
+            label: t('frameworkTabs.overview.applicable'),
             value: snap.applicable,
             color: 'text-blue-700',
           },
-          { label: 'Covered', value: snap.covered, color: 'text-green-700' },
-          { label: 'Open gaps', value: snap.openGaps, color: 'text-red-700' },
+          { label: t('frameworkTabs.overview.covered'), value: snap.covered, color: 'text-green-700' },
+          { label: t('frameworkTabs.overview.openGaps'), value: snap.openGaps, color: 'text-red-700' },
         ].map((s) => (
           <Card key={s.label} className="border-gray-100">
             <CardContent className="py-4">
@@ -129,24 +130,24 @@ export function OverviewTab({ slug }: { slug: string }) {
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-            Implementation breakdown
+            {t('frameworkTabs.overview.implementationBreakdown')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           {[
-            { label: 'Covered', count: snap.covered, color: 'bg-green-500' },
+            { label: t('frameworkTabs.overview.covered'), count: snap.covered, color: 'bg-green-500' },
             {
-              label: 'Partially covered',
+              label: t('frameworkTabs.overview.partiallyCovered'),
               count: snap.partiallyCovered,
               color: 'bg-amber-400',
             },
             {
-              label: 'Not covered',
+              label: t('frameworkTabs.overview.notCovered'),
               count: snap.notCovered,
               color: 'bg-red-400',
             },
             {
-              label: 'Not applicable',
+              label: t('frameworkTabs.overview.notApplicable'),
               count: snap.notApplicable,
               color: 'bg-gray-300',
             },
@@ -180,17 +181,17 @@ export function OverviewTab({ slug }: { slug: string }) {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-              Readiness over time
+              {t('frameworkTabs.overview.readinessOverTime')}
             </CardTitle>
             <p className="text-xs text-gray-400">
-              Latest {history.length} append-only snapshots
+              {t('frameworkTabs.overview.latestSnapshots', { count: history.length })}
             </p>
           </CardHeader>
           <CardContent>
             <Suspense
               fallback={
                 <div className="h-64 flex items-center justify-center text-xs text-gray-400">
-                  Loading chart…
+                  {t('frameworkTabs.overview.loadingChart')}
                 </div>
               }
             >

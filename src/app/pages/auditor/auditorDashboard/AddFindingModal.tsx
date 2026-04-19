@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
 import { auditsService, FindingSeverity } from '@/services/api/audits';
@@ -20,6 +21,7 @@ export function AddFindingModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const { t } = useTranslation('auditor');
   const [severity, setSeverity] = useState<FindingSeverity>('MINOR');
   const [description, setDescription] = useState('');
   const [remediation, setRemediation] = useState('');
@@ -27,7 +29,8 @@ export function AddFindingModal({
   const [error, setError] = useState<string | null>(null);
 
   async function handleSave() {
-    if (!description.trim()) return setError('Description is required.');
+    if (!description.trim())
+      return setError(t('addFinding.descriptionRequired'));
     setSaving(true);
     setError(null);
     try {
@@ -41,7 +44,7 @@ export function AddFindingModal({
       onSaved();
       onClose();
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Failed to create finding');
+      setError(e instanceof Error ? e.message : t('addFinding.failed'));
     } finally {
       setSaving(false);
     }
@@ -56,10 +59,10 @@ export function AddFindingModal({
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <div>
             <h2 className="text-base font-semibold text-gray-900">
-              Add Finding
+              {t('addFinding.title')}
             </h2>
             <p className="text-xs text-gray-400 mt-0.5">
-              Control:{' '}
+              {t('addFinding.control')}{' '}
               <span className="font-mono font-semibold text-blue-700">
                 {controlRef}
               </span>
@@ -82,7 +85,7 @@ export function AddFindingModal({
 
           <div>
             <label className="block text-xs font-medium text-gray-700 mb-1">
-              Severity <span className="text-red-500">*</span>
+              {t('addFinding.severity')} <span className="text-red-500">*</span>
             </label>
             <div className="flex gap-2">
               {(['MINOR', 'MAJOR', 'OBSERVATION'] as FindingSeverity[]).map(
@@ -114,12 +117,13 @@ export function AddFindingModal({
 
           <div>
             <label className="block text-xs font-medium text-gray-700 mb-1">
-              Description <span className="text-red-500">*</span>
+              {t('addFinding.description')}{' '}
+              <span className="text-red-500">*</span>
             </label>
             <textarea
               rows={3}
               className={inputCls}
-              placeholder="Describe the finding..."
+              placeholder={t('addFinding.descriptionPlaceholder')}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
@@ -127,12 +131,12 @@ export function AddFindingModal({
 
           <div>
             <label className="block text-xs font-medium text-gray-700 mb-1">
-              Recommended Remediation
+              {t('addFinding.remediation')}
             </label>
             <textarea
               rows={2}
               className={inputCls}
-              placeholder="Optional: suggested fix..."
+              placeholder={t('addFinding.remediationPlaceholder')}
               value={remediation}
               onChange={(e) => setRemediation(e.target.value)}
             />
@@ -144,10 +148,10 @@ export function AddFindingModal({
             onClick={onClose}
             className="text-sm text-gray-500 hover:text-gray-700 px-3 py-1.5"
           >
-            Cancel
+            {t('addFinding.cancel')}
           </button>
           <Button onClick={handleSave} disabled={saving}>
-            {saving ? 'Saving…' : 'Save Finding'}
+            {saving ? t('addFinding.saving') : t('addFinding.save')}
           </Button>
         </div>
       </div>

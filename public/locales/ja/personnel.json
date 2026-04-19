@@ -2,6 +2,24 @@
   "people": {
     "title": "人員",
     "description": "組織のユーザーとセキュリティオンボーディングを管理する",
+    "refresh": "更新",
+    "loading": "ユーザーを読み込み中...",
+    "noName": "名前なし",
+    "noUsersFound": "ユーザーが見つかりません。",
+    "failedToLoadUsers": "ユーザーの読み込みに失敗しました",
+    "failedToRemoveUser": "ユーザーの削除に失敗しました",
+    "removeUser": "ユーザーを削除",
+    "changeRole": "ロールを変更",
+    "thisUser": "このユーザー",
+    "confirmRemove": "{{name}} を組織から削除しますか？",
+    "members_one": "{{count}} 人のメンバー",
+    "members_other": "{{count}} 人のメンバー",
+    "fullyOnboarded": "オンボーディング完了",
+    "onboardingTitles": {
+      "policies": "ポリシー",
+      "mdm": "MDM",
+      "training": "トレーニング"
+    },
     "inviteUser": "ユーザーを招待",
     "searchPlaceholder": "人員を検索...",
     "noUsers": "ユーザーが見つかりません",
@@ -18,12 +36,43 @@
       "completeTrainingDesc": "インタラクティブなセキュリティ意識向上トレーニングを完了する"
     },
     "columns": {
+      "nameEmail": "名前 / メールアドレス",
       "name": "名前",
       "email": "メールアドレス",
       "role": "ロール",
+      "githubAccounts": "GitHubアカウント",
       "onboarding": "オンボーディング",
+      "joined": "参加日",
       "joinedAt": "参加日",
       "actions": "操作"
+    },
+    "detail": {
+      "securityOnboarding": "セキュリティオンボーディング",
+      "complete": "{{count}}/{{total}} 件完了",
+      "allTasksComplete": "すべてのタスクが完了しました",
+      "taskStatus": "タスク状況",
+      "userInfo": "ユーザー情報",
+      "tasks": {
+        "acceptPolicies": {
+          "title": "すべての組織ポリシーに同意",
+          "acceptedOn": "{{date}} に同意",
+          "acknowledged_one": "{{count}} 件のポリシーに同意済み",
+          "acknowledged_other": "{{count}} 件のポリシーに同意済み",
+          "notYetAccepted": "まだ同意していません"
+        },
+        "installMdm": {
+          "title": "MDMエージェントをインストール",
+          "enrolledOn": "{{date}} に登録",
+          "awaitingEnrollment": "デバイス登録待ち",
+          "device": "デバイス: {{id}}"
+        },
+        "training": {
+          "title": "セキュリティ意識向上トレーニングを完了",
+          "completedOn": "{{date}} に完了",
+          "startedOn": "{{date}} に開始 - まだ完了していません",
+          "notStarted": "未開始"
+        }
+      }
     },
     "roles": {
       "SUPER_ADMIN": "スーパー管理者",
@@ -36,26 +85,112 @@
   },
   "computers": {
     "title": "コンピューター",
-    "description": "組織のMDM登録済みデバイス",
+    "description": "Manzen MDM に報告する管理対象の Mac エンドポイントです。Integrations ページからデバイスを登録してください。",
+    "refresh": "更新",
+    "loading": "デバイスを読み込み中...",
+    "failedToLoad": "デバイスの読み込みに失敗しました",
+    "failedToRevoke": "デバイスの無効化に失敗しました",
+    "confirmRevoke": "{{name}} を無効化しますか？エージェントは今後チェックインできなくなります。",
+    "emptyPrefix": "管理対象デバイスはまだありません。",
+    "integrationsLink": "Integrations",
+    "emptySuffix": "で登録トークンを作成し、エージェントをインストールしてください。",
+    "unassigned": "未割り当て",
+    "details": "詳細",
+    "reassignOwner": "オーナーを再割り当て",
+    "revokeDevice": "デバイスを無効化",
+    "managedDevices_one": "{{count}} 台の管理対象デバイス",
+    "managedDevices_other": "{{count}} 台の管理対象デバイス",
+    "lastChecked": "最終確認:",
+    "stats": {
+      "totalDevices": "総デバイス数",
+      "compliant": "準拠",
+      "nonCompliant": "非準拠"
+    },
     "searchPlaceholder": "コンピューターを検索...",
     "noComputers": "登録済みコンピューターなし",
     "noComputersDesc": "MDMエージェントでデバイスを登録してください",
     "columns": {
+      "device": "デバイス",
       "name": "デバイス名",
+      "owner": "オーナー",
       "user": "ユーザー",
       "os": "OS",
+      "compliance": "準拠状況",
       "lastSeen": "最終確認",
-      "status": "ステータス"
+      "status": "ステータス",
+      "actions": "操作"
+    },
+    "complianceStatus": {
+      "compliant": "準拠",
+      "nonCompliant": "非準拠",
+      "unknown": "不明"
+    },
+    "deviceStatus": {
+      "active": "有効",
+      "revoked": "無効化済み"
+    },
+    "checks": {
+      "diskEncryption": "ディスク暗号化 (A.8.24)",
+      "screenLock": "画面ロック (A.5.15)",
+      "firewall": "ファイアウォール (A.8.20)",
+      "antivirus": "アンチウイルス (A.8.7)",
+      "systemIntegrity": "システム整合性 (A.8.7)",
+      "autoUpdates": "自動更新 (A.8.8)",
+      "gatekeeper": "Gatekeeper"
+    },
+    "reassign": {
+      "title": "デバイスオーナーを再割り当て",
+      "description": "オーナーを変更すると、MDM タスクは選択したユーザーに紐づきます。",
+      "newOwner": "新しいオーナー",
+      "selectUser": "- ユーザーを選択 -",
+      "saving": "保存中...",
+      "failed": "オーナーの再割り当てに失敗しました"
     },
     "status": {
       "ENROLLED": "登録済み",
       "PENDING": "保留中",
       "BLOCKED": "ブロック済み"
-    }
+    },
+    "pass": "合格",
+    "fail": "不合格"
   },
   "access": {
-    "title": "アクセス管理",
-    "description": "ユーザーアクセスレビューとリンク済みアカウント",
+    "title": "リンク済みアカウント",
+    "description": "外部サービスアカウント（GitHub、Slack）を組織メンバーにマッピングします。",
+    "refresh": "更新",
+    "loading": "読み込み中\u2026",
+    "connected": "接続済み",
+    "notMapped": "未マッピング",
+    "selectUser": "\u2014 ユーザーを選択 \u2014",
+    "unmap": "マッピング解除",
+    "notLinked": "未リンク",
+    "mapped": "マッピング済み",
+    "unmapped": "未マッピング",
+    "columns": {
+      "mappedUser": "マッピング済みISMSユーザー",
+      "mapTo": "ユーザーにマッピング",
+      "actions": "操作"
+    },
+    "github": {
+      "title": "GitHubアカウント",
+      "account": "GitHubアカウント",
+      "notConnected": "GitHub連携が接続されていません。",
+      "connectPrompt": "<link>インテグレーション</link>に移動してGitHubを接続し、メンバーを表示してください。",
+      "noMembers": "GitHubメンバーが見つかりません。",
+      "connectToSee": "GitHubを接続してメンバーを表示してください。",
+      "accountCount_one": "{{count}}件のGitHubアカウント",
+      "accountCount_other": "{{count}}件のGitHubアカウント"
+    },
+    "slack": {
+      "title": "Slackアカウント",
+      "account": "Slackアカウント",
+      "notConnected": "Slack連携が接続されていません。",
+      "connectPrompt": "<link>インテグレーション</link>に移動してSlackワークスペースを接続し、メンバーを表示してください。",
+      "noMembers": "Slackメンバーが見つかりません。",
+      "connectToSee": "Slackを接続してワークスペースメンバーを表示してください。",
+      "accountCount_one": "{{count}}件のSlackアカウント",
+      "accountCount_other": "{{count}}件のSlackアカウント"
+    },
     "campaigns": {
       "title": "アクセスレビューキャンペーン",
       "newCampaign": "新規キャンペーン",
@@ -69,6 +204,214 @@
     "services": {
       "title": "サービス",
       "addService": "サービスを追加"
+    }
+  },
+  "common": {
+    "cancel": "キャンセル",
+    "create": "作成",
+    "creating": "作成中...",
+    "save": "保存",
+    "none": "—",
+    "unknown": "不明"
+  },
+  "settings": {
+    "title": "人員設定",
+    "description": "人員管理設定を構成します。",
+    "saveChanges": "変更を保存",
+    "accessControl": {
+      "title": "アクセス制御",
+      "requireMfa": "MFAを必須化",
+      "requireMfaDescription": "すべてのユーザーに多要素認証を必須にします"
+    }
+  },
+  "accessManagement": {
+    "title": "アクセス管理",
+    "description": "統合済みおよび手動追跡サービス全体の全ユーザーアカウントを一元表示します。",
+    "tabs": {
+      "accounts": "アクセス一覧",
+      "services": "サービス",
+      "reviews": "アクセスレビュー"
+    },
+    "addCustomService": {
+      "title": "カスタムサービスを追加",
+      "description": "未統合のツールを追跡します。作成後にアカウントCSVをアップロードできます。",
+      "placeholder": "例: Jira, AWS, Okta"
+    },
+    "campaignCreate": {
+      "title": "アクセスレビューキャンペーンを作成",
+      "name": "キャンペーン名",
+      "namePlaceholder": "例: 2026年Q1 アクセスレビュー",
+      "description": "説明（任意）",
+      "descriptionPlaceholder": "このレビューの目的...",
+      "scope": "対象範囲（レビュー対象サービス）",
+      "scopeHint": "空欄の場合はすべてのサービスが対象になります。",
+      "noServices": "サービスが見つかりません。先に同期してください。",
+      "reviewers": "レビュアー",
+      "reviewersHint": "アカウントをレビューする担当者を選択します。",
+      "deadline": "期限（任意）",
+      "cadence": "定期実施頻度",
+      "noRecurrence": "繰り返しなし",
+      "create": "キャンペーンを作成",
+      "cadenceOptions": {
+        "monthly": "毎月",
+        "quarterly": "四半期ごと",
+        "semiAnnual": "半年ごと",
+        "annual": "年次"
+      }
+    },
+    "campaignList": {
+      "description": "すべてのアカウントが正当で適切に権限付与されているかを定期的に確認するためのアクセスレビューキャンペーンを作成します。",
+      "newCampaign": "新規キャンペーン",
+      "loading": "キャンペーンを読み込み中...",
+      "empty": "アクセスレビューキャンペーンはまだありません。",
+      "emptyDescription": "サービス全体のアカウントレビューを開始するにはキャンペーンを作成してください。",
+      "accounts": "{{count}}件のアカウント",
+      "reviewed": "{{count}}件レビュー済み",
+      "accepted": "{{count}}件承認",
+      "revoked": "{{count}}件取り消し",
+      "pending": "{{count}}件保留",
+      "deadline": "期限: {{date}}",
+      "cadence": "頻度: {{value}}",
+      "nextReview": "次回レビュー: {{date}}",
+      "launch": "開始",
+      "review": "レビュー",
+      "complete": "完了",
+      "report": "レポート"
+    },
+    "campaignReview": {
+      "title": "キャンペーンレビュー",
+      "progress": "進捗: {{percent}}%",
+      "reviewed": "{{reviewed}}/{{total}}件レビュー済み",
+      "accepted": "{{count}}件承認",
+      "revoked": "{{count}}件取り消し",
+      "pending": "{{count}}件保留",
+      "searchPlaceholder": "アカウントを検索...",
+      "loading": "レビュー項目を読み込み中...",
+      "empty": "フィルターに一致する項目がありません。",
+      "acceptDecision": "承認済み",
+      "revokeDecision": "取り消し済み",
+      "pendingDecision": "保留中",
+      "acceptAction": "承認",
+      "revokeAction": "取り消し",
+      "showing": "{{total}}件中 {{start}}-{{end}}件を表示",
+      "filters": {
+        "all": "すべて",
+        "pending": "保留中",
+        "accepted": "承認済み",
+        "revoked": "取り消し済み"
+      },
+      "columns": {
+        "service": "サービス",
+        "account": "アカウント",
+        "email": "メールアドレス",
+        "role": "ロール",
+        "status": "ステータス",
+        "decision": "判定",
+        "actions": "操作"
+      }
+    },
+    "mapAccount": {
+      "title": "アカウントをマッピング",
+      "accountLabel": "アカウント:",
+      "searchPlaceholder": "ユーザーを検索...",
+      "removeMapping": "マッピングを解除",
+      "noUsers": "ユーザーが見つかりません"
+    },
+    "services": {
+      "loading": "サービスを読み込み中...",
+      "description": "統合済みおよび手動追跡サービスを管理します。未統合ツールのアカウントはCSVでインポートできます。",
+      "syncIntegrations": "インテグレーションを同期",
+      "addCustomService": "カスタムサービスを追加",
+      "empty": "追跡中のサービスはまだありません。",
+      "emptyDescription": "「インテグレーションを同期」で接続済みツールを取得するか、「カスタムサービスを追加」で手動追跡対象を追加してください。",
+      "confirmDelete": "「{{name}}」とその全アカウントを削除しますか？",
+      "accounts": "{{count}}件のアカウント",
+      "lastSynced": "最終同期: {{date}}",
+      "evidence": "エビデンス: {{name}}",
+      "importAccounts": "アカウントをインポート",
+      "serviceTypes": {
+        "integrated": "統合済み",
+        "manual": "手動"
+      }
+    },
+    "unifiedAccess": {
+      "searchPlaceholder": "アカウントを検索...",
+      "sync": "同期",
+      "export": "エクスポート",
+      "loading": "アカウントを読み込み中...",
+      "empty": "アカウントはまだありません。「同期」でインテグレーションから取得するか、カスタムサービスを追加してください。",
+      "emptyFiltered": "フィルターに一致するアカウントがありません。",
+      "showing": "{{total}}件中 {{start}}-{{end}}件を表示",
+      "map": "マップ",
+      "remap": "再マップ",
+      "manual": "(手動)",
+      "stats": {
+        "totalAccounts": "総アカウント数",
+        "mapped": "マップ済み",
+        "unmapped": "未マップ",
+        "serviceAccounts": "サービスアカウント"
+      },
+      "filters": {
+        "allServices": "すべてのサービス",
+        "allStatus": "すべてのステータス",
+        "allMapping": "すべてのマッピング"
+      },
+      "columns": {
+        "service": "サービス",
+        "account": "アカウント",
+        "email": "メールアドレス",
+        "role": "ロール",
+        "status": "ステータス",
+        "type": "種別",
+        "mappedTo": "マップ先",
+        "actions": "操作"
+      },
+      "status": {
+        "active": "有効",
+        "deactivated": "無効化済み"
+      },
+      "mapping": {
+        "mapped": "マップ済み",
+        "unmapped": "未マップ"
+      },
+      "accountTypes": {
+        "user": "ユーザー",
+        "serviceAccount": "サービスアカウント",
+        "externalUser": "外部ユーザー"
+      }
+    },
+    "csvUpload": {
+      "title": "アカウントをインポート - {{service}}",
+      "tabs": {
+        "csv": "CSVアップロード",
+        "scan": "画像をスキャン"
+      },
+      "csvFile": "CSVファイル（必須）",
+      "csvFileHint": "カラム: account_name（または name）、email、role、status、external_id（または username）。ヘッダー行が必要です。",
+      "selectCsv": "CSVを選択",
+      "evidenceFile": "エビデンスファイル（任意）",
+      "evidenceFileHint": "監査エビデンスとしてユーザー一覧ページのスクリーンショットまたは PDF をアップロードします。",
+      "selectEvidence": "エビデンスを選択",
+      "uploading": "アップロード中...",
+      "uploadAndImport": "アップロードしてインポート",
+      "screenshotTitle": "ユーザー一覧のスクリーンショット",
+      "screenshotHint": "ツールのユーザー管理またはチームページのスクリーンショットをアップロードしてください。AI がアカウント名、メールアドレス、ロールを自動抽出します。",
+      "previewAlt": "プレビュー",
+      "selectScreenshot": "スクリーンショットを選択",
+      "scanningHint": "AI で画像をスキャンしています... 数秒かかる場合があります。",
+      "scanning": "スキャン中...",
+      "scanAndImport": "スキャンしてインポート",
+      "importedSuccess": "{{count}} 件のアカウントを正常にインポートしました。",
+      "warnings": "警告:",
+      "extractedAccounts": "抽出されたアカウント",
+      "viaProvider": "{{provider}} 経由",
+      "columns": {
+        "name": "名前",
+        "email": "メールアドレス",
+        "role": "ロール",
+        "status": "ステータス"
+      },
+      "done": "完了"
     }
   }
 }

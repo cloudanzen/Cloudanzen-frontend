@@ -12,6 +12,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/app/components/ui/card';
 import { Badge } from '@/app/components/ui/badge';
 
@@ -66,13 +67,17 @@ export function IntegrationCard({
   description,
   connected,
   loading = false,
-  connectedLabel = 'Connected',
-  availableLabel = 'Available',
-  loadingLabel = 'Checking...',
+  connectedLabel,
+  availableLabel,
+  loadingLabel,
   children,
   className = '',
 }: IntegrationCardProps) {
-  const badgeLabel = loading ? loadingLabel : connected ? connectedLabel : availableLabel;
+  const { t } = useTranslation('integrations');
+  const resolvedConnected = connectedLabel ?? t('cards.shared.connected');
+  const resolvedAvailable = availableLabel ?? t('cards.shared.available');
+  const resolvedLoading = loadingLabel ?? t('cards.shared.checking');
+  const badgeLabel = loading ? resolvedLoading : connected ? resolvedConnected : resolvedAvailable;
   const badgeVariant = connected && !loading ? 'default' : 'outline';
 
   return (

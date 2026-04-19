@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
@@ -16,6 +17,7 @@ import { Loader2, AlertTriangle, CheckCircle2, User } from 'lucide-react';
 import { reviewBadge, TabPlaceholder } from './shared';
 
 export function GapsTab({ slug }: { slug: string }) {
+  const { t } = useTranslation('compliance');
   const qc = useQueryClient();
   const [ownerDialog, setOwnerDialog] = useState<RequirementStatusDto | null>(null);
   const [ownerInput, setOwnerInput] = useState('');
@@ -58,26 +60,26 @@ export function GapsTab({ slug }: { slug: string }) {
       setOwnerDialog(null);
       qc.invalidateQueries({ queryKey: ['frameworks', 'org-requirements', slug] });
       qc.invalidateQueries({ queryKey: ['frameworks', 'coverage', slug] });
-      toast.success('Owner assigned');
+      toast.success(t('frameworkTabs.gaps.ownerAssigned'));
     },
-    onError: () => toast.error('Failed to assign owner'),
+    onError: () => toast.error(t('frameworkTabs.gaps.assignFailed')),
   });
 
-  if (isLoading) return <TabPlaceholder icon={AlertTriangle} text="Loading gaps…" />;
+  if (isLoading) return <TabPlaceholder icon={AlertTriangle} text={t('frameworkTabs.gaps.loadingGaps')} />;
 
   if (gaps.length === 0) {
     return (
       <TabPlaceholder
         icon={CheckCircle2}
-        text="No open gaps"
-        sub="All applicable requirements have at least one implemented control, or there are no applicable requirements yet."
+        text={t('frameworkTabs.gaps.noGaps')}
+        sub={t('frameworkTabs.gaps.noGapsDesc')}
       />
     );
   }
 
   return (
     <div className="space-y-3">
-      <p className="text-xs text-gray-500">{gaps.length} applicable requirements without an owner — click a row to assign</p>
+      <p className="text-xs text-gray-500">{t('frameworkTabs.gaps.gapCount', { count: gaps.length })}</p>
       <Card className="border-gray-100">
         <CardContent className="p-0">
           <div className="divide-y divide-gray-50">
@@ -100,9 +102,9 @@ export function GapsTab({ slug }: { slug: string }) {
                   {req.domain && <p className="text-xs text-gray-400 mt-0.5">{req.domain}</p>}
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  {reviewBadge(req.reviewStatus)}
+                  {reviewBadge(req.reviewStatus, t)}
                   <Button size="sm" variant="outline" className="h-6 text-xs">
-                    <User className="w-3 h-3 mr-1" /> Assign
+                    <User className="w-3 h-3 mr-1" /> {t('frameworkTabs.gaps.assign')}
                   </Button>
                 </div>
               </div>
@@ -114,7 +116,7 @@ export function GapsTab({ slug }: { slug: string }) {
       <Dialog open={!!ownerDialog} onOpenChange={() => setOwnerDialog(null)}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Assign owner & due date</DialogTitle>
+            <DialogTitle>{t('frameworkTabs.gaps.assignTitle')}</DialogTitle>
             <DialogDescription className="text-sm">
               <span className="font-mono text-xs text-gray-500">{ownerDialog?.code}</span>{' '}
               {ownerDialog?.title}
@@ -122,21 +124,21 @@ export function GapsTab({ slug }: { slug: string }) {
           </DialogHeader>
           <div className="space-y-3 pt-1">
             <div>
-              <Label htmlFor="gap-owner" className="text-sm font-medium">Owner</Label>
+              <Label htmlFor="gap-owner" className="text-sm font-medium">{t('frameworkTabs.gaps.owner')}</Label>
               <select
                 id="gap-owner"
                 value={ownerInput}
                 onChange={e => setOwnerInput(e.target.value)}
                 className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               >
-                <option value="">— Select a user —</option>
+                <option value="">{t('frameworkTabs.gaps.selectUser')}</option>
                 {users.map(u => (
                   <option key={u.id} value={u.id}>{u.name ?? u.email}</option>
                 ))}
               </select>
             </div>
             <div>
-              <Label htmlFor="gap-due" className="text-sm font-medium">Due date</Label>
+              <Label htmlFor="gap-due" className="text-sm font-medium">{t('frameworkTabs.gaps.dueDate')}</Label>
               <Input
                 id="gap-due"
                 type="date"
@@ -147,13 +149,13 @@ export function GapsTab({ slug }: { slug: string }) {
             </div>
           </div>
           <DialogFooter className="gap-2 pt-2">
-            <Button variant="outline" onClick={() => setOwnerDialog(null)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setOwnerDialog(null)}>{t('frameworkTabs.gaps.cancel')}</Button>
             <Button
               onClick={() => ownerDialog && ownerMutation.mutate(ownerDialog)}
               disabled={ownerMutation.isPending}
             >
               {ownerMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : null}
-              Assign Owner
+              {t('frameworkTabs.gaps.assignOwner')}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,6 +1,7 @@
 import { Badge } from '@/app/components/ui/badge';
 import { Button } from '@/app/components/ui/button';
 import { Card } from '@/app/components/ui/card';
+import { useTranslation } from 'react-i18next';
 import {
   AwsCard,
   AzureAdCard,
@@ -139,6 +140,7 @@ export function IntegrationsCardGrid({
   engineerAConnectionCounts,
   setEngineerAConnectionCounts,
 }: IntegrationsCardGridProps) {
+  const { t } = useTranslation('integrations');
   const isConnected = !!githubIntegration;
   const driveConnected = !!driveIntegration;
   const slackConnected = !!slackIntegration;
@@ -657,9 +659,7 @@ export function IntegrationsCardGrid({
               ])
             }
             onAccountRemoved={(id) =>
-              setCertManagerAccounts((prev) =>
-                prev.filter((a) => a.id !== id),
-              )
+              setCertManagerAccounts((prev) => prev.filter((a) => a.id !== id))
             }
             onToast={showToast}
           />
@@ -739,10 +739,7 @@ export function IntegrationsCardGrid({
         {/* ── Static coming-soon cards ─────────────────────────────────────── */}
         {activeTab === 'available' &&
           STATIC_INTEGRATIONS.map((integration) => (
-            <Card
-              key={integration.name}
-              className="p-6 opacity-60 select-none"
-            >
+            <Card key={integration.name} className="p-6 opacity-60 select-none">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center flex-shrink-0 p-1 overflow-hidden">
@@ -757,13 +754,13 @@ export function IntegrationsCardGrid({
                     </p>
                   </div>
                 </div>
-                <Badge variant="outline">Coming Soon</Badge>
+                <Badge variant="outline">{t('grid.comingSoon')}</Badge>
               </div>
               <p className="text-sm text-gray-600 mb-4">
                 {integration.description}
               </p>
               <Button variant="outline" size="sm" disabled>
-                Coming Soon
+                {t('grid.comingSoon')}
               </Button>
             </Card>
           ))}
@@ -774,8 +771,9 @@ export function IntegrationsCardGrid({
         if (visibleEngineerACount >= ENGINEER_A_CARDS.length) return null;
         // On connected tab, only show "show more" if there are connected cards beyond the visible slice
         if (activeTab === 'connected') {
-          const connectedBeyond = ENGINEER_A_CARDS.slice(visibleEngineerACount)
-            .filter((c) => (engineerAConnectionCounts[c.key] ?? 0) > 0).length;
+          const connectedBeyond = ENGINEER_A_CARDS.slice(
+            visibleEngineerACount,
+          ).filter((c) => (engineerAConnectionCounts[c.key] ?? 0) > 0).length;
           if (connectedBeyond === 0) return null;
         }
         const remaining = ENGINEER_A_CARDS.length - visibleEngineerACount;
@@ -789,7 +787,7 @@ export function IntegrationsCardGrid({
               }
               className="gap-1.5 text-sm"
             >
-              Show more integrations ({remaining} remaining)
+              {t('grid.showMore', { count: remaining })}
             </Button>
           </div>
         );

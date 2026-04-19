@@ -27,6 +27,9 @@
     "automatedControls": "自動化された管理策",
     "acceptedRisks": "受容済みリスク",
     "transferredRisks": "移転済みリスク",
+    "refresh": "更新",
+    "risks_one": "{{count}}件のリスク",
+    "risks_other": "{{count}}件のリスク",
     "riskScore": "スコア {{score}}",
     "evidenceItems": "{{count}}件の証拠"
   },
@@ -81,7 +84,13 @@
     "alreadyAdded": "このリスクはすでに登録簿に存在します",
     "addFailed": "リスクの追加に失敗しました",
     "impact": "影響度",
-    "likelihood": "発生可能性"
+    "likelihood": "発生可能性",
+    "stats": {
+      "libraryItems": "ライブラリ項目",
+      "categories": "カテゴリ",
+      "inRegister": "登録済み",
+      "available": "利用可能"
+    }
   },
   "actionTracker": {
     "title": "アクショントラッカー",
@@ -105,11 +114,98 @@
   },
   "snapshot": {
     "title": "リスクスナップショット",
-    "description": "特定時点のリスク態勢サマリー"
+    "description": "監査証拠およびコンプライアンスレポート用のリスク登録簿の不変記録。",
+    "createSnapshot": "スナップショットを作成",
+    "createDialog": {
+      "title": "リスクスナップショットの作成",
+      "description": "現在のリスク登録簿を不変の監査対応レコードとして凍結します。",
+      "placeholder": "例: \"ISO 27001 – 2025年度評価\"",
+      "cancel": "キャンセル",
+      "create": "スナップショットを作成",
+      "success": "スナップショットが作成されました",
+      "error": "スナップショットの作成に失敗しました"
+    },
+    "detail": {
+      "backToSnapshots": "スナップショット",
+      "createdInfo": "作成日 {{date}} · {{count}}件のリスク",
+      "sharedWithAuditor": "監査人と共有",
+      "exportCsv": "CSVエクスポート",
+      "sharingError": "共有の更新に失敗しました",
+      "immutableNotice": "このスナップショットは不変です。作成時のリスク状態をキャプチャしており、編集できません。",
+      "totalRisks": "合計リスク",
+      "criticalHigh": "クリティカル / 高",
+      "accepted": "受容済み",
+      "mitigated": "軽減済み",
+      "noRisks": "このスナップショットがキャプチャされた時点で登録簿にリスクはありませんでした。",
+      "none": "なし",
+      "columns": {
+        "risk": "リスク",
+        "asset": "資産",
+        "impact": "影響度",
+        "likelihood": "発生可能性",
+        "score": "スコア",
+        "status": "ステータス",
+        "treatments": "対処方法"
+      }
+    },
+    "list": {
+      "noSnapshots": "スナップショットはまだありません",
+      "noSnapshotsDesc": "最初のスナップショットを作成して、監査人にリスク登録簿の改ざん防止ビューを提供しましょう。",
+      "createFirst": "最初のスナップショットを作成",
+      "view": "表示",
+      "columns": {
+        "name": "名前",
+        "created": "作成日",
+        "risks": "リスク",
+        "shared": "監査人と共有"
+      }
+    }
   },
   "engine": {
     "title": "リスクエンジン",
-    "description": "自動リスク検出とスコアリング設定"
+    "description": "正規化されたシグナル、管理策テスト、証拠スナップショット、および生成されたリスクの管理・デバッグ画面。",
+    "refresh": "更新",
+    "runEvaluation": "評価を実行",
+    "running": "実行中...",
+    "loading": "リスクエンジンの状態を読み込み中...",
+    "metrics": {
+      "signals": "シグナル",
+      "tests": "テスト",
+      "evidence": "証拠",
+      "openRisks": "未対応リスク"
+    },
+    "providerSync": "プロバイダー同期ステータス",
+    "scanHistory": "最近のスキャン履歴",
+    "signalsCount": "{{count}}件のシグナル",
+    "testsCount": "{{count}}件のテスト",
+    "openRisksCount": "{{count}}件の未対応リスク",
+    "lastSuccess": "最終成功 {{date}}",
+    "trigger": "トリガー: {{trigger}}",
+    "ingested": "{{count}}件取り込み",
+    "executed": "{{count}}件実行",
+    "risksCount": "{{count}}件のリスク",
+    "completed": "完了 {{date}}",
+    "tabs": {
+      "signals": "シグナル",
+      "tests": "テスト結果",
+      "evidence": "証拠",
+      "risks": "生成されたリスク",
+      "events": "イベント"
+    },
+    "signalColumns": ["シグナルタイプ", "プロバイダー", "リソース", "値", "観測日", "インテグレーション"],
+    "testColumns": ["テスト", "シグナル", "ステータス", "重大度", "理由", "実行日"],
+    "evidenceColumns": ["種類", "プロバイダー", "リソース", "ハッシュ", "取得日", "ペイロード"],
+    "riskColumns": ["タイトル", "カテゴリー", "重大度", "スコア", "オーナーチーム", "ステータス", "リソース", "作成日"],
+    "eventColumns": ["イベント", "重大度", "プロバイダー", "リソース", "メッセージ", "タイムスタンプ"]
+  },
+  "settings": {
+    "title": "リスク設定",
+    "description": "エンタープライズリスクワークフローの自動化、スコアリング、ライフサイクルガバナンスを設定します。",
+    "saveChanges": "変更を保存",
+    "notifications": "通知",
+    "automationPosture": "自動化態勢",
+    "scoringModel": "スコアリングモデル",
+    "lifecycleStates": "ライフサイクル状態"
   },
   "status": {
     "IDENTIFIED": "識別済み",
@@ -133,5 +229,115 @@
     "HIGH": "高",
     "MEDIUM": "中",
     "LOW": "低"
+  },
+  "detail": {
+    "title": "リスク詳細",
+    "saving": "保存中...",
+    "saved": "保存済み",
+    "backToRegister": "登録簿に戻る",
+    "notFound": "リスクが見つかりません。",
+    "descriptionPlaceholder": "説明を追加...",
+    "inherent": "固有",
+    "residual": "残留",
+    "assessment": {
+      "title": "リスク評価",
+      "inherentRisk": "固有リスク",
+      "inherentDesc": "管理策や軽減策が適用される前のリスクレベル。",
+      "residualRisk": "残留リスク",
+      "residualDesc": "管理策や軽減策が適用された後のリスクレベル。",
+      "impact": "影響度",
+      "likelihood": "発生可能性",
+      "score": "スコア:"
+    },
+    "treatmentPlan": {
+      "title": "対処計画",
+      "strategy": "対処戦略",
+      "notes": "対処ノート",
+      "notesPlaceholder": "対処アプローチ、タイムライン、および責任者を記述してください...",
+      "notSet": "未設定"
+    },
+    "mapping": {
+      "title": "管理策・フレームワークマッピング",
+      "linkedControls": "リンク済み管理策",
+      "add": "追加",
+      "selectControl": "リンクする管理策を選択...",
+      "linking": "リンク中...",
+      "control": "管理策",
+      "removeControl": "管理策を削除",
+      "noControls": "リンクされた管理策はありません。",
+      "impactedFrameworks": "影響を受けるフレームワーク",
+      "selectFramework": "リンクするフレームワークを選択...",
+      "removeFramework": "フレームワークを削除",
+      "noFrameworks": "リンクされたフレームワークはありません。"
+    },
+    "details": {
+      "title": "詳細",
+      "status": "ステータス",
+      "owner": "オーナー",
+      "unassigned": "未割り当て",
+      "reviewDueDate": "レビュー期日",
+      "category": "カテゴリー",
+      "source": "ソース",
+      "created": "作成日"
+    },
+    "stakeholders": {
+      "title": "ステークホルダー",
+      "edit": "編集",
+      "noStakeholders": "ステークホルダーが割り当てられていません。",
+      "editDialog": {
+        "title": "ステークホルダーの編集",
+        "description": "このリスクの技術、ビジネス、管理策、またはバックアップの所有権を再割り当てします。",
+        "selectUser": "ユーザーを選択...",
+        "name": "名前",
+        "team": "チーム",
+        "addBackupOwner": "+ バックアップオーナーを追加",
+        "saveFailed": "ステークホルダーの変更の保存に失敗しました。再度お試しください。",
+        "cancel": "キャンセル",
+        "saving": "保存中...",
+        "saveChanges": "変更を保存"
+      }
+    },
+    "tabs": {
+      "findings": "発見事項",
+      "evidence": "証拠",
+      "activity": "アクティビティ",
+      "remediation": "是正"
+    },
+    "findings": {
+      "title": "スキャン結果",
+      "openTotal": "{{open}}件未対応 / {{total}}件合計",
+      "noFindings": "このリスクにリンクされたスキャン結果はありません。",
+      "firstSeen": "初回検出: {{date}}",
+      "lastSeen": "最終検出: {{date}}",
+      "source": "ソース: {{source}}"
+    },
+    "evidence": {
+      "title": "証拠タイムライン",
+      "noEvidence": "証拠はまだ収集されていません。",
+      "captured": "取得日時 {{date}}"
+    },
+    "activity": {
+      "title": "アクティビティ履歴",
+      "noActivity": "アクティビティは記録されていません。",
+      "ownership": "オーナーシップ"
+    },
+    "remediation": {
+      "generatedFrom": "生成元",
+      "generatedDesc": "このリスクは、失敗した管理策テストからリスクエンジンによって作成されました。",
+      "testName": "テスト名",
+      "control": "管理策",
+      "provider": "プロバイダー",
+      "viewTestDetail": "テスト詳細を表示",
+      "viewInRiskEngine": "リスクエンジンで表示",
+      "workflowTitle": "是正ワークフロー",
+      "noSteps": "是正ステップはまだ定義されていません。",
+      "testLink": "テスト: {{id}}",
+      "controlLink": "管理策: {{name}}",
+      "affectedResource": "影響を受けるリソース:",
+      "recommended": "推奨: {{fix}}",
+      "evidenceLabel": "証拠:",
+      "viewTestResult": "テスト結果を表示",
+      "viewEvidence": "証拠を表示"
+    }
   }
 }

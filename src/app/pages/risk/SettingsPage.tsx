@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { Button } from '@/app/components/ui/button';
 import { Card } from '@/app/components/ui/card';
@@ -20,6 +21,7 @@ const RISK_EVENT_TYPES = [
 ];
 
 export function RiskSettingsPage() {
+  const { t } = useTranslation('risk');
   const { data, isLoading } = useQuery({
     queryKey: QK.riskSettings(),
     queryFn: () => riskCenterService.getSettings(),
@@ -29,13 +31,13 @@ export function RiskSettingsPage() {
   const updatePreference = useUpdateNotificationPreference();
 
   return (
-    <PageTemplate title="Risk Settings" description="Configure automation, scoring, and lifecycle governance for enterprise risk workflows." actions={<Button>Save Changes</Button>}>
+    <PageTemplate title={t('settings.title')} description={t('settings.description')} actions={<Button>{t('settings.saveChanges')}</Button>}>
       {isLoading || !data ? (
         <div className="flex h-48 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-gray-400" /></div>
       ) : (
         <div className="max-w-5xl space-y-6">
           <Card className="p-6">
-            <h2 className="text-lg font-semibold text-gray-900">Notifications</h2>
+            <h2 className="text-lg font-semibold text-gray-900">{t('settings.notifications')}</h2>
             <div className="mt-5 space-y-4">
               {preferencesQuery.isLoading || !preferencesQuery.data ? (
                 <div className="flex h-24 items-center justify-center"><Loader2 className="h-5 w-5 animate-spin text-gray-400" /></div>
@@ -65,7 +67,7 @@ export function RiskSettingsPage() {
 
           <div className="grid gap-6 xl:grid-cols-[1fr_1fr]">
             <Card className="p-6">
-              <h2 className="text-lg font-semibold text-gray-900">Automation posture</h2>
+              <h2 className="text-lg font-semibold text-gray-900">{t('settings.automationPosture')}</h2>
               <div className="mt-5 space-y-3">
                 {data.automations.map((item) => (
                   <div key={item.id} className="rounded-xl bg-gray-50 p-4">
@@ -80,7 +82,7 @@ export function RiskSettingsPage() {
             </Card>
 
             <Card className="p-6">
-              <h2 className="text-lg font-semibold text-gray-900">Scoring model</h2>
+              <h2 className="text-lg font-semibold text-gray-900">{t('settings.scoringModel')}</h2>
               <div className="mt-5 space-y-3">
                 {data.scoringFactors.map((item) => (
                   <div key={item.label} className="flex items-center justify-between rounded-xl border border-gray-100 px-4 py-3">
@@ -90,7 +92,7 @@ export function RiskSettingsPage() {
                 ))}
               </div>
               <div className="mt-6 border-t pt-4">
-                <p className="text-xs uppercase tracking-wide text-gray-500">Lifecycle states</p>
+                <p className="text-xs uppercase tracking-wide text-gray-500">{t('settings.lifecycleStates')}</p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {data.lifecycle.map((item) => <Badge key={item} variant="outline">{item}</Badge>)}
                 </div>

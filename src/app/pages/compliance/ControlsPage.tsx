@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { PageTemplate } from "@/app/components/PageTemplate";
 import { Button } from "@/app/components/ui/button";
 import { Card } from "@/app/components/ui/card";
@@ -5,6 +6,7 @@ import { Badge } from "@/app/components/ui/badge";
 import { Plus } from "lucide-react";
 
 export function ControlsPage() {
+  const { t } = useTranslation('compliance');
   const controls = [
     { id: "AC-001", name: "Access Control Policy", category: "Access Control", status: "Active", owner: "John Doe" },
     { id: "AU-002", name: "Audit and Accountability", category: "Auditing", status: "Active", owner: "Jane Smith" },
@@ -14,21 +16,21 @@ export function ControlsPage() {
 
   return (
     <PageTemplate
-      title="Controls"
-      description="Manage security controls and their implementation status."
-      actions={<Button><Plus className="w-4 h-4 mr-2" />Add Control</Button>}
+      title={t('controls.title')}
+      description={t('controls.description')}
+      actions={<Button><Plus className="w-4 h-4 mr-2" />{t('controls.addControl')}</Button>}
     >
       <Card>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 border-b">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Control ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Owner</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('controls.columns.controlId')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('controls.columns.name')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('controls.columns.category')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('controls.columns.status')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('controls.columns.owner')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('controls.columns.actions')}</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -44,8 +46,8 @@ export function ControlsPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{control.owner}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600 space-x-3">
-                    <button className="hover:underline">View</button>
-                    <button className="hover:underline">Edit</button>
+                    <button className="hover:underline">{t('controls.view')}</button>
+                    <button className="hover:underline">{t('controls.edit')}</button>
                   </td>
                 </tr>
               ))}

@@ -17,7 +17,21 @@
     "description": "必要なインテグレーションが見つかりませんか？リクエストしてください。",
     "toolNameLabel": "ツール名",
     "descriptionLabel": "このインテグレーションが必要な理由は？",
-    "submit": "リクエストを送信"
+    "submit": "リクエストを送信",
+    "modalTitle": "新しいツールをリクエスト",
+    "modalDescription": "必要なインテグレーションをチームに知らせてください。",
+    "toolIntegrationName": "ツール / インテグレーション名",
+    "toolPlaceholder": "例: Datadog, 1Password, Figma",
+    "category": "カテゴリー",
+    "selectCategory": "カテゴリーを選択...",
+    "useCaseJustification": "利用目的 / 正当性",
+    "useCasePlaceholder": "このツールがセキュリティプログラムにどう役立つか説明してください...",
+    "cancel": "キャンセル",
+    "submitting": "送信中...",
+    "submitRequest": "リクエストを送信",
+    "toolNameRequired": "ツール名は必須です。",
+    "useCaseRequired": "利用目的を記載してください。",
+    "submitFailed": "リクエストの送信に失敗しました。もう一度お試しください。"
   },
   "categories": {
     "all": "すべて",
@@ -31,10 +45,1128 @@
   "partnerApi": {
     "title": "パートナーAPI",
     "description": "APIキーとパートナーアクセスを管理する",
+    "pageDescription": "外部ツールチームに API キーを発行し、スキャン結果を ISMS に直接送信できるようにします。",
+    "accessDenied": {
+      "pageDescription": "外部ツールのインテグレーションを管理します",
+      "title": "スーパー管理者のアクセスが必要です",
+      "description": "パートナー API キーとツールリクエストを管理できるのはスーパー管理者のみです。"
+    },
+    "stats": {
+      "activeKeys": "有効なキー",
+      "revokedKeys": "失効したキー",
+      "softDeleted": "ソフト削除済み",
+      "totalFindings": "発見事項合計",
+      "acrossAllResults": "すべての結果を対象",
+      "openFailures": "未解決の失敗"
+    },
+    "tabs": {
+      "keys": "APIキー",
+      "results": "受信結果",
+      "catalogue": "ツールカタログ",
+      "requests": "ツールリクエスト"
+    },
+    "issueKeyCta": "キーを発行",
+    "revokeAction": "失効",
+    "status": {
+      "active": "有効",
+      "revoked": "失効"
+    },
+    "common": {
+      "none": "—"
+    },
+    "keys": {
+      "title": "APIキー",
+      "description": "各キーはこの組織に限定されます。生のキーは保存されず、SHA-256 ハッシュのみ保存されます。キーは安全に共有してください。",
+      "emptyTitle": "キーはまだありません",
+      "emptyDescription": "最初のキーを発行して、外部チームがスキャン結果を送信できるようにします。",
+      "noExpiry": "有効期限なし",
+      "columns": {
+        "keyName": "キー名",
+        "tool": "ツール",
+        "category": "カテゴリー",
+        "status": "ステータス",
+        "lastUsed": "最終使用",
+        "expires": "有効期限",
+        "created": "作成日"
+      }
+    },
+    "results": {
+      "title": "受信スキャン結果",
+      "description": "外部ツールチームが Partner API キーを使って送信したスキャン結果です。",
+      "emptyTitle": "結果はまだありません",
+      "emptyDescription": "外部チームが API キーでスキャン結果を送信すると、ここに表示されます。",
+      "view": "表示",
+      "columns": {
+        "tool": "ツール",
+        "category": "カテゴリー",
+        "pass": "合格",
+        "warn": "警告",
+        "fail": "失敗",
+        "score": "スコア",
+        "scannedAt": "スキャン日時"
+      }
+    },
+    "requests": {
+      "title": "ツール連携リクエスト",
+      "description": "ユーザーが新しいツール連携のために送信したリクエストです。優先化するには承認し、却下するには無効にします。",
+      "emptyTitle": "ツールリクエストはまだありません",
+      "emptyDescription": "ユーザーは Integrations ページから新しい連携をリクエストできます。",
+      "columns": {
+        "tool": "ツール",
+        "category": "カテゴリー",
+        "useCase": "利用用途",
+        "submittedBy": "申請者",
+        "date": "日付",
+        "status": "ステータス"
+      },
+      "actions": {
+        "approve": "承認",
+        "dismiss": "却下"
+      }
+    },
+    "requestStatus": {
+      "pending": "保留中",
+      "approved": "承認済み",
+      "dismissed": "却下済み"
+    },
     "createKey": "APIキーを作成",
     "keyName": "キー名",
     "created": "作成日",
     "lastUsed": "最終使用日",
-    "revoke": "失効"
+    "revoke": "失効",
+    "issueKey": {
+      "title": "パートナーAPIキーを発行",
+      "description": "外部チームが自社ツールからスキャン結果を ISMS に送信できるキーを生成します。",
+      "required": "キー名とツールは必須です。",
+      "failed": "キーの発行に失敗しました。",
+      "keyLabel": "キーラベル",
+      "keyPlaceholder": "例: Huntress Team - Production",
+      "keyHint": "後から識別しやすい人間向けの名前です。",
+      "tool": "ツール",
+      "selectTool": "ツールを選択...",
+      "category": "カテゴリー:",
+      "expiry": "有効期限",
+      "optional": "(任意)",
+      "expiryHint": "無期限にする場合は空欄のままにしてください。",
+      "cancel": "キャンセル",
+      "generating": "生成中...",
+      "generate": "キーを生成"
+    },
+    "rawKey": {
+      "title": "APIキーを生成しました",
+      "descriptionPrefix": "このキーは今後",
+      "descriptionMiddle": "表示されません。今すぐコピーし、",
+      "copy": "コピー",
+      "copied": "コピー済み",
+      "securityReminder": "セキュリティ注意:",
+      "securityReminderText": "共有前にパスワードマネージャーまたはシークレット保管庫に保存してください。メールや暗号化されていないチャネルでは送信しないでください。",
+      "done": "保存しました"
+    },
+    "revoke": {
+      "title": "APIキーを失効",
+      "description": "\"{{name}}\" は即時に無効化されます。このキーを使う外部システムはスキャン結果を送信できなくなります。",
+      "cancel": "キャンセル",
+      "revoking": "失効中...",
+      "confirm": "はい、失効します"
+    },
+    "resultDetail": {
+      "scanReport": "スキャンレポート",
+      "pass": "合格",
+      "warning": "警告",
+      "fail": "失敗",
+      "close": "閉じる"
+    },
+    "catalogue": {
+      "searchPlaceholder": "ツールまたはカテゴリーを検索...",
+      "toolCount_one": "{{count}} 件のツール",
+      "toolCount_other": "{{count}} 件のツール",
+      "toolsInCategory_one": "{{count}} 件のツール",
+      "toolsInCategory_other": "{{count}} 件のツール",
+      "noMatch": "\"{{query}}\" に一致するツールはありません",
+      "tests_one": "{{count}} 件のテスト",
+      "tests_other": "{{count}} 件のテスト",
+      "suggestedIsoTests": "推奨ISOテスト"
+    }
+  },
+  "grid": {
+    "comingSoon": "近日公開",
+    "showMore": "さらに表示 (残り {{count}} 件)"
+  },
+  "cards": {
+    "shared": {
+      "checking": "確認中...",
+      "loading": "読み込み中...",
+      "available": "利用可能",
+      "connected": "接続済み",
+      "connectedCount": "{{count}} 件接続済み",
+      "connecting": "接続中...",
+      "disconnect": "切断",
+      "disconnecting": "切断中...",
+      "cancel": "キャンセル",
+      "runScan": "スキャンを実行",
+      "scanning": "スキャン中...",
+      "apiKey": "APIキー",
+      "apiKeyRequired": "APIキーは必須です",
+      "accountId": "アカウントID",
+      "tenantSubdomain": "テナント / サブドメイン",
+      "tenantSubdomainPlaceholder": "テナントまたはサブドメイン",
+      "baseUrl": "ベースURL",
+      "baseUrlPlaceholder": "https://...",
+      "label": "ラベル",
+      "labelPlaceholder": "例: Production",
+      "optional": "(任意)",
+      "revoke": "失効",
+      "connectingEllipsis": "接続中..."
+    },
+    "engineerA": {
+      "activeAccount": "有効なアカウント",
+      "connect": "{{name}} を接続",
+      "addAccount": "+ {{name}} アカウントを追加",
+      "connected": "{{name}} を接続しました",
+      "disconnected": "{{name}} を切断しました",
+      "disconnectTitle": "{{name}} を切断",
+      "disconnectDescription": "{{name}} を切断しますか？自動テストは停止します。",
+      "scanQueued": "{{name}} のスキャンをキューに追加しました。結果はまもなくテストに表示されます。",
+      "failedToConnect": "{{name}} の接続に失敗しました",
+      "failedToDisconnect": "{{name}} の切断に失敗しました",
+      "failedToQueueScan": "{{name}} スキャンのキュー追加に失敗しました",
+      "workflowSyncFailed": "{{name}} は接続されましたが、ワークフロー設定の同期に失敗しました",
+      "workspace-directory": {
+        "subtitle": "ID 管理 · MFA、休眠アカウント、外部共有"
+      },
+      "onelogin": {
+        "subtitle": "ID 管理と SSO · MFA、休眠アカウント、アプリ衛生"
+      },
+      "jamf": { "subtitle": "エンドポイント / MDM · 暗号化、画面ロック、EDR" },
+      "kandji": {
+        "subtitle": "エンドポイント / MDM · 暗号化、ブループリント、ファイアウォール"
+      },
+      "intune": {
+        "subtitle": "エンドポイント / MDM · デバイス準拠と条件付きアクセス"
+      },
+      "crowdstrike": {
+        "subtitle": "エンドポイントセキュリティ · センサー適用範囲と検知"
+      },
+      "workday": {
+        "subtitle": "HRIS · 従業員ライフサイクルと HR アクセス統制"
+      },
+      "rippling": {
+        "subtitle": "HRIS · オンボーディング、オフボーディング、HR データ保持"
+      },
+      "hibob": { "subtitle": "HRIS · People Ops ライフサイクルと PII 統制" },
+      "gitlab": { "subtitle": "DevOps · ソース管理と CI/CD セキュリティ" },
+      "bitbucket": {
+        "subtitle": "DevOps · リポジトリとパイプラインのアクセス統制"
+      },
+      "jira": { "subtitle": "プロジェクト管理 · ワークフローとアクセス統制" },
+      "linear": { "subtitle": "プロジェクト管理 · 課題管理とアクセス統制" },
+      "asana": { "subtitle": "プロジェクト管理 · タスクとワークスペース統制" },
+      "confluence": {
+        "subtitle": "ナレッジ管理 · スペースとコンテンツアクセス"
+      },
+      "sharepoint": { "subtitle": "コンテンツ管理 · ドキュメントとサイト権限" },
+      "splunk": { "subtitle": "SIEM · ログ管理とセキュリティ監視" },
+      "sumologic": {
+        "subtitle": "SIEM · クラウドネイティブなログ分析とセキュリティ"
+      },
+      "tenable": { "subtitle": "脆弱性管理 · 資産スキャンとリスク" },
+      "qualys": { "subtitle": "脆弱性管理 · 準拠性とスキャン" },
+      "digitalocean": {
+        "subtitle": "クラウドプロバイダー · 基盤アクセス、ネットワーク、暗号化"
+      },
+      "heroku": {
+        "subtitle": "クラウドプロバイダー · アプリ配信パイプラインのセキュリティと監査性"
+      },
+      "render": {
+        "subtitle": "クラウドプロバイダー · サービスアクセスとデプロイ統制"
+      },
+      "netlify": {
+        "subtitle": "クラウドプロバイダー · デプロイ統制とビルドセキュリティ衛生"
+      },
+      "vercel": {
+        "subtitle": "クラウドプロバイダー · デプロイ保護とアクセス監視"
+      },
+      "scaleway": { "subtitle": "クラウドプロバイダー · 欧州クラウド基盤" },
+      "gitlab-self-managed": {
+        "subtitle": "バージョン管理 · オンプレミスのソースコード管理"
+      },
+      "azure-devops": {
+        "subtitle": "バージョン管理 · CI/CD とプロジェクト管理"
+      },
+      "auth0": { "subtitle": "ID プロバイダー · 認証と認可" },
+      "pingone": { "subtitle": "ID プロバイダー · クラウド ID 管理" },
+      "tailscale": {
+        "subtitle": "ID プロバイダー · ネットワーク ID とアクセス統制"
+      },
+      "mondaycom": {
+        "subtitle": "タスク管理 · ワークスペース共有とメンバー統制"
+      },
+      "basecamp": {
+        "subtitle": "タスク管理 · プロジェクトアクセスとコラボレーション統制"
+      },
+      "smartsheet": { "subtitle": "タスク管理 · シート共有と管理者権限統制" },
+      "zendesk": {
+        "subtitle": "タスク管理 · サポートアクセスとチケットデータ統制"
+      },
+      "microsoft-teams": {
+        "subtitle": "コミュニケーション · メッセージング、共同作業、管理統制"
+      },
+      "zoom": {
+        "subtitle": "コミュニケーション · 会議セキュリティと主催者統制"
+      },
+      "webex": {
+        "subtitle": "コミュニケーション · 会議統制と外部アクセス制御"
+      },
+      "hubspot": { "subtitle": "CRM · 顧客データアクセスとトークン統制" },
+      "salesforce": {
+        "subtitle": "CRM · 権限モデル、セッション統制、データ統制"
+      },
+      "pipedrive": {
+        "subtitle": "CRM · 商談パイプライン統制と API トークン衛生"
+      },
+      "copper": { "subtitle": "CRM · ワークスペースメンバー統制と共有制御" },
+      "apollo": {
+        "subtitle": "営業 · 見込み客データアクセスとワークフロー権限"
+      },
+      "gong": { "subtitle": "営業 · 録画アクセスと外部共有統制" },
+      "zoominfo": {
+        "subtitle": "営業 · データアクセス、エクスポート方針、管理統制"
+      },
+      "gusto": { "subtitle": "HRIS · 給与データアクセスと管理統制" },
+      "trinet": { "subtitle": "HRIS · ロール割当、データ出力、管理監査統制" },
+      "humaans": {
+        "subtitle": "HRIS · ライフサイクルワークフローと PII 項目アクセス統制"
+      },
+      "personio": {
+        "subtitle": "HRIS · ロールベースアクセスとドキュメント権限統制"
+      },
+      "adp-workforce-now": {
+        "subtitle": "HRIS · 給与と PII アクセス方針の統制"
+      },
+      "deel": { "subtitle": "HRIS · グローバル給与と契約者アクセス統制" },
+      "employment-hero": {
+        "subtitle": "HRIS · 従業員記録保護と管理アクセス統制"
+      },
+      "justworks": { "subtitle": "HRIS · 給与出力統制と SSO 統制" },
+      "factorial": {
+        "subtitle": "HRIS · HR 権限境界とドキュメントアクセス統制"
+      },
+      "alexishr": {
+        "subtitle": "HRIS · 機微プロファイルアクセスと認証情報ライフサイクル統制"
+      },
+      "addigy": { "subtitle": "MDM · デバイス登録と準拠性統制" },
+      "workspace-one": {
+        "subtitle": "MDM · デバイス所有、基準ポリシー、管理統制"
+      },
+      "huntress": { "subtitle": "エンドポイントセキュリティ · MDR 運用態勢" },
+      "intruder": { "subtitle": "脆弱性スキャナー · 外部攻撃面と是正 SLA" },
+      "orca-security": {
+        "subtitle": "脆弱性スキャナー · クラウド資産と設定不備リスク"
+      },
+      "hostedscan": { "subtitle": "脆弱性スキャナー · 攻撃面と是正追跡" },
+      "aikido-security": {
+        "subtitle": "脆弱性スキャナー · コードとクラウド所見の統制"
+      },
+      "jit": {
+        "subtitle": "脆弱性スキャナー · アラートトリアージと統制ベースライン"
+      },
+      "knowbe4": {
+        "subtitle": "セキュリティ教育 · フィッシング演習と意識向上サイクル"
+      },
+      "cybeready": {
+        "subtitle": "セキュリティ教育 · 参加状況とリスク行動の統制"
+      },
+      "hook-security": {
+        "subtitle": "セキュリティ教育 · フィッシング参加状況とコーチング統制"
+      },
+      "hoxhunt": {
+        "subtitle": "セキュリティ教育 · 行動リスクとシミュレーション統制"
+      },
+      "certn": {
+        "subtitle": "バックグラウンドチェック · 審査方針とデータアクセス統制"
+      },
+      "checkr": {
+        "subtitle": "バックグラウンドチェック · 候補者審査とアクセス統制"
+      },
+      "dashlane": {
+        "subtitle": "パスワードマネージャー · ボールト権限と認証情報衛生"
+      },
+      "box": { "subtitle": "ドキュメント管理 · 共有制御と機微ファイル統制" },
+      "google-drive": {
+        "subtitle": "ドキュメント管理 · 外部共有と文書アクセス方針"
+      },
+      "docusign": {
+        "subtitle": "ドキュメント管理 · 電子署名セキュリティと監査保持"
+      },
+      "mongodb-atlas": {
+        "subtitle": "データストア · ネットワーク統制とデータベースアクセス統制"
+      },
+      "supabase": {
+        "subtitle": "データストア · RLS 方針とプロジェクトメンバー統制"
+      },
+      "rockset": {
+        "subtitle": "データストア · ワークスペースアクセスとクエリ統制"
+      },
+      "envoy": {
+        "subtitle": "その他 · 来訪者アクセスと認証情報ライフサイクル統制"
+      },
+      "launchdarkly": {
+        "subtitle": "DevOps · フィーチャーフラグ変更とトークン統制"
+      },
+      "buildkite": {
+        "subtitle": "CI/CD · パイプライン権限とデプロイゲート統制"
+      },
+      "circleci": { "subtitle": "CI/CD · ワークフロー承認とシークレット統制" },
+      "jenkins": { "subtitle": "CI/CD · ジョブ権限、承認、シークレット統制" },
+      "harness": {
+        "subtitle": "CI/CD · パイプラインロール、デプロイ凍結、シークレット統制"
+      },
+      "github-actions": { "subtitle": "CI/CD · ワークフロー権限と環境保護" },
+      "manageengine": {
+        "subtitle": "IT 管理 · 管理者ロールとポリシー準拠統制"
+      },
+      "teamwork": { "subtitle": "プロジェクト管理 · メンバーロールと共有統制" },
+      "comeet": {
+        "subtitle": "採用管理 · 候補者アクセスと採用ワークフロー統制"
+      },
+      "lever": { "subtitle": "採用管理 · ロール割当と候補者可視性統制" },
+      "fieldguide": {
+        "subtitle": "監査管理 · エンゲージメントアクセスと証跡共有統制"
+      },
+      "ramp": { "subtitle": "財務 · 支出ポリシーと承認階層統制" },
+      "brex": { "subtitle": "財務 · カード利用者アクセスと支出例外統制" },
+      "netsuite": { "subtitle": "財務 · ロール権限と財務承認統制" },
+      "xero": { "subtitle": "財務 · アドバイザーアクセスと支払承認統制" },
+      "sentinelone": {
+        "subtitle": "エンドポイントセキュリティ · AI 活用 EDR / XDR"
+      },
+      "grafana": {
+        "subtitle": "オブザーバビリティ · メトリクス、ログ、アラート"
+      },
+      "sentry": {
+        "subtitle": "オブザーバビリティ · エラー追跡とパフォーマンス"
+      },
+      "onepassword": {
+        "subtitle": "パスワードマネージャー · チーム認証情報のセキュリティ"
+      },
+      "snowflake": { "subtitle": "データウェアハウス · クラウドデータ基盤" }
+    },
+    "notion": {
+      "subtitle": "ナレッジベース · ポリシー、手順、Wiki",
+      "connect": "Notion を接続",
+      "connectedWorkspace": "ワークスペース {{workspaceName}} に接続済みです。",
+      "connectUrlFailed": "Notion 接続URLの取得に失敗しました",
+      "disconnectTitle": "Notion を切断",
+      "disconnectDescription": "Notion を切断しますか？",
+      "disconnected": "Notion を切断しました",
+      "disconnectFailed": "Notion の切断に失敗しました"
+    },
+    "github": {
+      "subtitle": "開発 · コードリポジトリ連携",
+      "connect": "GitHub を接続",
+      "disconnectTitle": "GitHub を切断",
+      "disconnectDescription": "GitHub を切断しますか？証跡収集は停止します。",
+      "disconnected": "GitHub を切断しました",
+      "disconnectFailed": "GitHub の切断に失敗しました",
+      "scanCompleted": "GitHub スキャンが完了しました",
+      "scanFailed": "GitHub スキャンの実行に失敗しました",
+      "hideRepos": "リポジトリを隠す",
+      "viewRepos": "リポジトリを表示 ({{count}})",
+      "connectedSummary_one": "{{date}} に接続済み · {{count}} 件のリポジトリ · スキャンは毎日 02:00 UTC に実行されます",
+      "connectedSummary_other": "{{date}} に接続済み · {{count}} 件のリポジトリ · スキャンは毎日 02:00 UTC に実行されます",
+      "repositoriesHeading": "リポジトリとコンプライアンス証跡",
+      "noRepositories": "リポジトリが見つかりません。スキャンを実行して検出してください。",
+      "branch": "ブランチ",
+      "pass": "合格",
+      "fail": "失敗",
+      "none": "-",
+      "checks": {
+        "branchProtection": "ブランチ保護 (A.8.32)",
+        "commitSigning": "コミット署名 (A.8.24)",
+        "cicd": "CI/CD (A.8.25)",
+        "accessControl": "アクセス制御 (A.5.15)",
+        "visibility": "可視性 (A.5.15)"
+      }
+    },
+    "slack": {
+      "subtitle": "コミュニケーション · アラートと対話型通知",
+      "description": "重大リスク、監査指摘、期限超過テスト、監査イベントの自動アラートを受け取ります。Slack から直接対話型ボタンで対応し、リスク受容や是正開始などを行えます。",
+      "connect": "Slack を接続",
+      "disconnectTitle": "Slack を切断",
+      "disconnectDescription": "Slack を切断しますか？すべてのチャンネルマッピングが削除されます。",
+      "disconnected": "Slack を切断しました",
+      "disconnectFailed": "Slack の切断に失敗しました",
+      "channelRequired": "チャンネル ID と名前は必須です",
+      "addChannelMapping": "チャンネルマッピングを追加",
+      "channelId": "Slack チャンネル ID",
+      "channelName": "チャンネル名",
+      "eventType": "イベントタイプ",
+      "adding": "追加中...",
+      "addMapping": "マッピングを追加",
+      "addMappingCta": "+ マッピングを追加",
+      "addMappingFailed": "チャンネルマッピングの追加に失敗しました",
+      "removeMappingFailed": "チャンネルマッピングの削除に失敗しました",
+      "refreshChannelsFailed": "チャンネル一覧を更新できませんでした。再読み込みしてください",
+      "connectedWorkspace": "ワークスペース {{workspace}} に {{date}} から接続済みです。",
+      "hideChannels": "チャンネルを隠す",
+      "channelMappings": "チャンネルマッピング ({{count}})",
+      "channelMappingsTitle": "チャンネルマッピング",
+      "noChannelMappings": "チャンネルマッピングはまだありません。\"+ マッピングを追加\" を使ってイベントを Slack チャンネルへルーティングしてください。",
+      "remove": "削除",
+      "alertTypes": {
+        "criticalRisks": "重大リスク",
+        "auditFindings": "監査指摘",
+        "overdueTests": "期限超過テスト",
+        "auditEvents": "監査イベント"
+      },
+      "table": {
+        "channel": "チャンネル",
+        "event": "イベント",
+        "added": "追加日",
+        "actions": "操作"
+      }
+    },
+    "okta": {
+      "subtitle": "ID 管理と SSO · MFA、休眠アカウント、アクセスレビュー",
+      "connect": "Okta を接続",
+      "connectDescription": "Okta Admin -> Security -> API -> Tokens で読み取り専用 API トークンを生成してください。Okta ドメイン (例: mycompany.okta.com) を使用します。",
+      "domain": "Okta ドメイン",
+      "domainHint": "例: mycompany.okta.com",
+      "apiToken": "API トークン (SSWS)",
+      "requiredFields": "ドメインと API トークンは必須です",
+      "connectFailed": "接続に失敗しました。ドメインと API トークンを確認してください",
+      "scanStarted": "Okta スキャンを開始しました。結果はまもなくテストに表示されます",
+      "scanStartFailed": "スキャンの開始に失敗しました",
+      "disconnectTitle": "Okta を切断",
+      "disconnectDescription": "Okta ({{target}}) を切断しますか？自動テストは停止します。",
+      "disconnected": "Okta を切断しました",
+      "disconnectFailed": "Okta の切断に失敗しました",
+      "lastSync": "最終同期: {{date}}",
+      "addAccount": "+ Okta アカウントを追加",
+      "connected": "Okta を接続しました。5 件の自動 ID テストを登録しています。"
+    },
+    "jumpCloud": {
+      "subtitle": "ID 管理と SSO · MFA、ユーザーライフサイクル、SSO アプリ",
+      "connect": "JumpCloud を接続",
+      "connectDescription": "JumpCloud Admin -> Settings -> API Settings で API キーを生成してください。",
+      "apiToken": "API トークン",
+      "apiTokenRequired": "API トークンは必須です",
+      "connectFailed": "接続に失敗しました。API トークンを確認してください",
+      "scanStarted": "JumpCloud スキャンを開始しました。結果はまもなくテストに表示されます",
+      "scanStartFailed": "スキャンの開始に失敗しました",
+      "disconnectTitle": "JumpCloud を切断",
+      "disconnectDescription": "JumpCloud ({{target}}) を切断しますか？自動テストは停止します。",
+      "disconnected": "JumpCloud を切断しました",
+      "disconnectFailed": "JumpCloud の切断に失敗しました",
+      "defaultAccount": "JumpCloud アカウント",
+      "lastSync": "最終同期: {{date}}",
+      "notYetSynced": "まだ同期されていません",
+      "addAccount": "+ JumpCloud アカウントを追加",
+      "connected": "JumpCloud を接続しました。5 件の自動 ID テストを登録しています。"
+    },
+    "workspace": {
+      "subtitle": "ID とアクセス · ユーザーライフサイクルと MFA 準拠",
+      "connect": "Google Workspace を接続",
+      "connectDescriptionPrefix": "次でドメイン全体の委任を持つサービスアカウントを作成してください",
+      "connectDescriptionSuffix": "その後、Workspace 管理コンソールで次のスコープを付与してください:",
+      "serviceAccountJson": "サービスアカウントキー JSON",
+      "superAdminEmail": "スーパー管理者メール",
+      "superAdminEmailHint": "(API 呼び出しでのなりすまし用)",
+      "requiredFields": "サービスアカウント JSON と管理者メールは必須です",
+      "connectFailed": "接続に失敗しました。サービスアカウントキー、管理者メール、ドメイン全体委任スコープを確認してください",
+      "scanStarted": "Google Workspace スキャンを開始しました。結果はまもなくテストに表示されます",
+      "scanStartFailed": "スキャンの開始に失敗しました",
+      "disconnectTitle": "Google Workspace を切断",
+      "disconnectDescription": "Google Workspace ({{target}}) を切断しますか？自動 ID テストは停止します。",
+      "disconnected": "Google Workspace を切断しました",
+      "disconnectFailed": "Google Workspace の切断に失敗しました",
+      "activeUsers": "{{active}} 人が有効 / {{total}} ユーザー",
+      "mfaCount": "MFA {{count}} 件",
+      "highFindings_one": "重大な指摘 {{count}} 件",
+      "highFindings_other": "重大な指摘 {{count}} 件",
+      "lastScan": "最終スキャン: {{date}}",
+      "addDomain": "+ Workspace ドメインを追加",
+      "connected": "Google Workspace を接続しました。6 件の自動 ID テストを登録しています。"
+    },
+    "azureAd": {
+      "subtitle": "ID 管理と SSO · MFA、条件付きアクセス、ユーザーレビュー",
+      "connect": "Azure AD を接続",
+      "connectDescription": "Azure Portal -> App Registrations でアプリを登録し、必要なアプリケーション権限を付与してください。",
+      "tenantId": "テナント ID",
+      "clientId": "クライアント ID (App ID)",
+      "clientSecret": "クライアント シークレット",
+      "requiredFields": "テナント ID、クライアント ID、クライアント シークレットは必須です",
+      "connectFailed": "接続に失敗しました。テナント ID、クライアント ID、シークレットを確認してください",
+      "scanStarted": "Azure AD スキャンを開始しました。結果はまもなくテストに表示されます",
+      "scanStartFailed": "スキャンの開始に失敗しました",
+      "disconnectTitle": "Azure AD を切断",
+      "disconnectDescription": "Azure AD ({{target}}) を切断しますか？自動テストは停止します。",
+      "disconnected": "Azure AD を切断しました",
+      "disconnectFailed": "Azure AD の切断に失敗しました",
+      "lastSync": "最終同期: {{date}}",
+      "addTenant": "+ Azure AD テナントを追加",
+      "connected": "Azure AD を接続しました。5 件の自動 ID テストを登録しています。"
+    },
+    "bambooHr": {
+      "subtitle": "HR · 従業員ライフサイクルと人事コンプライアンス",
+      "connect": "BambooHR を接続",
+      "connectDescription": "BambooHR -> Account -> API Keys で読み取り専用 API キーを生成してください。会社のサブドメインを使用します。",
+      "companySubdomain": "会社サブドメイン",
+      "companySubdomainHint": "例: mycompany",
+      "readOnly": "読み取り専用",
+      "requiredFields": "サブドメインと API キーは必須です",
+      "connectFailed": "接続に失敗しました。サブドメインと API キーを確認してください",
+      "syncStarted": "従業員同期を開始しました。名簿はまもなく更新されます",
+      "syncStartFailed": "同期の開始に失敗しました",
+      "scanStarted": "BambooHR コンプライアンススキャンを開始しました。結果はまもなくテストに表示されます",
+      "scanStartFailed": "スキャンの開始に失敗しました",
+      "disconnectTitle": "BambooHR を切断",
+      "disconnectDescription": "BambooHR ({{target}}) を切断しますか？自動 HR テストは停止します。",
+      "disconnected": "BambooHR を切断しました",
+      "disconnectFailed": "BambooHR の切断に失敗しました",
+      "employeeSummary": "有効 {{active}} / 合計 {{total}} 従業員",
+      "lastSync": "最終同期: {{date}}",
+      "sync": "同期",
+      "syncing": "同期中...",
+      "addAccount": "+ BambooHR アカウントを追加",
+      "connected": "BambooHR を接続しました。従業員同期を開始し、6 件の自動テストを登録しています。"
+    },
+    "cloudflare": {
+      "subtitle": "ネットワークセキュリティ · WAF、DNS、TLS、Bot 保護",
+      "connect": "Cloudflare を接続",
+      "scopedApiToken": "スコープ付き API トークン",
+      "readOnly": "読み取り専用",
+      "apiTokenRequired": "API トークンは必須です",
+      "connectFailed": "接続に失敗しました。API トークンを確認して再試行してください",
+      "scanStarted": "Cloudflare スキャンを開始しました。結果はまもなくテストに表示されます",
+      "scanStartFailed": "スキャンの開始に失敗しました",
+      "disconnectTitle": "Cloudflare を切断",
+      "disconnectDescription": "Cloudflare アカウント {{target}} を切断しますか？自動テストは停止します。",
+      "disconnected": "Cloudflare アカウントを切断しました",
+      "disconnectFailed": "Cloudflare アカウントの切断に失敗しました",
+      "accountsConnected_one": "{{count}} 件のアカウントが接続済み",
+      "accountsConnected_other": "{{count}} 件のアカウントが接続済み",
+      "zones_one": "{{count}} 件のゾーン",
+      "zones_other": "{{count}} 件のゾーン",
+      "lastScan": "最終スキャン: {{date}}",
+      "addAccount": "+ Cloudflare アカウントを追加",
+      "connected": "Cloudflare アカウントを接続しました。10 件の自動テストを登録しています。"
+    },
+    "opsgenie": {
+      "subtitle": "アラート管理 · オンコールスケジュールと SLA 追跡",
+      "connect": "Opsgenie を接続",
+      "connectDescription": "Opsgenie API キーを入力して、アラートコンプライアンススキャンを開始します。",
+      "apiKeyRequired": "API キーは必須です",
+      "region": "リージョン",
+      "slaHours": "SLA 時間",
+      "slaHint": "確認応答の目標",
+      "connectFailed": "Opsgenie への接続に失敗しました。API キーを確認してください。",
+      "scanStarted": "Opsgenie スキャンを開始しました。結果はまもなくテストに表示されます",
+      "scanStartFailed": "スキャンの開始に失敗しました",
+      "disconnectTitle": "Opsgenie を切断",
+      "disconnectDescription": "Opsgenie ({{target}}) を切断しますか？自動インシデントテストは停止します。",
+      "disconnected": "Opsgenie を切断しました",
+      "disconnectFailed": "Opsgenie の切断に失敗しました",
+      "instancesConnected_one": "{{count}} 件のインスタンスが接続済み",
+      "instancesConnected_other": "{{count}} 件のインスタンスが接続済み",
+      "scanNow": "今すぐスキャン",
+      "addAccount": "+ 別のアカウントを接続",
+      "connected": "Opsgenie を接続しました。5 件の自動インシデントテストを登録しています。"
+    },
+    "pagerDuty": {
+      "subtitle": "インシデント管理 · オンコールとエスカレーションポリシー",
+      "connect": "PagerDuty を接続",
+      "connectDescription": "PagerDuty API キー (ユーザーまたはアカウント API キー) を入力して、インシデントコンプライアンススキャンを開始します。",
+      "apiKeyRequired": "API キーは必須です",
+      "slaHours": "SLA 時間",
+      "slaHint": "確認応答の目標",
+      "connectFailed": "PagerDuty への接続に失敗しました。API キーを確認してください。",
+      "scanStarted": "PagerDuty スキャンを開始しました。結果はまもなくテストに表示されます",
+      "scanStartFailed": "スキャンの開始に失敗しました",
+      "disconnectTitle": "PagerDuty を切断",
+      "disconnectDescription": "PagerDuty ({{target}}) を切断しますか？自動インシデントテストは停止します。",
+      "disconnected": "PagerDuty を切断しました",
+      "disconnectFailed": "PagerDuty の切断に失敗しました",
+      "instancesConnected_one": "{{count}} 件のインスタンスが接続済み",
+      "instancesConnected_other": "{{count}} 件のインスタンスが接続済み",
+      "defaultAccount": "PagerDuty アカウント",
+      "incidents_one": "{{count}} 件のインシデント",
+      "incidents_other": "{{count}} 件のインシデント",
+      "lastSync": "最終同期: {{date}}",
+      "scanNow": "今すぐスキャン",
+      "addAccount": "+ 別のアカウントを接続",
+      "connected": "PagerDuty を接続しました。5 件の自動インシデントテストを登録しています。"
+    },
+    "redash": {
+      "subtitle": "分析 · データガバナンスとクエリ準拠",
+      "connect": "Redash を接続",
+      "connectDescription": "Redash インスタンス URL と管理者読み取り権限の API キーを入力してください。",
+      "instanceUrl": "Redash インスタンス URL",
+      "instanceUrlHint": "例: https://redash.example.com",
+      "adminUser": "管理ユーザー",
+      "requiredFields": "ベース URL と API キーは必須です",
+      "connectFailed": "接続に失敗しました。ベース URL と API キーを確認してください",
+      "scanStarted": "Redash スキャンを開始しました。結果はまもなくテストに表示されます",
+      "scanStartFailed": "スキャンの開始に失敗しました",
+      "disconnectTitle": "Redash を切断",
+      "disconnectDescription": "Redash ({{target}}) を切断しますか？自動テストは停止します。",
+      "disconnected": "Redash を切断しました",
+      "disconnectFailed": "Redash の切断に失敗しました",
+      "userSummary": "有効 {{active}} / {{total}} ユーザー",
+      "dataSources_one": "{{count}} 件のデータソース",
+      "dataSources_other": "{{count}} 件のデータソース",
+      "lastScan": "最終スキャン: {{date}}",
+      "addInstance": "+ Redash インスタンスを追加",
+      "connected": "Redash を接続しました。7 件の自動テストを登録しています。"
+    },
+    "sonarQube": {
+      "subtitle": "コードセキュリティ · 静的解析",
+      "connect": "SonarQube を接続",
+      "connectDescription": "SonarQube インスタンス URL とユーザートークンを入力して、静的解析を有効にします。",
+      "instanceUrl": "インスタンス URL",
+      "userToken": "ユーザートークン",
+      "connectFailed": "SonarQube への接続に失敗しました。インスタンス URL とトークンを確認してください。",
+      "scanStarted": "SonarQube スキャンを開始しました。結果はまもなくテストに表示されます",
+      "scanStartFailed": "スキャンの開始に失敗しました",
+      "disconnectTitle": "SonarQube を切断",
+      "disconnectDescription": "SonarQube ({{target}}) を切断しますか？自動コードセキュリティテストは停止します。",
+      "disconnected": "SonarQube を切断しました",
+      "disconnectFailed": "SonarQube の切断に失敗しました",
+      "accountsConnected_one": "{{count}} 件のアカウントが接続済み",
+      "accountsConnected_other": "{{count}} 件のアカウントが接続済み",
+      "findings_one": "{{count}} 件の指摘",
+      "findings_other": "{{count}} 件の指摘",
+      "lastSync": "最終同期: {{date}}",
+      "scanNow": "今すぐスキャン",
+      "addAccount": "+ 別のアカウントを接続",
+      "connected": "SonarQube を接続しました。5 件の自動コードセキュリティテストを登録しています。"
+    },
+    "veracode": {
+      "subtitle": "コードセキュリティ · アプリケーションセキュリティテスト",
+      "connect": "Veracode を接続",
+      "connectDescription": "Veracode API 認証情報を入力して、アプリケーションセキュリティスキャンを有効にします。",
+      "apiId": "API ID",
+      "connectFailed": "Veracode への接続に失敗しました。API ID とキーを確認してください。",
+      "scanStarted": "Veracode スキャンを開始しました。結果はまもなくテストに表示されます",
+      "scanStartFailed": "スキャンの開始に失敗しました",
+      "disconnectTitle": "Veracode を切断",
+      "disconnectDescription": "Veracode ({{target}}) を切断しますか？自動コードセキュリティテストは停止します。",
+      "disconnected": "Veracode を切断しました",
+      "disconnectFailed": "Veracode の切断に失敗しました",
+      "accountsConnected_one": "{{count}} 件のアカウントが接続済み",
+      "accountsConnected_other": "{{count}} 件のアカウントが接続済み",
+      "findings_one": "{{count}} 件の指摘",
+      "findings_other": "{{count}} 件の指摘",
+      "lastSync": "最終同期: {{date}}",
+      "scanNow": "今すぐスキャン",
+      "addAccount": "+ 別のアカウントを接続",
+      "connected": "Veracode を接続しました。5 件の自動コードセキュリティテストを登録しています。"
+    },
+    "vault": {
+      "subtitle": "シークレット管理 · KV シークレットとローテーション",
+      "connect": "Vault を接続",
+      "connectDescription": "Vault アドレスと、KV シークレットエンジンに対する list/read 権限を持つトークンを入力してください。",
+      "address": "Vault アドレス",
+      "token": "Vault トークン",
+      "namespace": "Namespace",
+      "namespaceHint": "(任意 - Vault Enterprise)",
+      "connectFailed": "Vault への接続に失敗しました。アドレスとトークンを確認してください。",
+      "scanStarted": "Vault スキャンを開始しました。結果はまもなくテストに表示されます",
+      "scanStartFailed": "スキャンの開始に失敗しました",
+      "disconnectTitle": "Vault を切断",
+      "disconnectDescription": "Vault ({{target}}) を切断しますか？自動シークレットテストは停止します。",
+      "disconnected": "Vault を切断しました",
+      "disconnectFailed": "Vault の切断に失敗しました",
+      "instancesConnected_one": "{{count}} 件のインスタンスが接続済み",
+      "instancesConnected_other": "{{count}} 件のインスタンスが接続済み",
+      "findings_one": "{{count}} 件の指摘",
+      "findings_other": "{{count}} 件の指摘",
+      "lastSync": "最終同期: {{date}}",
+      "scanNow": "今すぐスキャン",
+      "addInstance": "+ 別のインスタンスを接続",
+      "connected": "HashiCorp Vault を接続しました。5 件の自動シークレットテストを登録しています。"
+    },
+    "lacework": {
+      "subtitle": "クラウドセキュリティ · コンプライアンスと脅威検出",
+      "connect": "Lacework を接続",
+      "connectDescription": "Lacework API 認証情報を入力してコンプライアンススキャンを有効にします。",
+      "connectFailed": "Lacework への接続に失敗しました。認証情報を確認してください。",
+      "scanStarted": "Lacework スキャンを開始しました。結果はまもなくテストに表示されます",
+      "scanStartFailed": "スキャンの開始に失敗しました",
+      "disconnectTitle": "Lacework を切断",
+      "disconnectDescription": "Lacework ({{target}}) を切断しますか？自動クラウドセキュリティテストの実行が停止します。",
+      "disconnected": "Lacework を切断しました",
+      "disconnectFailed": "Lacework の切断に失敗しました",
+      "accountsConnected_one": "{{count}} アカウント接続済み",
+      "accountsConnected_other": "{{count}} アカウント接続済み",
+      "scanNow": "今すぐスキャン",
+      "addAccount": "+ 別のアカウントを接続",
+      "connected": "Lacework を接続しました。5 件の自動クラウドセキュリティテストを登録しています。"
+    },
+    "wiz": {
+      "subtitle": "CSPM · マルチクラウドセキュリティ態勢管理",
+      "connect": "Wiz を接続",
+      "connectDescription": "Wiz サービスアカウント認証情報を入力して、CSPM スキャンを有効にします。",
+      "clientId": "クライアント ID",
+      "clientSecret": "クライアント シークレット",
+      "apiEndpoint": "API エンドポイント",
+      "connectFailed": "Wiz への接続に失敗しました。クライアント認証情報を確認してください。",
+      "scanStarted": "Wiz スキャンを開始しました。結果はまもなくテストに表示されます",
+      "scanStartFailed": "スキャンの開始に失敗しました",
+      "disconnectTitle": "Wiz を切断",
+      "disconnectDescription": "Wiz ({{target}}) を切断しますか？自動クラウドセキュリティテストは停止します。",
+      "disconnected": "Wiz を切断しました",
+      "disconnectFailed": "Wiz の切断に失敗しました",
+      "tenantsConnected_one": "{{count}} 件のテナントが接続済み",
+      "tenantsConnected_other": "{{count}} 件のテナントが接続済み",
+      "defaultTenant": "Wiz テナント",
+      "findings_one": "{{count}} 件の指摘",
+      "findings_other": "{{count}} 件の指摘",
+      "lastSync": "最終同期: {{date}}",
+      "scanNow": "今すぐスキャン",
+      "addTenant": "+ 別のテナントを接続",
+      "connected": "Wiz を接続しました。5 件の自動クラウドセキュリティテストを登録しています。"
+    },
+    "aws": {
+      "connect": "AWS アカウントを接続",
+      "subtitle": "クラウド基盤 · IAM、S3、CloudTrail、KMS、EC2、RDS",
+      "stepOf": "ステップ {{step}} / 2",
+      "step1Description": "以下の信頼ポリシーで AWS アカウントにクロスアカウント IAM ロールを作成してください。ISMS は一意の External ID を使ってこのロールを引き受けます。",
+      "generatingTrustPolicy": "信頼ポリシーを生成中...",
+      "trustPolicy": "1. 信頼ポリシー (IAM ロールに付与)",
+      "permissionPolicy": "2. 権限ポリシー (インラインまたは管理ポリシー)",
+      "externalId": "External ID:",
+      "externalIdHint": "この ID は上の信頼ポリシーに埋め込まれています。ロール作成中はこのページを開いたままにしてください。",
+      "next": "ロールを作成しました - 次へ",
+      "step2Description": "今作成したロールの ARN と AWS アカウント ID を入力してください。",
+      "roleArn": "ロール ARN",
+      "roleArnHint": "例: arn:aws:iam::123456789012:role/ISMSReadOnly",
+      "accountId": "AWS アカウント ID",
+      "accountIdHint": "12 桁",
+      "primaryRegion": "プライマリリージョン",
+      "trustPolicyFailed": "信頼ポリシーの生成に失敗しました",
+      "requiredFields": "Role ARN と AWS アカウント ID は必須です",
+      "trustPolicyMissing": "信頼ポリシーデータがありません。戻って再試行してください",
+      "connectFailed": "接続に失敗しました。Role ARN と信頼ポリシーを確認してください",
+      "connectingValidating": "接続と検証中...",
+      "scanStarted": "AWS スキャンを開始しました。結果はまもなくテストに表示されます",
+      "scanStartFailed": "スキャンの開始に失敗しました",
+      "disconnectTitle": "AWS を切断",
+      "disconnectDescription": "AWS アカウント {{target}} を切断しますか？自動テストは停止します。",
+      "disconnected": "AWS アカウントを切断しました",
+      "disconnectFailed": "AWS アカウントの切断に失敗しました",
+      "accountsConnected_one": "{{count}} 件のアカウントが接続済み",
+      "accountsConnected_other": "{{count}} 件のアカウントが接続済み",
+      "lastScan": "最終スキャン: {{date}}",
+      "addAccount": "+ AWS アカウントを追加",
+      "connected": "AWS アカウント {{target}} を接続しました。12 件の自動テストを登録しています。"
+    },
+    "certManager": {
+      "connect": "Cert Manager を接続",
+      "connectDescription": "TLS/SSL 証明書の期限切れと準拠状況を監視します。",
+      "subtitle": "シークレットと証明書 · TLS/SSL 証明書ライフサイクル",
+      "provider": "プロバイダー",
+      "providers": {
+        "awsAcm": "AWS Certificate Manager (ACM)",
+        "generic": "Generic / REST API"
+      },
+      "awsRegion": "AWS リージョン",
+      "accessKeyId": "Access Key ID",
+      "secretAccessKey": "Secret Access Key",
+      "instanceUrl": "インスタンス URL",
+      "connectFailed": "Certificate Manager への接続に失敗しました。認証情報を確認してください。",
+      "scanStarted": "Certificate Manager スキャンを開始しました。結果はまもなくテストに表示されます",
+      "scanStartFailed": "スキャンの開始に失敗しました",
+      "disconnectTitle": "Certificate Manager を切断",
+      "disconnectDescription": "Certificate Manager ({{target}}) を切断しますか？自動証明書テストは停止します。",
+      "disconnected": "Certificate Manager を切断しました",
+      "disconnectFailed": "Certificate Manager の切断に失敗しました",
+      "instancesConnected_one": "{{count}} 件のインスタンスが接続済み",
+      "instancesConnected_other": "{{count}} 件のインスタンスが接続済み",
+      "findings_one": "{{count}} 件の指摘",
+      "findings_other": "{{count}} 件の指摘",
+      "lastSync": "最終同期: {{date}}",
+      "scanNow": "今すぐスキャン",
+      "addInstance": "+ 別のインスタンスを接続",
+      "connected": "Certificate Manager を接続しました。5 件の自動証明書テストを登録しています。"
+    },
+    "serviceNow": {
+      "connect": "ServiceNow を接続",
+      "connectDescription": "ServiceNow インスタンスを接続して、インシデント準拠を追跡します。",
+      "subtitle": "インシデント管理 · ITSM と SLA 準拠",
+      "instanceUrl": "インスタンス URL",
+      "instanceUrlRequired": "インスタンス URL は必須です",
+      "authMethod": "認証方式",
+      "authMethods": {
+        "basic": "Basic (username/password)",
+        "token": "Bearer Token"
+      },
+      "bearerToken": "Bearer Token",
+      "slaHours": "SLA 時間",
+      "slaHint": "確認応答の目標",
+      "connectFailed": "ServiceNow への接続に失敗しました。認証情報を確認してください。",
+      "scanStarted": "ServiceNow スキャンを開始しました。結果はまもなくテストに表示されます",
+      "scanStartFailed": "スキャンの開始に失敗しました",
+      "disconnectTitle": "ServiceNow を切断",
+      "disconnectDescription": "ServiceNow ({{target}}) を切断しますか？自動インシデントテストは停止します。",
+      "disconnected": "ServiceNow を切断しました",
+      "disconnectFailed": "ServiceNow の切断に失敗しました",
+      "instancesConnected_one": "{{count}} 件のインスタンスが接続済み",
+      "instancesConnected_other": "{{count}} 件のインスタンスが接続済み",
+      "incidents_one": "{{count}} 件のインシデント",
+      "incidents_other": "{{count}} 件のインシデント",
+      "lastSync": "最終同期: {{date}}",
+      "scanNow": "今すぐスキャン",
+      "addInstance": "+ 別のインスタンスを接続",
+      "connected": "ServiceNow を接続しました。5 件の自動インシデントテストを登録しています。"
+    },
+    "secretsManager": {
+      "connect": "Secrets Manager を接続",
+      "connectDescription": "secretsmanager:ListSecrets と secretsmanager:DescribeSecret 権限を持つ IAM 認証情報を入力してください。",
+      "subtitle": "シークレット管理 · AWS シークレットライフサイクル",
+      "awsRegion": "AWS リージョン",
+      "accessKeyId": "Access Key ID",
+      "secretAccessKey": "Secret Access Key",
+      "connectFailed": "AWS Secrets Manager への接続に失敗しました。リージョンと認証情報を確認してください。",
+      "scanStarted": "AWS Secrets Manager スキャンを開始しました。結果はまもなくテストに表示されます",
+      "scanStartFailed": "スキャンの開始に失敗しました",
+      "disconnectTitle": "AWS Secrets Manager を切断",
+      "disconnectDescription": "AWS Secrets Manager ({{target}}) を切断しますか？自動シークレットテストは停止します。",
+      "disconnected": "AWS Secrets Manager を切断しました",
+      "disconnectFailed": "AWS Secrets Manager の切断に失敗しました",
+      "regionsConnected_one": "{{count}} 件のリージョンが接続済み",
+      "regionsConnected_other": "{{count}} 件のリージョンが接続済み",
+      "findings_one": "{{count}} 件の指摘",
+      "findings_other": "{{count}} 件の指摘",
+      "lastSync": "最終同期: {{date}}",
+      "scanNow": "今すぐスキャン",
+      "addRegion": "+ 別のリージョンを接続",
+      "connected": "AWS Secrets Manager を接続しました。5 件の自動シークレットテストを登録しています。"
+    },
+    "fleet": {
+      "subtitle": "エンドポイント · デバイスポスチャとポリシー準拠",
+      "connect": "Fleet を接続",
+      "serverUrl": "Fleet サーバー URL",
+      "serverUrlHint": "例: https://fleet.company.com",
+      "apiToken": "API トークン",
+      "readOnly": "読み取り専用",
+      "requiredFields": "Fleet URL と API トークンは必須です",
+      "connectFailed": "接続に失敗しました。Fleet URL と API トークンを確認してください",
+      "scanStarted": "Fleet スキャンを開始しました。結果はまもなくテストに表示されます",
+      "scanStartFailed": "スキャンの開始に失敗しました",
+      "disconnectTitle": "Fleet を切断",
+      "disconnectDescription": "Fleet ({{target}}) を切断しますか？自動エンドポイントテストは停止します。",
+      "disconnected": "Fleet を切断しました",
+      "disconnectFailed": "Fleet の切断に失敗しました",
+      "addInstance": "+ Fleet インスタンスを追加",
+      "connected": "Fleet を接続しました。6 件の自動エンドポイントテストを登録しています。"
+    },
+    "intercom": {
+      "subtitle": "カスタマーサポート · 信頼リクエストと指摘追跡",
+      "connect": "Intercom を接続",
+      "scanStarted": "Intercom スキャンを開始しました。結果はまもなくテストに表示されます",
+      "scanStartFailed": "スキャンの開始に失敗しました",
+      "synced": "{{count}} 件の会話を同期しました",
+      "syncFailed": "会話の同期に失敗しました",
+      "disconnectTitle": "Intercom を切断",
+      "disconnectDescription": "Intercom ({{target}}) を切断しますか？自動ポリシーテストは停止します。",
+      "disconnected": "Intercom を切断しました",
+      "disconnectFailed": "Intercom の切断に失敗しました",
+      "workspacesConnected_one": "{{count}} 件のワークスペースが接続済み",
+      "workspacesConnected_other": "{{count}} 件のワークスペースが接続済み",
+      "tickets_one": "{{count}} 件のチケット",
+      "tickets_other": "{{count}} 件のチケット",
+      "open": "未対応 {{count}} 件",
+      "lastSync": "最終同期: {{date}}",
+      "scanNow": "今すぐスキャン",
+      "sync": "同期",
+      "syncing": "同期中...",
+      "addWorkspace": "+ 別のワークスペースを接続"
+    },
+    "snyk": {
+      "subtitle": "コードセキュリティ · 脆弱性スキャン",
+      "connect": "Snyk を接続",
+      "connectDescription": "Snyk Organization ID と API トークンを入力して、コード脆弱性スキャンを有効にします。",
+      "organizationId": "Snyk Organization ID",
+      "apiToken": "API トークン",
+      "connectFailed": "Snyk への接続に失敗しました。Org ID と API トークンを確認してください。",
+      "scanStarted": "Snyk スキャンを開始しました。結果はまもなくテストに表示されます",
+      "scanStartFailed": "スキャンの開始に失敗しました",
+      "disconnectTitle": "Snyk を切断",
+      "disconnectDescription": "Snyk ({{target}}) を切断しますか？自動コードセキュリティテストは停止します。",
+      "disconnected": "Snyk を切断しました",
+      "disconnectFailed": "Snyk の切断に失敗しました",
+      "accountsConnected_one": "{{count}} 件のアカウントが接続済み",
+      "accountsConnected_other": "{{count}} 件のアカウントが接続済み",
+      "findings_one": "{{count}} 件の指摘",
+      "findings_other": "{{count}} 件の指摘",
+      "lastSync": "最終同期: {{date}}",
+      "scanNow": "今すぐスキャン",
+      "addAccount": "+ 別のアカウントを接続",
+      "connected": "Snyk を接続しました。5 件の自動コードセキュリティテストを登録しています。"
+    },
+    "bigId": {
+      "subtitle": "データプライバシー · PII/PCI/PHI の検出と分類",
+      "connect": "BigID を接続",
+      "connectDescription": "BigID のベース URL と API トークンを入力して、データ検出コンプライアンススキャンを開始します。",
+      "apiToken": "API トークン",
+      "requiredFields": "ベース URL と API トークンは必須です",
+      "connectFailed": "BigID への接続に失敗しました。URL と API トークンを確認してください。",
+      "scanStarted": "BigID スキャンを開始しました。結果はまもなくテストに表示されます",
+      "scanStartFailed": "スキャンの開始に失敗しました",
+      "disconnectTitle": "BigID を切断",
+      "disconnectDescription": "BigID ({{target}}) を切断しますか？自動データプライバシーテストは停止します。",
+      "disconnected": "BigID を切断しました",
+      "disconnectFailed": "BigID の切断に失敗しました",
+      "instancesConnected_one": "{{count}} 件のインスタンスが接続済み",
+      "instancesConnected_other": "{{count}} 件のインスタンスが接続済み",
+      "scanNow": "今すぐスキャン",
+      "addInstance": "+ 別のインスタンスを接続",
+      "connected": "BigID を接続しました。5 件の自動データプライバシーテストを登録しています。"
+    },
+    "checkmarx": {
+      "subtitle": "コードセキュリティ · SAST スキャン",
+      "connect": "Checkmarx を接続",
+      "connectDescription": "Checkmarx One のインスタンス URL と OAuth2 認証情報を入力して、SAST スキャンを有効にします。",
+      "instanceUrl": "インスタンス URL",
+      "clientId": "クライアント ID",
+      "clientSecret": "クライアント シークレット",
+      "connectFailed": "Checkmarx への接続に失敗しました。インスタンス URL と認証情報を確認してください。",
+      "scanStarted": "Checkmarx スキャンを開始しました。結果はまもなくテストに表示されます",
+      "scanStartFailed": "スキャンの開始に失敗しました",
+      "disconnectTitle": "Checkmarx を切断",
+      "disconnectDescription": "Checkmarx ({{target}}) を切断しますか？自動コードセキュリティテストは停止します。",
+      "disconnected": "Checkmarx を切断しました",
+      "disconnectFailed": "Checkmarx の切断に失敗しました",
+      "accountsConnected_one": "{{count}} 件のアカウントが接続済み",
+      "accountsConnected_other": "{{count}} 件のアカウントが接続済み",
+      "scanNow": "今すぐスキャン",
+      "addAccount": "+ 別のアカウントを接続",
+      "connected": "Checkmarx を接続しました。5 件の自動コードセキュリティテストを登録しています。"
+    },
+    "datadog": {
+      "subtitle": "可観測性 · インシデント追跡とポストモーテム",
+      "connect": "Datadog を接続",
+      "connectDescription": "Datadog API キーと Application キーを入力して、インシデントコンプライアンススキャンを開始します。",
+      "applicationKey": "Application キー",
+      "site": "Datadog サイト",
+      "slaHours": "SLA 時間",
+      "slaHint": "確認応答の目標",
+      "requiredFields": "API キーと App キーは必須です",
+      "connectFailed": "Datadog への接続に失敗しました。認証情報を確認してください。",
+      "scanStarted": "Datadog スキャンを開始しました。結果はまもなくテストに表示されます",
+      "scanStartFailed": "スキャンの開始に失敗しました",
+      "disconnectTitle": "Datadog を切断",
+      "disconnectDescription": "Datadog ({{target}}) を切断しますか？自動インシデントテストは停止します。",
+      "disconnected": "Datadog を切断しました",
+      "disconnectFailed": "Datadog の切断に失敗しました",
+      "instancesConnected_one": "{{count}} 件のインスタンスが接続済み",
+      "instancesConnected_other": "{{count}} 件のインスタンスが接続済み",
+      "scanNow": "今すぐスキャン",
+      "addAccount": "+ 別のアカウントを接続",
+      "connected": "Datadog を接続しました。5 件の自動インシデントテストを登録しています。"
+    },
+    "googleDrive": {
+      "subtitle": "ドキュメント保存 · 証跡とポリシーファイル",
+      "connect": "Google Drive を接続",
+      "connectedSince": "{{date}} 以降 Google Drive に接続されています。新しい証跡とポリシーのアップロードは Drive に保存されます。",
+      "disconnectTitle": "Google Drive を切断",
+      "disconnectDescription": "Google Drive を切断しますか？今後のアップロードはローカル保存に戻ります。",
+      "disconnected": "Google Drive を切断しました",
+      "disconnectFailed": "Google Drive の切断に失敗しました"
+    },
+    "newRelic": {
+      "subtitle": "APM とインフラ · ログと監視",
+      "connect": "New Relic を接続",
+      "connectDescription": "User API Key と Account ID を入力してください。",
+      "requiredFields": "APIキーとアカウントIDは必須です",
+      "statusLoadFailed": "New Relic には接続されましたが、状態の読み込みに失敗しました",
+      "connectFailed": "New Relic への接続に失敗しました",
+      "accountIdPlaceholder": "例: 1234567",
+      "apiKeyPlaceholder": "NRAK-...",
+      "connectedAccount": "アカウント {{accountId}} の {{region}} に接続済みです。",
+      "connected": "New Relic を接続しました！",
+      "disconnectTitle": "New Relic を切断",
+      "disconnectDescription": "New Relic を切断しますか？",
+      "disconnected": "New Relic を切断しました",
+      "disconnectFailed": "New Relic の切断に失敗しました"
+    },
+    "gcp": {
+      "subtitle": "クラウドセキュリティ · IAM、ログ、設定ミス",
+      "connect": "GCP を接続",
+      "connectDescription": "GCP サービスアカウントキー JSON を貼り付けて、クラウドセキュリティスキャンを有効にします。",
+      "serviceAccountKeyJson": "サービスアカウントキー JSON",
+      "keyJsonPlaceholder": "{\"type\":\"service_account\",\"project_id\":\"...\",\"private_key\":\"...\",\"client_email\":\"...\"}",
+      "labelPlaceholder": "例: Production GCP",
+      "connectFailed": "GCP への接続に失敗しました。サービスアカウントキーを確認してください。",
+      "scanStarted": "GCP スキャンを開始しました。結果はまもなくテストに表示されます。",
+      "scanStartFailed": "スキャンの開始に失敗しました",
+      "disconnectTitle": "GCP を切断",
+      "disconnectDescription": "GCP ({{target}}) を切断しますか？自動クラウドセキュリティテストは停止します。",
+      "disconnected": "GCP を切断しました",
+      "disconnectFailed": "GCP の切断に失敗しました",
+      "projectsConnected_one": "{{count}} 件のプロジェクトが接続済み",
+      "projectsConnected_other": "{{count}} 件のプロジェクトが接続済み",
+      "findings_one": "{{count}} 件の検出",
+      "findings_other": "{{count}} 件の検出",
+      "lastSync": "最終同期: {{date}}",
+      "scanNow": "今すぐスキャン",
+      "connectAnotherProject": "+ 別のプロジェクトを接続",
+      "connected": "GCP を接続しました。5 件の自動クラウドセキュリティテストを登録しています。"
+    },
+    "azure": {
+      "subtitle": "クラウドセキュリティ · Defender for Cloud と NSG 分析",
+      "connect": "Azure を接続",
+      "connectDescription": "Azure サービスプリンシパルの認証情報を入力して、クラウドセキュリティスキャンを有効にします。",
+      "subscriptionId": "サブスクリプションID",
+      "tenantId": "テナントID",
+      "clientId": "クライアントID",
+      "clientSecret": "クライアントシークレット",
+      "uuidPlaceholder": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+      "clientIdPlaceholder": "アプリ登録のクライアントID",
+      "clientSecretPlaceholder": "アプリ登録のクライアントシークレット",
+      "labelPlaceholder": "例: Production Azure",
+      "connectFailed": "Azure への接続に失敗しました。認証情報を確認してください。",
+      "scanStarted": "Azure スキャンを開始しました。結果はまもなくテストに表示されます。",
+      "scanStartFailed": "スキャンの開始に失敗しました",
+      "disconnectTitle": "Azure を切断",
+      "disconnectDescription": "Azure ({{target}}) を切断しますか？自動クラウドセキュリティテストは停止します。",
+      "disconnected": "Azure を切断しました",
+      "disconnectFailed": "Azure の切断に失敗しました",
+      "subscriptionsConnected_one": "{{count}} 件のサブスクリプションが接続済み",
+      "subscriptionsConnected_other": "{{count}} 件のサブスクリプションが接続済み",
+      "findings_one": "{{count}} 件の検出",
+      "findings_other": "{{count}} 件の検出",
+      "lastSync": "最終同期: {{date}}",
+      "scanNow": "今すぐスキャン",
+      "connectAnotherSubscription": "+ 別のサブスクリプションを接続",
+      "connected": "Azure を接続しました。5 件の自動クラウドセキュリティテストを登録しています。"
+    },
+    "mdm": {
+      "title": "Manzen MDM Agent",
+      "subtitle": "エンドポイント · macOS デバイス管理",
+      "devices_one": "{{count}} 台のデバイス",
+      "devices_other": "{{count}} 台のデバイス",
+      "noDevices": "デバイスなし",
+      "stats": {
+        "compliant": "準拠",
+        "nonCompliant": "非準拠",
+        "unknown": "不明"
+      },
+      "tokenCreated": "トークンを作成しました。デバイスでエージェントをインストールしてください:",
+      "tokenExpiresAt": "このトークンの有効期限は {{date}} で、一度だけ使用できます。",
+      "labelPlaceholder": "ラベル（任意、例: Alice の MacBook）",
+      "creating": "作成中...",
+      "createEnrollmentToken": "登録トークンを作成",
+      "used": "使用済み",
+      "expires": "有効期限",
+      "unlabelled": "ラベルなし",
+      "usedDate": "{{date}} に使用",
+      "pending": "保留中",
+      "enrollmentTokenCreated": "登録トークンを作成しました",
+      "failedToCreateToken": "トークンの作成に失敗しました",
+      "tokenRevoked": "トークンを失効しました",
+      "failedToRevokeToken": "トークンの失効に失敗しました"
+    }
   }
 }

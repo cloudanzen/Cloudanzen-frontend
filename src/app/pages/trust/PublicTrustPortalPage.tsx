@@ -7,6 +7,7 @@
 import { useState } from 'react';
 import { useParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import {
   Shield,
   FileText,
@@ -92,6 +93,7 @@ function AccessRequestModal({
   primaryColor: string;
   onClose: () => void;
 }) {
+  const { t } = useTranslation('common');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [company, setCompany] = useState('');
@@ -107,11 +109,18 @@ function AccessRequestModal({
     'w-full text-sm border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[var(--tc-color)] bg-white';
 
   async function handleSubmit() {
-    if (!name.trim()) return setError('Your name is required');
+    if (!name.trim())
+      return setError(
+        t('customerTrust.publicPortal.accessRequest.nameRequired'),
+      );
     if (!email.trim() || !email.includes('@'))
-      return setError('Valid email is required');
+      return setError(
+        t('customerTrust.publicPortal.accessRequest.emailRequired'),
+      );
     if (needsNda && !ndaSigned)
-      return setError('You must accept the NDA to request access');
+      return setError(
+        t('customerTrust.publicPortal.accessRequest.ndaRequiredError'),
+      );
     setError('');
     setSaving(true);
     try {
@@ -126,7 +135,11 @@ function AccessRequestModal({
       await trustCenterService.submitAccessRequest(orgSlug, payload);
       setSuccess(true);
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Failed to submit request. Please try again.');
+      setError(
+        e instanceof Error
+          ? e.message
+          : t('customerTrust.publicPortal.accessRequest.submitFailed'),
+      );
     } finally {
       setSaving(false);
     }
@@ -139,16 +152,18 @@ function AccessRequestModal({
           <div className="p-8 text-center">
             <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-3" />
             <h3 className="text-lg font-semibold text-gray-900 mb-1">
-              Request Submitted
+              {t('customerTrust.publicPortal.accessRequest.submittedTitle')}
             </h3>
             <p className="text-sm text-gray-500 mb-5">
-              We'll review your request and respond via email shortly.
+              {t(
+                'customerTrust.publicPortal.accessRequest.submittedDescription',
+              )}
             </p>
             <button
               onClick={onClose}
               className="px-5 py-2 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-700"
             >
-              Close
+              {t('actions.close')}
             </button>
           </div>
         ) : (
@@ -156,14 +171,19 @@ function AccessRequestModal({
             <div className="px-6 py-5 border-b border-gray-100">
               <h3 className="text-base font-semibold text-gray-900">
                 {document
-                  ? `Request Access — ${document.name}`
-                  : 'Request Access'}
+                  ? t(
+                      'customerTrust.publicPortal.accessRequest.titleWithDocument',
+                      { name: document.name },
+                    )
+                  : t('customerTrust.publicPortal.accessRequest.title')}
               </h3>
               {document && (
                 <p className="text-xs text-gray-500 mt-0.5">
                   {needsNda
-                    ? 'This document requires NDA acceptance.'
-                    : 'We will review your request.'}
+                    ? t(
+                        'customerTrust.publicPortal.accessRequest.requiresNdaHint',
+                      )
+                    : t('customerTrust.publicPortal.accessRequest.reviewHint')}
                 </p>
               )}
             </div>
@@ -175,48 +195,58 @@ function AccessRequestModal({
               )}
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">
-                  Full Name <span className="text-red-400">*</span>
+                  {t('customerTrust.publicPortal.accessRequest.fullName')}{' '}
+                  <span className="text-red-400">*</span>
                 </label>
                 <input
                   className={inputCls}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Jane Smith"
+                  placeholder={t(
+                    'customerTrust.publicPortal.accessRequest.namePlaceholder',
+                  )}
                 />
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">
-                  Work Email <span className="text-red-400">*</span>
+                  {t('customerTrust.publicPortal.accessRequest.workEmail')}{' '}
+                  <span className="text-red-400">*</span>
                 </label>
                 <input
                   type="email"
                   className={inputCls}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="jane@company.com"
+                  placeholder={t(
+                    'customerTrust.publicPortal.accessRequest.emailPlaceholder',
+                  )}
                 />
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">
-                  Company
+                  {t('customerTrust.publicPortal.accessRequest.company')}
                 </label>
                 <input
                   className={inputCls}
                   value={company}
                   onChange={(e) => setCompany(e.target.value)}
-                  placeholder="Acme Corp"
+                  placeholder={t(
+                    'customerTrust.publicPortal.accessRequest.companyPlaceholder',
+                  )}
                 />
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">
-                  Purpose / Notes
+                  {t('customerTrust.publicPortal.accessRequest.purpose')}
                 </label>
                 <textarea
                   className={`${inputCls} resize-none`}
                   rows={3}
                   value={purpose}
                   onChange={(e) => setPurpose(e.target.value)}
-                  placeholder="Briefly describe why you need this document…"
+                  placeholder={t(
+                    'customerTrust.publicPortal.accessRequest.purposePlaceholder',
+                  )}
                 />
               </div>
               {needsNda && (
@@ -228,9 +258,7 @@ function AccessRequestModal({
                     onChange={(e) => setNdaSigned(e.target.checked)}
                   />
                   <span className="text-xs text-amber-800">
-                    I agree to the Non-Disclosure Agreement and understand that
-                    the requested document is confidential and must not be
-                    shared with third parties.
+                    {t('customerTrust.publicPortal.accessRequest.ndaAgreement')}
                   </span>
                 </label>
               )}
@@ -240,7 +268,7 @@ function AccessRequestModal({
                 onClick={onClose}
                 className="text-sm text-gray-500 hover:text-gray-700"
               >
-                Cancel
+                {t('actions.cancel')}
               </button>
               <button
                 onClick={handleSubmit}
@@ -248,7 +276,9 @@ function AccessRequestModal({
                 className="px-4 py-2 rounded-lg text-white text-sm font-medium disabled:opacity-50"
                 style={{ backgroundColor: primaryColor }}
               >
-                {saving ? 'Submitting…' : 'Submit Request'}
+                {saving
+                  ? t('customerTrust.publicPortal.accessRequest.submitting')
+                  : t('actions.submit')}
               </button>
             </div>
           </>
@@ -269,6 +299,7 @@ function QuestionnaireModal({
   primaryColor: string;
   onClose: () => void;
 }) {
+  const { t } = useTranslation('common');
   const [email, setEmail] = useState('');
   const [type, setType] = useState('STANDARD');
   const [saving, setSaving] = useState(false);
@@ -280,7 +311,9 @@ function QuestionnaireModal({
 
   async function handleSubmit() {
     if (!email.trim() || !email.includes('@'))
-      return setError('Valid email is required');
+      return setError(
+        t('customerTrust.publicPortal.questionnaire.emailRequired'),
+      );
     setError('');
     setSaving(true);
     try {
@@ -290,7 +323,11 @@ function QuestionnaireModal({
       });
       setSuccess(true);
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Failed. Please try again.');
+      setError(
+        e instanceof Error
+          ? e.message
+          : t('customerTrust.publicPortal.questionnaire.submitFailed'),
+      );
     } finally {
       setSaving(false);
     }
@@ -303,26 +340,28 @@ function QuestionnaireModal({
           <div className="p-8 text-center">
             <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-3" />
             <h3 className="text-lg font-semibold text-gray-900 mb-1">
-              Request Received
+              {t('customerTrust.publicPortal.questionnaire.receivedTitle')}
             </h3>
             <p className="text-sm text-gray-500 mb-5">
-              We'll prepare your security questionnaire and email it to you.
+              {t(
+                'customerTrust.publicPortal.questionnaire.receivedDescription',
+              )}
             </p>
             <button
               onClick={onClose}
               className="px-5 py-2 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-700"
             >
-              Close
+              {t('actions.close')}
             </button>
           </div>
         ) : (
           <>
             <div className="px-6 py-5 border-b border-gray-100">
               <h3 className="text-base font-semibold text-gray-900">
-                Request Security Questionnaire
+                {t('customerTrust.publicPortal.questionnaire.title')}
               </h3>
               <p className="text-xs text-gray-500 mt-0.5">
-                We'll respond with a completed questionnaire via email.
+                {t('customerTrust.publicPortal.questionnaire.description')}
               </p>
             </div>
             <div className="px-6 py-5 space-y-3">
@@ -333,19 +372,22 @@ function QuestionnaireModal({
               )}
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">
-                  Your Email <span className="text-red-400">*</span>
+                  {t('customerTrust.publicPortal.questionnaire.email')}{' '}
+                  <span className="text-red-400">*</span>
                 </label>
                 <input
                   type="email"
                   className={inputCls}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="security@yourcompany.com"
+                  placeholder={t(
+                    'customerTrust.publicPortal.questionnaire.emailPlaceholder',
+                  )}
                 />
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">
-                  Questionnaire Type
+                  {t('customerTrust.publicPortal.questionnaire.type')}
                 </label>
                 <select
                   className={inputCls}
@@ -353,11 +395,21 @@ function QuestionnaireModal({
                   onChange={(e) => setType(e.target.value)}
                 >
                   <option value="STANDARD">
-                    Standard Security Questionnaire
+                    {t(
+                      'customerTrust.publicPortal.questionnaire.types.standard',
+                    )}
                   </option>
-                  <option value="SOC2">SOC 2 Questionnaire</option>
-                  <option value="ISO27001">ISO 27001 Questionnaire</option>
-                  <option value="CUSTOM">Custom / CAIQ</option>
+                  <option value="SOC2">
+                    {t('customerTrust.publicPortal.questionnaire.types.soc2')}
+                  </option>
+                  <option value="ISO27001">
+                    {t(
+                      'customerTrust.publicPortal.questionnaire.types.iso27001',
+                    )}
+                  </option>
+                  <option value="CUSTOM">
+                    {t('customerTrust.publicPortal.questionnaire.types.custom')}
+                  </option>
                 </select>
               </div>
             </div>
@@ -366,7 +418,7 @@ function QuestionnaireModal({
                 onClick={onClose}
                 className="text-sm text-gray-500 hover:text-gray-700"
               >
-                Cancel
+                {t('actions.cancel')}
               </button>
               <button
                 onClick={handleSubmit}
@@ -374,7 +426,9 @@ function QuestionnaireModal({
                 className="px-4 py-2 rounded-lg text-white text-sm font-medium disabled:opacity-50"
                 style={{ backgroundColor: primaryColor }}
               >
-                {saving ? 'Submitting…' : 'Submit Request'}
+                {saving
+                  ? t('customerTrust.publicPortal.questionnaire.submitting')
+                  : t('actions.submit')}
               </button>
             </div>
           </>
@@ -417,6 +471,7 @@ function ComplianceDonut({ pct, color }: { pct: number; color: string }) {
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export function PublicTrustPortalPage() {
+  const { t } = useTranslation('common');
   const { orgSlug } = useParams<{ orgSlug: string }>();
   const [accessDoc, setAccessDoc] = useState<
     PublicTrustDocument | 'general' | null
@@ -442,7 +497,9 @@ export function PublicTrustPortalPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center space-y-3">
           <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-sm text-gray-500">Loading trust portal…</p>
+          <p className="text-sm text-gray-500">
+            {t('customerTrust.publicPortal.loading')}
+          </p>
         </div>
       </div>
     );
@@ -454,11 +511,10 @@ export function PublicTrustPortalPage() {
         <div className="text-center max-w-sm px-4">
           <Shield className="w-16 h-16 text-gray-200 mx-auto mb-4" />
           <h1 className="text-xl font-semibold text-gray-800 mb-2">
-            Trust Center Not Found
+            {t('customerTrust.publicPortal.notFoundTitle')}
           </h1>
           <p className="text-sm text-gray-500">
-            This organisation's trust portal is not available or has not been
-            enabled yet.
+            {t('customerTrust.publicPortal.notFoundDescription')}
           </p>
         </div>
       </div>
@@ -496,7 +552,9 @@ export function PublicTrustPortalPage() {
             )}
             <div>
               <h1 className="text-2xl font-bold">{settings.orgName}</h1>
-              <p className="text-sm opacity-80">Security & Trust Center</p>
+              <p className="text-sm opacity-80">
+                {t('customerTrust.publicPortal.heroSubtitle')}
+              </p>
             </div>
           </div>
           {settings.description && (
@@ -517,7 +575,8 @@ export function PublicTrustPortalPage() {
               onClick={() => setShowQuestModal(true)}
               className="inline-flex items-center gap-2 bg-white/15 hover:bg-white/25 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
             >
-              <FileQuestion className="w-4 h-4" /> Request Questionnaire
+              <FileQuestion className="w-4 h-4" />{' '}
+              {t('customerTrust.publicPortal.requestQuestionnaire')}
             </button>
           </div>
         </div>
@@ -580,14 +639,16 @@ export function PublicTrustPortalPage() {
                   </p>
                 </>
               ) : (
-                <p className="text-sm text-gray-400">No completed audits yet</p>
+                <p className="text-sm text-gray-400">
+                  {t('customerTrust.publicPortal.noCompletedAudits')}
+                </p>
               )}
             </div>
 
             {/* Certifications card */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
               <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-3">
-                Certifications
+                {t('customerTrust.publicPortal.certifications')}
               </p>
               {documents.filter((d) => d.category === 'CERTIFICATE').length >
               0 ? (
@@ -609,7 +670,7 @@ export function PublicTrustPortalPage() {
                 </div>
               ) : (
                 <p className="text-sm text-gray-400">
-                  No certificates published
+                  {t('customerTrust.publicPortal.noCertificates')}
                 </p>
               )}
             </div>
@@ -617,7 +678,7 @@ export function PublicTrustPortalPage() {
             {/* Security commitments / contact */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
               <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-3">
-                Security Contact
+                {t('customerTrust.publicPortal.securityContact')}
               </p>
               {settings.securityEmail ? (
                 <a
@@ -629,10 +690,12 @@ export function PublicTrustPortalPage() {
                   <span className="truncate">{settings.securityEmail}</span>
                 </a>
               ) : (
-                <p className="text-sm text-gray-400">Not provided</p>
+                <p className="text-sm text-gray-400">
+                  {t('customerTrust.publicPortal.notProvided')}
+                </p>
               )}
               <p className="text-xs text-gray-400 mt-3 leading-relaxed">
-                For security disclosures, reports, or compliance inquiries.
+                {t('customerTrust.publicPortal.securityContactDescription')}
               </p>
             </div>
           </div>
@@ -642,14 +705,14 @@ export function PublicTrustPortalPage() {
         <section>
           <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <FileText className="w-5 h-5" style={{ color: primaryColor }} />{' '}
-            Documents
+            {t('customerTrust.trustCenter.tabs.documents')}
           </h2>
 
           {documents.length === 0 ? (
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-10 text-center">
               <FileText className="w-10 h-10 mx-auto mb-3 text-gray-200" />
               <p className="text-sm text-gray-500">
-                No documents published yet
+                {t('customerTrust.publicPortal.noDocuments')}
               </p>
             </div>
           ) : (
@@ -658,7 +721,8 @@ export function PublicTrustPortalPage() {
               {freeDocuments.length > 0 && (
                 <div>
                   <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2 flex items-center gap-1.5">
-                    <Globe className="w-3.5 h-3.5" /> Publicly Available
+                    <Globe className="w-3.5 h-3.5" />{' '}
+                    {t('customerTrust.publicPortal.publiclyAvailable')}
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {freeDocuments.map((doc) => (
@@ -701,7 +765,8 @@ export function PublicTrustPortalPage() {
                           className="flex items-center gap-1 text-sm font-medium px-3 py-1.5 rounded-lg transition-colors text-white flex-shrink-0"
                           style={{ backgroundColor: primaryColor }}
                         >
-                          <Download className="w-3.5 h-3.5" /> Download
+                          <Download className="w-3.5 h-3.5" />{' '}
+                          {t('customerTrust.publicPortal.download')}
                         </a>
                       </div>
                     ))}
@@ -713,8 +778,8 @@ export function PublicTrustPortalPage() {
               {ndaDocuments.length > 0 && (
                 <div>
                   <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2 mt-4 flex items-center gap-1.5">
-                    <Lock className="w-3.5 h-3.5" /> Requires NDA / Access
-                    Request
+                    <Lock className="w-3.5 h-3.5" />{' '}
+                    {t('customerTrust.publicPortal.requiresNdaAccess')}
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {ndaDocuments.map((doc) => (
@@ -737,7 +802,7 @@ export function PublicTrustPortalPage() {
                                 {DOC_CATEGORY_LABELS[doc.category]}
                               </span>
                               <span className="text-xs text-amber-600 font-medium">
-                                NDA required
+                                {t('customerTrust.publicPortal.ndaRequired')}
                               </span>
                             </div>
                           </div>
@@ -750,7 +815,7 @@ export function PublicTrustPortalPage() {
                             color: primaryColor,
                           }}
                         >
-                          Request Access
+                          {t('customerTrust.publicPortal.requestAccess')}
                         </button>
                       </div>
                     ))}
@@ -766,7 +831,7 @@ export function PublicTrustPortalPage() {
           <section>
             <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <Megaphone className="w-5 h-5" style={{ color: primaryColor }} />{' '}
-              Security Updates
+              {t('customerTrust.announcements.typeSecurityUpdate')}
             </h2>
             <div className="space-y-3">
               {publishedAnnouncements.map((ann) => {
@@ -817,11 +882,10 @@ export function PublicTrustPortalPage() {
             style={{ color: primaryColor }}
           />
           <h3 className="text-lg font-semibold text-gray-900 mb-1">
-            Need More Information?
+            {t('customerTrust.publicPortal.needMoreInfo')}
           </h3>
           <p className="text-sm text-gray-500 mb-5 max-w-sm mx-auto">
-            Request a security questionnaire or contact our security team for
-            compliance-related inquiries.
+            {t('customerTrust.publicPortal.needMoreInfoDescription')}
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             <button
@@ -829,8 +893,8 @@ export function PublicTrustPortalPage() {
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-medium transition-opacity hover:opacity-90"
               style={{ backgroundColor: primaryColor }}
             >
-              <FileQuestion className="w-4 h-4" /> Request Security
-              Questionnaire
+              <FileQuestion className="w-4 h-4" />{' '}
+              {t('customerTrust.publicPortal.questionnaire.title')}
             </button>
             {settings.securityEmail && (
               <a
@@ -838,7 +902,8 @@ export function PublicTrustPortalPage() {
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 text-sm font-medium transition-opacity hover:opacity-80"
                 style={{ borderColor: primaryColor, color: primaryColor }}
               >
-                <Mail className="w-4 h-4" /> Contact Security Team
+                <Mail className="w-4 h-4" />{' '}
+                {t('customerTrust.publicPortal.contactSecurityTeam')}
               </a>
             )}
           </div>
@@ -849,11 +914,14 @@ export function PublicTrustPortalPage() {
       <footer className="border-t border-gray-100 bg-white mt-10 py-6 px-4">
         <div className="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-2 text-xs text-gray-400">
           <span>
-            © {new Date().getFullYear()} {settings.orgName}. All rights
-            reserved.
+            {t('customerTrust.publicPortal.footerCopyright', {
+              year: new Date().getFullYear(),
+              org: settings.orgName,
+            })}
           </span>
           <span className="flex items-center gap-1">
-            <Shield className="w-3.5 h-3.5" /> Powered by ISMS Platform
+            <Shield className="w-3.5 h-3.5" />{' '}
+            {t('customerTrust.publicPortal.poweredBy')}
           </span>
         </div>
       </footer>

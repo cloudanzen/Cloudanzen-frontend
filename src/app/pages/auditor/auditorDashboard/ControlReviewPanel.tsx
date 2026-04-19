@@ -43,6 +43,7 @@ import { AddFindingModal } from './AddFindingModal';
 import { aiService, AuditorNoteResult } from '@/services/api/ai';
 import { CitationViewer } from '@/app/components/CitationViewer';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { useTranslation } from 'react-i18next';
 
 // ── Auditor Note AI Panel (AI-4) ─────────────────────────────────────────────
 
@@ -55,6 +56,7 @@ function AuditorNoteAiPanel({
   auditId: string;
   onNoteAccepted: (noteText: string) => void;
 }) {
+  const { t } = useTranslation('auditor');
   const [draft, setDraft] = useState<AuditorNoteResult | null>(null);
   const [editedText, setEditedText] = useState('');
 
@@ -93,7 +95,7 @@ function AuditorNoteAiPanel({
         ) : (
           <Sparkles className="h-3.5 w-3.5" />
         )}
-        {generateMutation.isPending ? 'Generating…' : 'Generate AI note'}
+        {generateMutation.isPending ? t('controlReview.generating') : t('controlReview.generateAiNote')}
       </button>
     );
   }
@@ -103,10 +105,10 @@ function AuditorNoteAiPanel({
       <div className="flex items-center gap-1.5">
         <Sparkles className="h-3.5 w-3.5 text-violet-600" />
         <span className="text-xs font-semibold text-violet-800">
-          AI-generated auditor note
+          {t('controlReview.aiGeneratedNote')}
         </span>
         <span className="ml-auto text-xs text-violet-500">
-          Review before applying
+          {t('controlReview.reviewBeforeApplying')}
         </span>
       </div>
 

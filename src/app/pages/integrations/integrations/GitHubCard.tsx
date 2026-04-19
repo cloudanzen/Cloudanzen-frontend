@@ -1,8 +1,13 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
 import { Badge } from '@/app/components/ui/badge';
-import { integrationsService, Integration, GitHubRepo } from '@/services/api/integrations';
+import {
+  integrationsService,
+  Integration,
+  GitHubRepo,
+} from '@/services/api/integrations';
 import { useConfirmDialog } from '@/app/hooks/useConfirmDialog';
 
 function GitHubIcon({ className }: { className?: string }) {
@@ -16,7 +21,11 @@ function GitHubIcon({ className }: { className?: string }) {
 function CheckIcon() {
   return (
     <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
-      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+      <path
+        fillRule="evenodd"
+        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+        clipRule="evenodd"
+      />
     </svg>
   );
 }
@@ -24,36 +33,59 @@ function CheckIcon() {
 function XIcon() {
   return (
     <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
-      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+      <path
+        fillRule="evenodd"
+        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+        clipRule="evenodd"
+      />
     </svg>
   );
 }
 
 function CompliancePill({ compliant }: { compliant: boolean | null }) {
+  const { t } = useTranslation('integrations');
   if (compliant === null || compliant === undefined) {
-    return <span className="text-xs text-gray-400">-</span>;
+    return (
+      <span className="text-xs text-gray-400">{t('cards.github.none')}</span>
+    );
   }
 
   return compliant ? (
     <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700">
-      <CheckIcon /> Pass
+      <CheckIcon /> {t('cards.github.pass')}
     </span>
   ) : (
     <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700">
-      <XIcon /> Fail
+      <XIcon /> {t('cards.github.fail')}
     </span>
   );
 }
 
 function RepoScanRow({ repo }: { repo: GitHubRepo }) {
+  const { t } = useTranslation('integrations');
   const scan = repo.rawData;
   const checks = scan
     ? [
-        { label: 'Branch Protection (A.8.32)', compliant: scan.branchProtection?.result?.compliant ?? null },
-        { label: 'Commit Signing (A.8.24)', compliant: scan.commitSigning?.result?.compliant ?? null },
-        { label: 'CI/CD (A.8.25)', compliant: scan.cicd?.result?.compliant ?? null },
-        { label: 'Access Control (A.5.15)', compliant: scan.accessControl?.result?.compliant ?? null },
-        { label: 'Visibility (A.5.15)', compliant: scan.repoMeta?.result?.compliant ?? null },
+        {
+          label: t('cards.github.checks.branchProtection'),
+          compliant: scan.branchProtection?.result?.compliant ?? null,
+        },
+        {
+          label: t('cards.github.checks.commitSigning'),
+          compliant: scan.commitSigning?.result?.compliant ?? null,
+        },
+        {
+          label: t('cards.github.checks.cicd'),
+          compliant: scan.cicd?.result?.compliant ?? null,
+        },
+        {
+          label: t('cards.github.checks.accessControl'),
+          compliant: scan.accessControl?.result?.compliant ?? null,
+        },
+        {
+          label: t('cards.github.checks.visibility'),
+          compliant: scan.repoMeta?.result?.compliant ?? null,
+        },
       ]
     : [];
 
@@ -63,7 +95,9 @@ function RepoScanRow({ repo }: { repo: GitHubRepo }) {
         <div>
           <p className="text-sm font-semibold text-gray-900">{repo.fullName}</p>
           <p className="text-xs text-gray-500">
-            Branch: <span className="font-mono">{repo.defaultBranch}</span> · {repo.visibility}
+            {t('cards.github.branch')}:{' '}
+            <span className="font-mono">{repo.defaultBranch}</span> ·{' '}
+            {repo.visibility}
           </p>
         </div>
         {repo.lastScannedAt && (
@@ -79,7 +113,9 @@ function RepoScanRow({ repo }: { repo: GitHubRepo }) {
               key={check.label}
               className="flex items-center justify-between gap-2 rounded border border-gray-100 bg-white px-2 py-1.5"
             >
-              <span className="truncate text-xs text-gray-600">{check.label}</span>
+              <span className="truncate text-xs text-gray-600">
+                {check.label}
+              </span>
               <CompliancePill compliant={check.compliant} />
             </div>
           ))}
@@ -102,6 +138,7 @@ export function GitHubCard({
   onDisconnect: () => void;
   onToast: (type: 'success' | 'error', msg: string) => void;
 }) {
+  const { t } = useTranslation('integrations');
   const confirm = useConfirmDialog();
   const [disconnecting, setDisconnecting] = useState(false);
   const [showRepos, setShowRepos] = useState(false);
@@ -110,9 +147,9 @@ export function GitHubCard({
 
   const handleDisconnect = async () => {
     const confirmed = await confirm({
-      title: 'Disconnect GitHub',
-      description: 'Disconnect GitHub? Evidence collection will stop.',
-      confirmLabel: 'Disconnect',
+      title: t('cards.github.disconnectTitle'),
+      description: t('cards.github.disconnectDescription'),
+      confirmLabel: t('cards.shared.disconnect'),
       variant: 'destructive',
     });
     if (!confirmed) return;
@@ -120,9 +157,9 @@ export function GitHubCard({
     try {
       await integrationsService.disconnect();
       onDisconnect();
-      onToast('success', 'GitHub disconnected');
+      onToast('success', t('cards.github.disconnected'));
     } catch {
-      onToast('error', 'Failed to disconnect');
+      onToast('error', t('cards.github.disconnectFailed'));
     } finally {
       setDisconnecting(false);
     }
@@ -140,9 +177,9 @@ export function GitHubCard({
         integrationId: githubIntegration.id,
         repos,
       });
-      onToast('success', result.message || 'GitHub scan completed');
+      onToast('success', result.message || t('cards.github.scanCompleted'));
     } catch {
-      onToast('error', 'Failed to run GitHub scan');
+      onToast('error', t('cards.github.scanFailed'));
     } finally {
       setScanning(false);
     }
@@ -157,11 +194,17 @@ export function GitHubCard({
           </div>
           <div>
             <h3 className="text-lg font-semibold text-gray-900">GitHub</h3>
-            <p className="text-sm text-gray-500">Development · Code repository integration</p>
+            <p className="text-sm text-gray-500">
+              {t('cards.github.subtitle')}
+            </p>
           </div>
         </div>
         <Badge variant={isConnected ? 'default' : 'outline'}>
-          {loading ? 'Checking...' : isConnected ? 'Connected' : 'Available'}
+          {loading
+            ? t('cards.shared.checking')
+            : isConnected
+              ? t('cards.shared.connected')
+              : t('cards.shared.available')}
         </Badge>
       </div>
 
@@ -169,16 +212,23 @@ export function GitHubCard({
         {!loading && !isConnected && (
           <Button onClick={handleConnect} className="gap-2">
             <GitHubIcon className="h-4 w-4" />
-            Connect GitHub
+            {t('cards.github.connect')}
           </Button>
         )}
         {isConnected && (
           <>
             <Button onClick={handleScan} disabled={scanning}>
-              {scanning ? 'Scanning...' : 'Run Scan'}
+              {scanning
+                ? t('cards.shared.scanning')
+                : t('cards.shared.runScan')}
             </Button>
-            <Button variant="outline" onClick={() => setShowRepos((value) => !value)}>
-              {showRepos ? 'Hide Repos' : `View Repos (${repos.length})`}
+            <Button
+              variant="outline"
+              onClick={() => setShowRepos((value) => !value)}
+            >
+              {showRepos
+                ? t('cards.github.hideRepos')
+                : t('cards.github.viewRepos', { count: repos.length })}
             </Button>
             <Button
               variant="outline"
@@ -186,7 +236,9 @@ export function GitHubCard({
               onClick={handleDisconnect}
               disabled={disconnecting}
             >
-              {disconnecting ? 'Disconnecting...' : 'Disconnect'}
+              {disconnecting
+                ? t('cards.shared.disconnecting')
+                : t('cards.shared.disconnect')}
             </Button>
           </>
         )}
@@ -194,16 +246,22 @@ export function GitHubCard({
 
       {isConnected && githubIntegration && (
         <p className="mt-4 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
-          Connected {new Date(githubIntegration.createdAt).toLocaleDateString()} · {repos.length}{' '}
-          {repos.length === 1 ? 'repository' : 'repositories'} · scans run daily at 02:00 UTC
+          {t('cards.github.connectedSummary', {
+            date: new Date(githubIntegration.createdAt).toLocaleDateString(),
+            count: repos.length,
+          })}
         </p>
       )}
 
       {showRepos && (
         <div className="mt-5 space-y-3">
-          <h4 className="text-sm font-semibold text-gray-700">Repositories &amp; Compliance Evidence</h4>
+          <h4 className="text-sm font-semibold text-gray-700">
+            {t('cards.github.repositoriesHeading')}
+          </h4>
           {repos.length === 0 ? (
-            <p className="text-sm text-gray-400">No repositories found. Run a scan to discover them.</p>
+            <p className="text-sm text-gray-400">
+              {t('cards.github.noRepositories')}
+            </p>
           ) : (
             repos.map((repo) => <RepoScanRow key={repo.id} repo={repo} />)
           )}

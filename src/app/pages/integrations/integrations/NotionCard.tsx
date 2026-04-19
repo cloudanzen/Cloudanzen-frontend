@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/app/components/ui/card';
 import { Badge } from '@/app/components/ui/badge';
 import { notionService, NotionStatus } from '@/services/api/notion';
@@ -46,6 +47,7 @@ export function NotionCard({
   onDisconnected: () => void;
   onToast: (type: 'success' | 'error', msg: string) => void;
 }) {
+  const { t } = useTranslation('integrations');
   const confirm = useConfirmDialog();
   const [disconnecting, setDisconnecting] = useState(false);
 
@@ -53,15 +55,15 @@ export function NotionCard({
     try {
       window.location.href = notionService.getConnectUrl();
     } catch {
-      onToast('error', 'Failed to get Notion connect URL');
+      onToast('error', t('cards.notion.connectUrlFailed'));
     }
   };
 
   const handleDisconnect = async () => {
     const confirmed = await confirm({
-      title: 'Disconnect Notion',
-      description: 'Disconnect Notion?',
-      confirmLabel: 'Disconnect',
+      title: t('cards.notion.disconnectTitle'),
+      description: t('cards.notion.disconnectDescription'),
+      confirmLabel: t('cards.shared.disconnect'),
       variant: 'destructive',
     });
     if (!confirmed) return;
@@ -69,9 +71,9 @@ export function NotionCard({
     try {
       await notionService.disconnect();
       onDisconnected();
-      onToast('success', 'Notion disconnected');
+      onToast('success', t('cards.notion.disconnected'));
     } catch {
-      onToast('error', 'Failed to disconnect Notion');
+      onToast('error', t('cards.notion.disconnectFailed'));
     } finally {
       setDisconnecting(false);
     }
@@ -87,22 +89,24 @@ export function NotionCard({
           <div>
             <h3 className="text-lg font-semibold text-gray-900">Notion</h3>
             <p className="text-sm text-gray-500">
-              Knowledge Base · Policies, procedures & wikis
+              {t('cards.notion.subtitle')}
             </p>
           </div>
         </div>
         <Badge variant={connected ? 'default' : 'outline'}>
           {loadingStatus
-            ? 'Checking...'
+            ? t('cards.shared.checking')
             : connected
-              ? 'Connected'
-              : 'Available'}
+              ? t('cards.shared.connected')
+              : t('cards.shared.available')}
         </Badge>
       </div>
 
       {connected && notionStatus && (
         <p className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2 mb-4">
-          Connected to workspace <strong>{notionStatus.workspaceName}</strong>.
+          {t('cards.notion.connectedWorkspace', {
+            workspaceName: notionStatus.workspaceName,
+          })}
         </p>
       )}
 
@@ -113,7 +117,7 @@ export function NotionCard({
             className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-black text-white text-sm font-medium hover:bg-gray-800"
           >
             <NotionIcon className="w-4 h-4" />
-            Connect Notion
+            {t('cards.notion.connect')}
           </button>
         )}
         {connected && (
@@ -122,7 +126,9 @@ export function NotionCard({
             disabled={disconnecting}
             className="inline-flex items-center px-4 py-2 rounded-md border border-red-200 text-sm font-medium text-red-600 hover:bg-red-50"
           >
-            {disconnecting ? 'Disconnecting...' : 'Disconnect'}
+            {disconnecting
+              ? t('cards.shared.disconnecting')
+              : t('cards.shared.disconnect')}
           </button>
         )}
       </div>

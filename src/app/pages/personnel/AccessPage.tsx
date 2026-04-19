@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { useTranslation, Trans } from 'react-i18next';
 import { PageTemplate } from "@/app/components/PageTemplate";
 import { Card } from "@/app/components/ui/card";
 import { Badge } from "@/app/components/ui/badge";
@@ -37,6 +38,7 @@ interface MappingState {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function AccessPage() {
+  const { t } = useTranslation('personnel');
   // ── GitHub state ──────────────────────────────────────────────────────────
   const [members, setMembers] = useState<GitHubMember[]>([]);
   const [connected, setConnected] = useState(false);
@@ -185,12 +187,12 @@ export function AccessPage() {
 
   return (
     <PageTemplate
-      title="Linked Accounts"
-      description="Map external service accounts (GitHub, Slack) to organisation members."
+      title={t('access.title')}
+      description={t('access.description')}
       actions={
         <Button variant="outline" size="sm" onClick={fetchData} disabled={loading}>
           <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
-          Refresh
+          {t('access.refresh')}
         </Button>
       }
     >
@@ -206,9 +208,8 @@ export function AccessPage() {
         <div className="flex items-start gap-3 rounded-md border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800 mb-4">
           <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
           <div>
-            <span className="font-medium">GitHub integration not connected.</span> Go to{" "}
-            <a href="/integrations" className="underline font-medium">Integrations</a>{" "}
-            to connect GitHub to see members here.
+            <span className="font-medium">{t('access.github.notConnected')}</span>{" "}
+            <Trans i18nKey="access.github.connectPrompt" t={t} components={{ link: <a href="/integrations" className="underline font-medium" /> }} />
           </div>
         </div>
       )}
@@ -216,11 +217,11 @@ export function AccessPage() {
       <Card className="mb-4">
         <div className="px-6 py-4 border-b flex items-center gap-2">
           <Github className="w-4 h-4 text-gray-600" />
-          <h3 className="text-sm font-semibold text-gray-700">GitHub Accounts</h3>
+          <h3 className="text-sm font-semibold text-gray-700">{t('access.github.title')}</h3>
           {connected && (
             <Badge variant="default" className="ml-auto text-xs">
               <CheckCircle2 className="w-3 h-3 mr-1" />
-              Connected
+              {t('access.connected')}
             </Badge>
           )}
         </div>
@@ -229,21 +230,21 @@ export function AccessPage() {
           <table className="w-full">
             <thead className="bg-gray-50 border-b">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">GitHub Account</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mapped ISMS User</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Map to User</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('access.github.account')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('access.columns.mappedUser')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('access.columns.mapTo')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('access.columns.actions')}</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {loading ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-10 text-center text-sm text-gray-400">Loading…</td>
+                  <td colSpan={4} className="px-6 py-10 text-center text-sm text-gray-400">{t('access.loading')}</td>
                 </tr>
               ) : members.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="px-6 py-10 text-center text-sm text-gray-400">
-                    {connected ? "No GitHub members found." : "Connect GitHub to see members."}
+                    {connected ? t('access.github.noMembers') : t('access.github.connectToSee')}
                   </td>
                 </tr>
               ) : (
@@ -283,7 +284,7 @@ export function AccessPage() {
                             </div>
                           </div>
                         ) : (
-                          <span className="text-xs text-gray-400 italic">Not mapped</span>
+                          <span className="text-xs text-gray-400 italic">{t('access.notMapped')}</span>
                         )}
                       </td>
                       <td className="px-6 py-4">
@@ -294,7 +295,7 @@ export function AccessPage() {
                            disabled={isSaving}
                            onChange={(e) => { const uid = e.target.value; if (uid) handleMap(member, uid); }}
                          >
-                          <option value="">— Select user —</option>
+                          <option value="">{t('access.selectUser')}</option>
                           {users.map((u) => (
                             <option key={u.id} value={u.id}>
                               {u.name ? `${u.name} (${u.email})` : u.email}
@@ -311,12 +312,12 @@ export function AccessPage() {
                               className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700 hover:bg-red-50 px-2 py-1 rounded transition-colors disabled:opacity-50"
                             >
                               <Unlink className="w-3 h-3" />
-                              Unmap
+                              {t('access.unmap')}
                             </button>
                           ) : (
                             <span className="flex items-center gap-1 text-xs text-gray-400">
                               <Link2 className="w-3 h-3" />
-                              Not linked
+                              {t('access.notLinked')}
                             </span>
                           )}
                           {isSaving && <RefreshCw className="w-3 h-3 animate-spin text-blue-500" />}
@@ -332,9 +333,9 @@ export function AccessPage() {
 
         {!loading && members.length > 0 && (
           <div className="px-6 py-3 bg-gray-50 border-t text-xs text-gray-500 flex gap-4">
-            <span>{members.length} GitHub account{members.length !== 1 ? "s" : ""}</span>
-            <span>{members.filter((m) => m.mappedUserId).length} mapped</span>
-            <span>{members.filter((m) => !m.mappedUserId).length} unmapped</span>
+            <span>{t('access.github.accountCount', { count: members.length })}</span>
+            <span>{members.filter((m) => m.mappedUserId).length} {t('access.mapped')}</span>
+            <span>{members.filter((m) => !m.mappedUserId).length} {t('access.unmapped')}</span>
           </div>
         )}
       </Card>
@@ -345,9 +346,8 @@ export function AccessPage() {
         <div className="flex items-start gap-3 rounded-md border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800 mb-4">
           <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
           <div>
-            <span className="font-medium">Slack integration not connected.</span> Go to{" "}
-            <a href="/integrations" className="underline font-medium">Integrations</a>{" "}
-            to connect your Slack workspace to see members here.
+            <span className="font-medium">{t('access.slack.notConnected')}</span>{" "}
+            <Trans i18nKey="access.slack.connectPrompt" t={t} components={{ link: <a href="/integrations" className="underline font-medium" /> }} />
           </div>
         </div>
       )}
@@ -355,11 +355,11 @@ export function AccessPage() {
       <Card>
         <div className="px-6 py-4 border-b flex items-center gap-2">
           <SlackIcon className="w-4 h-4" />
-          <h3 className="text-sm font-semibold text-gray-700">Slack Accounts</h3>
+          <h3 className="text-sm font-semibold text-gray-700">{t('access.slack.title')}</h3>
           {slackConnected && (
             <Badge variant="default" className="ml-auto text-xs">
               <CheckCircle2 className="w-3 h-3 mr-1" />
-              Connected
+              {t('access.connected')}
             </Badge>
           )}
         </div>
@@ -368,21 +368,21 @@ export function AccessPage() {
           <table className="w-full">
             <thead className="bg-gray-50 border-b">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Slack Account</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mapped ISMS User</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Map to User</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('access.slack.account')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('access.columns.mappedUser')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('access.columns.mapTo')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('access.columns.actions')}</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {loading ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-10 text-center text-sm text-gray-400">Loading…</td>
+                  <td colSpan={4} className="px-6 py-10 text-center text-sm text-gray-400">{t('access.loading')}</td>
                 </tr>
               ) : slackMembers.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="px-6 py-10 text-center text-sm text-gray-400">
-                    {slackConnected ? "No Slack members found." : "Connect Slack to see workspace members."}
+                    {slackConnected ? t('access.slack.noMembers') : t('access.slack.connectToSee')}
                   </td>
                 </tr>
               ) : (
@@ -425,7 +425,7 @@ export function AccessPage() {
                             </div>
                           </div>
                         ) : (
-                          <span className="text-xs text-gray-400 italic">Not mapped</span>
+                          <span className="text-xs text-gray-400 italic">{t('access.notMapped')}</span>
                         )}
                       </td>
 
@@ -438,7 +438,7 @@ export function AccessPage() {
                            disabled={isSaving}
                            onChange={(e) => { const uid = e.target.value; if (uid) handleSlackMap(member, uid); }}
                          >
-                          <option value="">— Select user —</option>
+                          <option value="">{t('access.selectUser')}</option>
                           {users.map((u) => (
                             <option key={u.id} value={u.id}>
                               {u.name ? `${u.name} (${u.email})` : u.email}
@@ -457,12 +457,12 @@ export function AccessPage() {
                               className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700 hover:bg-red-50 px-2 py-1 rounded transition-colors disabled:opacity-50"
                             >
                               <Unlink className="w-3 h-3" />
-                              Unmap
+                              {t('access.unmap')}
                             </button>
                           ) : (
                             <span className="flex items-center gap-1 text-xs text-gray-400">
                               <Link2 className="w-3 h-3" />
-                              Not linked
+                              {t('access.notLinked')}
                             </span>
                           )}
                           {isSaving && <RefreshCw className="w-3 h-3 animate-spin text-purple-500" />}
@@ -478,9 +478,9 @@ export function AccessPage() {
 
         {!loading && slackMembers.length > 0 && (
           <div className="px-6 py-3 bg-gray-50 border-t text-xs text-gray-500 flex gap-4">
-            <span>{slackMembers.length} Slack account{slackMembers.length !== 1 ? "s" : ""}</span>
-            <span>{slackMembers.filter((m) => m.mappedUserId).length} mapped</span>
-            <span>{slackMembers.filter((m) => !m.mappedUserId).length} unmapped</span>
+            <span>{t('access.slack.accountCount', { count: slackMembers.length })}</span>
+            <span>{slackMembers.filter((m) => m.mappedUserId).length} {t('access.mapped')}</span>
+            <span>{slackMembers.filter((m) => !m.mappedUserId).length} {t('access.unmapped')}</span>
           </div>
         )}
       </Card>

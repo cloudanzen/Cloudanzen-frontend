@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { frameworksService, type TestMappingDto } from '@/services/api/frameworks';
@@ -6,6 +7,7 @@ import { FlaskConical } from 'lucide-react';
 import { TabPlaceholder } from './shared';
 
 export function TestsTab({ slug }: { slug: string }) {
+  const { t } = useTranslation('compliance');
   const { data: mappingsRes, isLoading } = useQuery({
     queryKey: ['frameworks', 'mappings', slug],
     queryFn: () => frameworksService.getFrameworkMappings(slug),
@@ -18,14 +20,14 @@ export function TestsTab({ slug }: { slug: string }) {
   const testMappings: TestMappingDto[] = mappingsRes?.data?.tests ?? [];
   const testsById = new Map(((testsRes?.data ?? []) as TestRecord[]).map((t) => [t.id, t]));
 
-  if (isLoading) return <TabPlaceholder icon={FlaskConical} text="Loading test mappings…" />;
+  if (isLoading) return <TabPlaceholder icon={FlaskConical} text={t('frameworkTabs.tests.loadingTests')} />;
 
   if (testMappings.length === 0) {
     return (
       <TabPlaceholder
         icon={FlaskConical}
-        text="No test mappings yet"
-        sub="Tests are linked to framework requirements at activation based on existing test-framework associations."
+        text={t('frameworkTabs.tests.noTests')}
+        sub={t('frameworkTabs.tests.noTestsDesc')}
       />
     );
   }
@@ -39,7 +41,7 @@ export function TestsTab({ slug }: { slug: string }) {
 
   return (
     <div className="space-y-6">
-      <div className="text-xs text-gray-500">{testMappings.length} test mappings across {Object.keys(byDomain).length} domain(s)</div>
+      <div className="text-xs text-gray-500">{t('frameworkTabs.tests.testCount', { count: testMappings.length, domains: Object.keys(byDomain).length })}</div>
 
       {Object.entries(byDomain).map(([domain, items]) => (
         <Card key={domain} className="border-gray-100">
@@ -58,7 +60,7 @@ export function TestsTab({ slug }: { slug: string }) {
                     </div>
                     <p className="text-xs text-gray-500">{testsById.get(mapping.testId)?.name ?? mapping.testId}</p>
                     <p className="text-xs text-gray-400">
-                      Last result: {testsById.get(mapping.testId)?.lastResult ?? 'Not_Run'} · Evidence: {testsById.get(mapping.testId)?.evidences?.length ?? 0}
+                      {t('frameworkTabs.tests.lastResult')}: {testsById.get(mapping.testId)?.lastResult ?? 'Not_Run'} · {t('frameworkTabs.tests.evidence')}: {testsById.get(mapping.testId)?.evidences?.length ?? 0}
                     </p>
                   </div>
                   <p className="text-xs text-gray-400 shrink-0">{new Date(mapping.createdAt).toLocaleDateString()}</p>

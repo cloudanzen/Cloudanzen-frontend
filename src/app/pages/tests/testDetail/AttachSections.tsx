@@ -1,6 +1,16 @@
 import { useState, useMemo, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Search, X, Upload, CheckCircle2, Loader2, FileText, ExternalLink } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import {
+  Plus,
+  Search,
+  X,
+  Upload,
+  CheckCircle2,
+  Loader2,
+  FileText,
+  ExternalLink,
+} from 'lucide-react';
 import { QK } from '@/lib/queryKeys';
 import { STALE } from '@/lib/queryClient';
 import { testsService } from '@/services/api/tests';
@@ -23,6 +33,7 @@ export function UploadEvidenceSection({
   controlId: string | null;
   onUploaded?: () => void;
 }) {
+  const { t } = useTranslation('tests');
   const qc = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -43,7 +54,11 @@ export function UploadEvidenceSection({
       qc.invalidateQueries({ queryKey: ['evidence'] });
       onUploaded?.();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Upload failed');
+      setError(
+        err instanceof Error
+          ? err.message
+          : t('testDetail.evidenceTab.uploadFailed'),
+      );
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -53,7 +68,7 @@ export function UploadEvidenceSection({
   if (!controlId) {
     return (
       <p className="mt-2 text-xs text-gray-400">
-        Link a control to this test to enable file uploads.
+        {t('testDetail.evidenceTab.linkControlFirst')}
       </p>
     );
   }
@@ -73,9 +88,15 @@ export function UploadEvidenceSection({
         className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 disabled:opacity-50"
       >
         {uploading ? (
-          <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Uploading...</>
+          <>
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />{' '}
+            {t('testDetail.evidenceTab.uploading')}
+          </>
         ) : (
-          <><Upload className="w-3.5 h-3.5" /> Upload file</>
+          <>
+            <Upload className="w-3.5 h-3.5" />{' '}
+            {t('testDetail.evidenceTab.uploadFile')}
+          </>
         )}
       </button>
       {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
@@ -94,6 +115,7 @@ export function MarkAsPassedPrompt({
   show: boolean;
   onDismiss: () => void;
 }) {
+  const { t } = useTranslation('tests');
   const qc = useQueryClient();
   const completeMutation = useMutation({
     mutationFn: () => testsService.completeTest(testId),
@@ -110,14 +132,16 @@ export function MarkAsPassedPrompt({
     <div className="mt-3 flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3">
       <CheckCircle2 className="h-4 w-4 shrink-0 text-green-600" />
       <p className="flex-1 text-sm text-green-800">
-        Evidence attached. Ready to mark this test as passed?
+        {t('attachSections.markAsPassed.prompt')}
       </p>
       <button
         onClick={() => completeMutation.mutate()}
         disabled={completeMutation.isPending}
         className="rounded-md bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700 disabled:opacity-50"
       >
-        {completeMutation.isPending ? 'Updating...' : 'Mark as Passed'}
+        {completeMutation.isPending
+          ? t('attachSections.markAsPassed.updating')
+          : t('attachSections.markAsPassed.confirm')}
       </button>
       <button
         onClick={onDismiss}
@@ -143,6 +167,7 @@ export function AttachEvidenceSection({
   controlIds?: string[];
   onAttached?: () => void;
 }) {
+  const { t } = useTranslation('tests');
   const qc = useQueryClient();
   const [showPicker, setShowPicker] = useState(false);
   const [search, setSearch] = useState('');
@@ -158,17 +183,12 @@ export function AttachEvidenceSection({
     enabled: showPicker,
   });
 
-  const controlIdSet = useMemo(
-    () => new Set(controlIds ?? []),
-    [controlIds],
-  );
+  const controlIdSet = useMemo(() => new Set(controlIds ?? []), [controlIds]);
 
   // Split into relevant (same controls) vs rest, then apply search
   const { relevant, rest } = useMemo(() => {
     if (!allEvidence) return { relevant: [], rest: [] };
-    const available = allEvidence.filter(
-      (e) => !existingIds.has(e.id),
-    );
+    const available = allEvidence.filter((e) => !existingIds.has(e.id));
     const q = search.toLowerCase();
     const matchesSearch = (e: (typeof available)[0]) =>
       !q ||
@@ -190,7 +210,8 @@ export function AttachEvidenceSection({
   }, [allEvidence, existingIds, search, controlIdSet]);
 
   const attachMutation = useMutation({
-    mutationFn: (evidenceId: string) => testsService.attachEvidence(testId, evidenceId),
+    mutationFn: (evidenceId: string) =>
+      testsService.attachEvidence(testId, evidenceId),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: QK.testDetail(testId) });
       onAttached?.();
@@ -203,17 +224,21 @@ export function AttachEvidenceSection({
         onClick={() => setShowPicker(true)}
         className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 mt-2"
       >
-        <Plus className="w-3.5 h-3.5" /> Attach existing evidence
+        <Plus className="w-3.5 h-3.5" /> {t('attachSections.attachEvidence')}
       </button>
     );
   }
 
   const renderItem = (e: NonNullable<typeof allEvidence>[number]) => (
-    <li key={e.id} className="flex items-center justify-between px-2 py-1.5 rounded hover:bg-blue-100 text-sm">
+    <li
+      key={e.id}
+      className="flex items-center justify-between px-2 py-1.5 rounded hover:bg-blue-100 text-sm"
+    >
       <div className="min-w-0">
         <p className="text-gray-800 truncate">{e.fileName ?? e.type}</p>
         <p className="text-xs text-gray-400">
-          {e.control?.isoReference ? `${e.control.isoReference} · ` : ''}{fmtDate(e.createdAt)}
+          {e.control?.isoReference ? `${e.control.isoReference} · ` : ''}
+          {fmtDate(e.createdAt)}
         </p>
       </div>
       <button
@@ -221,7 +246,7 @@ export function AttachEvidenceSection({
         disabled={attachMutation.isPending}
         className="ml-2 text-xs font-medium text-blue-600 hover:text-blue-800 disabled:opacity-50 whitespace-nowrap"
       >
-        Attach
+        {t('attachSections.attach')}
       </button>
     </li>
   );
@@ -234,25 +259,34 @@ export function AttachEvidenceSection({
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search evidence by name or control..."
+          placeholder={t('attachSections.searchEvidence')}
           className="flex-1 text-sm border-0 bg-transparent focus:outline-none placeholder:text-gray-400"
           autoFocus
         />
-        <button onClick={() => setShowPicker(false)} className="text-gray-400 hover:text-gray-600">
+        <button
+          onClick={() => setShowPicker(false)}
+          className="text-gray-400 hover:text-gray-600"
+        >
           <X className="w-4 h-4" />
         </button>
       </div>
       {isLoading ? (
-        <p className="text-xs text-gray-400 animate-pulse">Loading evidence...</p>
+        <p className="text-xs text-gray-400 animate-pulse">
+          {t('attachSections.loadingEvidence')}
+        </p>
       ) : relevant.length === 0 && rest.length === 0 ? (
-        <p className="text-xs text-gray-500">No available evidence to attach.</p>
+        <p className="text-xs text-gray-500">
+          {t('attachSections.noAvailableEvidence')}
+        </p>
       ) : (
         <div className="max-h-52 overflow-y-auto">
           {/* Relevant evidence from linked controls */}
           {relevant.length > 0 && (
             <>
               <p className="px-2 pb-1 text-xs font-medium text-green-700">
-                From linked controls ({relevant.length})
+                {t('attachSections.fromLinkedControls', {
+                  count: relevant.length,
+                })}
               </p>
               <ul className="space-y-0.5 mb-2">
                 {relevant.slice(0, 20).map(renderItem)}
@@ -268,13 +302,17 @@ export function AttachEvidenceSection({
                   onClick={() => setShowAll(true)}
                   className="px-2 py-1 text-xs font-medium text-blue-600 hover:text-blue-700"
                 >
-                  Show all other evidence ({rest.length})
+                  {t('attachSections.showAllOtherEvidence', {
+                    count: rest.length,
+                  })}
                 </button>
               ) : (
                 <>
                   {relevant.length > 0 && (
                     <p className="px-2 pb-1 pt-1 text-xs font-medium text-gray-500 border-t border-blue-200 mt-1">
-                      Other evidence ({rest.length})
+                      {t('attachSections.otherEvidence', {
+                        count: rest.length,
+                      })}
                     </p>
                   )}
                   <ul className="space-y-0.5">
@@ -292,7 +330,14 @@ export function AttachEvidenceSection({
 
 // ─── Attach Control ───────────────────────────────────────────────────────────
 
-export function AttachControlSection({ testId, existingIds }: { testId: string; existingIds: Set<string> }) {
+export function AttachControlSection({
+  testId,
+  existingIds,
+}: {
+  testId: string;
+  existingIds: Set<string>;
+}) {
+  const { t } = useTranslation('tests');
   const qc = useQueryClient();
   const [showPicker, setShowPicker] = useState(false);
   const [search, setSearch] = useState('');
@@ -311,12 +356,15 @@ export function AttachControlSection({ testId, existingIds }: { testId: string; 
     if (!allControls) return [];
     const q = search.toLowerCase();
     return allControls.filter(
-      (c) => !existingIds.has(c.id) && (`${c.isoReference} ${c.title}`.toLowerCase().includes(q)),
+      (c) =>
+        !existingIds.has(c.id) &&
+        `${c.isoReference} ${c.title}`.toLowerCase().includes(q),
     );
   }, [allControls, existingIds, search]);
 
   const attachMutation = useMutation({
-    mutationFn: (controlId: string) => testsService.attachControl(testId, controlId),
+    mutationFn: (controlId: string) =>
+      testsService.attachControl(testId, controlId),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: QK.testDetail(testId) });
     },
@@ -328,7 +376,8 @@ export function AttachControlSection({ testId, existingIds }: { testId: string; 
         onClick={() => setShowPicker(true)}
         className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 mt-2"
       >
-        <Plus className="w-3.5 h-3.5" /> Link control
+        <Plus className="w-3.5 h-3.5" />{' '}
+        {t('attachSections.attachControl.title')}
       </button>
     );
   }
@@ -341,22 +390,32 @@ export function AttachControlSection({ testId, existingIds }: { testId: string; 
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search controls by reference or title..."
+          placeholder={t('attachSections.attachControl.search')}
           className="flex-1 text-sm border-0 bg-transparent focus:outline-none placeholder:text-gray-400"
           autoFocus
         />
-        <button onClick={() => setShowPicker(false)} className="text-gray-400 hover:text-gray-600">
+        <button
+          onClick={() => setShowPicker(false)}
+          className="text-gray-400 hover:text-gray-600"
+        >
           <X className="w-4 h-4" />
         </button>
       </div>
       {isLoading ? (
-        <p className="text-xs text-gray-400 animate-pulse">Loading controls...</p>
+        <p className="text-xs text-gray-400 animate-pulse">
+          {t('attachSections.attachControl.loading')}
+        </p>
       ) : filtered.length === 0 ? (
-        <p className="text-xs text-gray-500">No available controls to link.</p>
+        <p className="text-xs text-gray-500">
+          {t('attachSections.attachControl.noResults')}
+        </p>
       ) : (
         <ul className="space-y-1 max-h-40 overflow-y-auto">
           {filtered.slice(0, 20).map((c) => (
-            <li key={c.id} className="flex items-center justify-between px-2 py-1.5 rounded hover:bg-blue-100 text-sm">
+            <li
+              key={c.id}
+              className="flex items-center justify-between px-2 py-1.5 rounded hover:bg-blue-100 text-sm"
+            >
               <div className="min-w-0">
                 <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-mono font-semibold bg-blue-50 text-blue-800 border border-blue-200 mr-2">
                   {c.isoReference}
@@ -368,7 +427,7 @@ export function AttachControlSection({ testId, existingIds }: { testId: string; 
                 disabled={attachMutation.isPending}
                 className="ml-2 text-xs font-medium text-blue-600 hover:text-blue-800 disabled:opacity-50 whitespace-nowrap"
               >
-                Link
+                {t('attachSections.attachAudit.link')}
               </button>
             </li>
           ))}
@@ -380,7 +439,14 @@ export function AttachControlSection({ testId, existingIds }: { testId: string; 
 
 // ─── Attach Audit ─────────────────────────────────────────────────────────────
 
-export function AttachAuditSection({ testId, existingIds }: { testId: string; existingIds: Set<string> }) {
+export function AttachAuditSection({
+  testId,
+  existingIds,
+}: {
+  testId: string;
+  existingIds: Set<string>;
+}) {
+  const { t } = useTranslation('tests');
   const qc = useQueryClient();
   const [showPicker, setShowPicker] = useState(false);
 
@@ -412,7 +478,7 @@ export function AttachAuditSection({ testId, existingIds }: { testId: string; ex
         onClick={() => setShowPicker(true)}
         className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 mt-2"
       >
-        <Plus className="w-3.5 h-3.5" /> Link audit
+        <Plus className="w-3.5 h-3.5" /> {t('attachSections.attachAudit.title')}
       </button>
     );
   }
@@ -420,29 +486,43 @@ export function AttachAuditSection({ testId, existingIds }: { testId: string; ex
   return (
     <div className="mt-3 border border-blue-200 rounded-lg p-3 bg-blue-50/50">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-sm font-medium text-gray-700">Select an audit to link</span>
-        <button onClick={() => setShowPicker(false)} className="text-gray-400 hover:text-gray-600">
+        <span className="text-sm font-medium text-gray-700">
+          {t('attachSections.attachAudit.select')}
+        </span>
+        <button
+          onClick={() => setShowPicker(false)}
+          className="text-gray-400 hover:text-gray-600"
+        >
           <X className="w-4 h-4" />
         </button>
       </div>
       {isLoading ? (
-        <p className="text-xs text-gray-400 animate-pulse">Loading audits...</p>
+        <p className="text-xs text-gray-400 animate-pulse">
+          {t('attachSections.attachAudit.loading')}
+        </p>
       ) : filtered.length === 0 ? (
-        <p className="text-xs text-gray-500">No available audits to link.</p>
+        <p className="text-xs text-gray-500">
+          {t('attachSections.attachAudit.noResults')}
+        </p>
       ) : (
         <ul className="space-y-1 max-h-40 overflow-y-auto">
           {filtered.map((a) => (
-            <li key={a.id} className="flex items-center justify-between px-2 py-1.5 rounded hover:bg-blue-100 text-sm">
+            <li
+              key={a.id}
+              className="flex items-center justify-between px-2 py-1.5 rounded hover:bg-blue-100 text-sm"
+            >
               <div className="min-w-0">
                 <p className="text-gray-800 font-medium truncate">{a.name}</p>
-                <p className="text-xs text-gray-400">{a.type} &middot; {a.status}</p>
+                <p className="text-xs text-gray-400">
+                  {a.type} &middot; {a.status}
+                </p>
               </div>
               <button
                 onClick={() => attachMutation.mutate(a.id)}
                 disabled={attachMutation.isPending}
                 className="ml-2 text-xs font-medium text-blue-600 hover:text-blue-800 disabled:opacity-50 whitespace-nowrap"
               >
-                Link
+                {t('attachSections.attachAudit.link')}
               </button>
             </li>
           ))}
@@ -455,12 +535,14 @@ export function AttachAuditSection({ testId, existingIds }: { testId: string; ex
 // ─── Add Framework ────────────────────────────────────────────────────────────
 
 export function AddFrameworkSection({ testId }: { testId: string }) {
+  const { t } = useTranslation('tests');
   const qc = useQueryClient();
   const [showInput, setShowInput] = useState(false);
   const [name, setName] = useState('');
 
   const attachMutation = useMutation({
-    mutationFn: (frameworkName: string) => testsService.attachFramework(testId, frameworkName),
+    mutationFn: (frameworkName: string) =>
+      testsService.attachFramework(testId, frameworkName),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: QK.testDetail(testId) });
       setName('');
@@ -474,7 +556,8 @@ export function AddFrameworkSection({ testId }: { testId: string }) {
         onClick={() => setShowInput(true)}
         className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 mt-2"
       >
-        <Plus className="w-3.5 h-3.5" /> Add framework
+        <Plus className="w-3.5 h-3.5" />{' '}
+        {t('attachSections.addFramework.title')}
       </button>
     );
   }
@@ -485,19 +568,25 @@ export function AddFrameworkSection({ testId }: { testId: string }) {
         type="text"
         value={name}
         onChange={(e) => setName(e.target.value)}
-        placeholder="Framework name (e.g. SOC 2, ISO 27001)"
+        placeholder={t('attachSections.addFramework.placeholder')}
         className="flex-1 text-sm border border-gray-300 rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
         autoFocus
-        onKeyDown={(e) => { if (e.key === 'Enter' && name.trim()) attachMutation.mutate(name.trim()); }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && name.trim())
+            attachMutation.mutate(name.trim());
+        }}
       />
       <button
         onClick={() => name.trim() && attachMutation.mutate(name.trim())}
         disabled={!name.trim() || attachMutation.isPending}
         className="text-sm font-medium text-blue-600 hover:text-blue-800 disabled:opacity-50"
       >
-        Add
+        {t('attachSections.addFramework.add')}
       </button>
-      <button onClick={() => setShowInput(false)} className="text-gray-400 hover:text-gray-600">
+      <button
+        onClick={() => setShowInput(false)}
+        className="text-gray-400 hover:text-gray-600"
+      >
         <X className="w-4 h-4" />
       </button>
     </div>
@@ -506,7 +595,12 @@ export function AddFrameworkSection({ testId }: { testId: string }) {
 
 // ─── Policy Documents (auto-linked) ─────────────────────────────────────────
 
-export function PolicyDocumentsSection({ controlIds }: { controlIds: string[] }) {
+export function PolicyDocumentsSection({
+  controlIds,
+}: {
+  controlIds: string[];
+}) {
+  const { t } = useTranslation('tests');
   const { data: policies, isLoading } = useQuery({
     queryKey: ['policies', 'by-controls', ...controlIds],
     queryFn: async () => {
@@ -518,10 +612,15 @@ export function PolicyDocumentsSection({ controlIds }: { controlIds: string[] })
   });
 
   if (controlIds.length === 0) return null;
-  if (isLoading) return <p className="text-xs text-gray-400 animate-pulse mt-2">Loading policy documents...</p>;
+  if (isLoading)
+    return (
+      <p className="text-xs text-gray-400 animate-pulse mt-2">
+        {t('attachSections.policyDocuments.loading')}
+      </p>
+    );
   if (!policies || policies.length === 0) return null;
 
-  const withDocs = policies.filter(p => p.documentUrl);
+  const withDocs = policies.filter((p) => p.documentUrl);
   if (withDocs.length === 0) return null;
 
   return (
@@ -529,19 +628,30 @@ export function PolicyDocumentsSection({ controlIds }: { controlIds: string[] })
       <div className="flex items-center gap-2 mb-2">
         <FileText className="w-3.5 h-3.5 text-indigo-600" />
         <span className="text-xs font-semibold text-indigo-800">
-          Policy Documents ({withDocs.length})
+          {t('attachSections.policyDocuments.count', {
+            count: withDocs.length,
+          })}
         </span>
-        <span className="ml-auto text-xs text-indigo-400">Auto-linked from controls</span>
+        <span className="ml-auto text-xs text-indigo-400">
+          {t('attachSections.policyDocuments.autoLinked')}
+        </span>
       </div>
       <ul className="space-y-1.5">
-        {withDocs.map(p => (
-          <li key={p.id} className="flex items-center justify-between gap-2 rounded-lg bg-white border border-indigo-100 px-3 py-2">
+        {withDocs.map((p) => (
+          <li
+            key={p.id}
+            className="flex items-center justify-between gap-2 rounded-lg bg-white border border-indigo-100 px-3 py-2"
+          >
             <div className="min-w-0">
               <p className="text-sm font-medium text-gray-800 truncate">
-                {p.name} <span className="text-gray-400 font-normal">v{p.version}</span>
+                {p.name}{' '}
+                <span className="text-gray-400 font-normal">v{p.version}</span>
               </p>
               <p className="text-xs text-gray-400">
-                {p.status} &middot; Linked to {p.controlIds.length} control{p.controlIds.length === 1 ? '' : 's'}
+                {p.status} &middot;{' '}
+                {t('attachSections.policyDocuments.linkedControls', {
+                  count: p.controlIds.length,
+                })}
               </p>
             </div>
             {p.documentUrl && (
@@ -551,7 +661,8 @@ export function PolicyDocumentsSection({ controlIds }: { controlIds: string[] })
                 rel="noreferrer"
                 className="inline-flex items-center gap-1 text-xs font-medium text-indigo-600 hover:text-indigo-800 whitespace-nowrap"
               >
-                <ExternalLink className="w-3 h-3" /> View
+                <ExternalLink className="w-3 h-3" />{' '}
+                {t('attachSections.policyDocuments.viewPolicy')}
               </a>
             )}
           </li>

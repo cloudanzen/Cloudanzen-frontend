@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- legacy: to be typed progressively */
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
 import { Badge } from '@/app/components/ui/badge';
@@ -72,6 +73,7 @@ export function EvidenceDetailPanel({
   evidence: EvidenceItem;
   onClose: () => void;
 }) {
+  const { t } = useTranslation('compliance');
   const [downloading, setDownloading] = useState(false);
 
   // Related tests — those linked to the same control
@@ -99,7 +101,7 @@ export function EvidenceDetailPanel({
         evidence.fileName ?? `evidence-${evidence.id.slice(0, 8)}`,
       );
     } catch {
-      toast.error('Failed to download evidence');
+      toast.error(t('evidenceDetail.downloadFailed'));
     } finally {
       setDownloading(false);
     }
@@ -120,7 +122,7 @@ export function EvidenceDetailPanel({
               </Badge>
               {evidence.automated && (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
-                  <Cpu className="w-3 h-3" /> Automated
+                  <Cpu className="w-3 h-3" /> {t('evidenceDetail.automated')}
                 </span>
               )}
             </div>
@@ -129,16 +131,16 @@ export function EvidenceDetailPanel({
             </h2>
             <p className="text-sm text-gray-500 leading-relaxed mt-1">
               {evidence.automated
-                ? 'Automatically collected evidence demonstrating compliance with linked controls. Periodically refreshed by integration scans.'
+                ? t('evidenceDetail.descAutomated')
                 : evidence.type === 'FILE'
-                  ? 'Uploaded document serving as proof of compliance. Review and re-upload periodically to keep evidence current.'
+                  ? t('evidenceDetail.descFile')
                   : evidence.type === 'SCREENSHOT'
-                    ? 'Screenshot evidence capturing the state of a system or configuration at a point in time.'
-                    : 'Evidence record supporting compliance verification for linked controls.'}
+                    ? t('evidenceDetail.descScreenshot')
+                    : t('evidenceDetail.descGeneric')}
             </p>
             {evidence.control && (
               <p className="text-xs text-gray-500 mt-1">
-                Linked to control{' '}
+                {t('evidenceDetail.linkedToControl')}{' '}
                 <span className="font-mono font-semibold text-blue-700">
                   {evidence.control.isoReference}
                 </span>{' '}
@@ -163,13 +165,13 @@ export function EvidenceDetailPanel({
               >
                 {isFile ? '✓' : '—'}
               </p>
-              <p className="text-xs text-gray-500 mt-0.5">File attached</p>
+              <p className="text-xs text-gray-500 mt-0.5">{t('evidenceDetail.fileAttached')}</p>
             </div>
             <div className="text-center">
               <p className="text-2xl font-bold text-gray-900">
                 {relatedTests.length}
               </p>
-              <p className="text-xs text-gray-500 mt-0.5">Related tests</p>
+              <p className="text-xs text-gray-500 mt-0.5">{t('evidenceDetail.relatedTests')}</p>
             </div>
             <div className="text-center">
               <p
@@ -177,7 +179,7 @@ export function EvidenceDetailPanel({
               >
                 {evidence.control ? '✓' : '—'}
               </p>
-              <p className="text-xs text-gray-500 mt-0.5">Control linked</p>
+              <p className="text-xs text-gray-500 mt-0.5">{t('evidenceDetail.controlLinked')}</p>
             </div>
           </div>
         </div>
@@ -186,12 +188,12 @@ export function EvidenceDetailPanel({
         <div className="flex-1 overflow-y-auto px-5 py-4">
           <Tabs defaultValue="overview" className="space-y-4">
             <TabsList className="rounded-xl bg-slate-100 p-1 h-auto">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="control">Control</TabsTrigger>
+              <TabsTrigger value="overview">{t('evidenceDetail.overview')}</TabsTrigger>
+              <TabsTrigger value="control">{t('evidenceDetail.control')}</TabsTrigger>
               <TabsTrigger value="tests">
-                Tests ({relatedTests.length})
+                {t('evidenceDetail.testsTab', { count: relatedTests.length })}
               </TabsTrigger>
-              {isFile && <TabsTrigger value="file">File</TabsTrigger>}
+              {isFile && <TabsTrigger value="file">{t('evidenceDetail.file')}</TabsTrigger>}
             </TabsList>
 
             {/* Overview tab */}
@@ -200,14 +202,14 @@ export function EvidenceDetailPanel({
                 <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 border-b border-gray-100">
                   <Hash className="w-4 h-4 text-gray-500" />
                   <span className="text-sm font-semibold text-gray-800">
-                    Evidence Metadata
+                    {t('evidenceDetail.evidenceMetadata')}
                   </span>
                 </div>
                 <div className="p-4">
                   <dl className="grid grid-cols-2 gap-3 text-sm">
                     <div>
                       <dt className="text-xs font-medium text-gray-400 uppercase tracking-wide">
-                        Type
+                        {t('evidenceDetail.type')}
                       </dt>
                       <dd className="mt-1">
                         <Badge variant={typeVariant(evidence.type)}>
@@ -217,15 +219,15 @@ export function EvidenceDetailPanel({
                     </div>
                     <div>
                       <dt className="text-xs font-medium text-gray-400 uppercase tracking-wide">
-                        Collection
+                        {t('evidenceDetail.collection')}
                       </dt>
                       <dd className="mt-1 text-gray-700">
-                        {evidence.automated ? 'Automated' : 'Manual'}
+                        {evidence.automated ? t('evidenceDetail.automated') : t('evidenceDetail.manual')}
                       </dd>
                     </div>
                     <div>
                       <dt className="text-xs font-medium text-gray-400 uppercase tracking-wide flex items-center gap-1">
-                        <Calendar className="w-3 h-3" /> Collected
+                        <Calendar className="w-3 h-3" /> {t('evidenceDetail.collected')}
                       </dt>
                       <dd className="mt-1 text-gray-700">
                         {fmtDate(evidence.createdAt)}
@@ -233,16 +235,16 @@ export function EvidenceDetailPanel({
                     </div>
                     <div>
                       <dt className="text-xs font-medium text-gray-400 uppercase tracking-wide flex items-center gap-1">
-                        <User className="w-3 h-3" /> Collected By
+                        <User className="w-3 h-3" /> {t('evidenceDetail.collectedBy')}
                       </dt>
                       <dd className="mt-1 text-gray-700">
-                        {evidence.collectedBy ?? 'system'}
+                        {evidence.collectedBy ?? t('evidenceDetail.system')}
                       </dd>
                     </div>
                     {evidence.hash && (
                       <div className="col-span-2">
                         <dt className="text-xs font-medium text-gray-400 uppercase tracking-wide flex items-center gap-1">
-                          <Shield className="w-3 h-3" /> Integrity Hash
+                          <Shield className="w-3 h-3" /> {t('evidenceDetail.integrityHash')}
                         </dt>
                         <dd className="mt-1 font-mono text-xs text-gray-600 break-all bg-gray-50 rounded px-2 py-1 border border-gray-100">
                           {evidence.hash}
@@ -258,7 +260,7 @@ export function EvidenceDetailPanel({
                   <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 border-b border-gray-100">
                     <Link2 className="w-4 h-4 text-gray-500" />
                     <span className="text-sm font-semibold text-gray-800">
-                      Linked Control
+                      {t('evidenceDetail.linkedControl')}
                     </span>
                   </div>
                   <div className="p-4">
@@ -287,7 +289,7 @@ export function EvidenceDetailPanel({
               {!evidence.control ? (
                 <div className="text-center py-12 text-gray-400">
                   <Link2 className="w-10 h-10 mx-auto mb-3 opacity-40" />
-                  <p className="text-sm">No control linked to this evidence.</p>
+                  <p className="text-sm">{t('evidenceDetail.noControlLinked')}</p>
                 </div>
               ) : (
                 <div className="rounded-xl border border-gray-200 p-5 space-y-4">
@@ -307,11 +309,10 @@ export function EvidenceDetailPanel({
                     </span>
                   </div>
                   <p className="text-xs text-gray-400">
-                    This evidence supports control compliance for{' '}
+                    {t('evidenceDetail.supportsControl')}{' '}
                     <span className="font-semibold text-gray-600">
                       {evidence.control.isoReference}
                     </span>
-                    .
                   </p>
                 </div>
               )}
@@ -322,10 +323,10 @@ export function EvidenceDetailPanel({
               {relatedTests.length === 0 ? (
                 <div className="text-center py-12 text-gray-400">
                   <FlaskConical className="w-10 h-10 mx-auto mb-3 opacity-40" />
-                  <p className="text-sm">No tests linked via this control.</p>
+                  <p className="text-sm">{t('evidenceDetail.noTestsLinked')}</p>
                 </div>
               ) : (
-                (relatedTests as any[]).map((t: any) => {
+                (relatedTests as any[]).map((test: any) => {
                   const badgeCls: Record<string, string> = {
                     OK: 'bg-green-100 text-green-700 border-green-200',
                     Overdue: 'bg-red-100 text-red-700 border-red-200',
@@ -335,21 +336,21 @@ export function EvidenceDetailPanel({
                   };
                   return (
                     <div
-                      key={t.id}
+                      key={test.id}
                       className="flex items-start justify-between p-4 rounded-xl border border-gray-100 bg-gray-50 gap-3"
                     >
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-gray-900">
-                          {t.name}
+                          {test.name}
                         </p>
                         <p className="text-xs text-gray-500 mt-0.5">
-                          {t.type} · {t.category}
+                          {test.type} · {test.category}
                         </p>
                       </div>
                       <span
-                        className={`text-xs px-2.5 py-1 rounded-full font-medium border flex-shrink-0 ${badgeCls[t.status] ?? 'bg-gray-100 text-gray-600 border-gray-200'}`}
+                        className={`text-xs px-2.5 py-1 rounded-full font-medium border flex-shrink-0 ${badgeCls[test.status] ?? 'bg-gray-100 text-gray-600 border-gray-200'}`}
                       >
-                        {t.status.replace(/_/g, ' ')}
+                        {test.status.replace(/_/g, ' ')}
                       </span>
                     </div>
                   );
@@ -371,7 +372,7 @@ export function EvidenceDetailPanel({
                           `evidence-${evidence.id.slice(0, 8)}`}
                       </p>
                       <p className="text-xs text-gray-400 mt-0.5">
-                        Attached evidence file
+                        {t('evidenceDetail.attachedFile')}
                       </p>
                     </div>
                   </div>
@@ -385,7 +386,7 @@ export function EvidenceDetailPanel({
                     ) : (
                       <Download className="w-4 h-4" />
                     )}
-                    {downloading ? 'Downloading…' : 'Download File'}
+                    {downloading ? t('evidenceDetail.downloading') : t('evidenceDetail.downloadFile')}
                   </button>
                 </div>
               </TabsContent>

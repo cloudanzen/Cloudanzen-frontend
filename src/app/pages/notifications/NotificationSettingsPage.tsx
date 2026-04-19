@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- legacy: to be typed progressively */
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/app/components/ui/card';
 import { Label } from '@/app/components/ui/label';
 import { Switch } from '@/app/components/ui/switch';
@@ -8,6 +9,7 @@ import { useNotificationPreferences, useUpdateNotificationPreference } from '@/a
 import { Loader2 } from 'lucide-react';
 
 export function NotificationSettingsPage() {
+  const { t } = useTranslation('common');
   const preferencesQuery = useNotificationPreferences();
   const updatePreference = useUpdateNotificationPreference();
 
@@ -29,7 +31,7 @@ export function NotificationSettingsPage() {
           <Card key={category} className="p-6">
             <div className="mb-5">
               <h2 className="text-lg font-semibold text-gray-900">{category}</h2>
-              <p className="text-sm text-gray-500">Tune channel preferences for {category.toLowerCase()} activity.</p>
+              <p className="text-sm text-gray-500">{t('notifications.settingsPage.channelHint', { category: category.toLowerCase() })}</p>
             </div>
             <div className="space-y-4">
               {preferences.map((preference) => {
@@ -43,15 +45,15 @@ export function NotificationSettingsPage() {
                       </div>
                       <div className="grid gap-3 sm:grid-cols-4 xl:min-w-[34rem]">
                         <label className="flex items-center justify-between rounded-xl border border-gray-100 px-3 py-2 text-sm">
-                          <span>In-app</span>
+                          <span>{t('notifications.settingsPage.inApp')}</span>
                           <Switch checked={preference.inAppEnabled} onCheckedChange={(checked) => updatePreference.mutate({ eventType: preference.eventType, body: { inAppEnabled: checked } })} />
                         </label>
                         <label className="flex items-center justify-between rounded-xl border border-gray-100 px-3 py-2 text-sm">
-                          <span>Email</span>
+                          <span>{t('notifications.settingsPage.email')}</span>
                           <Switch checked={preference.emailEnabled} onCheckedChange={(checked) => updatePreference.mutate({ eventType: preference.eventType, body: { emailEnabled: checked } })} />
                         </label>
                         <label className="flex items-center justify-between rounded-xl border border-gray-100 px-3 py-2 text-sm">
-                          <span>Slack</span>
+                          <span>{t('notifications.settingsPage.slack')}</span>
                           <Switch checked={preference.slackEnabled} onCheckedChange={(checked) => updatePreference.mutate({ eventType: preference.eventType, body: { slackEnabled: checked } })} />
                         </label>
                         <Select value={preference.digestMode} onValueChange={(value) => updatePreference.mutate({ eventType: preference.eventType, body: { digestMode: value as any } })}>
@@ -59,10 +61,10 @@ export function NotificationSettingsPage() {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="immediate">Immediate</SelectItem>
-                            <SelectItem value="hourly">Hourly</SelectItem>
-                            <SelectItem value="daily">Daily</SelectItem>
-                            <SelectItem value="weekly">Weekly</SelectItem>
+                            <SelectItem value="immediate">{t('notifications.settingsPage.immediate')}</SelectItem>
+                            <SelectItem value="hourly">{t('notifications.settingsPage.hourly')}</SelectItem>
+                            <SelectItem value="daily">{t('notifications.settingsPage.daily')}</SelectItem>
+                            <SelectItem value="weekly">{t('notifications.settingsPage.weekly')}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>

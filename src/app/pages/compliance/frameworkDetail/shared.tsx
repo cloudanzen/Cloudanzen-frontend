@@ -1,24 +1,26 @@
 import React from 'react';
+
 import { Card, CardContent } from '@/app/components/ui/card';
 import { Badge } from '@/app/components/ui/badge';
+import type { TFunction } from 'i18next';
 
 // ── Badge helpers ─────────────────────────────────────────────────────────────
 
-export function applicabilityBadge(status: string) {
-  if (status === 'not_applicable') return <Badge variant="outline" className="text-gray-400 border-gray-200 text-xs">N/A</Badge>;
-  return <Badge variant="outline" className="text-blue-600 border-blue-200 text-xs">Applicable</Badge>;
+export function applicabilityBadge(status: string, t: TFunction) {
+  if (status === 'not_applicable') return <Badge variant="outline" className="text-gray-400 border-gray-200 text-xs">{t('frameworkTabs.shared.na')}</Badge>;
+  return <Badge variant="outline" className="text-blue-600 border-blue-200 text-xs">{t('frameworkTabs.shared.applicable')}</Badge>;
 }
 
-export function reviewBadge(status: string) {
-  if (status === 'accepted') return <Badge className="bg-green-100 text-green-700 border-green-200 text-xs">Accepted</Badge>;
-  if (status === 'in_review') return <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-xs">In Review</Badge>;
-  return <Badge variant="outline" className="text-gray-400 text-xs">Not started</Badge>;
+export function reviewBadge(status: string, t: TFunction) {
+  if (status === 'accepted') return <Badge className="bg-green-100 text-green-700 border-green-200 text-xs">{t('frameworkTabs.shared.accepted')}</Badge>;
+  if (status === 'in_review') return <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-xs">{t('frameworkTabs.shared.inReview')}</Badge>;
+  return <Badge variant="outline" className="text-gray-400 text-xs">{t('frameworkTabs.shared.notStarted')}</Badge>;
 }
 
-export function mappingTypeBadge(type: string) {
-  if (type === 'direct')    return <Badge className="bg-green-100 text-green-700 border-green-200 text-xs">Confirmed</Badge>;
-  if (type === 'inherited') return <Badge className="bg-blue-100 text-blue-700 border-blue-200 text-xs">Inherited</Badge>;
-  return <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-xs">Suggested</Badge>;
+export function mappingTypeBadge(type: string, t: TFunction) {
+  if (type === 'direct')    return <Badge className="bg-green-100 text-green-700 border-green-200 text-xs">{t('frameworkTabs.shared.confirmed')}</Badge>;
+  if (type === 'inherited') return <Badge className="bg-blue-100 text-blue-700 border-blue-200 text-xs">{t('frameworkTabs.shared.inherited')}</Badge>;
+  return <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-xs">{t('frameworkTabs.shared.suggested')}</Badge>;
 }
 
 // ── Coverage Ring ─────────────────────────────────────────────────────────────

@@ -4,6 +4,7 @@ import { Card } from '@/app/components/ui/card';
 import { Badge } from '@/app/components/ui/badge';
 import { Button } from '@/app/components/ui/button';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import {
   RefreshCw,
   Shield,
@@ -50,16 +51,17 @@ function StatusIcon({
 }
 
 function ComplianceCheck({ label, value }: { label: string; value: boolean }) {
+  const { t } = useTranslation('personnel');
   return (
     <div className="flex items-center justify-between py-1 text-xs">
       <span className="text-gray-600">{label}</span>
       {value ? (
         <span className="flex items-center gap-1 text-green-700 font-medium">
-          <CheckCircle2 className="w-3.5 h-3.5" /> Pass
+          <CheckCircle2 className="w-3.5 h-3.5" /> {t('computers.pass')}
         </span>
       ) : (
         <span className="flex items-center gap-1 text-red-600 font-medium">
-          <XCircle className="w-3.5 h-3.5" /> Fail
+          <XCircle className="w-3.5 h-3.5" /> {t('computers.fail')}
         </span>
       )}
     </div>
@@ -76,6 +78,7 @@ interface ReassignModalProps {
 }
 
 function ReassignModal({ device, users, onClose, onSave }: ReassignModalProps) {
+  const { t } = useTranslation('personnel');
   const [selectedUserId, setSelectedUserId] = useState(device.ownerId ?? '');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -88,7 +91,9 @@ function ReassignModal({ device, users, onClose, onSave }: ReassignModalProps) {
       await onSave(device.id, selectedUserId);
       onClose();
     } catch (e: unknown) {
-      setError((e as { message?: string })?.message ?? 'Failed to reassign owner');
+      setError(
+        (e as { message?: string })?.message ?? t('computers.reassign.failed'),
+      );
     } finally {
       setSaving(false);
     }
@@ -100,7 +105,7 @@ function ReassignModal({ device, users, onClose, onSave }: ReassignModalProps) {
         <div className="flex items-center justify-between px-5 py-4 border-b">
           <div>
             <h2 className="text-sm font-semibold text-gray-900">
-              Reassign Device Owner
+              {t('computers.reassign.title')}
             </h2>
             <p className="text-xs text-gray-500 mt-0.5 font-mono">
               {device.hostname ?? device.name}
@@ -115,17 +120,17 @@ function ReassignModal({ device, users, onClose, onSave }: ReassignModalProps) {
         </div>
         <div className="px-5 py-4">
           <p className="text-xs text-gray-500 mb-3">
-            Changing the owner will attribute the MDM task to the selected user.
+            {t('computers.reassign.description')}
           </p>
           <label className="block text-xs font-medium text-gray-700 mb-1">
-            New Owner
+            {t('computers.reassign.newOwner')}
           </label>
           <select
             value={selectedUserId}
             onChange={(e) => setSelectedUserId(e.target.value)}
             className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="">— select a user —</option>
+            <option value="">{t('computers.reassign.selectUser')}</option>
             {users.map((u) => (
               <option key={u.id} value={u.id}>
                 {u.name} ({u.email})
@@ -141,7 +146,7 @@ function ReassignModal({ device, users, onClose, onSave }: ReassignModalProps) {
             onClick={onClose}
             disabled={saving}
           >
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button
             size="sm"
@@ -150,7 +155,7 @@ function ReassignModal({ device, users, onClose, onSave }: ReassignModalProps) {
               saving || !selectedUserId || selectedUserId === device.ownerId
             }
           >
-            {saving ? 'Saving…' : 'Save'}
+            {saving ? t('computers.reassign.saving') : t('common.save')}
           </Button>
         </div>
       </div>
@@ -161,6 +166,7 @@ function ReassignModal({ device, users, onClose, onSave }: ReassignModalProps) {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function ComputersPage() {
+  const { t } = useTranslation('personnel');
   const qc = useQueryClient();
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [revoking, setRevoking] = useState<string | null>(null);
@@ -193,7 +199,8 @@ export function ComputersPage() {
   const devices: ManagedDevice[] = devicesData ?? [];
   const users: UserWithGit[] = usersData ?? [];
   const error: string | null = devicesError
-    ? ((devicesError as { message?: string })?.message ?? 'Failed to load devices')
+    ? ((devicesError as { message?: string })?.message ??
+      t('computers.failedToLoad'))
     : null;
 
   const toggleExpand = (id: string) => {
@@ -209,19 +216,16 @@ export function ComputersPage() {
   };
 
   const handleRevoke = async (device: ManagedDevice) => {
-    if (
-      !confirm(
-        `Revoke ${device.name}? The agent will no longer be able to check in.`,
-      )
-    )
-      return;
+    if (!confirm(t('computers.confirmRevoke', { name: device.name }))) return;
     setRevoking(device.id);
     try {
       await mdmService.revokeDevice(device.id);
       // Invalidate so the cache gets fresh revocation status
       qc.invalidateQueries({ queryKey: QK.mdmDevices() });
     } catch (e: unknown) {
-      alert((e as { message?: string })?.message ?? 'Failed to revoke device');
+      alert(
+        (e as { message?: string })?.message ?? t('computers.failedToRevoke'),
+      );
     } finally {
       setRevoking(null);
     }
@@ -249,8 +253,8 @@ export function ComputersPage() {
 
   return (
     <PageTemplate
-      title="Computers"
-      description="Managed Mac endpoints reporting to Manzen MDM. Enroll devices from the Integrations page."
+      title={t('computers.title')}
+      description={t('computers.description')}
       actions={
         <Button
           variant="outline"
@@ -261,7 +265,7 @@ export function ComputersPage() {
           <RefreshCw
             className={`w-4 h-4 mr-2 ${isFetching ? 'animate-spin' : ''}`}
           />
-          Refresh
+          {t('computers.refresh')}
         </Button>
       }
     >
@@ -269,13 +273,17 @@ export function ComputersPage() {
         <div className="grid grid-cols-3 gap-3 mb-4">
           {[
             {
-              label: 'Total Devices',
+              label: t('computers.stats.totalDevices'),
               value: devices.length,
               color: 'text-gray-700',
             },
-            { label: 'Compliant', value: compliant, color: 'text-green-700' },
             {
-              label: 'Non-Compliant',
+              label: t('computers.stats.compliant'),
+              value: compliant,
+              color: 'text-green-700',
+            },
+            {
+              label: t('computers.stats.nonCompliant'),
               value: nonCompliant,
               color: 'text-red-600',
             },
@@ -302,25 +310,25 @@ export function ComputersPage() {
             <thead className="bg-gray-50 border-b">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Device
+                  {t('computers.columns.device')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  OS
+                  {t('computers.columns.os')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Owner
+                  {t('computers.columns.owner')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Last Seen
+                  {t('computers.columns.lastSeen')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Compliance
+                  {t('computers.columns.compliance')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
+                  {t('computers.columns.status')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
+                  {t('computers.columns.actions')}
                 </th>
               </tr>
             </thead>
@@ -331,7 +339,7 @@ export function ComputersPage() {
                     colSpan={7}
                     className="px-6 py-10 text-center text-sm text-gray-400"
                   >
-                    Loading devices…
+                    {t('computers.loading')}
                   </td>
                 </tr>
               ) : devices.length === 0 ? (
@@ -340,11 +348,11 @@ export function ComputersPage() {
                     colSpan={7}
                     className="px-6 py-10 text-center text-sm text-gray-400"
                   >
-                    No managed devices yet. Go to{' '}
+                    {t('computers.emptyPrefix')}{' '}
                     <a href="/integrations" className="text-blue-600 underline">
-                      Integrations
+                      {t('computers.integrationsLink')}
                     </a>{' '}
-                    to create an enrollment token and install the agent.
+                    {t('computers.emptySuffix')}
                   </td>
                 </tr>
               ) : (
@@ -383,7 +391,7 @@ export function ComputersPage() {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                           {owner ?? (
                             <span className="text-gray-300 italic">
-                              unassigned
+                              {t('computers.unassigned')}
                             </span>
                           )}
                         </td>
@@ -402,16 +410,18 @@ export function ComputersPage() {
                             <StatusIcon status={cs} />
                             <span className="text-xs font-medium text-gray-700">
                               {cs === 'COMPLIANT'
-                                ? 'Compliant'
+                                ? t('computers.complianceStatus.compliant')
                                 : cs === 'NON_COMPLIANT'
-                                  ? 'Non-compliant'
-                                  : 'Unknown'}
+                                  ? t('computers.complianceStatus.nonCompliant')
+                                  : t('computers.complianceStatus.unknown')}
                             </span>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <Badge variant={revoked ? 'destructive' : 'default'}>
-                            {revoked ? 'Revoked' : 'Active'}
+                            {revoked
+                              ? t('computers.deviceStatus.revoked')
+                              : t('computers.deviceStatus.active')}
                           </Badge>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -425,12 +435,12 @@ export function ComputersPage() {
                               ) : (
                                 <ChevronDown className="w-3 h-3" />
                               )}
-                              Details
+                              {t('computers.details')}
                             </button>
                             <button
                               onClick={() => setReassignDevice(device)}
                               className="text-gray-500 hover:text-gray-700 p-1 rounded hover:bg-gray-100"
-                              title="Reassign owner"
+                              title={t('computers.reassignOwner')}
                             >
                               <UserCog className="w-3.5 h-3.5" />
                             </button>
@@ -439,7 +449,7 @@ export function ComputersPage() {
                                 onClick={() => handleRevoke(device)}
                                 disabled={revoking === device.id}
                                 className="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50"
-                                title="Revoke device"
+                                title={t('computers.revokeDevice')}
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>
@@ -453,36 +463,36 @@ export function ComputersPage() {
                           <td colSpan={7} className="px-8 py-3">
                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-8 gap-y-0 divide-y divide-blue-100">
                               <ComplianceCheck
-                                label="Disk Encryption (A.8.24)"
+                                label={t('computers.checks.diskEncryption')}
                                 value={device.compliance.diskEncryptionEnabled}
                               />
                               <ComplianceCheck
-                                label="Screen Lock (A.5.15)"
+                                label={t('computers.checks.screenLock')}
                                 value={device.compliance.screenLockEnabled}
                               />
                               <ComplianceCheck
-                                label="Firewall (A.8.20)"
+                                label={t('computers.checks.firewall')}
                                 value={device.compliance.firewallEnabled}
                               />
                               <ComplianceCheck
-                                label="Antivirus (A.8.7)"
+                                label={t('computers.checks.antivirus')}
                                 value={device.compliance.antivirusEnabled}
                               />
                               <ComplianceCheck
-                                label="System Integrity (A.8.7)"
+                                label={t('computers.checks.systemIntegrity')}
                                 value={device.compliance.systemIntegrityEnabled}
                               />
                               <ComplianceCheck
-                                label="Auto Updates (A.8.8)"
+                                label={t('computers.checks.autoUpdates')}
                                 value={device.compliance.autoUpdateEnabled}
                               />
                               <ComplianceCheck
-                                label="Gatekeeper"
+                                label={t('computers.checks.gatekeeper')}
                                 value={device.compliance.gatekeeperEnabled}
                               />
                             </div>
                             <p className="text-xs text-gray-400 mt-2">
-                              Last checked:{' '}
+                              {t('computers.lastChecked')}{' '}
                               {new Date(
                                 device.compliance.lastCheckedAt,
                               ).toLocaleString()}
@@ -500,7 +510,7 @@ export function ComputersPage() {
 
         {!loading && devices.length > 0 && (
           <div className="px-6 py-3 bg-gray-50 border-t text-xs text-gray-500">
-            {devices.length} managed device{devices.length !== 1 ? 's' : ''}
+            {t('computers.managedDevices', { count: devices.length })}
           </div>
         )}
       </Card>

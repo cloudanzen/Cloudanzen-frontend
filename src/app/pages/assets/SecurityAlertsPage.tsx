@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { Card } from '@/app/components/ui/card';
@@ -17,6 +18,7 @@ interface Alert {
 }
 
 export function SecurityAlertsPage() {
+  const { t } = useTranslation('assets');
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -44,8 +46,8 @@ export function SecurityAlertsPage() {
 
   return (
     <PageTemplate
-      title="Security Alerts"
-      description="Critical and high-severity risks requiring immediate attention."
+      title={t('securityAlerts.title')}
+      description={t('securityAlerts.description')}
     >
       {loading ? (
         <div className="flex items-center justify-center h-48"><Loader2 className="w-8 h-8 animate-spin text-gray-400" /></div>

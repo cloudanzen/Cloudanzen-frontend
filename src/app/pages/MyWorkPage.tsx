@@ -21,18 +21,19 @@ function isOverdue(dueDate: string): boolean {
 
 // ─── Status badge ─────────────────────────────────────────────────────────────
 
-const STATUS_CFG: Record<TestStatus, { label: string; cls: string }> = {
-  OK:                { label: 'Complete',          cls: 'bg-green-50 text-green-700 border-green-200' },
-  Due_soon:          { label: 'Due Soon',           cls: 'bg-amber-50 text-amber-700 border-amber-200' },
-  Overdue:           { label: 'Overdue',            cls: 'bg-red-50 text-red-700 border-red-200' },
-  Needs_remediation: { label: 'Needs Remediation',  cls: 'bg-purple-50 text-purple-700 border-purple-200' },
+const STATUS_CFG: Record<TestStatus, { key: string; label: string; cls: string }> = {
+  OK:                { key: 'complete',          label: 'Complete',          cls: 'bg-green-50 text-green-700 border-green-200' },
+  Due_soon:          { key: 'dueSoon',           label: 'Due Soon',           cls: 'bg-amber-50 text-amber-700 border-amber-200' },
+  Overdue:           { key: 'overdue',           label: 'Overdue',            cls: 'bg-red-50 text-red-700 border-red-200' },
+  Needs_remediation: { key: 'needsRemediation',  label: 'Needs Remediation',  cls: 'bg-purple-50 text-purple-700 border-purple-200' },
 };
 
 function StatusBadge({ status }: { status: TestStatus }) {
-  const cfg = STATUS_CFG[status] ?? { label: status, cls: 'bg-gray-50 text-gray-600 border-gray-200' };
+  const { t } = useTranslation('dashboard');
+  const cfg = STATUS_CFG[status] ?? { key: status, label: status, cls: 'bg-gray-50 text-gray-600 border-gray-200' };
   return (
     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${cfg.cls}`}>
-      {cfg.label}
+      {t(`myTasks.statusLabels.${cfg.key}`, cfg.label)}
     </span>
   );
 }

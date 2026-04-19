@@ -280,7 +280,7 @@ export function Sidebar({ collapsed = false }: { collapsed?: boolean }) {
       icon: Settings,
       children: [
         { id: 'connectedApps', title: t('nav.connectedApps'), href: '/integrations' },
-        { id: 'partnerApi', title: t('nav.partnerApi'), href: '/integrations/partner-api', roles: ['SUPER_ADMIN'] },
+        { id: 'partnerApi', title: t('nav.partnerApi'), href: '/integrations/partner-api', roles: [...ADMIN_ROLES] },
       ],
     },
     { id: 'mySecurityTasks', title: t('nav.mySecurityTasks'), href: '/my-security-tasks', icon: CheckSquare },

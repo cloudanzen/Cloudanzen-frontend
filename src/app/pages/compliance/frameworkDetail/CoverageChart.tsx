@@ -10,6 +10,7 @@
  * pages without coverage history — saving ~341 KB on the initial page load.
  */
 
+import { useTranslation } from 'react-i18next';
 import {
   Area,
   AreaChart,
@@ -27,6 +28,7 @@ interface CoverageChartProps {
 }
 
 export function CoverageChart({ history, openGaps }: CoverageChartProps) {
+  const { t } = useTranslation('compliance');
   const data = history.map((item) => ({
     time: new Date(item.calculatedAt).toLocaleDateString(undefined, {
       month: 'short',
@@ -51,20 +53,20 @@ export function CoverageChart({ history, openGaps }: CoverageChartProps) {
               dataKey="controlCoveragePct"
               stroke="#2563eb"
               fill="#bfdbfe"
-              name="Control coverage"
+              name={t('frameworkTabs.overview.controlCoverage')}
             />
             <Area
               type="monotone"
               dataKey="testPassRatePct"
               stroke="#16a34a"
               fill="#bbf7d0"
-              name="Test pass rate"
+              name={t('frameworkTabs.overview.testPassRate')}
             />
           </AreaChart>
         </ResponsiveContainer>
       </div>
       <div className="mt-3 text-xs text-gray-500">
-        Open gaps now:{' '}
+        {t('frameworkTabs.overview.openGapsNow')}{' '}
         <span className="font-medium text-gray-800">{openGaps}</span>
       </div>
     </>

@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -772,20 +773,21 @@ function EvidenceLockerTab() {
 // ── Main Page ────────────────────────────────────────────────────────────────
 
 export function DocumentsPage() {
+  const { t } = useTranslation('compliance');
   return (
     <PageTemplate
-      title="Documents"
-      description="Required compliance documents and evidence collected from integrations."
+      title={t('documents.title')}
+      description={t('documents.description')}
     >
       <Tabs defaultValue="required-documents">
         <TabsList>
           <TabsTrigger value="required-documents">
             <ClipboardCheck className="w-4 h-4" />
-            Required Documents
+            {t('documents.requiredDocuments')}
           </TabsTrigger>
           <TabsTrigger value="evidence-locker">
             <FileText className="w-4 h-4" />
-            Evidence Locker
+            {t('documents.evidenceLocker')}
           </TabsTrigger>
         </TabsList>
 

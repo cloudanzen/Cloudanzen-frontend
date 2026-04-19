@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useNavigate, Link } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
 import { Input } from '@/app/components/ui/input';
@@ -65,13 +66,14 @@ const registerSchema = z
 type RegisterFormData = z.output<typeof registerSchema>;
 
 function PasswordStrengthIndicator({ password }: { password: string }) {
+  const { t } = useTranslation('auth');
   if (!password) return null;
   const requirements = [
-    { label: '8+ characters', met: password.length >= 8 },
-    { label: 'Uppercase letter', met: /[A-Z]/.test(password) },
-    { label: 'Lowercase letter', met: /[a-z]/.test(password) },
-    { label: 'Number', met: /[0-9]/.test(password) },
-    { label: 'Special character', met: /[^A-Za-z0-9]/.test(password) },
+    { label: t('register.passwordRequirements.minLength'), met: password.length >= 8 },
+    { label: t('register.passwordRequirements.uppercase'), met: /[A-Z]/.test(password) },
+    { label: t('register.passwordRequirements.lowercase'), met: /[a-z]/.test(password) },
+    { label: t('register.passwordRequirements.number'), met: /[0-9]/.test(password) },
+    { label: t('register.passwordRequirements.specialChar'), met: /[^A-Za-z0-9]/.test(password) },
   ];
   const metCount = requirements.filter((r) => r.met).length;
   const strengthColor =
@@ -81,7 +83,7 @@ function PasswordStrengthIndicator({ password }: { password: string }) {
         ? 'text-amber-500'
         : 'text-green-600';
   const strengthLabel =
-    metCount <= 2 ? 'Weak' : metCount <= 4 ? 'Fair' : 'Strong';
+    metCount <= 2 ? t('register.passwordStrength.weak') : metCount <= 4 ? t('register.passwordStrength.fair') : t('register.passwordStrength.strong');
   const barColors = requirements.map((r) =>
     r.met
       ? metCount <= 2
@@ -103,7 +105,7 @@ function PasswordStrengthIndicator({ password }: { password: string }) {
         ))}
       </div>
       <p className={`text-xs font-medium ${strengthColor}`}>
-        Password strength: {strengthLabel}
+        {t('register.passwordStrength.label')}: {strengthLabel}
       </p>
     </div>
   );
@@ -121,6 +123,7 @@ function PasswordField({
   placeholder: string;
 }) {
   const [show, setShow] = useState(false);
+  const { t } = useTranslation('auth');
   return (
     <FormField
       control={control}
@@ -142,7 +145,7 @@ function PasswordField({
                 type="button"
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                 onClick={() => setShow(!show)}
-                aria-label={show ? 'Hide password' : 'Show password'}
+                aria-label={show ? t('register.hidePassword') : t('register.showPassword')}
               >
                 {show ? (
                   <EyeOff className="w-4 h-4" />
@@ -162,16 +165,17 @@ function PasswordField({
 
 export function RegisterPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation('auth');
   const [isLoading, setIsLoading] = useState(false);
   // Block registration if system is already set up
   useEffect(() => {
     setupService.getSetupStatus().then((res: any) => {
       if (res?.canSetup !== true) {
-        toast.error('System already set up. Contact your admin to create new organizations.');
+        toast.error(t('register.errors.alreadySetUp'));
         navigate('/login');
       }
     }).catch(() => {});
-  }, [navigate]);
+  }, [navigate, t]);
 
   const form = useForm<z.input<typeof registerSchema>, any, RegisterFormData>({
     resolver: zodResolver(registerSchema),
@@ -208,21 +212,21 @@ export function RegisterPage() {
           ) ?? 0;
         if (activatedFrameworks > 0) {
           toast.success(
-            `Activated ${activatedFrameworks} framework${activatedFrameworks === 1 ? '' : 's'} during setup.`,
+            t('register.success.frameworksActivated', { count: activatedFrameworks }),
           );
         }
         if (createdSuites > 0) {
           toast.success(
-            `Created ${createdSuites} starter test${createdSuites === 1 ? '' : 's'} during setup.`,
+            t('register.success.testsCreated', { count: createdSuites }),
           );
         }
         toast.success(
-          'Organization registered successfully! Please sign in to continue.',
+          t('register.success.registered'),
         );
         navigate('/login');
       } else {
         toast.error(
-          (response as any).error || 'Registration failed. Please try again.',
+          (response as any).error || t('register.errors.registrationFailed'),
         );
       }
     } catch (error: unknown) {

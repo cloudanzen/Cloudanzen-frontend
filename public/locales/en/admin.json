@@ -1,24 +1,52 @@
 {
+  "common": {
+    "accessDenied": "Access Denied",
+    "unauthorized": "Unauthorized",
+    "superAdminRequired": "SUPER_ADMIN role required."
+  },
   "controlTemplates": {
     "title": "Control Templates",
     "description": "Manage global control template library",
     "newTemplate": "New Template",
     "searchPlaceholder": "Search templates...",
-    "noTemplates": "No templates found"
+    "noTemplates": "No templates found",
+    "libraryTitle": "Control Template Library",
+    "libraryDescription": "Manage the platform-wide control templates that get deployed to customer organizations on framework activation.",
+    "loading": "Loading templates...",
+    "mappingsCount": "{{count}} mappings",
+    "stats": {
+      "totalTemplates": "Total Templates",
+      "domains": "Domains",
+      "totalMappings": "Total Mappings",
+      "frameworks": "Frameworks"
+    }
   },
   "testTemplates": {
     "title": "Test Templates",
     "description": "Manage automated test template library",
     "newTemplate": "New Template",
     "searchPlaceholder": "Search test templates...",
-    "noTemplates": "No templates found"
+    "noTemplates": "No templates found",
+    "libraryDescription": "Pre-built test definitions cloned into organizations on framework activation.",
+    "stats": {
+      "totalTests": "Total Tests",
+      "categories": "Categories",
+      "automated": "Automated",
+      "document": "Document"
+    }
   },
   "policyTemplates": {
     "title": "Policy Templates",
     "description": "Manage global policy template library",
     "newTemplate": "New Template",
     "searchPlaceholder": "Search policy templates...",
-    "noTemplates": "No templates found"
+    "noTemplates": "No templates found",
+    "stats": {
+      "totalPolicies": "Total Policies",
+      "categories": "Categories",
+      "requirementLinks": "Requirement Links",
+      "controlLinks": "Control Links"
+    }
   },
   "frameworks": {
     "title": "Frameworks",
@@ -38,6 +66,11 @@
       "plan": "Plan",
       "users": "Users",
       "createdAt": "Created"
+    },
+    "stats": {
+      "organizations": "Organizations",
+      "totalUsers": "Total Users",
+      "activeFrameworks": "Active Frameworks"
     }
   }
 }

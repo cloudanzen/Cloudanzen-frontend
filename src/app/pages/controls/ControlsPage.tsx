@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- legacy: to be typed progressively */
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { clearAuthSession } from '@/services/authStorage';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { controlsService } from '@/services/api/controls';
@@ -16,6 +17,7 @@ import { QK } from '@/lib/queryKeys';
 import { STALE } from '@/lib/queryClient';
 
 export function ControlsPage() {
+  const { t } = useTranslation('compliance');
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { filters, update, reset } = useUrlFilterState({
@@ -204,7 +206,7 @@ export function ControlsPage() {
       <div className="bg-card border-b border-border px-6 py-4 flex items-center justify-between sticky top-0 z-10 shadow-sm">
         <div>
           <h1 className="text-xl font-semibold text-foreground tracking-tight">
-            Controls
+            {t('controls.title')}
           </h1>
         </div>
 
@@ -212,7 +214,7 @@ export function ControlsPage() {
           {hasActiveFilters && (
             <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
               <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-              Filters active
+              {t('controls.filtersActive')}
             </span>
           )}
           <button
@@ -224,7 +226,7 @@ export function ControlsPage() {
             <RefreshCw
               className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`}
             />
-            <span className="hidden sm:inline">Refresh</span>
+            <span className="hidden sm:inline">{t('controls.refresh')}</span>
           </button>
           <ColumnSelector
             columns={columns}
@@ -237,28 +239,28 @@ export function ControlsPage() {
         <PageFilterBar
           searchValue={filter.search}
           onSearchChange={(value) => update({ search: value })}
-          searchPlaceholder="Search title or description"
+          searchPlaceholder={t('controls.searchTitleOrDescription')}
           selects={[
             {
               key: 'isoReference',
               value: filter.isoReference,
-              placeholder: 'Reference',
+              placeholder: t('controls.reference'),
               onChange: (value) => update({ isoReference: value }),
-              options: [{ value: '', label: 'All references' }],
+              options: [{ value: '', label: t('controls.allReferences') }],
             },
             {
               key: 'status',
               value: filter.status,
-              placeholder: 'Status',
+              placeholder: t('controls.columns.status'),
               onChange: (value) => update({ status: value }),
               options: [
-                { value: '', label: 'All statuses' },
-                { value: 'IMPLEMENTED', label: 'Implemented' },
+                { value: '', label: t('controls.allStatuses') },
+                { value: 'IMPLEMENTED', label: t('controls.implemented') },
                 {
                   value: 'PARTIALLY_IMPLEMENTED',
-                  label: 'Partially Implemented',
+                  label: t('controls.partiallyImplemented'),
                 },
-                { value: 'NOT_IMPLEMENTED', label: 'Not Implemented' },
+                { value: 'NOT_IMPLEMENTED', label: t('controls.notImplemented') },
               ],
             },
           ]}
@@ -270,7 +272,7 @@ export function ControlsPage() {
             />
           }
           resultCount={filteredControls.length}
-          resultLabel="controls"
+          resultLabel={t('controls.resultLabel')}
           activeFilters={activeFilters}
           onClearAll={handleClearFilters}
         />
@@ -281,27 +283,27 @@ export function ControlsPage() {
         <div className="px-6 pt-4 pb-2">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <SummaryCard
-              label="Total Controls"
+              label={t('controls.totalControls')}
               value={filteredControls.length}
               color="text-foreground"
               bg="bg-card"
             />
             <SummaryCard
-              label="Implemented"
+              label={t('controls.implemented')}
               value={implemented}
               color="text-green-700"
               bg="bg-green-50"
               accent="border-green-200"
             />
             <SummaryCard
-              label="Partial"
+              label={t('controls.partial')}
               value={partial}
               color="text-amber-700"
               bg="bg-amber-50"
               accent="border-amber-200"
             />
             <SummaryCard
-              label="Not Implemented"
+              label={t('controls.notImplemented')}
               value={notImpl}
               color="text-red-700"
               bg="bg-red-50"
@@ -313,7 +315,7 @@ export function ControlsPage() {
           <div className="mt-3 bg-card rounded-xl border border-border px-4 py-3 shadow-sm">
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-sm font-medium text-foreground">
-                Compliance score
+                {t('controls.complianceScore')}
               </span>
               <span className="text-sm font-semibold text-blue-700">
                 {compliancePct}%
@@ -354,12 +356,8 @@ export function ControlsPage() {
               />
               <div className="flex items-center justify-between px-4 py-2 bg-card rounded-xl border border-border shadow-sm">
                 <span className="text-sm text-muted-foreground">
-                  Showing{' '}
-                  <span className="font-medium text-foreground">
-                    {filteredControls.length}
-                  </span>{' '}
-                  control{filteredControls.length !== 1 ? 's' : ''}
-                  {hasActiveFilters && ' (filtered)'}
+                  {t('controls.showingCount', { count: filteredControls.length })}
+                  {hasActiveFilters && ` ${t('controls.filtered')}`}
                 </span>
               </div>
             </>
@@ -396,10 +394,11 @@ function SummaryCard({
 }
 
 function LoadingState() {
+  const { t } = useTranslation('compliance');
   return (
     <div className="flex-1 flex flex-col items-center justify-center py-20 bg-card rounded-xl border border-border shadow-sm">
       <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4" />
-      <p className="text-sm text-muted-foreground">Loading controls...</p>
+      <p className="text-sm text-muted-foreground">{t('controls.loading')}</p>
     </div>
   );
 }
@@ -411,6 +410,7 @@ function ErrorState({
   message: string;
   onRetry: () => void;
 }) {
+  const { t } = useTranslation('compliance');
   return (
     <div className="flex-1 flex flex-col items-center justify-center py-20 bg-card rounded-xl border border-red-200 shadow-sm">
       <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mb-4">
@@ -429,7 +429,7 @@ function ErrorState({
         </svg>
       </div>
       <p className="text-base font-medium text-foreground mb-1">
-        Failed to load controls
+        {t('controls.failedToLoad')}
       </p>
       <p className="text-sm text-muted-foreground mb-4 text-center max-w-xs">
         {message}
@@ -438,7 +438,7 @@ function ErrorState({
         onClick={onRetry}
         className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors shadow-sm"
       >
-        Try again
+        {t('controls.tryAgain')}
       </button>
     </div>
   );
@@ -451,6 +451,7 @@ function EmptyState({
   hasFilters: boolean;
   onClear: () => void;
 }) {
+  const { t } = useTranslation('compliance');
   return (
     <div className="flex-1 flex flex-col items-center justify-center py-20 bg-card rounded-xl border border-border shadow-sm">
       <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-4">
@@ -469,19 +470,19 @@ function EmptyState({
         </svg>
       </div>
       <p className="text-base font-medium text-foreground mb-1">
-        No controls found
+        {t('controls.noControlsFound')}
       </p>
       <p className="text-sm text-muted-foreground mb-4">
         {hasFilters
-          ? 'No controls match your current filters.'
-          : 'No controls have been created yet.'}
+          ? t('controls.noControlsMatchFilters')
+          : t('controls.noControlsCreated')}
       </p>
       {hasFilters && (
         <button
           onClick={onClear}
           className="px-5 py-2 rounded-lg border border-border text-foreground text-sm font-medium hover:bg-muted transition-colors"
         >
-          Clear filters
+          {t('controls.clearFilters')}
         </button>
       )}
     </div>

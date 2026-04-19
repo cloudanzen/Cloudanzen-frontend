@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { PageTemplate } from '@/app/components/PageTemplate';
@@ -51,43 +52,44 @@ function CreateSnapshotDialog({
   onClose: () => void;
   onCreated: (id: string) => void;
 }) {
+  const { t } = useTranslation('risk');
   const [name, setName] = useState('');
 
   const mutation = useMutation({
     mutationFn: () => risksService.createSnapshot(name.trim()),
     onSuccess: (res) => {
       if (res.data) {
-        toast.success('Snapshot created');
+        toast.success(t('snapshot.createDialog.success'));
         onCreated(res.data.id);
         setName('');
       }
     },
-    onError: () => toast.error('Failed to create snapshot'),
+    onError: () => toast.error(t('snapshot.createDialog.error')),
   });
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) { setName(''); onClose(); } }}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Create Risk Snapshot</DialogTitle>
+          <DialogTitle>{t('snapshot.createDialog.title')}</DialogTitle>
         </DialogHeader>
         <p className="text-sm text-muted-foreground">
-          This will freeze your current risk register into an immutable, auditor-ready record.
+          {t('snapshot.createDialog.description')}
         </p>
         <Input
-          placeholder='e.g. "ISO 27001 – 2025 Annual Assessment"'
+          placeholder={t('snapshot.createDialog.placeholder')}
           value={name}
           onChange={(e) => setName(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter' && name.trim()) mutation.mutate(); }}
         />
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button variant="outline" onClick={onClose}>{t('snapshot.createDialog.cancel')}</Button>
           <Button
             onClick={() => mutation.mutate()}
             disabled={!name.trim() || mutation.isPending}
           >
             {mutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-            Create Snapshot
+            {t('snapshot.createDialog.create')}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -104,6 +106,7 @@ function SnapshotDetail({
   snapshotId: string;
   onBack: () => void;
 }) {
+  const { t } = useTranslation('risk');
   const qc = useQueryClient();
 
   const { data: snap, isLoading } = useQuery<RiskSnapshotRecord>({
@@ -118,7 +121,7 @@ function SnapshotDetail({
       qc.invalidateQueries({ queryKey: QK.riskSnapshots() });
       qc.invalidateQueries({ queryKey: QK.riskSnapshotDetail(snapshotId) });
     },
-    onError: () => toast.error('Failed to update sharing'),
+    onError: () => toast.error(t('snapshot.detail.sharingError')),
   });
 
   const metrics = useMemo(() => {
@@ -175,17 +178,17 @@ function SnapshotDetail({
             className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-2"
           >
             <ChevronLeft className="w-3.5 h-3.5" />
-            Snapshots
+            {t('snapshot.detail.backToSnapshots')}
           </button>
           <h2 className="text-xl font-semibold">{snap.name}</h2>
           <p className="text-sm text-muted-foreground mt-0.5">
-            Created {fmt(snap.createdAt)} · {snap.riskCount} risk{snap.riskCount !== 1 ? 's' : ''}
+            {t('snapshot.detail.createdInfo', { date: fmt(snap.createdAt), count: snap.riskCount })}
           </p>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 text-sm">
             <Share2 className="w-4 h-4 text-muted-foreground" />
-            <span className="text-muted-foreground">Shared with auditor</span>
+            <span className="text-muted-foreground">{t('snapshot.detail.sharedWithAuditor')}</span>
             <Switch
               checked={snap.sharedWithAuditor}
               onCheckedChange={() => toggleMutation.mutate()}
@@ -194,7 +197,7 @@ function SnapshotDetail({
           </div>
           <Button variant="outline" size="sm" onClick={exportCsv}>
             <Download className="w-4 h-4 mr-1.5" />
-            Export CSV
+            {t('snapshot.detail.exportCsv')}
           </Button>
         </div>
       </div>
@@ -202,16 +205,16 @@ function SnapshotDetail({
       {/* Immutability notice */}
       <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
         <Lock className="w-4 h-4 shrink-0" />
-        This snapshot is immutable. It captures risk state at the time of creation and cannot be edited.
+        {t('snapshot.detail.immutableNotice')}
       </div>
 
       {/* Metric cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: 'Total risks', value: metrics.total },
-          { label: 'Critical / High', value: metrics.criticalHigh },
-          { label: 'Accepted', value: metrics.accepted },
-          { label: 'Mitigated', value: metrics.mitigated },
+          { label: t('snapshot.detail.totalRisks'), value: metrics.total },
+          { label: t('snapshot.detail.criticalHigh'), value: metrics.criticalHigh },
+          { label: t('snapshot.detail.accepted'), value: metrics.accepted },
+          { label: t('snapshot.detail.mitigated'), value: metrics.mitigated },
         ].map((m) => (
           <Card key={m.label} className="p-5">
             <p className="text-sm text-muted-foreground">{m.label}</p>
@@ -223,7 +226,7 @@ function SnapshotDetail({
       {/* Risk table */}
       {items.length === 0 ? (
         <Card className="p-8 text-center text-sm text-muted-foreground">
-          No risks were in the register at the time this snapshot was captured.
+          {t('snapshot.detail.noRisks')}
         </Card>
       ) : (
         <Card className="overflow-hidden">
@@ -231,13 +234,13 @@ function SnapshotDetail({
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-muted/40 text-xs text-muted-foreground">
-                  <th className="px-4 py-2 text-left font-medium">Risk</th>
-                  <th className="px-4 py-2 text-left font-medium">Asset</th>
-                  <th className="px-4 py-2 text-left font-medium">Impact</th>
-                  <th className="px-4 py-2 text-left font-medium">Likelihood</th>
-                  <th className="px-4 py-2 text-right font-medium">Score</th>
-                  <th className="px-4 py-2 text-left font-medium">Status</th>
-                  <th className="px-4 py-2 text-left font-medium">Treatments</th>
+                  <th className="px-4 py-2 text-left font-medium">{t('snapshot.detail.columns.risk')}</th>
+                  <th className="px-4 py-2 text-left font-medium">{t('snapshot.detail.columns.asset')}</th>
+                  <th className="px-4 py-2 text-left font-medium">{t('snapshot.detail.columns.impact')}</th>
+                  <th className="px-4 py-2 text-left font-medium">{t('snapshot.detail.columns.likelihood')}</th>
+                  <th className="px-4 py-2 text-right font-medium">{t('snapshot.detail.columns.score')}</th>
+                  <th className="px-4 py-2 text-left font-medium">{t('snapshot.detail.columns.status')}</th>
+                  <th className="px-4 py-2 text-left font-medium">{t('snapshot.detail.columns.treatments')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -276,7 +279,7 @@ function SnapshotDetail({
                     </td>
                     <td className="px-4 py-3">
                       {item.treatments.length === 0 ? (
-                        <span className="text-muted-foreground text-xs">None</span>
+                        <span className="text-muted-foreground text-xs">{t('snapshot.detail.none')}</span>
                       ) : (
                         <div className="flex flex-wrap gap-1">
                           {item.treatments.map((t) => (
@@ -305,6 +308,7 @@ function SnapshotDetail({
 // ── Snapshot List ──────────────────────────────────────────────────────────────
 
 function SnapshotList({ onSelect }: { onSelect: (id: string) => void }) {
+  const { t } = useTranslation('risk');
   const qc = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -317,7 +321,7 @@ function SnapshotList({ onSelect }: { onSelect: (id: string) => void }) {
   const toggleMutation = useMutation({
     mutationFn: (id: string) => risksService.toggleSnapshotShare(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: QK.riskSnapshots() }),
-    onError: () => toast.error('Failed to update sharing'),
+    onError: () => toast.error(t('snapshot.detail.sharingError')),
   });
 
   return (
@@ -339,14 +343,14 @@ function SnapshotList({ onSelect }: { onSelect: (id: string) => void }) {
         <Card className="flex flex-col items-center gap-4 p-12 text-center">
           <Camera className="h-10 w-10 text-muted-foreground/40" />
           <div>
-            <p className="font-medium">No snapshots yet</p>
+            <p className="font-medium">{t('snapshot.list.noSnapshots')}</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              Create your first snapshot to provide auditors with a tamper-proof view of your risk register.
+              {t('snapshot.list.noSnapshotsDesc')}
             </p>
           </div>
           <Button onClick={() => setDialogOpen(true)}>
             <Camera className="w-4 h-4 mr-2" />
-            Create First Snapshot
+            {t('snapshot.list.createFirst')}
           </Button>
         </Card>
       ) : (
@@ -354,10 +358,10 @@ function SnapshotList({ onSelect }: { onSelect: (id: string) => void }) {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b bg-muted/40 text-xs text-muted-foreground">
-                <th className="px-4 py-2 text-left font-medium">Name</th>
-                <th className="px-4 py-2 text-left font-medium">Created</th>
-                <th className="px-4 py-2 text-right font-medium">Risks</th>
-                <th className="px-4 py-2 text-center font-medium">Shared with auditor</th>
+                <th className="px-4 py-2 text-left font-medium">{t('snapshot.list.columns.name')}</th>
+                <th className="px-4 py-2 text-left font-medium">{t('snapshot.list.columns.created')}</th>
+                <th className="px-4 py-2 text-right font-medium">{t('snapshot.list.columns.risks')}</th>
+                <th className="px-4 py-2 text-center font-medium">{t('snapshot.list.columns.shared')}</th>
                 <th className="px-4 py-2" />
               </tr>
             </thead>
@@ -383,7 +387,7 @@ function SnapshotList({ onSelect }: { onSelect: (id: string) => void }) {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <Button variant="ghost" size="sm" onClick={() => onSelect(s.id)}>
-                      View
+                      {t('snapshot.list.view')}
                     </Button>
                   </td>
                 </tr>
@@ -399,19 +403,20 @@ function SnapshotList({ onSelect }: { onSelect: (id: string) => void }) {
 // ── Main Page ──────────────────────────────────────────────────────────────────
 
 export function SnapshotPage() {
+  const { t } = useTranslation('risk');
   const qc = useQueryClient();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
   return (
     <PageTemplate
-      title="Risk Snapshots"
-      description="Point-in-time, immutable records of your risk register for audit evidence and compliance reporting."
+      title={t('snapshot.title')}
+      description={t('snapshot.description')}
       actions={
         selectedId ? undefined : (
           <Button onClick={() => setDialogOpen(true)}>
             <Camera className="w-4 h-4 mr-2" />
-            Create Snapshot
+            {t('snapshot.createSnapshot')}
           </Button>
         )
       }

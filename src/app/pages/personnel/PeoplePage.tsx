@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- legacy: to be typed progressively */
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { QK } from '@/lib/queryKeys';
 import { STALE } from '@/lib/queryClient';
 import { PageTemplate } from '@/app/components/PageTemplate';
@@ -129,9 +130,13 @@ function TaskRow({
             </span>
           )}
         </div>
-        {detail && <p className="text-xs text-muted-foreground mt-0.5">{detail}</p>}
+        {detail && (
+          <p className="text-xs text-muted-foreground mt-0.5">{detail}</p>
+        )}
         {subDetail && (
-          <p className="text-xs text-muted-foreground/70 mt-0.5 font-mono">{subDetail}</p>
+          <p className="text-xs text-muted-foreground/70 mt-0.5 font-mono">
+            {subDetail}
+          </p>
         )}
       </div>
     </div>
@@ -145,6 +150,7 @@ function UserDetailPanel({
   user: UserOnboardingSummary;
   onClose: () => void;
 }) {
+  const { t } = useTranslation('personnel');
   const ob = user.onboarding;
   const policyIds: string[] = (() => {
     try {
@@ -168,10 +174,14 @@ function UserDetailPanel({
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-foreground truncate">
               {user.name ?? (
-                <span className="italic text-muted-foreground/70">No name</span>
+                <span className="italic text-muted-foreground/70">
+                  {t('people.noName')}
+                </span>
               )}
             </p>
-            <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+            <p className="text-xs text-muted-foreground truncate">
+              {user.email}
+            </p>
           </div>
           <button
             onClick={onClose}
@@ -185,10 +195,13 @@ function UserDetailPanel({
         <div className="px-5 py-3 bg-muted border-b border-border flex-shrink-0">
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-xs font-semibold text-foreground">
-              Security Onboarding
+              {t('people.detail.securityOnboarding')}
             </span>
             <span className="text-xs font-bold text-blue-700">
-              {ob.completedCount}/{ob.totalCount} complete
+              {t('people.detail.complete', {
+                count: ob.completedCount,
+                total: ob.totalCount,
+              })}
             </span>
           </div>
           <div className="h-2 bg-muted rounded-full overflow-hidden">
@@ -201,7 +214,8 @@ function UserDetailPanel({
           </div>
           {ob.allComplete && (
             <p className="text-xs text-green-700 font-medium mt-1.5 flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5" /> All tasks complete
+              <ShieldCheck className="w-3.5 h-3.5" />{' '}
+              {t('people.detail.allTasksComplete')}
             </p>
           )}
         </div>
@@ -209,70 +223,93 @@ function UserDetailPanel({
         {/* Task detail */}
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
-            Task Status
+            {t('people.detail.taskStatus')}
           </p>
 
           {/* Task 1 */}
           <TaskRow
             icon={FileText}
-            title="Accept All Organisation Policies"
+            title={t('people.detail.tasks.acceptPolicies.title')}
             done={ob.policyAccepted}
             detail={
               ob.policyAccepted
-                ? `Accepted on ${fmtDateTime(ob.policyAcceptedAt)}`
+                ? t('people.detail.tasks.acceptPolicies.acceptedOn', {
+                    date: fmtDateTime(ob.policyAcceptedAt),
+                  })
                 : undefined
             }
             subDetail={
               ob.policyAccepted && policyIds.length > 0
-                ? `${policyIds.length} polic${policyIds.length === 1 ? 'y' : 'ies'} acknowledged`
+                ? t('people.detail.tasks.acceptPolicies.acknowledged', {
+                    count: policyIds.length,
+                  })
                 : ob.policyAccepted
                   ? undefined
-                  : 'Not yet accepted'
+                  : t('people.detail.tasks.acceptPolicies.notYetAccepted')
             }
           />
 
           {/* Task 2 */}
           <TaskRow
             icon={Laptop}
-            title="Install MDM Agent"
+            title={t('people.detail.tasks.installMdm.title')}
             done={ob.mdmEnrolled}
             detail={
               ob.mdmEnrolled
-                ? `Enrolled on ${fmtDateTime(ob.mdmEnrolledAt)}`
-                : 'Awaiting device enrollment'
+                ? t('people.detail.tasks.installMdm.enrolledOn', {
+                    date: fmtDateTime(ob.mdmEnrolledAt),
+                  })
+                : t('people.detail.tasks.installMdm.awaitingEnrollment')
             }
-            subDetail={ob.deviceId ? `Device: ${ob.deviceId}` : undefined}
+            subDetail={
+              ob.deviceId
+                ? t('people.detail.tasks.installMdm.device', {
+                    id: ob.deviceId,
+                  })
+                : undefined
+            }
           />
 
           {/* Task 3 */}
           <TaskRow
             icon={BookOpen}
-            title="Complete Security Awareness Training"
+            title={t('people.detail.tasks.training.title')}
             done={ob.trainingCompleted}
             inProgress={ob.trainingStarted && !ob.trainingCompleted}
             detail={
               ob.trainingCompleted
-                ? `Completed on ${fmtDateTime(ob.trainingCompletedAt)}`
+                ? t('people.detail.tasks.training.completedOn', {
+                    date: fmtDateTime(ob.trainingCompletedAt),
+                  })
                 : ob.trainingStarted
-                  ? `Started on ${fmtDateTime(ob.trainingStartedAt)} — training not completed yet`
-                  : 'Not started'
+                  ? t('people.detail.tasks.training.startedOn', {
+                      date: fmtDateTime(ob.trainingStartedAt),
+                    })
+                  : t('people.detail.tasks.training.notStarted')
             }
           />
 
           {/* User info */}
           <div className="mt-4 pt-4 border-t border-border space-y-2">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              User Info
+              {t('people.detail.userInfo')}
             </p>
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div>
-                <p className="text-muted-foreground/70">Role</p>
+                <p className="text-muted-foreground/70">
+                  {t('people.columns.role')}
+                </p>
                 <p className="font-medium text-foreground">
-                  {roleLabel(user.role)}
+                  {t(
+                    `people.roles.${user.role as AppRole}`,
+                    ROLE_LABELS[user.role as AppRole],
+                  )}
                 </p>
               </div>
               <div>
-                <p className="text-muted-foreground/70">Joined</p>
+                <p className="text-muted-foreground/70">
+                  {t('people.columns.joined')}
+                </p>
                 <p className="font-medium text-foreground">
                   {new Date(user.createdAt).toLocaleDateString()}
                 </p>
@@ -297,6 +334,7 @@ const ALL_ROLES: AppRole[] = [
 ];
 
 export function PeoplePage() {
+  const { t } = useTranslation('personnel');
   const qc = useQueryClient();
   const currentUser = useCurrentUser();
   const canAssignRoles = useHasPermission(PERMISSIONS.USERS_ROLES_ASSIGN);
@@ -328,7 +366,7 @@ export function PeoplePage() {
   const users: UserWithGit[] = usersData ?? [];
   const loading = loadingUsers;
   const error: string | null = usersError
-    ? ((usersError as any)?.message ?? 'Failed to load users')
+    ? ((usersError as any)?.message ?? t('people.failedToLoadUsers'))
     : null;
 
   const onboardingMap = new Map<string, UserOnboardingSummary>();
@@ -340,13 +378,17 @@ export function PeoplePage() {
   };
 
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Remove ${name || 'this user'} from the organisation?`))
+    if (
+      !confirm(
+        t('people.confirmRemove', { name: name || t('people.thisUser') }),
+      )
+    )
       return;
     try {
       await usersService.deleteUser(id);
       qc.invalidateQueries({ queryKey: QK.users() });
     } catch (e: unknown) {
-      alert(e instanceof Error ? e.message : 'Failed to remove user');
+      alert(e instanceof Error ? e.message : t('people.failedToRemoveUser'));
     }
   };
 
@@ -357,8 +399,8 @@ export function PeoplePage() {
 
   return (
     <PageTemplate
-      title="People"
-      description="Organisation members and their security roles."
+      title={t('people.title')}
+      description={t('people.description')}
       actions={
         <div className="flex gap-2">
           <Button
@@ -370,7 +412,7 @@ export function PeoplePage() {
             <RefreshCw
               className={`w-4 h-4 mr-2 ${isFetching ? 'animate-spin' : ''}`}
             />
-            Refresh
+            {t('people.refresh')}
           </Button>
         </div>
       }
@@ -394,22 +436,22 @@ export function PeoplePage() {
             <thead className="bg-muted border-b">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Name / Email
+                  {t('people.columns.nameEmail')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Role
+                  {t('people.columns.role')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  GitHub Accounts
+                  {t('people.columns.githubAccounts')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Onboarding
+                  {t('people.columns.onboarding')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Joined
+                  {t('people.columns.joined')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Actions
+                  {t('people.columns.actions')}
                 </th>
               </tr>
             </thead>
@@ -420,7 +462,7 @@ export function PeoplePage() {
                     colSpan={6}
                     className="px-6 py-10 text-center text-sm text-muted-foreground/70"
                   >
-                    Loading users…
+                    {t('people.loading')}
                   </td>
                 </tr>
               ) : users.length === 0 ? (
@@ -429,7 +471,7 @@ export function PeoplePage() {
                     colSpan={6}
                     className="px-6 py-10 text-center text-sm text-muted-foreground/70"
                   >
-                    No users found.
+                    {t('people.noUsersFound')}
                   </td>
                 </tr>
               ) : (
@@ -451,7 +493,7 @@ export function PeoplePage() {
                         <div className="text-sm font-medium text-foreground">
                           {user.name ?? (
                             <span className="text-muted-foreground/70 italic">
-                              No name
+                              {t('people.noName')}
                             </span>
                           )}
                         </div>
@@ -480,11 +522,11 @@ export function PeoplePage() {
                               }
                             }}
                             className="text-xs font-medium px-2 py-1 rounded-md border border-border bg-card cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            title="Change role"
+                            title={t('people.changeRole')}
                           >
                             {ALL_ROLES.map((r) => (
                               <option key={r} value={r}>
-                                {ROLE_LABELS[r]}
+                                {t(`people.roles.${r}`, ROLE_LABELS[r])}
                               </option>
                             ))}
                           </select>
@@ -501,7 +543,9 @@ export function PeoplePage() {
                         onClick={(e) => e.stopPropagation()}
                       >
                         {user.gitAccounts.length === 0 ? (
-                          <span className="text-xs text-muted-foreground/70">—</span>
+                          <span className="text-xs text-muted-foreground/70">
+                            —
+                          </span>
                         ) : (
                           <div className="flex flex-col gap-1">
                             {user.gitAccounts.map((ga) => (
@@ -557,7 +601,13 @@ export function PeoplePage() {
                                 <span
                                   key={i}
                                   className={`w-5 h-5 rounded-md flex items-center justify-center ${done ? 'bg-green-100' : 'bg-muted'}`}
-                                  title={['Policies', 'MDM', 'Training'][i]}
+                                  title={
+                                    [
+                                      t('people.onboardingTitles.policies'),
+                                      t('people.onboardingTitles.mdm'),
+                                      t('people.onboardingTitles.training'),
+                                    ][i]
+                                  }
                                 >
                                   <Icon
                                     className={`w-3 h-3 ${done ? 'text-green-600' : 'text-muted-foreground/70'}`}
@@ -568,7 +618,9 @@ export function PeoplePage() {
                             <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/70" />
                           </div>
                         ) : (
-                          <span className="text-xs text-muted-foreground/70">—</span>
+                          <span className="text-xs text-muted-foreground/70">
+                            —
+                          </span>
                         )}
                       </td>
 
@@ -587,7 +639,7 @@ export function PeoplePage() {
                             handleDelete(user.id, user.name ?? user.email)
                           }
                           className="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50 transition-colors"
-                          title="Remove user"
+                          title={t('people.removeUser')}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -602,7 +654,7 @@ export function PeoplePage() {
 
         {!loading && users.length > 0 && (
           <div className="px-6 py-3 bg-muted border-t text-xs text-muted-foreground">
-            {users.length} member{users.length !== 1 ? 's' : ''}
+            {t('people.members', { count: users.length })}
             {onboardingMap.size > 0 && (
               <span className="ml-2 text-muted-foreground/70">
                 ·{' '}
@@ -611,7 +663,7 @@ export function PeoplePage() {
                     (u) => u.onboarding.allComplete,
                   ).length
                 }{' '}
-                fully onboarded
+                {t('people.fullyOnboarded')}
               </span>
             )}
           </div>

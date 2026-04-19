@@ -1,17 +1,49 @@
 {
   "profile": {
-    "title": "Profile Settings",
-    "description": "Manage your personal account settings",
+    "title": "Profile",
+    "description": "Your account identity and organisation details.",
+    "displayName": "Display name",
     "nameLabel": "Display Name",
+    "namePlaceholder": "Your full name",
     "emailLabel": "Email Address",
     "saveButton": "Save Changes",
-    "saving": "Saving...",
+    "saveName": "Save name",
+    "saving": "Saving…",
     "saved": "Changes saved",
+    "nameUpdated": "Display name updated successfully.",
+    "nameUpdateFailed": "Failed to update profile.",
+    "organisation": "Organisation",
     "changePassword": "Change Password",
+    "changePasswordDesc": "Use a strong password with uppercase letters, numbers, and symbols.",
+    "currentPassword": "Current password",
+    "currentPasswordPlaceholder": "Enter current password",
     "currentPasswordLabel": "Current Password",
+    "newPassword": "New password",
+    "newPasswordPlaceholder": "At least 8 characters",
     "newPasswordLabel": "New Password",
+    "confirmNewPassword": "Confirm new password",
+    "confirmPasswordPlaceholder": "Repeat new password",
     "confirmPasswordLabel": "Confirm New Password",
-    "updatePassword": "Update Password"
+    "updatePassword": "Update password",
+    "updating": "Updating…",
+    "passwordChanged": "Password changed successfully.",
+    "passwordChangeFailed": "Failed to change password.",
+    "language": "Language",
+    "languageDesc": "Choose your preferred display language.",
+    "accountInfo": "Account Information",
+    "emailAddress": "Email address",
+    "role": "Role",
+    "accountCreated": "Account created",
+    "userId": "User ID",
+    "validation": {
+      "nameRequired": "Display name is required",
+      "currentPasswordRequired": "Current password is required",
+      "passwordMinLength": "Password must be at least 8 characters",
+      "passwordUppercase": "Must contain at least one uppercase letter",
+      "passwordNumber": "Must contain at least one number",
+      "confirmRequired": "Please confirm your new password",
+      "passwordMismatch": "Passwords do not match"
+    }
   },
   "organization": {
     "title": "Organization Settings",
@@ -45,7 +77,28 @@
   },
   "ai": {
     "title": "AI Settings",
-    "description": "Configure AI assistant preferences"
+    "description": "Configure AI assistant preferences",
+    "byok": {
+      "title": "AI Settings",
+      "description": "Configure your own AI API key to power all AI features (evidence synthesis, questionnaire assistant, image scanning, risk enrichment, and more).",
+      "loading": "Loading AI settings...",
+      "saved": "AI settings saved.",
+      "saveFailed": "Failed to save settings.",
+      "keyVerified": "API key verified! Model: {{model}}",
+      "testFailed": "Test failed.",
+      "keyRemoved": "API key removed. Using platform default."
+    }
+  },
+  "mcp": {
+    "updated": "Settings updated",
+    "updateFailed": "Failed to update settings",
+    "keyRevoked": "API key revoked",
+    "revokeFailed": "Failed to revoke key",
+    "copied": "Copied to clipboard",
+    "serverUrl": "MCP Server URL",
+    "serverDescription": "Point your AI agent (Claude Desktop, Cursor, etc.) at this endpoint and authenticate with an MCP API key.",
+    "serverHint": "Use this URL as the MCP server endpoint in your agent configuration, and supply an active API key (created below) as the bearer token.",
+    "copy": "Copy"
   },
   "billing": {
     "title": "Billing",
@@ -60,6 +113,25 @@
     "email": "Email Notifications",
     "slack": "Slack Notifications",
     "save": "Save Preferences"
+  },
+  "privacy": {
+    "title": "Privacy Settings",
+    "description": "Configure privacy module settings.",
+    "saveChanges": "Save Changes",
+    "dataManagement": "Data Management",
+    "autoClassify": "Auto-classify Data",
+    "autoClassifyDesc": "Automatically classify new data assets",
+    "dataInventory": {
+      "title": "Data Inventory",
+      "description": "Track and classify data assets across your organization.",
+      "addAsset": "Add Data Asset",
+      "dataType": "Data Type",
+      "location": "Location",
+      "classification": "Classification",
+      "retentionPeriod": "Retention Period",
+      "actions": "Actions",
+      "edit": "Edit"
+    }
   },
   "access": {
     "users": {

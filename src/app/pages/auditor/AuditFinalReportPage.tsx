@@ -17,6 +17,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { Button } from '@/app/components/ui/button';
@@ -42,8 +43,10 @@ import {
   AuditReportMetrics,
   AuditSnapshot,
 } from '@/services/api/audits';
+import { usersService } from '@/services/api/users';
 import { useCanAudit } from '@/hooks/useCurrentUser';
 import { useConfirmDialog } from '@/app/hooks/useConfirmDialog';
+import { resolveAuditorLabel } from '@/lib/audits';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -183,6 +186,7 @@ function FindingsBreakdown({
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export function AuditFinalReportPage() {
+  const { t } = useTranslation('auditor');
   const { auditId } = useParams<{ auditId: string }>();
   const navigate = useNavigate();
   const qc = useQueryClient();
@@ -205,19 +209,32 @@ export function AuditFinalReportPage() {
     queryFn: () => auditsService.getReport(auditId!),
     enabled: !!auditId,
   });
+  const { data: users = [] } = useQuery({
+    queryKey: ['users'],
+    queryFn: () => usersService.listUsers(),
+  });
 
   // Pre-fill form fields when data loads, respecting dirty state.
   useEffect(() => {
-    const a: AuditRecord | undefined = (data as { data?: { audit?: AuditRecord } } | undefined)?.data?.audit;
+    const a: AuditRecord | undefined = (
+      data as { data?: { audit?: AuditRecord } } | undefined
+    )?.data?.audit;
     if (!a) return;
     if (!summaryDirty) setSummary(a.executiveSummary ?? '');
     if (!conclusionDirty) setConclusion(a.auditConclusion ?? '');
     setPdfUrl(a.signedPdfUrl ?? '');
   }, [data]); // eslint-disable-line react-hooks/exhaustive-deps -- summaryDirty/conclusionDirty are intentionally excluded: we only want to pre-fill on first load
 
-  const report = (data as { data?: { audit?: AuditRecord; metrics?: AuditReportMetrics } } | undefined)?.data;
+  const report = (
+    data as
+      | { data?: { audit?: AuditRecord; metrics?: AuditReportMetrics } }
+      | undefined
+  )?.data;
   const audit: AuditRecord | undefined = report?.audit;
   const metrics: AuditReportMetrics | undefined = report?.metrics;
+  const usersById = new Map(
+    users.map((user) => [user.id, user] as const),
+  );
   // Prefer snapshot for locked audits
   const display: AuditReportMetrics | AuditSnapshot | undefined =
     audit?.snapshot ?? metrics;
@@ -238,7 +255,9 @@ export function AuditFinalReportPage() {
       setConclusionDirty(false);
       qc.invalidateQueries({ queryKey: ['audit-report', auditId] });
     } catch (e: unknown) {
-      setErr((e as { message?: string })?.message ?? 'Failed to save draft');
+      setErr(
+        (e as { message?: string })?.message ?? t('finalReport.saveFailed'),
+      );
     } finally {
       setSaving(false);
     }
@@ -247,9 +266,9 @@ export function AuditFinalReportPage() {
   async function handleSignAndComplete() {
     if (!auditId) return;
     const confirmed = await confirm({
-      title: 'Sign and Complete Audit',
-      description: 'Sign and complete this audit? This action is irreversible — the audit and all its data will be locked.',
-      confirmLabel: 'Sign & Complete',
+      title: t('finalReport.signConfirmTitle'),
+      description: t('finalReport.signConfirmDescription'),
+      confirmLabel: t('finalReport.signAndComplete'),
       variant: 'destructive',
     });
     if (!confirmed) return;
@@ -267,7 +286,9 @@ export function AuditFinalReportPage() {
       qc.invalidateQueries({ queryKey: ['audits'] });
       qc.invalidateQueries({ queryKey: ['auditor-audits'] });
     } catch (e: unknown) {
-      setErr((e as { message?: string })?.message ?? 'Failed to sign & complete');
+      setErr(
+        (e as { message?: string })?.message ?? t('finalReport.signFailed'),
+      );
     } finally {
       setSigning(false);
     }
@@ -275,9 +296,10 @@ export function AuditFinalReportPage() {
 
   if (isLoading) {
     return (
-      <PageTemplate title="Final Audit Report">
+      <PageTemplate title={t('finalReport.title')}>
         <div className="flex items-center justify-center h-60 text-gray-400">
-          <Clock className="w-6 h-6 mr-2 animate-spin" /> Loading report…
+          <Clock className="w-6 h-6 mr-2 animate-spin" />{' '}
+          {t('finalReport.loading')}
         </div>
       </PageTemplate>
     );
@@ -285,14 +307,12 @@ export function AuditFinalReportPage() {
 
   if (error || !audit || !display) {
     return (
-      <PageTemplate title="Final Audit Report">
+      <PageTemplate title={t('finalReport.title')}>
         <div className="flex flex-col items-center justify-center h-60 text-red-500 gap-2">
           <AlertCircle className="w-8 h-8" />
-          <p className="text-sm">
-            Failed to load report. You may not have access to this audit.
-          </p>
+          <p className="text-sm">{t('finalReport.loadFailed')}</p>
           <Button variant="outline" size="sm" onClick={() => navigate(-1)}>
-            <ChevronLeft className="w-4 h-4 mr-1" /> Go back
+            <ChevronLeft className="w-4 h-4 mr-1" /> {t('finalReport.goBack')}
           </Button>
         </div>
       </PageTemplate>
@@ -300,19 +320,19 @@ export function AuditFinalReportPage() {
   }
 
   const auditTypeLabel: Record<string, string> = {
-    INTERNAL: 'Internal',
-    EXTERNAL: 'External',
-    SURVEILLANCE: 'Surveillance',
-    RECERTIFICATION: 'Recertification',
+    INTERNAL: t('finalReport.typeLabels.INTERNAL'),
+    EXTERNAL: t('finalReport.typeLabels.EXTERNAL'),
+    SURVEILLANCE: t('finalReport.typeLabels.SURVEILLANCE'),
+    RECERTIFICATION: t('finalReport.typeLabels.RECERTIFICATION'),
   };
 
   return (
     <PageTemplate
-      title={`Final Audit Report — ${audit.name}`}
-      description={`${auditTypeLabel[audit.type] ?? audit.type} · ${audit.frameworkName ?? 'No framework'}`}
+      title={`${t('finalReport.title')} — ${audit.name}`}
+      description={`${auditTypeLabel[audit.type] ?? audit.type} · ${audit.frameworkName ?? t('finalReport.noFramework')}`}
       actions={
         <Button variant="outline" size="sm" onClick={() => navigate(-1)}>
-          <ChevronLeft className="w-4 h-4 mr-1" /> Back
+          <ChevronLeft className="w-4 h-4 mr-1" /> {t('finalReport.back')}
         </Button>
       }
     >
@@ -322,11 +342,12 @@ export function AuditFinalReportPage() {
           <Lock className="w-5 h-5 text-green-600 flex-shrink-0" />
           <div>
             <p className="text-sm font-semibold text-green-800">
-              Audit signed and locked
+              {t('finalReport.lockedTitle')}
             </p>
             <p className="text-xs text-green-600">
-              Signed on {fmt(audit.signedAt)} · All controls, findings, and
-              metrics are frozen.
+              {t('finalReport.lockedDescription', {
+                date: fmt(audit.signedAt),
+              })}
             </p>
           </div>
           {audit.signedPdfUrl && (
@@ -336,7 +357,7 @@ export function AuditFinalReportPage() {
               rel="noreferrer"
               className="ml-auto text-sm text-indigo-600 underline font-medium"
             >
-              View signed PDF
+              {t('finalReport.viewSignedPdf')}
             </a>
           )}
         </div>
@@ -397,8 +418,7 @@ export function AuditFinalReportPage() {
               },
               {
                 label: 'Auditor',
-                value:
-                  audit.externalAuditorEmail ?? audit.assignedAuditorId ?? '—',
+                value: resolveAuditorLabel(audit, usersById),
               },
               { label: 'Controls in Scope', value: display.totalControls },
             ].map((r) => (

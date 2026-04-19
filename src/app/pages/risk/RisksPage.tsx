@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { Card } from '@/app/components/ui/card';
@@ -35,12 +36,6 @@ const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
   CLOSED: { label: 'Closed', color: 'bg-green-100 text-green-800 border-green-200' },
 };
 
-const TREATMENT_LABELS: Record<string, string> = {
-  MITIGATE: 'Mitigate',
-  ACCEPT: 'Accept',
-  TRANSFER: 'Transfer',
-  AVOID: 'Avoid',
-};
 
 const CATEGORY_COLORS: Record<string, string> = {
   Governance: 'bg-blue-100 text-blue-800',
@@ -61,6 +56,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 export function RisksPage() {
+  const { t } = useTranslation('risk');
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [search, setSearch] = useState('');
@@ -103,11 +99,11 @@ export function RisksPage() {
 
   return (
     <PageTemplate
-      title="Risk Register"
-      description="Organization risks selected from the risk library. Assess, treat, and monitor risks."
+      title={t('register.title')}
+      description={t('register.description')}
       actions={
         <Button variant="outline" size="sm" onClick={() => navigate('/risk/library')}>
-          Browse Risk Library
+          {t('register.browseLibrary')}
         </Button>
       }
     >
@@ -118,12 +114,12 @@ export function RisksPage() {
       ) : stats.total === 0 ? (
         <div className="text-center py-16">
           <ShieldAlert className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-700 mb-2">No risks in your register</h3>
+          <h3 className="text-lg font-medium text-gray-700 mb-2">{t('register.noRisks')}</h3>
           <p className="text-sm text-gray-500 max-w-md mx-auto mb-6">
-            Browse the Risk Library to find applicable risks and add them to your register.
+            {t('register.noRisksDesc')}
           </p>
           <Button onClick={() => navigate('/risk/library')}>
-            Browse Risk Library
+            {t('register.browseLibrary')}
           </Button>
         </div>
       ) : (
@@ -133,42 +129,42 @@ export function RisksPage() {
             <Card className="p-4">
               <div className="flex items-center gap-2 mb-1">
                 <ShieldAlert className="w-4 h-4 text-gray-400" />
-                <span className="text-xs text-gray-500">Total</span>
+                <span className="text-xs text-gray-500">{t('register.stats.total')}</span>
               </div>
               <p className="text-2xl font-bold">{stats.total}</p>
             </Card>
             <Card className="p-4">
               <div className="flex items-center gap-2 mb-1">
                 <AlertTriangle className="w-4 h-4 text-blue-500" />
-                <span className="text-xs text-gray-500">Identified</span>
+                <span className="text-xs text-gray-500">{t('register.stats.identified')}</span>
               </div>
               <p className="text-2xl font-bold text-blue-600">{stats.identified}</p>
             </Card>
             <Card className="p-4">
               <div className="flex items-center gap-2 mb-1">
                 <Search className="w-4 h-4 text-yellow-500" />
-                <span className="text-xs text-gray-500">Assessing</span>
+                <span className="text-xs text-gray-500">{t('register.stats.assessing')}</span>
               </div>
               <p className="text-2xl font-bold text-yellow-600">{stats.assessing}</p>
             </Card>
             <Card className="p-4">
               <div className="flex items-center gap-2 mb-1">
                 <ClipboardCheck className="w-4 h-4 text-orange-500" />
-                <span className="text-xs text-gray-500">Treating</span>
+                <span className="text-xs text-gray-500">{t('register.stats.treating')}</span>
               </div>
               <p className="text-2xl font-bold text-orange-600">{stats.treating}</p>
             </Card>
             <Card className="p-4">
               <div className="flex items-center gap-2 mb-1">
                 <Eye className="w-4 h-4 text-purple-500" />
-                <span className="text-xs text-gray-500">Monitoring</span>
+                <span className="text-xs text-gray-500">{t('register.stats.monitoring')}</span>
               </div>
               <p className="text-2xl font-bold text-purple-600">{stats.monitoring}</p>
             </Card>
             <Card className="p-4">
               <div className="flex items-center gap-2 mb-1">
                 <CheckCircle2 className="w-4 h-4 text-green-500" />
-                <span className="text-xs text-gray-500">Closed</span>
+                <span className="text-xs text-gray-500">{t('register.stats.closed')}</span>
               </div>
               <p className="text-2xl font-bold text-green-600">{stats.closed}</p>
             </Card>
@@ -179,7 +175,7 @@ export function RisksPage() {
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <Input
-                placeholder="Search risks..."
+                placeholder={t('register.searchPlaceholder')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-10"
@@ -190,12 +186,12 @@ export function RisksPage() {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white"
             >
-              <option value="ALL">All statuses ({stats.total})</option>
-              <option value="IDENTIFIED">Identified ({stats.identified})</option>
-              <option value="ASSESSING">Assessing ({stats.assessing})</option>
-              <option value="TREATING">Treating ({stats.treating})</option>
-              <option value="MONITORING">Monitoring ({stats.monitoring})</option>
-              <option value="CLOSED">Closed ({stats.closed})</option>
+              <option value="ALL">{t('register.allStatuses', { count: stats.total })}</option>
+              <option value="IDENTIFIED">{t('status.IDENTIFIED')} ({stats.identified})</option>
+              <option value="ASSESSING">{t('status.ASSESSING')} ({stats.assessing})</option>
+              <option value="TREATING">{t('status.TREATING')} ({stats.treating})</option>
+              <option value="MONITORING">{t('status.MONITORING')} ({stats.monitoring})</option>
+              <option value="CLOSED">{t('status.CLOSED')} ({stats.closed})</option>
             </select>
           </div>
 
@@ -205,7 +201,7 @@ export function RisksPage() {
               <table className="w-full">
                 <thead className="bg-gray-50 border-b">
                   <tr>
-                    {['Risk', 'Category', 'Inherent Risk', 'Residual Risk', 'Status', 'Treatment', 'Owner'].map((h) => (
+                    {[t('register.columns.risk'), t('register.columns.category'), t('register.columns.inherentRisk'), t('register.columns.residualRisk'), t('register.columns.status'), t('register.columns.treatment'), t('register.columns.owner')].map((h) => (
                       <th key={h} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{h}</th>
                     ))}
                   </tr>
@@ -214,7 +210,7 @@ export function RisksPage() {
                   {filtered.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="px-6 py-10 text-center text-sm text-gray-400">
-                        No risks match your filters.
+                        {t('register.noMatch')}
                       </td>
                     </tr>
                   ) : (
@@ -244,7 +240,7 @@ export function RisksPage() {
             <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
               <div className="flex items-center gap-2">
                 <UserPlus className="w-4 h-4 text-blue-600" />
-                <h2 className="text-sm font-semibold text-gray-900">Assign Owner</h2>
+                <h2 className="text-sm font-semibold text-gray-900">{t('register.assignOwner.title')}</h2>
               </div>
               <button onClick={() => setAssignEntry(null)} className="p-1 rounded text-gray-400 hover:text-gray-600 hover:bg-gray-100">
                 <XCircle className="w-4 h-4" />
@@ -257,7 +253,7 @@ export function RisksPage() {
                 onChange={(e) => setAssignUserId(e.target.value)}
                 className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">— Unassigned —</option>
+                <option value="">{t('register.assignOwner.unassignedOption')}</option>
                 {users.map((u) => (
                   <option key={u.id} value={u.id}>{u.name ?? u.email}</option>
                 ))}
@@ -268,14 +264,14 @@ export function RisksPage() {
                 onClick={() => setAssignEntry(null)}
                 className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg"
               >
-                Cancel
+                {t('register.assignOwner.cancel')}
               </button>
               <button
                 onClick={() => assignMutation.mutate()}
                 disabled={assignMutation.isPending}
                 className="px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-50"
               >
-                {assignMutation.isPending ? 'Saving...' : 'Save'}
+                {assignMutation.isPending ? t('register.assignOwner.saving') : t('register.assignOwner.save')}
               </button>
             </div>
           </div>
@@ -306,6 +302,7 @@ function RegisterRow({
   onNavigate: () => void;
   onAssign: (e: React.MouseEvent) => void;
 }) {
+  const { t } = useTranslation('risk');
   const statusConf = STATUS_CONFIG[entry.status] ?? STATUS_CONFIG.IDENTIFIED!;
 
   return (
@@ -318,7 +315,7 @@ function RegisterRow({
           <p className="text-sm font-medium text-gray-900 max-w-md">{entry.title}</p>
           {(entry.findingCount ?? 0) > 0 && (
             <span className="inline-flex items-center text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-orange-100 text-orange-700 border border-orange-200">
-              {entry.findingCount} {entry.findingCount === 1 ? 'finding' : 'findings'}
+              {t('register.findings', { count: entry.findingCount })}
             </span>
           )}
         </div>
@@ -338,23 +335,23 @@ function RegisterRow({
         {entry.residualScore != null ? (
           <ScoreBadge impact={entry.residualImpact!} likelihood={entry.residualLikelihood!} score={entry.residualScore} />
         ) : (
-          <span className="text-xs text-gray-400">Not assessed</span>
+          <span className="text-xs text-gray-400">{t('register.notAssessed')}</span>
         )}
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
         <span className={`inline-flex items-center text-xs font-medium px-2 py-1 rounded-full border ${statusConf!.color}`}>
-          {statusConf!.label}
+          {t(`status.${entry.status}`)}
         </span>
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-        {entry.treatment ? TREATMENT_LABELS[entry.treatment] ?? entry.treatment : <span className="text-gray-400">—</span>}
+        {entry.treatment ? t(`treatment.${entry.treatment}`) : <span className="text-gray-400">—</span>}
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
         <div className="flex items-center gap-2">
           {entry.ownerName ? (
             <span>{entry.ownerName}</span>
           ) : (
-            <span className="text-gray-400">Unassigned</span>
+            <span className="text-gray-400">{t('register.unassigned')}</span>
           )}
           <button
             onClick={onAssign}

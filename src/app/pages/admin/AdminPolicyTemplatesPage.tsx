@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
@@ -27,6 +28,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 export function AdminPolicyTemplatesPage() {
+  const { t } = useTranslation('admin');
   const isSuperAdmin = useHasRole('SUPER_ADMIN');
   const [search, setSearch] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -59,30 +61,30 @@ export function AdminPolicyTemplatesPage() {
 
   if (!isSuperAdmin) {
     return (
-      <PageTemplate title="Unauthorized">
-        <p className="text-gray-500">SUPER_ADMIN role required.</p>
+      <PageTemplate title={t('common.unauthorized')}>
+        <p className="text-gray-500">{t('common.superAdminRequired')}</p>
       </PageTemplate>
     );
   }
 
   return (
-    <PageTemplate title="Policy Templates" description="Pre-built policy definitions cloned into organizations on framework activation.">
+    <PageTemplate title={t('policyTemplates.title')} description={t('policyTemplates.description')}>
       {/* Stats row */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-500">Total Policies</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-500">{t('policyTemplates.stats.totalPolicies')}</CardTitle></CardHeader>
           <CardContent><p className="text-2xl font-bold">{templates.length}</p></CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-500">Categories</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-500">{t('policyTemplates.stats.categories')}</CardTitle></CardHeader>
           <CardContent><p className="text-2xl font-bold">{categories.length}</p></CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-500">Requirement Links</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-500">{t('policyTemplates.stats.requirementLinks')}</CardTitle></CardHeader>
           <CardContent><p className="text-2xl font-bold">{totalReqMappings}</p></CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-500">Control Links</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-500">{t('policyTemplates.stats.controlLinks')}</CardTitle></CardHeader>
           <CardContent><p className="text-2xl font-bold">{totalCtrlMappings}</p></CardContent>
         </Card>
       </div>
@@ -91,7 +93,7 @@ export function AdminPolicyTemplatesPage() {
       <div className="relative mb-4 max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
         <Input
-          placeholder="Search policy templates..."
+          placeholder={t('policyTemplates.searchPlaceholder')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="pl-10"
@@ -125,7 +127,7 @@ export function AdminPolicyTemplatesPage() {
             </div>
           ))}
           {filtered.length === 0 && (
-            <p className="text-center text-gray-400 py-8">No policy templates found.</p>
+            <p className="text-center text-gray-400 py-8">{t('policyTemplates.noTemplates')}</p>
           )}
         </div>
       )}

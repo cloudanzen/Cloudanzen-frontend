@@ -1,9 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- legacy: to be typed progressively */
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { PageTemplate } from '@/app/components/PageTemplate';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/app/components/ui/tabs';
 import { Badge } from '@/app/components/ui/badge';
 import { Button } from '@/app/components/ui/button';
 import {
@@ -22,22 +28,40 @@ import {
   vendorsService,
 } from '@/services/api/vendors';
 import { QK } from '@/lib/queryKeys';
-import { getStatusColors, getSeverityColors } from '@/app/theme/semantic-colors';
+import {
+  getStatusColors,
+  getSeverityColors,
+} from '@/app/theme/semantic-colors';
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
 const statusMeta: Record<VendorStatus, { label: string; className: string }> = {
-  MONITORED:      { label: 'Monitored',     className: getStatusColors('MONITORED').className },
-  ASSESSMENT_DUE: { label: 'Assessment due', className: getStatusColors('ASSESSMENT_DUE').className },
-  IN_REVIEW:      { label: 'In review',      className: getStatusColors('IN_REVIEW').className },
-  BLOCKED:        { label: 'Blocked',        className: getStatusColors('BLOCKED').className },
+  MONITORED: {
+    label: 'Monitored',
+    className: getStatusColors('MONITORED').className,
+  },
+  ASSESSMENT_DUE: {
+    label: 'Assessment due',
+    className: getStatusColors('ASSESSMENT_DUE').className,
+  },
+  IN_REVIEW: {
+    label: 'In review',
+    className: getStatusColors('IN_REVIEW').className,
+  },
+  BLOCKED: {
+    label: 'Blocked',
+    className: getStatusColors('BLOCKED').className,
+  },
 };
 
 const tierMeta: Record<VendorTier, { label: string; className: string }> = {
-  LOW:      { label: 'Low',      className: getSeverityColors('LOW').className },
-  MEDIUM:   { label: 'Medium',   className: getSeverityColors('MEDIUM').className },
-  HIGH:     { label: 'High',     className: getSeverityColors('HIGH').className },
-  CRITICAL: { label: 'Critical', className: getSeverityColors('CRITICAL').className },
+  LOW: { label: 'Low', className: getSeverityColors('LOW').className },
+  MEDIUM: { label: 'Medium', className: getSeverityColors('MEDIUM').className },
+  HIGH: { label: 'High', className: getSeverityColors('HIGH').className },
+  CRITICAL: {
+    label: 'Critical',
+    className: getSeverityColors('CRITICAL').className,
+  },
 };
 
 function scoreColor(score: number): string {
@@ -76,24 +100,64 @@ interface VendorActions {
   onCompleteAssessment: () => Promise<void>;
 }
 
-function StatusWorkflow({ vendor, onUpdate, onCompleteAssessment }: { vendor: VendorRecord } & VendorActions) {
+function StatusWorkflow({
+  vendor,
+  onUpdate,
+  onCompleteAssessment,
+}: { vendor: VendorRecord } & VendorActions) {
+  const { t } = useTranslation('vendors');
   const [saving, setSaving] = useState(false);
 
-  const transitions: Record<VendorStatus, Array<{ label: string; variant: 'default' | 'outline' | 'destructive'; action: () => Promise<void> }>> = {
+  const transitions: Record<
+    VendorStatus,
+    Array<{
+      label: string;
+      variant: 'default' | 'outline' | 'destructive';
+      action: () => Promise<void>;
+    }>
+  > = {
     IN_REVIEW: [
-      { label: 'Approve → Monitored', variant: 'default', action: () => onUpdate({ status: 'MONITORED' }) },
-      { label: 'Flag for Assessment', variant: 'outline', action: () => onUpdate({ status: 'ASSESSMENT_DUE' }) },
+      {
+        label: t('detail.approveMonitored'),
+        variant: 'default',
+        action: () => onUpdate({ status: 'MONITORED' }),
+      },
+      {
+        label: t('detail.flagForAssessment'),
+        variant: 'outline',
+        action: () => onUpdate({ status: 'ASSESSMENT_DUE' }),
+      },
     ],
     ASSESSMENT_DUE: [
-      { label: 'Complete Assessment', variant: 'default', action: onCompleteAssessment },
-      { label: 'Back to Review', variant: 'outline', action: () => onUpdate({ status: 'IN_REVIEW' }) },
+      {
+        label: t('detail.completeAssessment'),
+        variant: 'default',
+        action: onCompleteAssessment,
+      },
+      {
+        label: t('detail.backToReview'),
+        variant: 'outline',
+        action: () => onUpdate({ status: 'IN_REVIEW' }),
+      },
     ],
     MONITORED: [
-      { label: 'Request Reassessment', variant: 'outline', action: () => onUpdate({ status: 'ASSESSMENT_DUE' }) },
-      { label: 'Block Vendor', variant: 'destructive', action: () => onUpdate({ status: 'BLOCKED' }) },
+      {
+        label: t('detail.requestReassessment'),
+        variant: 'outline',
+        action: () => onUpdate({ status: 'ASSESSMENT_DUE' }),
+      },
+      {
+        label: t('detail.blockVendor'),
+        variant: 'destructive',
+        action: () => onUpdate({ status: 'BLOCKED' }),
+      },
     ],
     BLOCKED: [
-      { label: 'Unblock Vendor', variant: 'outline', action: () => onUpdate({ status: 'IN_REVIEW' }) },
+      {
+        label: t('detail.unblockVendor'),
+        variant: 'outline',
+        action: () => onUpdate({ status: 'IN_REVIEW' }),
+      },
     ],
   };
 
@@ -102,9 +166,14 @@ function StatusWorkflow({ vendor, onUpdate, onCompleteAssessment }: { vendor: Ve
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
-        <span className="text-sm text-muted-foreground">Current status:</span>
-        <Badge variant="outline" className={statusMeta[vendor.status].className}>
-          {statusMeta[vendor.status].label}
+        <span className="text-sm text-muted-foreground">
+          {t('detail.currentStatus')}
+        </span>
+        <Badge
+          variant="outline"
+          className={statusMeta[vendor.status].className}
+        >
+          {t(`status.${vendor.status}`)}
         </Badge>
       </div>
       <div className="flex flex-wrap gap-2">
@@ -116,7 +185,11 @@ function StatusWorkflow({ vendor, onUpdate, onCompleteAssessment }: { vendor: Ve
             disabled={saving}
             onClick={async () => {
               setSaving(true);
-              try { await t.action(); } finally { setSaving(false); }
+              try {
+                await t.action();
+              } finally {
+                setSaving(false);
+              }
             }}
           >
             {t.label}
@@ -127,14 +200,23 @@ function StatusWorkflow({ vendor, onUpdate, onCompleteAssessment }: { vendor: Ve
   );
 }
 
-function AssessmentTab({ vendor, onUpdate, onCompleteAssessment }: { vendor: VendorRecord } & VendorActions) {
+function AssessmentTab({
+  vendor,
+  onUpdate,
+  onCompleteAssessment,
+}: { vendor: VendorRecord } & VendorActions) {
+  const { t } = useTranslation('vendors');
   const [completing, setCompleting] = useState(false);
   const [updatingFindings, setUpdatingFindings] = useState(false);
 
   async function handleFindingsChange(delta: number) {
     const newVal = Math.max(0, vendor.openFindings + delta);
     setUpdatingFindings(true);
-    try { await onUpdate({ openFindings: newVal }); } finally { setUpdatingFindings(false); }
+    try {
+      await onUpdate({ openFindings: newVal });
+    } finally {
+      setUpdatingFindings(false);
+    }
   }
 
   async function handleDpaToggle() {
@@ -144,21 +226,34 @@ function AssessmentTab({ vendor, onUpdate, onCompleteAssessment }: { vendor: Ven
   return (
     <div className="space-y-4">
       <Card>
-        <CardHeader><CardTitle className="text-sm">Security Score</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle className="text-sm">{t('detail.securityScore')}</CardTitle>
+        </CardHeader>
         <CardContent>
           <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
-            <span>Score</span>
-            <span className={`font-semibold ${scoreColor(vendor.securityScore)}`}>{vendor.securityScore}/100</span>
+            <span>{t('detail.score')}</span>
+            <span
+              className={`font-semibold ${scoreColor(vendor.securityScore)}`}
+            >
+              {vendor.securityScore}/100
+            </span>
           </div>
-          <Progress value={vendor.securityScore} className={scoreBarIndicator(vendor.securityScore)} />
+          <Progress
+            value={vendor.securityScore}
+            className={scoreBarIndicator(vendor.securityScore)}
+          />
         </CardContent>
       </Card>
 
       <Card>
-        <CardHeader><CardTitle className="text-sm">Questionnaire Completion</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle className="text-sm">
+            {t('detail.questionnaireCompletion')}
+          </CardTitle>
+        </CardHeader>
         <CardContent>
           <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
-            <span>Completion</span>
+            <span>{t('detail.completion')}</span>
             <span>{vendor.questionnaireCompletion}%</span>
           </div>
           <Progress value={vendor.questionnaireCompletion} />
@@ -166,7 +261,9 @@ function AssessmentTab({ vendor, onUpdate, onCompleteAssessment }: { vendor: Ven
       </Card>
 
       <Card>
-        <CardHeader><CardTitle className="text-sm">Open Findings</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle className="text-sm">{t('detail.openFindings')}</CardTitle>
+        </CardHeader>
         <CardContent>
           <div className="flex items-center gap-3">
             <Button
@@ -178,7 +275,9 @@ function AssessmentTab({ vendor, onUpdate, onCompleteAssessment }: { vendor: Ven
             >
               −
             </Button>
-            <span className="text-2xl font-bold text-foreground">{vendor.openFindings}</span>
+            <span className="text-2xl font-bold text-foreground">
+              {vendor.openFindings}
+            </span>
             <Button
               variant="outline"
               size="sm"
@@ -196,8 +295,10 @@ function AssessmentTab({ vendor, onUpdate, onCompleteAssessment }: { vendor: Ven
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium">DPA Signed</p>
-              <p className="text-xs text-muted-foreground">Data Processing Agreement</p>
+              <p className="text-sm font-medium">{t('detail.dpaSigned')}</p>
+              <p className="text-xs text-muted-foreground">
+                {t('detail.dpaDescription')}
+              </p>
             </div>
             <button
               onClick={handleDpaToggle}
@@ -218,19 +319,34 @@ function AssessmentTab({ vendor, onUpdate, onCompleteAssessment }: { vendor: Ven
         disabled={completing}
         onClick={async () => {
           setCompleting(true);
-          try { await onCompleteAssessment(); } finally { setCompleting(false); }
+          try {
+            await onCompleteAssessment();
+          } finally {
+            setCompleting(false);
+          }
         }}
       >
-        {completing ? 'Completing...' : 'Mark Assessment Complete'}
+        {completing
+          ? t('detail.completing')
+          : t('detail.markAssessmentComplete')}
       </Button>
     </div>
   );
 }
 
-function RiskContextTab({ vendor, onUpdate }: { vendor: VendorRecord; onUpdate: (patch: Partial<VendorRecord>) => Promise<void> }) {
+function RiskContextTab({
+  vendor,
+  onUpdate,
+}: {
+  vendor: VendorRecord;
+  onUpdate: (patch: Partial<VendorRecord>) => Promise<void>;
+}) {
+  const { t } = useTranslation('vendors');
   const [criticality, setCriticality] = useState(vendor.businessCriticality);
   const [dataClass, setDataClass] = useState(vendor.dataClass);
-  const [subprocessors, setSubprocessors] = useState(String(vendor.subprocessors));
+  const [subprocessors, setSubprocessors] = useState(
+    String(vendor.subprocessors),
+  );
   const [contractEnd, setContractEnd] = useState(
     vendor.contractEndDate ? vendor.contractEndDate.slice(0, 10) : '',
   );
@@ -241,8 +357,15 @@ function RiskContextTab({ vendor, onUpdate }: { vendor: VendorRecord; onUpdate: 
     setCriticality(vendor.businessCriticality);
     setDataClass(vendor.dataClass);
     setSubprocessors(String(vendor.subprocessors));
-    setContractEnd(vendor.contractEndDate ? vendor.contractEndDate.slice(0, 10) : '');
-  }, [vendor.businessCriticality, vendor.dataClass, vendor.subprocessors, vendor.contractEndDate]);
+    setContractEnd(
+      vendor.contractEndDate ? vendor.contractEndDate.slice(0, 10) : '',
+    );
+  }, [
+    vendor.businessCriticality,
+    vendor.dataClass,
+    vendor.subprocessors,
+    vendor.contractEndDate,
+  ]);
 
   async function handleSave() {
     setSaving(true);
@@ -251,7 +374,9 @@ function RiskContextTab({ vendor, onUpdate }: { vendor: VendorRecord; onUpdate: 
         businessCriticality: criticality,
         dataClass,
         subprocessors: parseInt(subprocessors, 10) || 0,
-        contractEndDate: contractEnd ? new Date(contractEnd).toISOString() : null,
+        contractEndDate: contractEnd
+          ? new Date(contractEnd).toISOString()
+          : null,
       });
     } finally {
       setSaving(false);
@@ -261,22 +386,34 @@ function RiskContextTab({ vendor, onUpdate }: { vendor: VendorRecord; onUpdate: 
   return (
     <div className="space-y-4">
       <Card>
-        <CardHeader><CardTitle className="text-sm">Classification</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle className="text-sm">
+            {t('detail.classification')}
+          </CardTitle>
+        </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <label className="mb-1 block text-xs text-muted-foreground">Business Criticality</label>
+            <label className="mb-1 block text-xs text-muted-foreground">
+              {t('detail.businessCriticality')}
+            </label>
             <select
               value={criticality}
               onChange={(e) => setCriticality(e.target.value as any)}
               className="w-full rounded-md border border-border px-3 py-2 text-sm"
             >
-              <option value="Mission-critical">Mission-critical</option>
-              <option value="Business-important">Business-important</option>
-              <option value="Operational">Operational</option>
+              <option value="Mission-critical">
+                {t('detail.missionCritical')}
+              </option>
+              <option value="Business-important">
+                {t('detail.businessImportant')}
+              </option>
+              <option value="Operational">{t('detail.operational')}</option>
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-xs text-muted-foreground">Data Classification</label>
+            <label className="mb-1 block text-xs text-muted-foreground">
+              {t('detail.dataClassification')}
+            </label>
             <select
               value={dataClass}
               onChange={(e) => setDataClass(e.target.value as any)}
@@ -289,7 +426,9 @@ function RiskContextTab({ vendor, onUpdate }: { vendor: VendorRecord; onUpdate: 
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-xs text-muted-foreground">Sub-processors</label>
+            <label className="mb-1 block text-xs text-muted-foreground">
+              {t('detail.subProcessors')}
+            </label>
             <Input
               type="number"
               min="0"
@@ -298,7 +437,9 @@ function RiskContextTab({ vendor, onUpdate }: { vendor: VendorRecord; onUpdate: 
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs text-muted-foreground">Contract End Date</label>
+            <label className="mb-1 block text-xs text-muted-foreground">
+              {t('detail.contractEndDate')}
+            </label>
             <Input
               type="date"
               value={contractEnd}
@@ -312,17 +453,28 @@ function RiskContextTab({ vendor, onUpdate }: { vendor: VendorRecord; onUpdate: 
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-sm">
             <AlertTriangle className="h-4 w-4 text-amber-500" />
-            Inherent Risk
+            {t('detail.inherentRisk')}
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-foreground">{getRiskSummary(criticality, dataClass)}</p>
+          <p className="text-sm text-foreground">
+            {getRiskSummary(criticality, dataClass) ===
+            'High inherent risk — mission-critical vendor with access to PII data. Requires annual assessment and signed DPA. Escalate any open findings immediately.'
+              ? t('detail.riskHighPii')
+              : getRiskSummary(criticality, dataClass) ===
+                  'Elevated inherent risk — mission-critical vendor. Validate access scope and schedule assessment within 6 months.'
+                ? t('detail.riskElevatedCritical')
+                : getRiskSummary(criticality, dataClass) ===
+                    'Elevated inherent risk — processes PII data. Ensure DPA is signed and questionnaire is complete before approving.'
+                  ? t('detail.riskElevatedPii')
+                  : t('detail.riskStandard')}
+          </p>
         </CardContent>
       </Card>
 
       <div className="flex justify-end">
         <Button onClick={handleSave} disabled={saving}>
-          {saving ? 'Saving...' : 'Save changes'}
+          {saving ? t('detail.saving') : t('detail.saveChanges')}
         </Button>
       </div>
     </div>
@@ -332,6 +484,7 @@ function RiskContextTab({ vendor, onUpdate }: { vendor: VendorRecord; onUpdate: 
 // ── Main page ──────────────────────────────────────────────────────────────────
 
 export function VendorDetailPage() {
+  const { t } = useTranslation('vendors');
   const { vendorId } = useParams<{ vendorId: string }>();
   const navigate = useNavigate();
   const qc = useQueryClient();
@@ -366,7 +519,9 @@ export function VendorDetailPage() {
   if (isLoading) {
     return (
       <PageTemplate title="Loading..." description="">
-        <div className="py-20 text-center text-muted-foreground">Loading vendor details...</div>
+        <div className="py-20 text-center text-muted-foreground">
+          {t('detail.loadingDescription')}
+        </div>
       </PageTemplate>
     );
   }
@@ -374,11 +529,13 @@ export function VendorDetailPage() {
   if (!vendor) {
     return (
       <PageTemplate title="Not found" description="">
-        <div className="py-20 text-center text-muted-foreground">Vendor not found.</div>
+        <div className="py-20 text-center text-muted-foreground">
+          {t('detail.vendorNotFound')}
+        </div>
         <div className="mt-4 text-center">
           <Button variant="outline" onClick={() => navigate('/vendors')}>
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Vendors
+            {t('detail.backToVendors')}
           </Button>
         </div>
       </PageTemplate>
@@ -388,31 +545,45 @@ export function VendorDetailPage() {
   return (
     <PageTemplate
       title={vendor.name}
-      description={[vendor.category, `Owner: ${vendor.owner}`, vendor.website].filter(Boolean).join(' · ')}
+      description={[
+        vendor.category,
+        t('detail.ownerLabel', { owner: vendor.owner }),
+        vendor.website,
+      ]
+        .filter(Boolean)
+        .join(' · ')}
       actions={
         <div className="flex items-center gap-2">
           <Badge variant="outline" className={tierMeta[vendor.tier].className}>
-            {tierMeta[vendor.tier].label}
+            {t(`riskLevel.${vendor.tier}`)}
           </Badge>
-          <Badge variant="outline" className={statusMeta[vendor.status].className}>
-            {statusMeta[vendor.status].label}
+          <Badge
+            variant="outline"
+            className={statusMeta[vendor.status].className}
+          >
+            {t(`status.${vendor.status}`)}
           </Badge>
         </div>
       }
     >
       <div className="mb-6">
-        <Button variant="ghost" size="sm" onClick={() => navigate('/vendors')} className="-ml-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate('/vendors')}
+          className="-ml-2"
+        >
           <ArrowLeft className="mr-1 h-4 w-4" />
-          Back to Vendors
+          {t('detail.backToVendors')}
         </Button>
       </div>
 
       <Tabs defaultValue="overview">
         <TabsList className="mb-6">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="assessment">Assessment</TabsTrigger>
-          <TabsTrigger value="risk">Risk Context</TabsTrigger>
-          <TabsTrigger value="notes">Notes</TabsTrigger>
+          <TabsTrigger value="overview">{t('detail.overview')}</TabsTrigger>
+          <TabsTrigger value="assessment">{t('detail.assessment')}</TabsTrigger>
+          <TabsTrigger value="risk">{t('detail.riskContext')}</TabsTrigger>
+          <TabsTrigger value="notes">{t('detail.notes')}</TabsTrigger>
         </TabsList>
 
         {/* ── Overview ── */}
@@ -422,8 +593,12 @@ export function VendorDetailPage() {
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <Card>
                 <CardContent className="pt-6">
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Security Score</p>
-                  <p className={`mt-2 text-4xl font-extrabold ${scoreColor(vendor.securityScore)}`}>
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    {t('detail.securityScore')}
+                  </p>
+                  <p
+                    className={`mt-2 text-4xl font-extrabold ${scoreColor(vendor.securityScore)}`}
+                  >
                     {vendor.securityScore}
                   </p>
                   <p className="text-xs text-muted-foreground">/ 100</p>
@@ -431,20 +606,32 @@ export function VendorDetailPage() {
               </Card>
               <Card>
                 <CardContent className="pt-6">
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Open Findings</p>
-                  <p className="mt-2 text-4xl font-extrabold text-foreground">{vendor.openFindings}</p>
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    {t('detail.openFindings')}
+                  </p>
+                  <p className="mt-2 text-4xl font-extrabold text-foreground">
+                    {vendor.openFindings}
+                  </p>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="pt-6">
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Questionnaire</p>
-                  <p className="mt-2 text-4xl font-extrabold text-foreground">{vendor.questionnaireCompletion}%</p>
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    {t('detail.questionnaire')}
+                  </p>
+                  <p className="mt-2 text-4xl font-extrabold text-foreground">
+                    {vendor.questionnaireCompletion}%
+                  </p>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="pt-6">
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Sub-processors</p>
-                  <p className="mt-2 text-4xl font-extrabold text-foreground">{vendor.subprocessors}</p>
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    {t('detail.subProcessors')}
+                  </p>
+                  <p className="mt-2 text-4xl font-extrabold text-foreground">
+                    {vendor.subprocessors}
+                  </p>
                 </CardContent>
               </Card>
             </div>
@@ -453,27 +640,43 @@ export function VendorDetailPage() {
             <div className="grid gap-4 sm:grid-cols-3">
               <Card>
                 <CardContent className="pt-4">
-                  <p className="text-xs text-muted-foreground">Last Assessment</p>
-                  <p className="mt-1 font-medium">{fmtDate(vendor.lastAssessmentAt)}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {t('detail.lastAssessment')}
+                  </p>
+                  <p className="mt-1 font-medium">
+                    {fmtDate(vendor.lastAssessmentAt)}
+                  </p>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="pt-4">
-                  <p className="text-xs text-muted-foreground">Next Assessment</p>
-                  <p className="mt-1 font-medium">{fmtDate(vendor.nextAssessmentAt)}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {t('detail.nextAssessment')}
+                  </p>
+                  <p className="mt-1 font-medium">
+                    {fmtDate(vendor.nextAssessmentAt)}
+                  </p>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="pt-4">
-                  <p className="text-xs text-muted-foreground">Contract End</p>
-                  <p className="mt-1 font-medium">{fmtDate(vendor.contractEndDate)}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {t('detail.contractEnd')}
+                  </p>
+                  <p className="mt-1 font-medium">
+                    {fmtDate(vendor.contractEndDate)}
+                  </p>
                 </CardContent>
               </Card>
             </div>
 
             {/* Status workflow */}
             <Card>
-              <CardHeader><CardTitle className="text-sm">Lifecycle Actions</CardTitle></CardHeader>
+              <CardHeader>
+                <CardTitle className="text-sm">
+                  {t('detail.lifecycleActions')}
+                </CardTitle>
+              </CardHeader>
               <CardContent>
                 <StatusWorkflow
                   vendor={vendor}
@@ -515,7 +718,11 @@ export function VendorDetailPage() {
                   disabled={savingNotes}
                   onClick={async () => {
                     setSavingNotes(true);
-                    try { await handleUpdate({ notes }); } finally { setSavingNotes(false); }
+                    try {
+                      await handleUpdate({ notes });
+                    } finally {
+                      setSavingNotes(false);
+                    }
                   }}
                 >
                   {savingNotes ? 'Saving...' : 'Save notes'}
