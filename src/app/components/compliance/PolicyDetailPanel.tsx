@@ -15,9 +15,11 @@ import {
   Loader2,
   User,
   Eye,
+  PencilLine,
 } from 'lucide-react';
 import { useState, useRef, useCallback } from 'react';
 import { PolicyPreviewSheet } from './PolicyPreviewSheet';
+import { PolicyEditor } from './PolicyEditor';
 import {
   Tabs,
   TabsContent,
@@ -107,6 +109,7 @@ export function PolicyDetailPanel({
   const [uploading, setUploading] = useState(false);
   const [uploadErr, setUploadErr] = useState<string | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const updateMutation = useMutation({
@@ -181,7 +184,8 @@ export function PolicyDetailPanel({
     setUploading(true);
     setUploadErr(null);
     try {
-      await policiesService.uploadPolicyDocument(currentPolicy.id, file);
+      const result = await policiesService.uploadPolicyDocument(currentPolicy.id, file);
+      if (result.data?.policy) setCurrentPolicy(result.data.policy);
       onMutated?.();
     } catch (e: unknown) {
       setUploadErr(e instanceof Error ? e.message : 'Upload failed');
@@ -192,6 +196,15 @@ export function PolicyDetailPanel({
 
   return (
     <>
+    <PolicyEditor
+      open={editOpen}
+      policy={currentPolicy}
+      onClose={() => setEditOpen(false)}
+      onSaved={(updatedPolicy) => {
+        setCurrentPolicy(updatedPolicy);
+        onMutated?.();
+      }}
+    />
     {previewOpen && currentPolicy.documentUrl && (
       <PolicyPreviewSheet
         policyId={currentPolicy.id}
@@ -577,7 +590,16 @@ export function PolicyDetailPanel({
                         <Download className="w-4 h-4" />
                       )}
                       {downloading ? 'Downloading…' : 'Download'}
-                    </button>
+                      </button>
+                    {currentPolicy.content ? (
+                      <button
+                        onClick={() => setEditOpen(true)}
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                      >
+                        <PencilLine className="w-4 h-4" />
+                        Edit
+                      </button>
+                    ) : null}
                     {!currentPolicy.documentUrl.startsWith('/files/') && !currentPolicy.documentUrl.startsWith('s3://') && (
                       <a
                         href={currentPolicy.documentUrl}

@@ -146,6 +146,8 @@ export interface Policy {
   version: string;
   status: string;
   documentUrl: string;
+  pdfUrl?: string | null;
+  content?: object | null;
   organizationId: string;
   ownerId?: string;
   owner?: { id: string; name: string; email: string };
