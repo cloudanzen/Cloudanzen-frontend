@@ -232,6 +232,7 @@ export interface RequirementDetailRow {
   code: string;
   title: string;
   domain: string | null;
+  isMandatory: boolean;
   applicabilityStatus: 'applicable' | 'not_applicable';
   justification: string | null;
   reviewStatus: 'not_started' | 'in_review' | 'accepted';
