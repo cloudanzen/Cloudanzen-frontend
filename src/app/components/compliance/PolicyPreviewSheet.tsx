@@ -6,6 +6,7 @@ type PreviewState =
   | { status: 'idle' }
   | { status: 'loading' }
   | { status: 'blob'; blobUrl: string; contentType: string }
+  | { status: 'embedded'; url: string }
   | { status: 'external'; url: string }
   | { status: 'error'; message: string };
 
@@ -35,7 +36,9 @@ export function PolicyPreviewSheet({
     setPreview({ status: 'loading' });
     try {
       const result = await policiesService.previewPolicyDocument(policyId);
-      if ('external' in result) {
+      if ('embedded' in result) {
+        setPreview({ status: 'embedded', url: result.url });
+      } else if ('external' in result) {
         setPreview({ status: 'external', url: result.url });
       } else {
         setPreview({
@@ -149,6 +152,13 @@ export function PolicyPreviewSheet({
                 </a>
               </div>
             </div>
+          ) : preview.status === 'embedded' ? (
+            <iframe
+              src={preview.url}
+              title={`Preview: ${policyName}`}
+              className="h-full w-full border-0"
+              allow="autoplay"
+            />
           ) : isPdf(preview.contentType) ? (
             <iframe
               src={preview.blobUrl}

@@ -61,6 +61,13 @@ export class PoliciesService {
     return apiClient.put(`/api/policies/${id}`, data);
   }
 
+  async savePolicyContent(
+    id: string,
+    content: object,
+  ): Promise<ApiResponse<Policy>> {
+    return apiClient.put(`/api/policies/${id}/content`, { content });
+  }
+
   // Delete policy
   async deletePolicy(id: string): Promise<ApiResponse<void>> {
     return apiClient.delete(`/api/policies/${id}`);
@@ -157,7 +164,11 @@ export class PoliciesService {
    */
   async previewPolicyDocument(
     policyId: string,
-  ): Promise<{ blobUrl: string; contentType: string } | { external: true; url: string }> {
+  ): Promise<
+    | { blobUrl: string; contentType: string }
+    | { external: true; url: string }
+    | { embedded: true; url: string }
+  > {
     const token = getAuthToken();
     const response = await fetch(
       `${API_BASE_URL}/api/policies/${policyId}/preview`,
@@ -170,7 +181,8 @@ export class PoliciesService {
 
     const ct = response.headers.get('content-type') ?? '';
     if (ct.includes('application/json')) {
-      const json = (await response.json()) as { external: boolean; url: string };
+      const json = (await response.json()) as { external?: boolean; embeddable?: boolean; url: string };
+      if (json.embeddable) return { embedded: true, url: json.url };
       return { external: true, url: json.url };
     }
 
