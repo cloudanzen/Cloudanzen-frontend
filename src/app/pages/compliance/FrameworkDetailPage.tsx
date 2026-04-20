@@ -181,6 +181,14 @@ function applicabilityBadge(status: string, t: TFunction) {
   );
 }
 
+function mandatoryBadge() {
+  return (
+    <span className="inline-flex items-center rounded-full border border-purple-200 bg-purple-50 px-2 py-0.5 text-[11px] font-medium text-purple-700">
+      Mandatory
+    </span>
+  );
+}
+
 function reviewBadge(status: string, t: TFunction) {
   if (status === 'accepted')
     return (
@@ -404,6 +412,7 @@ function RequirementRow({
           </div>
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
+          {req.isMandatory && mandatoryBadge()}
           {reviewBadge(req.reviewStatus, t)}
           {applicabilityBadge(req.applicabilityStatus, t)}
           <button
@@ -414,31 +423,32 @@ function RequirementRow({
               onOwnerClick();
             }}
           >
-            <User className="w-3.5 h-3.5" />
-          </button>
-          {req.applicabilityStatus === 'applicable' ? (
-            <button
-              className="p-1 text-gray-300 hover:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity"
-              title={t('frameworkDetail.requirement.markNA')}
-              onClick={(e) => {
-                e.stopPropagation();
-                onNAClick();
-              }}
-            >
-              <XCircle className="w-3.5 h-3.5" />
+              <User className="w-3.5 h-3.5" />
             </button>
-          ) : (
-            <button
-              className="p-1 text-gray-300 hover:text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity"
-              title={t('frameworkDetail.requirement.markApplicable')}
-              onClick={(e) => {
-                e.stopPropagation();
-                onMarkApplicable();
-              }}
-            >
-              <CheckCircle2 className="w-3.5 h-3.5" />
-            </button>
-          )}
+          {!req.isMandatory &&
+            (req.applicabilityStatus === 'applicable' ? (
+              <button
+                className="p-1 text-gray-300 hover:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                title={t('frameworkDetail.requirement.markNA')}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onNAClick();
+                }}
+              >
+                <XCircle className="w-3.5 h-3.5" />
+              </button>
+            ) : (
+              <button
+                className="p-1 text-gray-300 hover:text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                title={t('frameworkDetail.requirement.markApplicable')}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onMarkApplicable();
+                }}
+              >
+                <CheckCircle2 className="w-3.5 h-3.5" />
+              </button>
+            ))}
         </div>
       </div>
 
@@ -938,7 +948,18 @@ export function FrameworkDetailPage() {
       if (!map[d]) map[d] = [];
       map[d].push(r);
     }
-    return Object.entries(map).sort(([a], [b]) => a.localeCompare(b));
+    return Object.entries(map).sort(([a], [b]) => {
+      const aClause = a.startsWith('Clause');
+      const bClause = b.startsWith('Clause');
+      if (aClause && bClause) {
+        const aNum = parseInt(a.match(/\d+/)?.[0] ?? '0', 10);
+        const bNum = parseInt(b.match(/\d+/)?.[0] ?? '0', 10);
+        return aNum - bNum;
+      }
+      if (aClause) return -1;
+      if (bClause) return 1;
+      return a.localeCompare(b);
+    });
   }, [filteredRequirements]);
 
   // Auto-expand all domains on first load
