@@ -1,4 +1,7 @@
 {
+  "actions": {
+    "refresh": "Refresh"
+  },
   "testDetail": {
     "noTestId": "No test ID provided.",
     "backToTests": "Back to Tests",
@@ -355,6 +358,12 @@
     }
   },
   "testsPage": {
+    "title": "Tests",
+    "description": "Compliance and security test management",
+    "dueSoon": "Due Soon",
+    "onTrack": "On Track",
+    "filtersActive": "Filters active",
+    "clearStatusFilter": "Clear status filter",
     "columns": "Columns",
     "toggleColumns": "Toggle columns",
     "loading": "Loading tests\u2026",
