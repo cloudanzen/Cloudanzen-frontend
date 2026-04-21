@@ -1,4 +1,7 @@
 {
+  "actions": {
+    "refresh": "更新"
+  },
   "testDetail": {
     "noTestId": "テストIDが指定されていません。",
     "backToTests": "テスト一覧に戻る",
@@ -355,6 +358,12 @@
     }
   },
   "testsPage": {
+    "title": "テスト",
+    "description": "コンプライアンスとセキュリティテスト管理",
+    "dueSoon": "期限間近",
+    "onTrack": "順調",
+    "filtersActive": "フィルター適用中",
+    "clearStatusFilter": "ステータスフィルターをクリア",
     "columns": "カラム",
     "toggleColumns": "カラムの切り替え",
     "loading": "テストを読み込み中…",

@@ -67,7 +67,7 @@ interface TestFilter {
 const PAGE_SIZE = 25;
 
 export function TestsPage() {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation('tests');
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { filters: urlFilters, update, reset } = useUrlFilterState({
