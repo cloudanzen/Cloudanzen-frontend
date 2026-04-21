@@ -42,6 +42,7 @@ import {
 import { type Policy } from '@/services/api/types';
 import { QK } from '@/lib/queryKeys';
 import { STALE } from '@/lib/queryClient';
+import { ComplianceLaunchpad } from './ComplianceLaunchpad';
 
 interface ComplianceStats {
   total: number;
@@ -286,296 +287,289 @@ export function HomePage() {
       }
     >
       <div className="space-y-8">
-        {/* ── KPI Stats ── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {stats.map((stat) => {
-            const Icon = stat.icon;
-            const isLive = stat.value === null;
-            return (
-              <Card
-                key={stat.key}
-                className="p-5 cursor-pointer hover:shadow-md transition-shadow duration-200"
-                onClick={() => navigate(stat.path)}
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2.5">
-                    <div className={`w-8 h-8 rounded-lg ${stat.bg} flex items-center justify-center`}>
-                      <Icon className={`w-4 h-4 ${stat.color}`} />
-                    </div>
-                    <h3 className="text-sm font-bold text-foreground">{stat.label}</h3>
-                  </div>
-                  {isLive ? (
-                    <Loader2 className="w-5 h-5 animate-spin text-muted-foreground/50" />
-                  ) : (
-                    <span className="text-2xl font-extrabold text-foreground tracking-tight">
-                      {stat.value}
-                    </span>
-                  )}
-                </div>
-              </Card>
-            );
-          })}
-        </div>
-
-        {/* ── Progress Overview ── */}
-        <div>
-          <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-3">
-            {t('progressOverview')}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Tests */}
-            <Card
-              className="p-5 cursor-pointer hover:shadow-md transition-shadow duration-200"
-              onClick={() => navigate('/tests')}
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 flex items-center justify-center">
-                    <ClipboardCheck className="w-4 h-4 text-emerald-600" />
-                  </div>
-                  <h3 className="text-sm font-bold text-foreground">{t('tests.title')}</h3>
-                </div>
-                {!loadingTests && testSummary && (
-                  <span className="text-2xl font-extrabold text-foreground tracking-tight">
-                    {testSummary.passPercentage}%
-                  </span>
-                )}
-              </div>
-              {loadingTests ? (
-                <LoadingSkeleton />
-              ) : !testSummary ? (
-                <EmptyState label={t('tests.noTests')} />
-              ) : (
-                <>
-                  <div className="w-full bg-muted rounded-full h-2.5 mb-3">
-                    <div
-                      className="bg-emerald-500 h-2.5 rounded-full transition-all"
-                      style={{ width: `${testSummary.passPercentage}%` }}
-                    />
-                  </div>
-                  <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
-                    <StatDot color="bg-emerald-500" label={t('tests.done')} count={testSummary.completed} />
-                    <StatDot color="bg-red-500" label={t('tests.overdue')} count={testSummary.overdue} />
-                    <StatDot color="bg-amber-400" label={t('tests.dueSoon')} count={testSummary.dueSoon} />
-                  </div>
-                  <p className="text-xs font-medium text-muted-foreground/50 mt-2.5">
-                    {t('tests.total', { count: testSummary.total })}
-                  </p>
-                </>
-              )}
-            </Card>
-
-            {/* Risks */}
-            <Card
-              className="p-5 cursor-pointer hover:shadow-md transition-shadow duration-200"
-              onClick={() => navigate('/risk/risks')}
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-950/40 flex items-center justify-center">
-                    <TrendingUp className="w-4 h-4 text-red-600" />
-                  </div>
-                  <h3 className="text-sm font-bold text-foreground">{t('risks.title')}</h3>
-                </div>
-                {!loadingRisks && riskOverview && (
-                  <span className="text-2xl font-extrabold text-foreground tracking-tight">
-                    {riskOverview.total}
-                  </span>
-                )}
-              </div>
-              {loadingRisks ? (
-                <LoadingSkeleton />
-              ) : !riskOverview ? (
-                <EmptyState label={t('risks.noRisks')} />
-              ) : (
-                <>
-                  <div className="w-full bg-muted rounded-full h-2.5 mb-3 flex overflow-hidden">
-                    {riskOverview.total > 0 && (
-                      <>
-                        <div className="bg-red-500 h-2.5" style={{ width: `${(riskOverview.critical / riskOverview.total) * 100}%` }} />
-                        <div className="bg-orange-500 h-2.5" style={{ width: `${(riskOverview.high / riskOverview.total) * 100}%` }} />
-                        <div className="bg-yellow-400 h-2.5" style={{ width: `${(riskOverview.medium / riskOverview.total) * 100}%` }} />
-                        <div className="bg-green-500 h-2.5" style={{ width: `${(riskOverview.low / riskOverview.total) * 100}%` }} />
-                      </>
-                    )}
-                  </div>
-                  <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
-                    <StatDot color="bg-red-500" label={t('risks.critical')} count={riskOverview.critical} />
-                    <StatDot color="bg-orange-500" label={t('risks.high')} count={riskOverview.high} />
-                    <StatDot color="bg-yellow-400" label={t('risks.medium')} count={riskOverview.medium} />
-                    <StatDot color="bg-green-500" label={t('risks.low')} count={riskOverview.low} />
-                  </div>
-                  <p className="text-xs font-medium text-muted-foreground/50 mt-2.5">
-                    {t('risks.openMitigated', { open: riskOverview.open, mitigated: riskOverview.mitigated })}
-                  </p>
-                </>
-              )}
-            </Card>
-
-            {/* Policies */}
-            <Card
-              className="p-5 cursor-pointer hover:shadow-md transition-shadow duration-200"
-              onClick={() => navigate('/compliance/policies')}
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/40 flex items-center justify-center">
-                    <FileText className="w-4 h-4 text-blue-600" />
-                  </div>
-                  <h3 className="text-sm font-bold text-foreground">{t('policies.title')}</h3>
-                </div>
-                {!loadingPolicies && policyStats.total > 0 && (
-                  <span className="text-2xl font-extrabold text-foreground tracking-tight">
-                    {Math.round((policyStats.published / policyStats.total) * 100)}%
-                  </span>
-                )}
-              </div>
-              {loadingPolicies ? (
-                <LoadingSkeleton />
-              ) : policyStats.total === 0 ? (
-                <EmptyState label={t('policies.noPolicies')} />
-              ) : (
-                <>
-                  <div className="w-full bg-muted rounded-full h-2.5 mb-3">
-                    <div
-                      className="bg-blue-500 h-2.5 rounded-full transition-all"
-                      style={{ width: `${Math.round((policyStats.published / policyStats.total) * 100)}%` }}
-                    />
-                  </div>
-                  <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
-                    <StatDot color="bg-blue-500" label={t('policies.published')} count={policyStats.published} />
-                    <StatDot color="bg-gray-400" label={t('policies.draft')} count={policyStats.draft} />
-                    <StatDot color="bg-amber-500" label={t('policies.review')} count={policyStats.review} />
-                  </div>
-                  <p className="text-xs font-medium text-muted-foreground/50 mt-2.5">
-                    {t('policies.total', { count: policyStats.total })}
-                  </p>
-                </>
-              )}
-            </Card>
-
-            {/* Documents */}
-            <Card
-              className="p-5 cursor-pointer hover:shadow-md transition-shadow duration-200"
-              onClick={() => navigate('/compliance/documents')}
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-violet-50 dark:bg-violet-950/40 flex items-center justify-center">
-                    <FileCheck className="w-4 h-4 text-violet-600" />
-                  </div>
-                  <h3 className="text-sm font-bold text-foreground">{t('documents.title')}</h3>
-                </div>
-                {!loadingDocs && docStats && docStats.total > 0 && (
-                  <span className="text-2xl font-extrabold text-foreground tracking-tight">
-                    {Math.round((docStats.current / docStats.total) * 100)}%
-                  </span>
-                )}
-              </div>
-              {loadingDocs ? (
-                <LoadingSkeleton />
-              ) : !docStats || docStats.total === 0 ? (
-                <EmptyState label={t('documents.noDocuments')} />
-              ) : (
-                <>
-                  <div className="w-full bg-muted rounded-full h-2.5 mb-3">
-                    <div
-                      className="bg-violet-500 h-2.5 rounded-full transition-all"
-                      style={{ width: `${Math.round((docStats.current / docStats.total) * 100)}%` }}
-                    />
-                  </div>
-                  <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
-                    <StatDot color="bg-violet-500" label={t('documents.current')} count={docStats.current} />
-                    <StatDot color="bg-gray-400" label={t('documents.pending')} count={docStats.pending} />
-                    <StatDot color="bg-amber-500" label={t('documents.review')} count={docStats.needsReview} />
-                  </div>
-                  <p className="text-xs font-medium text-muted-foreground/50 mt-2.5">
-                    {t('documents.total', { count: docStats.total })}
-                  </p>
-                </>
-              )}
-            </Card>
-          </div>
-        </div>
-
-        {/* ── Framework Readiness ── */}
-        <div>
-          <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-3">
-            {t('frameworkReadiness')}
-          </h2>
-          {loadingReadiness ? (
-            <div className="flex items-center gap-3 py-12 justify-center text-sm text-muted-foreground/70">
-              <Loader2 className="w-5 h-5 animate-spin" />
-              <span className="font-medium">{t('loadingFrameworks')}</span>
-            </div>
-          ) : readiness.length === 0 ? (
-            <Card className="p-8">
-              <div className="flex flex-col items-center justify-center text-center">
-                <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center mb-3">
-                  <ShieldCheck className="w-6 h-6 text-muted-foreground/40" />
-                </div>
-                <p className="text-sm font-semibold text-muted-foreground">{t('noActiveFrameworks')}</p>
-                <p className="text-xs text-muted-foreground/60 mt-1 max-w-xs">
-                  {t('noActiveFrameworksDesc')}
-                </p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="mt-4"
-                  onClick={() => navigate('/compliance/frameworks')}
-                >
-                  {t('browseFrameworks')}
-                </Button>
-              </div>
-            </Card>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {readiness.map((fw) => {
-                const pct = fw.controlCoveragePct ?? 0;
-                const barColor =
-                  pct >= 80 ? 'bg-emerald-500' :
-                  pct >= 50 ? 'bg-blue-500' :
-                  pct >= 25 ? 'bg-amber-500' :
-                  'bg-red-500';
+        {!loadingReadiness && readiness.length === 0 ? (
+          <ComplianceLaunchpad
+            policies={policies}
+            riskOverview={riskOverview}
+            testSummary={testSummary}
+            loadingPolicies={loadingPolicies}
+            loadingRisks={loadingRisks}
+            loadingTests={loadingTests}
+          />
+        ) : (
+          <>
+            {/* ── KPI Stats ── */}
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+              {stats.map((stat) => {
+                const Icon = stat.icon;
+                const isLive = stat.value === null;
                 return (
                   <Card
-                    key={fw.slug}
-                    className="p-5 cursor-pointer hover:shadow-md transition-shadow duration-200"
-                    onClick={() => navigate(`/compliance/frameworks/${fw.slug}`)}
+                    key={stat.key}
+                    className="cursor-pointer p-5 transition-shadow duration-200 hover:shadow-md"
+                    onClick={() => navigate(stat.path)}
                   >
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 flex items-center justify-center flex-shrink-0">
-                          <ShieldCheck className="w-4 h-4 text-indigo-600" />
+                    <div className="mb-3 flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${stat.bg}`}>
+                          <Icon className={`h-4 w-4 ${stat.color}`} />
                         </div>
-                        <h3 className="text-sm font-bold text-foreground truncate">
-                          {fw.name}
-                        </h3>
+                        <h3 className="text-sm font-bold text-foreground">{stat.label}</h3>
                       </div>
-                      <span className="text-2xl font-extrabold text-foreground tracking-tight ml-2 shrink-0">
-                        {pct}%
-                      </span>
-                    </div>
-                    <div className="w-full bg-muted rounded-full h-2.5 mb-3">
-                      <div
-                        className={`${barColor} h-2.5 rounded-full transition-all`}
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
-                    <div className="flex justify-between text-xs">
-                      <span className="text-muted-foreground">
-                        {t('framework.openGaps', { count: fw.openGaps ?? 0 })}
-                      </span>
-                      <span className="text-muted-foreground">
-                        {t('framework.covered', { covered: fw.covered ?? 0, applicable: fw.applicable ?? 0 })}
-                      </span>
+                      {isLive ? (
+                        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground/50" />
+                      ) : (
+                        <span className="text-2xl font-extrabold tracking-tight text-foreground">
+                          {stat.value}
+                        </span>
+                      )}
                     </div>
                   </Card>
                 );
               })}
             </div>
-          )}
-        </div>
+
+            {/* ── Progress Overview ── */}
+            <div>
+              <h2 className="mb-3 text-sm font-bold uppercase tracking-wider text-muted-foreground">
+                {t('progressOverview')}
+              </h2>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                {/* Tests */}
+                <Card
+                  className="cursor-pointer p-5 transition-shadow duration-200 hover:shadow-md"
+                  onClick={() => navigate('/tests')}
+                >
+                  <div className="mb-3 flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-950/40">
+                        <ClipboardCheck className="h-4 w-4 text-emerald-600" />
+                      </div>
+                      <h3 className="text-sm font-bold text-foreground">{t('tests.title')}</h3>
+                    </div>
+                    {!loadingTests && testSummary && (
+                      <span className="text-2xl font-extrabold tracking-tight text-foreground">
+                        {testSummary.passPercentage}%
+                      </span>
+                    )}
+                  </div>
+                  {loadingTests ? (
+                    <LoadingSkeleton />
+                  ) : !testSummary ? (
+                    <EmptyState label={t('tests.noTests')} />
+                  ) : (
+                    <>
+                      <div className="mb-3 h-2.5 w-full rounded-full bg-muted">
+                        <div
+                          className="h-2.5 rounded-full bg-emerald-500 transition-all"
+                          style={{ width: `${testSummary.passPercentage}%` }}
+                        />
+                      </div>
+                      <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
+                        <StatDot color="bg-emerald-500" label={t('tests.done')} count={testSummary.completed} />
+                        <StatDot color="bg-red-500" label={t('tests.overdue')} count={testSummary.overdue} />
+                        <StatDot color="bg-amber-400" label={t('tests.dueSoon')} count={testSummary.dueSoon} />
+                      </div>
+                      <p className="mt-2.5 text-xs font-medium text-muted-foreground/50">
+                        {t('tests.total', { count: testSummary.total })}
+                      </p>
+                    </>
+                  )}
+                </Card>
+
+                {/* Risks */}
+                <Card
+                  className="cursor-pointer p-5 transition-shadow duration-200 hover:shadow-md"
+                  onClick={() => navigate('/risk/risks')}
+                >
+                  <div className="mb-3 flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 dark:bg-red-950/40">
+                        <TrendingUp className="h-4 w-4 text-red-600" />
+                      </div>
+                      <h3 className="text-sm font-bold text-foreground">{t('risks.title')}</h3>
+                    </div>
+                    {!loadingRisks && riskOverview && (
+                      <span className="text-2xl font-extrabold tracking-tight text-foreground">
+                        {riskOverview.total}
+                      </span>
+                    )}
+                  </div>
+                  {loadingRisks ? (
+                    <LoadingSkeleton />
+                  ) : !riskOverview ? (
+                    <EmptyState label={t('risks.noRisks')} />
+                  ) : (
+                    <>
+                      <div className="mb-3 flex h-2.5 w-full overflow-hidden rounded-full bg-muted">
+                        {riskOverview.total > 0 && (
+                          <>
+                            <div className="h-2.5 bg-red-500" style={{ width: `${(riskOverview.critical / riskOverview.total) * 100}%` }} />
+                            <div className="h-2.5 bg-orange-500" style={{ width: `${(riskOverview.high / riskOverview.total) * 100}%` }} />
+                            <div className="h-2.5 bg-yellow-400" style={{ width: `${(riskOverview.medium / riskOverview.total) * 100}%` }} />
+                            <div className="h-2.5 bg-green-500" style={{ width: `${(riskOverview.low / riskOverview.total) * 100}%` }} />
+                          </>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
+                        <StatDot color="bg-red-500" label={t('risks.critical')} count={riskOverview.critical} />
+                        <StatDot color="bg-orange-500" label={t('risks.high')} count={riskOverview.high} />
+                        <StatDot color="bg-yellow-400" label={t('risks.medium')} count={riskOverview.medium} />
+                        <StatDot color="bg-green-500" label={t('risks.low')} count={riskOverview.low} />
+                      </div>
+                      <p className="mt-2.5 text-xs font-medium text-muted-foreground/50">
+                        {t('risks.openMitigated', { open: riskOverview.open, mitigated: riskOverview.mitigated })}
+                      </p>
+                    </>
+                  )}
+                </Card>
+
+                {/* Policies */}
+                <Card
+                  className="cursor-pointer p-5 transition-shadow duration-200 hover:shadow-md"
+                  onClick={() => navigate('/compliance/policies')}
+                >
+                  <div className="mb-3 flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-950/40">
+                        <FileText className="h-4 w-4 text-blue-600" />
+                      </div>
+                      <h3 className="text-sm font-bold text-foreground">{t('policies.title')}</h3>
+                    </div>
+                    {!loadingPolicies && policyStats.total > 0 && (
+                      <span className="text-2xl font-extrabold tracking-tight text-foreground">
+                        {Math.round((policyStats.published / policyStats.total) * 100)}%
+                      </span>
+                    )}
+                  </div>
+                  {loadingPolicies ? (
+                    <LoadingSkeleton />
+                  ) : policyStats.total === 0 ? (
+                    <EmptyState label={t('policies.noPolicies')} />
+                  ) : (
+                    <>
+                      <div className="mb-3 h-2.5 w-full rounded-full bg-muted">
+                        <div
+                          className="h-2.5 rounded-full bg-blue-500 transition-all"
+                          style={{ width: `${Math.round((policyStats.published / policyStats.total) * 100)}%` }}
+                        />
+                      </div>
+                      <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
+                        <StatDot color="bg-blue-500" label={t('policies.published')} count={policyStats.published} />
+                        <StatDot color="bg-gray-400" label={t('policies.draft')} count={policyStats.draft} />
+                        <StatDot color="bg-amber-500" label={t('policies.review')} count={policyStats.review} />
+                      </div>
+                      <p className="mt-2.5 text-xs font-medium text-muted-foreground/50">
+                        {t('policies.total', { count: policyStats.total })}
+                      </p>
+                    </>
+                  )}
+                </Card>
+
+                {/* Documents */}
+                <Card
+                  className="cursor-pointer p-5 transition-shadow duration-200 hover:shadow-md"
+                  onClick={() => navigate('/compliance/documents')}
+                >
+                  <div className="mb-3 flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-50 dark:bg-violet-950/40">
+                        <FileCheck className="h-4 w-4 text-violet-600" />
+                      </div>
+                      <h3 className="text-sm font-bold text-foreground">{t('documents.title')}</h3>
+                    </div>
+                    {!loadingDocs && docStats && docStats.total > 0 && (
+                      <span className="text-2xl font-extrabold tracking-tight text-foreground">
+                        {Math.round((docStats.current / docStats.total) * 100)}%
+                      </span>
+                    )}
+                  </div>
+                  {loadingDocs ? (
+                    <LoadingSkeleton />
+                  ) : !docStats || docStats.total === 0 ? (
+                    <EmptyState label={t('documents.noDocuments')} />
+                  ) : (
+                    <>
+                      <div className="mb-3 h-2.5 w-full rounded-full bg-muted">
+                        <div
+                          className="h-2.5 rounded-full bg-violet-500 transition-all"
+                          style={{ width: `${Math.round((docStats.current / docStats.total) * 100)}%` }}
+                        />
+                      </div>
+                      <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
+                        <StatDot color="bg-violet-500" label={t('documents.current')} count={docStats.current} />
+                        <StatDot color="bg-gray-400" label={t('documents.pending')} count={docStats.pending} />
+                        <StatDot color="bg-amber-500" label={t('documents.review')} count={docStats.needsReview} />
+                      </div>
+                      <p className="mt-2.5 text-xs font-medium text-muted-foreground/50">
+                        {t('documents.total', { count: docStats.total })}
+                      </p>
+                    </>
+                  )}
+                </Card>
+              </div>
+            </div>
+
+            {/* ── Framework Readiness ── */}
+            <div>
+              <h2 className="mb-3 text-sm font-bold uppercase tracking-wider text-muted-foreground">
+                {t('frameworkReadiness')}
+              </h2>
+              {loadingReadiness ? (
+                <div className="flex items-center justify-center gap-3 py-12 text-sm text-muted-foreground/70">
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <span className="font-medium">{t('loadingFrameworks')}</span>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {readiness.map((fw) => {
+                    const pct = fw.controlCoveragePct ?? 0;
+                    const barColor =
+                      pct >= 80 ? 'bg-emerald-500' :
+                      pct >= 50 ? 'bg-blue-500' :
+                      pct >= 25 ? 'bg-amber-500' :
+                      'bg-red-500';
+                    return (
+                      <Card
+                        key={fw.slug}
+                        className="cursor-pointer p-5 transition-shadow duration-200 hover:shadow-md"
+                        onClick={() => navigate(`/compliance/frameworks/${fw.slug}`)}
+                      >
+                        <div className="mb-3 flex items-center justify-between">
+                          <div className="flex min-w-0 items-center gap-2.5">
+                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-indigo-50 dark:bg-indigo-950/40">
+                              <ShieldCheck className="h-4 w-4 text-indigo-600" />
+                            </div>
+                            <h3 className="truncate text-sm font-bold text-foreground">
+                              {fw.name}
+                            </h3>
+                          </div>
+                          <span className="ml-2 shrink-0 text-2xl font-extrabold tracking-tight text-foreground">
+                            {pct}%
+                          </span>
+                        </div>
+                        <div className="mb-3 h-2.5 w-full rounded-full bg-muted">
+                          <div
+                            className={`${barColor} h-2.5 rounded-full transition-all`}
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-muted-foreground">
+                            {t('framework.openGaps', { count: fw.openGaps ?? 0 })}
+                          </span>
+                          <span className="text-muted-foreground">
+                            {t('framework.covered', { covered: fw.covered ?? 0, applicable: fw.applicable ?? 0 })}
+                          </span>
+                        </div>
+                      </Card>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </>
+        )}
       </div>
     </PageTemplate>
   );

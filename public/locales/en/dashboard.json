@@ -55,6 +55,63 @@
     "openGaps": "{{count}} open gaps",
     "covered": "{{covered}}/{{applicable}} covered"
   },
+  "launchpad": {
+    "title": "Prepare for compliance",
+    "subtitle": "You have not activated a framework yet. Start with a framework, then complete the setup steps below to build your compliance foundation.",
+    "activateCta": "Activate a framework",
+    "setupPathTitle": "Setup Path",
+    "recommendedTitle": "Recommended Frameworks",
+    "activate": "Activate",
+    "bestFor": "Best for",
+    "status": {
+      "not_started": "Not started",
+      "in_progress": "In progress",
+      "done": "Done"
+    },
+    "steps": {
+      "activateFramework": {
+        "title": "Activate a framework",
+        "description": "Choose the compliance standard you want to prepare for, such as SOC 2 or ISO 27001.",
+        "cta": "Choose framework"
+      },
+      "connectSystems": {
+        "title": "Connect systems and sync users",
+        "description": "Bring in identity, cloud, HR, and device data so Cloudanzen can track your posture accurately.",
+        "cta": "Connect integrations"
+      },
+      "reviewAccess": {
+        "title": "Review access and assign owners",
+        "description": "Confirm who owns systems, who has access, and where reviews are needed.",
+        "cta": "Review access"
+      },
+      "createPolicies": {
+        "title": "Create or generate policies",
+        "description": "Set up the core policies your framework will expect, then review and publish them.",
+        "cta": "Create policies"
+      },
+      "reviewRisks": {
+        "title": "Review risks and gaps",
+        "description": "Capture the major risks and understand what needs treatment before audit preparation.",
+        "cta": "Open risk review"
+      },
+      "startTests": {
+        "title": "Start tests and collect evidence",
+        "description": "Begin recurring checks and evidence collection so your program becomes measurable.",
+        "cta": "View tests"
+      }
+    },
+    "frameworks": {
+      "soc-2": {
+        "bestFor": "Teams selling into US B2B customers and building a practical trust program."
+      },
+      "iso-27001": {
+        "bestFor": "Teams building a formal ISMS and preparing for globally recognized certification."
+      },
+      "hipaa": {
+        "bestFor": "Healthcare and regulated teams focused on safeguarding sensitive data and operational controls."
+      }
+    }
+  },
   "myTasks": {
     "title": "My Tasks",
     "description": "Your assigned tests and pending security tasks.",

@@ -55,6 +55,63 @@
     "openGaps": "{{count}}件のギャップ",
     "covered": "{{covered}}/{{applicable}}件適用済み"
   },
+  "launchpad": {
+    "title": "コンプライアンスの準備を始めましょう",
+    "subtitle": "まだフレームワークが有効化されていません。まずフレームワークを選び、その後のセットアップ手順を進めてコンプライアンス基盤を整えましょう。",
+    "activateCta": "フレームワークを有効化",
+    "setupPathTitle": "セットアップ手順",
+    "recommendedTitle": "おすすめのフレームワーク",
+    "activate": "有効化",
+    "bestFor": "おすすめ対象",
+    "status": {
+      "not_started": "未開始",
+      "in_progress": "進行中",
+      "done": "完了"
+    },
+    "steps": {
+      "activateFramework": {
+        "title": "フレームワークを有効化",
+        "description": "SOC 2 や ISO 27001 など、準備したいコンプライアンス基準を選択します。",
+        "cta": "フレームワークを選ぶ"
+      },
+      "connectSystems": {
+        "title": "システム接続とユーザー同期",
+        "description": "ID 管理、クラウド、HR、デバイスの情報を取り込み、正確な態勢を把握できるようにします。",
+        "cta": "連携を接続"
+      },
+      "reviewAccess": {
+        "title": "アクセス確認と担当者設定",
+        "description": "誰がシステムを所有し、誰がアクセス権を持ち、どこにレビューが必要かを確認します。",
+        "cta": "アクセスを確認"
+      },
+      "createPolicies": {
+        "title": "ポリシーを作成・生成",
+        "description": "フレームワークで必要になる主要ポリシーを整備し、確認して公開します。",
+        "cta": "ポリシーを作成"
+      },
+      "reviewRisks": {
+        "title": "リスクとギャップを確認",
+        "description": "主要リスクを記録し、監査準備前に対応すべき事項を把握します。",
+        "cta": "リスク確認へ"
+      },
+      "startTests": {
+        "title": "テストと証跡収集を開始",
+        "description": "定期チェックと証跡収集を始め、プログラムを測定可能にします。",
+        "cta": "テストを見る"
+      }
+    },
+    "frameworks": {
+      "soc-2": {
+        "bestFor": "米国B2B顧客への販売を進めるチームや、実践的な信頼基盤を作りたい組織に適しています。"
+      },
+      "iso-27001": {
+        "bestFor": "正式な ISMS を構築し、国際的に認知された認証を目指すチームに適しています。"
+      },
+      "hipaa": {
+        "bestFor": "医療系や規制の厳しい組織で、機微情報保護と運用統制を重視する場合に適しています。"
+      }
+    }
+  },
   "myTasks": {
     "title": "マイタスク",
     "description": "担当テストおよび保留中のセキュリティタスク",
