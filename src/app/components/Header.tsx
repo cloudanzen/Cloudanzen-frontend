@@ -58,6 +58,7 @@ const searchablePages: SearchResult[] = [
   // Other
   { title: "Vendors", path: "/vendors", category: "Operations" },
   { title: "Assets Inventory", path: "/assets/inventory", category: "Assets" },
+  { title: "Merge Review", path: "/assets/merge-review", category: "Assets" },
   { title: "Code Changes", path: "/assets/code-changes", category: "Assets" },
   { title: "Vulnerabilities", path: "/assets/vulnerabilities", category: "Assets" },
   { title: "Integrations", path: "/integrations", category: "Settings" },

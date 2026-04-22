@@ -46,7 +46,11 @@ export const QK = {
   assetDetail: (id: string) => ['assets', 'detail', id] as const,
   assetCoverage: () => ['assets', 'coverage'] as const,
   assetChangelog: (id: string) => ['assets', 'changelog', id] as const,
+  assetReviews: (id: string) => ['assets', 'reviews', id] as const,
+  assetReviewQueues: () => ['assets', 'review-queues'] as const,
+  assetSavedViews: () => ['assets', 'saved-views'] as const,
   assetDistribution: () => ['assets', 'distribution'] as const,
+  assetMergeGroups: (reviewStatus?: string) => ['assets', 'merge-groups', reviewStatus] as const,
 
   // Access Management
   accessRequests: (filter?: object) => ['access', 'requests', filter] as const,

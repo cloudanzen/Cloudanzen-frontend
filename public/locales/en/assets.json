@@ -27,7 +27,17 @@
       "staleOnly": "Stale only"
     },
     "coverage": {
-      "stale": "Stale"
+      "stale": "Stale",
+      "providerHealth": "Provider health",
+      "providerHealthDesc": "Connector coverage, freshness, and last sync posture.",
+      "connections": "connections",
+      "noScan": "No scan yet",
+      "health": {
+        "healthy": "Healthy",
+        "warning": "Warning",
+        "stale": "Stale",
+        "not_connected": "Not connected"
+      }
     },
     "providers": {
       "aws": "AWS",
@@ -35,6 +45,11 @@
       "fleet": "Fleet",
       "gcp": "GCP",
       "azure": "Azure",
+      "gitlab": "GitLab",
+      "bitbucket": "Bitbucket",
+      "jamf": "Jamf",
+      "kandji": "Kandji",
+      "intune": "Intune",
       "manual": "Manual"
     },
     "type": {
@@ -64,19 +79,55 @@
       "lastSeen": "Last Seen"
     }
   },
+  "mergeReview": {
+    "title": "Merge Review",
+    "description": "Review potential duplicate asset groups and approve or dismiss them.",
+    "empty": "No merge groups found for this filter",
+    "approve": "Approve",
+    "dismiss": "Dismiss",
+    "saved": "Merge review updated",
+    "saveFailed": "Failed to update merge review",
+    "loadFailed": "Failed to load merge review queue",
+    "assetsLabel": "assets",
+    "status": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "dismissed": "Dismissed"
+    }
+  },
   "detail": {
     "title": "Asset Detail",
     "description": "View inventory metadata, relationships, and change history.",
     "back": "Back to inventory",
     "overview": "Overview",
+    "deduplication": "Deduplication",
     "relationships": "Relationships",
     "compliance": "Compliance",
+    "mergeGroupType": "Merge group type",
+    "groupedAssets": "Grouped assets",
+    "potentialDuplicates": "Potential duplicates",
+    "reviewStatus": "Review status",
+    "reviewedAt": "Reviewed at",
+    "reviewNotes": "Review notes",
+    "approveGroup": "Approve group",
+    "dismissGroup": "Dismiss group",
+    "removeFromGroup": "Remove",
+    "manualMerge": "Manual merge",
+    "targetAssetId": "Target asset ID",
+    "mergeAssets": "Merge assets",
+    "reviewSaved": "Merge group review saved",
+    "reviewSaveFailed": "Failed to save merge group review",
+    "mergeSucceeded": "Assets merged successfully",
+    "mergeFailed": "Failed to merge assets",
+    "unmergeSucceeded": "Asset removed from merge group",
+    "unmergeFailed": "Failed to remove asset from merge group",
     "parents": "Parent assets",
     "children": "Child assets",
     "linkedControls": "Linked controls",
     "linkedTests": "Linked tests",
     "openFindings": "Open findings",
     "noRelationships": "No relationships found",
+    "noDuplicates": "No duplicate matches detected",
     "history": "History",
     "noChanges": "No changes recorded",
     "loadFailed": "Failed to load asset detail"
