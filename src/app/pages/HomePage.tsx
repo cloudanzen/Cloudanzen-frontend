@@ -150,11 +150,11 @@ export function HomePage() {
 
   const compliance = complianceRaw ?? null;
   const riskOverview = riskRaw ?? null;
-  const readiness = readinessRaw ?? [];
+  const readiness = Array.isArray(readinessRaw) ? readinessRaw : [];
   const testSummary = testSummaryRaw ?? null;
-  const policies = policiesRaw ?? [];
+  const policies = Array.isArray(policiesRaw) ? policiesRaw : [];
   const docStats = docsRaw ?? null;
-  const vendors = vendorsRaw ?? [];
+  const vendors = Array.isArray(vendorsRaw) ? vendorsRaw : [];
 
   const vendorNeedAttention = vendors.filter(
     (v) => v.status === 'ASSESSMENT_DUE' || v.status === 'IN_REVIEW' || v.status === 'BLOCKED',

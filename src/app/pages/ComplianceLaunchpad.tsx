@@ -99,17 +99,21 @@ export function ComplianceLaunchpad({
     staleTime: STALE.DASHBOARD,
   });
 
+  const safeCatalog = Array.isArray(catalog) ? catalog : [];
+  const safeIntegrations = Array.isArray(integrations) ? integrations : [];
+  const safePolicies = Array.isArray(policies) ? policies : [];
+
   const featuredFrameworks = useMemo(
-    () => catalog.filter((fw) => ['soc-2', 'iso-27001', 'hipaa'].includes(fw.slug)),
-    [catalog],
+    () => safeCatalog.filter((fw) => ['soc-2', 'iso-27001', 'hipaa'].includes(fw.slug)),
+    [safeCatalog],
   );
 
-  const hasActiveIntegration = integrations.some((integration) => integration.status === 'ACTIVE');
+  const hasActiveIntegration = safeIntegrations.some((integration) => integration.status === 'ACTIVE');
   const policyStatus: StepStatus = loadingPolicies
     ? 'not_started'
-    : policies.some((policy) => policy.status === 'PUBLISHED')
+    : safePolicies.some((policy) => policy.status === 'PUBLISHED')
       ? 'done'
-      : policies.length > 0
+      : safePolicies.length > 0
         ? 'in_progress'
         : 'not_started';
   const riskStatus: StepStatus = loadingRisks
