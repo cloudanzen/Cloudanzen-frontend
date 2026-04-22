@@ -36,6 +36,13 @@ export const QK = {
   // Personnel
   users: () => ['users', 'list'] as const,
 
+  // Assets
+  assets: (filters?: Record<string, unknown>) => ['assets', 'list', filters] as const,
+  assetDetail: (id: string) => ['assets', 'detail', id] as const,
+  assetCoverage: () => ['assets', 'coverage'] as const,
+  assetChangelog: (id: string) => ['assets', 'changelog', id] as const,
+  assetDistribution: () => ['assets', 'distribution'] as const,
+
   // Access Management
   accessRequests: (filter?: object) => ['access', 'requests', filter] as const,
   auditLog: (filter?: object) => ['access', 'audit-log', filter] as const,

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- legacy: to be typed progressively */
 import { apiClient, ApiResponse } from './client';
-import { Asset, CreateAssetRequest, AssetType, RiskLevel } from './types';
+import { Asset, AssetChangeLogEntry, AssetCoverage, AssetDetail, CreateAssetRequest, AssetType } from './types';
 
 type UpdateAssetRequest = Partial<CreateAssetRequest>;
 
@@ -9,16 +9,39 @@ export class AssetsService {
   async getAssets(params?: {
     page?: number;
     limit?: number;
-    type?: AssetType;
-    criticality?: RiskLevel;
+    type?: string;
+    criticality?: string;
     search?: string;
-  }): Promise<ApiResponse<Asset[]>> {
+    category?: string;
+    subtype?: string;
+    provider?: string;
+    isStale?: boolean;
+    status?: string;
+    managedBy?: string;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+  }): Promise<ApiResponse<Asset[]> & { pagination?: { total: number; page: number; limit: number; totalPages: number } }> {
     return apiClient.get('/api/assets', params);
   }
 
   // Get asset by ID
   async getAsset(id: string): Promise<ApiResponse<Asset>> {
     return apiClient.get(`/api/assets/${id}`);
+  }
+
+  async getAssetDetail(id: string): Promise<ApiResponse<AssetDetail>> {
+    return apiClient.get(`/api/assets/${id}/detail`);
+  }
+
+  async getAssetChangelog(
+    id: string,
+    params?: { page?: number; limit?: number },
+  ): Promise<ApiResponse<AssetChangeLogEntry[]> & { pagination?: { total: number; page: number; limit: number; totalPages: number } }> {
+    return apiClient.get(`/api/assets/${id}/changelog`, params);
+  }
+
+  async getCoverage(): Promise<ApiResponse<AssetCoverage>> {
+    return apiClient.get('/api/assets/coverage');
   }
 
   // Create new asset

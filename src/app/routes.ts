@@ -190,6 +190,11 @@ const InventoryPage = lazy(() =>
     default: m.InventoryPage,
   })),
 );
+const AssetDetailPage = lazy(() =>
+  import('@/app/pages/assets/AssetDetailPage').then((m) => ({
+    default: m.AssetDetailPage,
+  })),
+);
 const CodeChangesPage = lazy(() =>
   import('@/app/pages/assets/CodeChangesPage').then((m) => ({
     default: m.CodeChangesPage,
@@ -402,6 +407,7 @@ export const router = createBrowserRouter([
       { path: 'vendors/:vendorId', Component: VendorDetailPage },
 
       // Assets
+      { path: 'assets/inventory/:id', Component: AssetDetailPage },
       { path: 'assets/inventory', Component: InventoryPage },
       { path: 'assets/code-changes', Component: CodeChangesPage },
       { path: 'assets/vulnerabilities', Component: VulnerabilitiesPage },

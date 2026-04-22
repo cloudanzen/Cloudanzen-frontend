@@ -5,6 +5,38 @@
     "searchPlaceholder": "資産を検索...",
     "noAssets": "資産が見つかりません",
     "addAsset": "資産を追加",
+    "resultsLabel": "資産",
+    "stale": "古い資産",
+    "prev": "前へ",
+    "next": "次へ",
+    "pagination": "{{page}} / {{totalPages}} ページ",
+    "summary": {
+      "total": "総資産数",
+      "stale": "古い資産"
+    },
+    "filters": {
+      "category": "カテゴリ",
+      "provider": "プロバイダー",
+      "stale": "状態",
+      "allTypes": "すべての種類",
+      "allCriticality": "すべての重要度",
+      "allCategories": "すべてのカテゴリ",
+      "allProviders": "すべてのプロバイダー",
+      "allStatuses": "すべての状態",
+      "activeOnly": "有効のみ",
+      "staleOnly": "古い資産のみ"
+    },
+    "coverage": {
+      "stale": "古い資産"
+    },
+    "providers": {
+      "aws": "AWS",
+      "github": "GitHub",
+      "fleet": "Fleet",
+      "gcp": "GCP",
+      "azure": "Azure",
+      "manual": "手動"
+    },
     "type": {
       "CLOUD": "クラウド",
       "APPLICATION": "アプリケーション",
@@ -23,11 +55,31 @@
     "columns": {
       "name": "資産",
       "type": "種類",
+      "provider": "プロバイダー",
+      "category": "カテゴリ",
       "criticality": "重要度",
       "owner": "オーナー",
       "risks": "リスク",
-      "createdAt": "追加日"
+      "createdAt": "追加日",
+      "lastSeen": "最終検知"
     }
+  },
+  "detail": {
+    "title": "資産詳細",
+    "description": "インベントリのメタデータ、関係、変更履歴を表示します。",
+    "back": "インベントリへ戻る",
+    "overview": "概要",
+    "relationships": "関係",
+    "compliance": "コンプライアンス",
+    "parents": "親資産",
+    "children": "子資産",
+    "linkedControls": "関連コントロール",
+    "linkedTests": "関連テスト",
+    "openFindings": "未解決の指摘",
+    "noRelationships": "関係はありません",
+    "history": "履歴",
+    "noChanges": "変更履歴はありません",
+    "loadFailed": "資産詳細の読み込みに失敗しました"
   },
   "codeChanges": {
     "title": "コード変更",

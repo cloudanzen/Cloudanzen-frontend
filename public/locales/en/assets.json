@@ -5,6 +5,38 @@
     "searchPlaceholder": "Search assets...",
     "noAssets": "No assets found",
     "addAsset": "Add Asset",
+    "resultsLabel": "assets",
+    "stale": "Stale",
+    "prev": "Previous",
+    "next": "Next",
+    "pagination": "Page {{page}} of {{totalPages}}",
+    "summary": {
+      "total": "Total assets",
+      "stale": "Stale assets"
+    },
+    "filters": {
+      "category": "Category",
+      "provider": "Provider",
+      "stale": "Status",
+      "allTypes": "All types",
+      "allCriticality": "All criticality",
+      "allCategories": "All categories",
+      "allProviders": "All providers",
+      "allStatuses": "All statuses",
+      "activeOnly": "Active only",
+      "staleOnly": "Stale only"
+    },
+    "coverage": {
+      "stale": "Stale"
+    },
+    "providers": {
+      "aws": "AWS",
+      "github": "GitHub",
+      "fleet": "Fleet",
+      "gcp": "GCP",
+      "azure": "Azure",
+      "manual": "Manual"
+    },
     "type": {
       "CLOUD": "Cloud",
       "APPLICATION": "Application",
@@ -23,11 +55,31 @@
     "columns": {
       "name": "Asset",
       "type": "Type",
+      "provider": "Provider",
+      "category": "Category",
       "criticality": "Criticality",
       "owner": "Owner",
       "risks": "Risks",
-      "createdAt": "Added"
+      "createdAt": "Added",
+      "lastSeen": "Last Seen"
     }
+  },
+  "detail": {
+    "title": "Asset Detail",
+    "description": "View inventory metadata, relationships, and change history.",
+    "back": "Back to inventory",
+    "overview": "Overview",
+    "relationships": "Relationships",
+    "compliance": "Compliance",
+    "parents": "Parent assets",
+    "children": "Child assets",
+    "linkedControls": "Linked controls",
+    "linkedTests": "Linked tests",
+    "openFindings": "Open findings",
+    "noRelationships": "No relationships found",
+    "history": "History",
+    "noChanges": "No changes recorded",
+    "loadFailed": "Failed to load asset detail"
   },
   "codeChanges": {
     "title": "Code Changes",
