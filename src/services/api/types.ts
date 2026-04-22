@@ -15,6 +15,19 @@ export enum AssetType {
   SAAS = 'SAAS',
   ENDPOINT = 'ENDPOINT',
   NETWORK = 'NETWORK',
+  REPOSITORY = 'REPOSITORY',
+  VENDOR = 'VENDOR',
+  OTHER = 'OTHER',
+}
+
+export enum AssetCategory {
+  INFRASTRUCTURE = 'INFRASTRUCTURE',
+  DATA_STORE = 'DATA_STORE',
+  APPLICATION = 'APPLICATION',
+  ENDPOINT = 'ENDPOINT',
+  NETWORK = 'NETWORK',
+  IDENTITY = 'IDENTITY',
+  SECRETS = 'SECRETS',
   OTHER = 'OTHER',
 }
 
@@ -85,7 +98,68 @@ export interface Asset {
   description?: string;
   organizationId: string;
   createdAt: string;
+  category?: AssetCategory;
+  subtype?: string;
+  provider?: string | null;
+  externalId?: string | null;
+  externalResourceName?: string | null;
+  region?: string | null;
+  lastDiscoveredAt?: string | null;
+  firstDiscoveredAt?: string | null;
+  discoveredBy?: string | null;
+  managedBy?: string | null;
+  isStale?: boolean;
+  updatedAt?: string;
+  status?: string;
+  hostname?: string | null;
+  serialNumber?: string | null;
+  osType?: string | null;
+  osVersion?: string | null;
+  _count?: { risks: number };
   risks?: Risk[];
+}
+
+export interface AssetCoverage {
+  total: number;
+  byProvider: Array<{ provider: string; count: number; staleCount: number }>;
+  byCategory: Array<{ category: string; count: number }>;
+  bySubtype: Array<{ subtype: string; count: number }>;
+  staleCount: number;
+  unmanaged: number;
+  lastScanTimes: Array<{ provider: string; lastScanAt: string | null }>;
+}
+
+export interface AssetRelationshipItem {
+  id: string;
+  name: string;
+  type: AssetType;
+  subtype?: string | null;
+  relationshipType: string;
+}
+
+export interface AssetChangeLogEntry {
+  id: string;
+  changeType: string;
+  changedBy?: string | null;
+  previousValues?: Record<string, unknown> | null;
+  newValues?: Record<string, unknown> | null;
+  source?: string | null;
+  createdAt: string;
+}
+
+export interface AssetDetail extends Asset {
+  classification?: {
+    dataSensitivity?: string | null;
+    environment?: string | null;
+    regulatoryScope?: unknown;
+    internetExposed?: boolean | null;
+  } | null;
+  parentRelations?: Array<{ relationshipType: string; parentAsset: AssetRelationshipItem }>;
+  childRelations?: Array<{ relationshipType: string; childAsset: AssetRelationshipItem }>;
+  changeLog?: AssetChangeLogEntry[];
+  controlMappings?: Array<{ id: string; controlId: string; control: { id: string; title: string; status: string } }>;
+  testMappings?: Array<{ id: string; testId: string; test: { id: string; name: string; status: string } }>;
+  findings?: Array<{ id: string; title: string; severity: string; status: string }>;
 }
 
 export interface Risk {

@@ -99,13 +99,12 @@ export function ComplianceLaunchpad({
     staleTime: STALE.DASHBOARD,
   });
 
-  const safeCatalog = Array.isArray(catalog) ? catalog : [];
   const safeIntegrations = Array.isArray(integrations) ? integrations : [];
   const safePolicies = Array.isArray(policies) ? policies : [];
 
   const featuredFrameworks = useMemo(
-    () => safeCatalog.filter((fw) => ['soc-2', 'iso-27001', 'hipaa'].includes(fw.slug)),
-    [safeCatalog],
+    () => (Array.isArray(catalog) ? catalog : []).filter((fw) => ['soc-2', 'iso-27001', 'hipaa'].includes(fw.slug)),
+    [catalog],
   );
 
   const hasActiveIntegration = safeIntegrations.some((integration) => integration.status === 'ACTIVE');
