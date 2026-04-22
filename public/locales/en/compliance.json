@@ -44,6 +44,61 @@
       "owner": "Owner",
       "approvedAt": "Approved",
       "updatedAt": "Updated"
+    },
+    "detail": {
+      "title": "Policy Detail",
+      "tabs": {
+        "policy": "Policy",
+        "versions": "Versions",
+        "controls": "Controls",
+        "approvals": "Approvals"
+      },
+      "versions": {
+        "title": "Version History",
+        "publishedBy": "Published by",
+        "changelog": "Changelog",
+        "current": "Current",
+        "noVersions": "No versions published yet"
+      },
+      "approvals": {
+        "title": "Approval History",
+        "requestApproval": "Request Approval",
+        "selectApprovers": "Select Approvers",
+        "pending": "Pending",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "noApprovals": "No approval requests yet"
+      },
+      "acceptance": {
+        "title": "Acceptance Tracking",
+        "accepted": "Accepted",
+        "pending": "Pending",
+        "sendForAcceptance": "Send for Acceptance"
+      },
+      "publish": {
+        "title": "Publish Policy",
+        "changelog": "Changelog (optional)",
+        "changelogPlaceholder": "Describe what changed in this version...",
+        "publishOnly": "Publish only (no acceptance needed)",
+        "sendToAll": "Send for acceptance to all personnel",
+        "sendToSpecific": "Send for acceptance to specific users",
+        "publishButton": "Publish v{{version}}"
+      },
+      "renew": {
+        "title": "Renew Policy",
+        "description": "This policy is due for renewal.",
+        "withUpdates": "Renew and make updates",
+        "withUpdatesDesc": "Reverts to Draft for editing, then re-publish as new version",
+        "withoutUpdates": "Renew without updates",
+        "withoutUpdatesDesc": "Re-publish current content as new version immediately",
+        "renewButton": "Renew"
+      },
+      "recurrence": {
+        "title": "Review Cadence",
+        "every": "Every {{months}} months",
+        "nextReview": "Next review due",
+        "setRecurrence": "Set Review Cadence"
+      }
     }
   },
   "templates": {

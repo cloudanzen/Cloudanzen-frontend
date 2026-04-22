@@ -139,7 +139,7 @@ function Task1Policies({
 }) {
   const { t } = useTranslation('common');
   const [policies, setPolicies] = useState<
-    { id: string; name: string; version: string; status: string }[]
+    { id: string; policyId: string; name: string; version: string; status: string }[]
   >([]);
   const [checked, setChecked] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -148,38 +148,26 @@ function Task1Policies({
 
   useEffect(() => {
     policiesService
-      .getPolicies({ status: 'PUBLISHED' })
+      .getMyAcceptances()
       .then((res) => {
         if (res.success && res.data)
           setPolicies(
-            res.data as {
-              id: string;
-              name: string;
-              version: string;
-              status: string;
-            }[],
+            res.data.map((item) => ({
+              id: item.id,
+              policyId: item.policyId,
+              name: item.policy?.name ?? 'Policy',
+              version: String(item.versionNumber),
+              status: item.status,
+            })),
           );
       })
       .catch(() => setError(t('securityTasks.policies.loadFailed')))
       .finally(() => setLoading(false));
   }, [t]);
 
-  const hasPending = (status.pendingPolicyIds ?? []).length > 0;
-  const publishedPolicies = policies.filter((p) => p.status === 'PUBLISHED');
-  const pendingSet = new Set(status.pendingPolicyIds ?? []);
-
-  // If reopened due to new policies, pre-check already-accepted ones
-  useEffect(() => {
-    if (hasPending && publishedPolicies.length > 0) {
-      const alreadyAccepted = publishedPolicies
-        .filter((p) => !pendingSet.has(p.id))
-        .map((p) => p.id);
-      if (alreadyAccepted.length > 0) {
-        setChecked(new Set(alreadyAccepted));
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasPending, policies.length]);
+  const hasPending = policies.length > 0;
+  const publishedPolicies = policies;
+  const pendingSet = new Set(policies.map((item) => item.policyId));
 
   if (status.policyAccepted && !hasPending) {
     const ids: string[] = (() => {
@@ -303,10 +291,16 @@ function Task1Policies({
             setSaving(true);
             setError(null);
             try {
-              const res = await onboardingService.acceptPolicies(
-                Array.from(checked),
+              const selected = policies.filter((policy) => checked.has(policy.id));
+              await Promise.all(
+                selected.map((policy) =>
+                  policiesService.acceptPolicy(policy.policyId, policy.id),
+                ),
               );
+              const res = await onboardingService.getMyStatus();
               onDone(res.data);
+              setPolicies((current) => current.filter((policy) => !checked.has(policy.id)));
+              setChecked(new Set());
             } catch (e: unknown) {
               setError(
                 (e as { message?: string })?.message ?? t('errors.saveFailed'),

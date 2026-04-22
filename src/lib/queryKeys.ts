@@ -16,6 +16,11 @@ export const QK = {
 
   // Policies
   policies: (filter?: object) => ['policies', 'list', filter] as const,
+  policyDetail: (id: string) => ['policies', 'detail', id] as const,
+  policyVersions: (id: string) => ['policies', 'versions', id] as const,
+  policyApprovals: (id: string) => ['policies', 'approvals', id] as const,
+  policyAcceptances: (id: string) => ['policies', 'acceptances', id] as const,
+  myPolicyAcceptances: () => ['policies', 'my-acceptances'] as const,
 
   // Risks
   risks: () => ['risks', 'list'] as const,

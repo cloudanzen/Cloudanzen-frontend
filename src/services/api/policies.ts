@@ -1,6 +1,11 @@
 import { apiClient, ApiResponse, API_BASE_URL } from './client';
 import { getAuthToken } from '@/services/authStorage';
-import { Policy } from './types';
+import {
+  Policy,
+  PolicyVersion,
+  PolicyApprovalRecord,
+  PolicyAcceptanceRecord,
+} from './types';
 
 export interface PolicyTemplate {
   id: string;
@@ -24,6 +29,12 @@ export interface CreatePolicyRequest {
 }
 
 export type UpdatePolicyRequest = Partial<CreatePolicyRequest>;
+
+export interface PublishPolicyRequest extends UpdatePolicyRequest {
+  changelog?: string;
+  sendForAcceptance?: boolean;
+  acceptanceUserIds?: string[];
+}
 
 export class PoliciesService {
   // Get all policies
@@ -56,9 +67,61 @@ export class PoliciesService {
   // Update policy
   async updatePolicy(
     id: string,
-    data: UpdatePolicyRequest,
+    data: PublishPolicyRequest,
   ): Promise<ApiResponse<Policy>> {
     return apiClient.put(`/api/policies/${id}`, data);
+  }
+
+  async getVersions(policyId: string): Promise<ApiResponse<PolicyVersion[]>> {
+    return apiClient.get(`/api/policies/${policyId}/versions`);
+  }
+
+  async getApprovals(policyId: string): Promise<ApiResponse<PolicyApprovalRecord[]>> {
+    return apiClient.get(`/api/policies/${policyId}/approvals`);
+  }
+
+  async requestApproval(
+    policyId: string,
+    approverIds: string[],
+  ): Promise<ApiResponse<PolicyApprovalRecord[]>> {
+    return apiClient.post(`/api/policies/${policyId}/approvals`, { approverIds });
+  }
+
+  async respondToApproval(
+    policyId: string,
+    approvalId: string,
+    data: { status: string; comment?: string },
+  ): Promise<ApiResponse<PolicyApprovalRecord>> {
+    return apiClient.put(`/api/policies/${policyId}/approvals/${approvalId}`, data);
+  }
+
+  async getAcceptances(policyId: string): Promise<ApiResponse<PolicyAcceptanceRecord[]>> {
+    return apiClient.get(`/api/policies/${policyId}/acceptances`);
+  }
+
+  async getMyAcceptances(): Promise<ApiResponse<PolicyAcceptanceRecord[]>> {
+    return apiClient.get('/api/policies/my-acceptances');
+  }
+
+  async acceptPolicy(
+    policyId: string,
+    acceptanceId: string,
+  ): Promise<ApiResponse<PolicyAcceptanceRecord>> {
+    return apiClient.post(`/api/policies/${policyId}/acceptances/${acceptanceId}/accept`, {});
+  }
+
+  async renewPolicy(
+    policyId: string,
+    mode: 'with_updates' | 'without_updates',
+  ): Promise<ApiResponse<Policy>> {
+    return apiClient.post(`/api/policies/${policyId}/renew`, { mode });
+  }
+
+  async setRecurrence(
+    policyId: string,
+    data: { recurrenceMonths: number; renewalDate?: string },
+  ): Promise<ApiResponse<Policy>> {
+    return apiClient.put(`/api/policies/${policyId}/recurrence`, data);
   }
 
   async savePolicyContent(

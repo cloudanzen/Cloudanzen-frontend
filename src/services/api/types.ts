@@ -218,6 +218,7 @@ export interface Policy {
   name: string;
   description?: string;
   version: string;
+  versionNumber?: number;
   status: string;
   documentUrl: string;
   pdfUrl?: string | null;
@@ -227,9 +228,74 @@ export interface Policy {
   owner?: { id: string; name: string; email: string };
   approvedBy?: string;
   approvedAt?: string;
+  renewalDate?: string;
+  recurrenceMonths?: number;
+  lastRenewedAt?: string;
+  tests?: Array<{
+    id: string;
+    name: string;
+    category: string;
+    type: string;
+    status: string;
+    dueDate?: string;
+    completedAt?: string | null;
+    createdAt: string;
+  }>;
+  controlMappings?: Array<{
+    id: string;
+    controlId: string;
+    control?: {
+      id: string;
+      isoReference?: string;
+      title: string;
+      status: string;
+    };
+  }>;
   createdAt: string;
   updatedAt?: string;
   organization?: Organization;
+}
+
+export interface PolicyApprovalRecord {
+  id: string;
+  policyId: string;
+  policyVersionId?: string | null;
+  approvalRound: number;
+  approverId: string;
+  approver?: { id: string; name: string | null; email: string };
+  policyVersion?: { id: string; versionNumber: number; publishedAt: string } | null;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  comment?: string;
+  respondedAt?: string;
+  createdAt: string;
+}
+
+export interface PolicyVersion {
+  id: string;
+  policyId: string;
+  versionNumber: number;
+  name: string;
+  description?: string;
+  content?: object | null;
+  documentUrl?: string | null;
+  pdfUrl?: string | null;
+  status: string;
+  publishedBy: string;
+  publishedAt: string;
+  changelog?: string;
+  approvals?: PolicyApprovalRecord[];
+}
+
+export interface PolicyAcceptanceRecord {
+  id: string;
+  policyId: string;
+  versionNumber: number;
+  userId: string;
+  user?: { id: string; name: string | null; email: string };
+  policy?: { id: string; name: string; status: string; version: string; versionNumber: number };
+  status: 'PENDING' | 'ACCEPTED';
+  acceptedAt?: string;
+  createdAt: string;
 }
 
 export interface Audit {

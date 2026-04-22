@@ -44,6 +44,61 @@
       "owner": "オーナー",
       "approvedAt": "承認日",
       "updatedAt": "更新日"
+    },
+    "detail": {
+      "title": "ポリシー詳細",
+      "tabs": {
+        "policy": "ポリシー",
+        "versions": "バージョン",
+        "controls": "管理策",
+        "approvals": "承認"
+      },
+      "versions": {
+        "title": "バージョン履歴",
+        "publishedBy": "公開者",
+        "changelog": "変更履歴",
+        "current": "現在",
+        "noVersions": "公開済みバージョンはありません"
+      },
+      "approvals": {
+        "title": "承認履歴",
+        "requestApproval": "承認を依頼",
+        "selectApprovers": "承認者を選択",
+        "pending": "保留中",
+        "approved": "承認済み",
+        "rejected": "却下",
+        "noApprovals": "承認依頼はまだありません"
+      },
+      "acceptance": {
+        "title": "受領確認",
+        "accepted": "受領済み",
+        "pending": "保留中",
+        "sendForAcceptance": "受領依頼を送信"
+      },
+      "publish": {
+        "title": "ポリシーを公開",
+        "changelog": "変更履歴（任意）",
+        "changelogPlaceholder": "このバージョンで何が変わったかを説明してください...",
+        "publishOnly": "公開のみ（受領確認なし）",
+        "sendToAll": "全員に受領確認を依頼",
+        "sendToSpecific": "特定ユーザーに受領確認を依頼",
+        "publishButton": "v{{version}} を公開"
+      },
+      "renew": {
+        "title": "ポリシーを更新",
+        "description": "このポリシーは更新時期です。",
+        "withUpdates": "更新してから再公開",
+        "withUpdatesDesc": "下書きに戻して編集後に新バージョンとして再公開します",
+        "withoutUpdates": "変更なしで更新",
+        "withoutUpdatesDesc": "現在の内容をそのまま新バージョンとして再公開します",
+        "renewButton": "更新"
+      },
+      "recurrence": {
+        "title": "レビュー間隔",
+        "every": "{{months}}か月ごと",
+        "nextReview": "次回レビュー予定",
+        "setRecurrence": "レビュー間隔を設定"
+      }
     }
   },
   "templates": {
