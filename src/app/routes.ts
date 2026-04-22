@@ -89,6 +89,11 @@ const PoliciesPage = lazy(() =>
     default: m.PoliciesPage,
   })),
 );
+const PolicyDetailPage = lazy(() =>
+  import('@/app/pages/compliance/PolicyDetailPage').then((m) => ({
+    default: m.PolicyDetailPage,
+  })),
+);
 const DocumentsPage = lazy(() =>
   import('@/app/pages/compliance/DocumentsPage').then((m) => ({
     default: m.DocumentsPage,
@@ -381,6 +386,7 @@ export const router = createBrowserRouter([
       { path: 'compliance/frameworks/:slug', Component: FrameworkDetailPage },
       { path: 'compliance/controls', Component: ControlsPage },
       { path: 'compliance/policies', Component: PoliciesPage },
+      { path: 'compliance/policies/:id', Component: PolicyDetailPage },
       { path: 'compliance/documents', Component: DocumentsPage },
       { path: 'compliance/documents/:documentId', Component: DocumentDetailPage },
       { path: 'compliance/audits', Component: AuditsPage },

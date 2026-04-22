@@ -10,7 +10,6 @@ import { Policy } from '@/services/api/types';
 import { PageFilterBar } from '@/app/components/filters/PageFilterBar';
 import { QK } from '@/lib/queryKeys';
 import { STALE } from '@/lib/queryClient';
-import { PolicyDetailPanel } from '@/app/components/compliance/PolicyDetailPanel';
 import { RefreshCw, LayoutTemplate, Plus } from 'lucide-react';
 
 import {
@@ -44,7 +43,6 @@ export function PoliciesPage() {
   const [uploadPolicy, setUploadPolicy] = useState<Policy | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
-  const [selectedPolicy, setSelectedPolicy] = useState<Policy | null>(null);
 
   const filterKey = {
     search: filter.search,
@@ -174,18 +172,6 @@ export function PoliciesPage() {
           onCreated={() => {
             qc.invalidateQueries({ queryKey: ['policies'] });
             setShowCreate(false);
-          }}
-        />
-      )}
-
-      {/* Policy detail slide-over */}
-      {selectedPolicy && (
-        <PolicyDetailPanel
-          policy={selectedPolicy}
-          onClose={() => setSelectedPolicy(null)}
-          onMutated={() => {
-            qc.invalidateQueries({ queryKey: ['policies'] });
-            setSelectedPolicy(null);
           }}
         />
       )}
@@ -338,14 +324,14 @@ export function PoliciesPage() {
             />
           ) : (
             <>
-              <PoliciesTable
-                policies={policies}
-                sortKey={sortKey}
-                sortDir={sortDir}
-                onSort={handleSort}
-                onUpload={setUploadPolicy}
-                onSelect={setSelectedPolicy}
-              />
+          <PoliciesTable
+            policies={policies}
+            sortKey={sortKey}
+            sortDir={sortDir}
+            onSort={handleSort}
+            onUpload={setUploadPolicy}
+            onSelect={(policy) => navigate(`/compliance/policies/${policy.id}`)}
+          />
               <div className="flex items-center justify-between px-4 py-2 bg-card rounded-xl border border-border shadow-sm">
                 <span className="text-sm text-muted-foreground">
                   Showing{' '}
