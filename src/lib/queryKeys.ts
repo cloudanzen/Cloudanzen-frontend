@@ -103,7 +103,10 @@ export const QK = {
   // Frameworks
   frameworkCatalog: () => ['frameworks', 'catalog'] as const,
   orgFrameworks: () => ['frameworks', 'org', 'list'] as const,
+  entitlements: () => ['frameworks', 'billing', 'entitlements'] as const,
   frameworkDetail: (slug: string) => ['frameworks', 'detail', slug] as const,
+  frameworkRecommendations: () => ['frameworks', 'recommendations'] as const,
+  frameworkOverlap: (slug: string) => ['frameworks', 'overlap', slug] as const,
   frameworkCoverage: (slug: string) =>
     ['frameworks', 'coverage', slug] as const,
   frameworkRequirementView: (slug: string) =>
