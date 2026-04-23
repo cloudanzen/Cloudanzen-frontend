@@ -51,6 +51,7 @@ export const STATUS_META: Record<FindingStatus, { label: string; color: string }
 export interface FindingsFilters {
   filterSeverity: FindingSeverity | '';
   filterStatus: FindingStatus | '';
+  filterSourceType?: 'TEST_RUN' | 'AUDIT' | 'MANUAL' | '';
   search: string;
 }
 
@@ -68,11 +69,19 @@ export function useFindingsData(filters: FindingsFilters) {
     isLoading,
     error,
   } = useQuery<FindingRecord[]>({
-    queryKey: ['findings', { filterSeverity: filters.filterSeverity, filterStatus: filters.filterStatus }],
+    queryKey: [
+      'findings',
+      {
+        filterSeverity: filters.filterSeverity,
+        filterStatus: filters.filterStatus,
+        filterSourceType: filters.filterSourceType,
+      },
+    ],
     queryFn: () =>
       findingsService.list({
         severity: filters.filterSeverity || undefined,
         status: filters.filterStatus || undefined,
+        sourceType: filters.filterSourceType || undefined,
       }),
   });
 

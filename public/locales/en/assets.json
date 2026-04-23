@@ -145,6 +145,28 @@
       "timestamp": "Time"
     }
   },
+  "findings": {
+    "title": "Findings",
+    "description": "Track and remediate findings from automated test runs, audits, and manual assessments",
+    "searchPlaceholder": "Search findings...",
+    "total": "Total",
+    "open": "Open",
+    "inRemediation": "In Remediation",
+    "closed": "Closed",
+    "overdue": "Overdue",
+    "allSeverities": "All severities",
+    "allStatuses": "All statuses",
+    "allSources": "All sources",
+    "noFindings": "No findings match your filters.",
+    "columns": {
+      "source": "Source"
+    },
+    "sourceType": {
+      "TEST_RUN": "Test Run",
+      "AUDIT": "Audit",
+      "MANUAL": "Manual"
+    }
+  },
   "vulnerabilities": {
     "title": "Vulnerabilities",
     "description": "Security vulnerability tracking and remediation",
