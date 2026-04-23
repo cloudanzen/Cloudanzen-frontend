@@ -161,6 +161,7 @@
     "noAssetFindings": "No assets with findings match your filters.",
     "byFinding": "By Finding",
     "byAsset": "By Asset",
+    "byVulnerability": "By Vulnerability",
     "unlinked": "Unlinked",
     "columns": {
       "source": "Source",
@@ -179,6 +180,20 @@
       "TEST_RUN": "Test Run",
       "AUDIT": "Audit",
       "MANUAL": "Manual"
+    },
+    "vuln": {
+      "totalOpen": "Total Open",
+      "critical": "Critical",
+      "high": "High",
+      "mediumLow": "Medium / Low",
+      "noResults": "No vulnerabilities match your filters.",
+      "columns": {
+        "title": "Vulnerability",
+        "asset": "Affected Asset",
+        "impact": "Impact",
+        "riskScore": "Risk Score",
+        "detectedAt": "Detected"
+      }
     }
   },
   "vulnerabilities": {

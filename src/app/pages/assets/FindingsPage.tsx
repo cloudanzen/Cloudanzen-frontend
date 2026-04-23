@@ -2,7 +2,9 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { risksService } from '@/services/api/risks';
+import { Risk, RiskStatus } from '@/services/api/types';
 import {
   AlertTriangle,
   ArrowRight,
@@ -14,6 +16,7 @@ import {
   RefreshCw,
   Search,
   Shield,
+  ShieldAlert,
   Sparkles,
   ThumbsDown,
   ThumbsUp,
@@ -99,6 +102,22 @@ function SeverityBreakdown({ counts }: { counts: Record<FindingSeverity, number>
         </span>
       ))}
     </div>
+  );
+}
+
+const IMPACT_META: Record<string, { label: string; color: string }> = {
+  CRITICAL: { label: 'Critical', color: 'bg-red-100 text-red-700' },
+  HIGH:     { label: 'High',     color: 'bg-orange-100 text-orange-700' },
+  MEDIUM:   { label: 'Medium',   color: 'bg-amber-100 text-amber-700' },
+  LOW:      { label: 'Low',      color: 'bg-blue-100 text-blue-700' },
+};
+
+function ImpactBadge({ impact }: { impact: string }) {
+  const meta = IMPACT_META[impact] ?? { label: impact, color: 'bg-gray-100 text-gray-600' };
+  return (
+    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${meta.color}`}>
+      {meta.label}
+    </span>
   );
 }
 
@@ -909,7 +928,7 @@ export function FindingsPage() {
   const [selected, setSelected] = useState<FindingRecord | null>(null);
 
   const navigate = useNavigate();
-  const [view, setView] = useState<'byFinding' | 'byAsset'>('byFinding');
+  const [view, setView] = useState<'byFinding' | 'byAsset' | 'byVulnerability'>('byFinding');
 
   const { visible, stats, isLoading, error } = useFindingsData({
     filterSeverity,
@@ -986,6 +1005,45 @@ export function FindingsPage() {
     [assetGroups],
   );
 
+  // ── By Vulnerability data ─────────────────────────────────────────────────
+  const { data: risksResponse, isLoading: vulnsLoading } = useQuery({
+    queryKey: ['risks', { status: RiskStatus.OPEN }],
+    queryFn: () => risksService.getRisks({ status: RiskStatus.OPEN }),
+    staleTime: 60_000,
+    enabled: view === 'byVulnerability',
+  });
+
+  const allVulns = useMemo<Risk[]>(
+    () => (risksResponse?.data ?? []) as Risk[],
+    [risksResponse],
+  );
+
+  const filteredVulns = useMemo(
+    () =>
+      allVulns.filter((r) => {
+        if (filterSeverity && r.impact !== filterSeverity) return false;
+        if (search) {
+          const q = search.toLowerCase();
+          return (
+            r.title.toLowerCase().includes(q) ||
+            (r.asset?.name ?? '').toLowerCase().includes(q)
+          );
+        }
+        return true;
+      }),
+    [allVulns, filterSeverity, search],
+  );
+
+  const vulnStats = useMemo(
+    () => ({
+      total:     allVulns.length,
+      critical:  allVulns.filter((r) => r.impact === 'CRITICAL').length,
+      high:      allVulns.filter((r) => r.impact === 'HIGH').length,
+      mediumLow: allVulns.filter((r) => r.impact === 'MEDIUM' || r.impact === 'LOW').length,
+    }),
+    [allVulns],
+  );
+
   return (
     <PageTemplate
       title={t('findings.title')}
@@ -995,9 +1053,10 @@ export function FindingsPage() {
       <div className="mb-6 flex gap-1 rounded-lg border border-gray-200 bg-gray-50 p-1 w-fit">
         {(
           [
-            ['byFinding', t('findings.byFinding')] as const,
-            ['byAsset',   t('findings.byAsset')]   as const,
-          ] as const
+            ['byFinding',      t('findings.byFinding')]      ,
+            ['byAsset',        t('findings.byAsset')]        ,
+            ['byVulnerability',t('findings.byVulnerability')],
+          ] as ['byFinding' | 'byAsset' | 'byVulnerability', string][]
         ).map(([v, label]) => (
           <button
             key={v}
@@ -1014,7 +1073,7 @@ export function FindingsPage() {
       </div>
 
       {/* Stat cards — differ by view */}
-      {view === 'byFinding' ? (
+      {view === 'byFinding' && (
         <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-5">
           {[
             { key: 'total',        label: t('findings.total'),        value: stats.total,        color: 'text-gray-700' },
@@ -1029,7 +1088,8 @@ export function FindingsPage() {
             </Card>
           ))}
         </div>
-      ) : (
+      )}
+      {view === 'byAsset' && (
         <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
           {[
             { key: 'overdue',  label: t('findings.assetSla.overdue'),  value: assetSlaStats.overdue,  color: 'text-red-600' },
@@ -1044,8 +1104,23 @@ export function FindingsPage() {
           ))}
         </div>
       )}
+      {view === 'byVulnerability' && (
+        <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+          {[
+            { key: 'total',     label: t('findings.vuln.totalOpen'), value: vulnStats.total,     color: 'text-gray-700' },
+            { key: 'critical',  label: t('findings.vuln.critical'),  value: vulnStats.critical,  color: 'text-red-600' },
+            { key: 'high',      label: t('findings.vuln.high'),      value: vulnStats.high,      color: 'text-orange-600' },
+            { key: 'mediumLow', label: t('findings.vuln.mediumLow'), value: vulnStats.mediumLow, color: 'text-amber-600' },
+          ].map((stat) => (
+            <Card key={stat.key} className="p-4 text-center">
+              <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
+              <p className="mt-0.5 text-xs text-gray-500">{stat.label}</p>
+            </Card>
+          ))}
+        </div>
+      )}
 
-      {/* Filters (shared across both views) */}
+      {/* Filters */}
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <div className="relative w-56">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
@@ -1073,44 +1148,51 @@ export function FindingsPage() {
             <SelectItem value="LOW">Low</SelectItem>
           </SelectContent>
         </Select>
-        <Select
-          value={filterStatus || '__all_status__'}
-          onValueChange={(v) =>
-            setFilterStatus(v === '__all_status__' ? '' : (v as FindingStatus))
-          }
-        >
-          <SelectTrigger className="w-44">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="__all_status__">{t('findings.allStatuses')}</SelectItem>
-            {(['OPEN', 'IN_REMEDIATION', 'READY_FOR_REVIEW', 'CLOSED'] as const).map((status) => (
-              <SelectItem key={status} value={status}>
-                {STATUS_META[status].label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select
-          value={filterSourceType || '__all_source__'}
-          onValueChange={(v) =>
-            setFilterSourceType(v === '__all_source__' ? '' : (v as KnownSourceType))
-          }
-        >
-          <SelectTrigger className="w-36">
-            <SelectValue placeholder={t('findings.allSources')} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="__all_source__">{t('findings.allSources')}</SelectItem>
-            {KNOWN_SOURCE_TYPES.map((sourceType) => (
-              <SelectItem key={sourceType} value={sourceType}>
-                {t(`findings.sourceType.${sourceType}`)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        {view !== 'byVulnerability' && (
+          <Select
+            value={filterStatus || '__all_status__'}
+            onValueChange={(v) =>
+              setFilterStatus(v === '__all_status__' ? '' : (v as FindingStatus))
+            }
+          >
+            <SelectTrigger className="w-44">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__all_status__">{t('findings.allStatuses')}</SelectItem>
+              {(['OPEN', 'IN_REMEDIATION', 'READY_FOR_REVIEW', 'CLOSED'] as const).map((status) => (
+                <SelectItem key={status} value={status}>
+                  {STATUS_META[status].label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+        {view !== 'byVulnerability' && (
+          <Select
+            value={filterSourceType || '__all_source__'}
+            onValueChange={(v) =>
+              setFilterSourceType(v === '__all_source__' ? '' : (v as KnownSourceType))
+            }
+          >
+            <SelectTrigger className="w-36">
+              <SelectValue placeholder={t('findings.allSources')} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__all_source__">{t('findings.allSources')}</SelectItem>
+              {KNOWN_SOURCE_TYPES.map((sourceType) => (
+                <SelectItem key={sourceType} value={sourceType}>
+                  {t(`findings.sourceType.${sourceType}`)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
         <button
-          onClick={() => qc.invalidateQueries({ queryKey: ['findings'] })}
+          onClick={() => {
+            qc.invalidateQueries({ queryKey: ['findings'] });
+            if (view === 'byVulnerability') qc.invalidateQueries({ queryKey: ['risks'] });
+          }}
           className="ml-auto rounded-lg p-2 text-gray-500 hover:bg-gray-100"
           title="Refresh"
         >
@@ -1303,6 +1385,58 @@ export function FindingsPage() {
               </tbody>
             </table>
           </div>
+        </Card>
+      )}
+
+      {view === 'byVulnerability' && (
+        <Card className="overflow-hidden">
+          {vulnsLoading && (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+            </div>
+          )}
+          {!vulnsLoading && (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead>
+                  <tr className="border-b border-gray-100 bg-gray-50/50 text-xs font-medium text-gray-500">
+                    <th className="px-4 py-3">{t('findings.vuln.columns.title')}</th>
+                    <th className="px-4 py-3">{t('findings.vuln.columns.asset')}</th>
+                    <th className="px-4 py-3">{t('findings.vuln.columns.impact')}</th>
+                    <th className="px-4 py-3">{t('findings.vuln.columns.riskScore')}</th>
+                    <th className="px-4 py-3">{t('findings.vuln.columns.detectedAt')}</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {filteredVulns.map((risk) => (
+                    <tr key={risk.id} className="hover:bg-gray-50/50">
+                      <td className="px-4 py-3">
+                        <span className="font-medium text-gray-900">{risk.title}</span>
+                      </td>
+                      <td className="px-4 py-3 text-xs text-gray-600">
+                        {risk.asset?.name ?? '—'}
+                      </td>
+                      <td className="px-4 py-3">
+                        <ImpactBadge impact={risk.impact} />
+                      </td>
+                      <td className="px-4 py-3 text-xs text-gray-600">{risk.riskScore}</td>
+                      <td className="px-4 py-3 text-xs text-gray-600">{fmt(risk.createdAt)}</td>
+                    </tr>
+                  ))}
+                  {filteredVulns.length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="px-4 py-10 text-center text-sm text-gray-400">
+                        <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-gray-50">
+                          <ShieldAlert className="h-5 w-5" />
+                        </div>
+                        {t('findings.vuln.noResults')}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
         </Card>
       )}
 
