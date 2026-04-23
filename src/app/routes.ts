@@ -220,6 +220,11 @@ const AssetsSettingsPage = lazy(() =>
     default: m.AssetsSettingsPage,
   })),
 );
+const FrameworkCatalogDetailPage = lazy(() =>
+  import('@/app/pages/compliance/FrameworkCatalogDetailPage').then((m) => ({
+    default: m.FrameworkCatalogDetailPage,
+  })),
+);
 
 // Personnel
 const ComputersPage = lazy(() =>
@@ -382,6 +387,10 @@ export const router = createBrowserRouter([
       {
         path: 'compliance/frameworks/:slug/activated',
         Component: ActivationSummaryPage,
+      },
+      {
+        path: 'compliance/frameworks/:slug/explore',
+        Component: FrameworkCatalogDetailPage,
       },
       { path: 'compliance/frameworks/:slug', Component: FrameworkDetailPage },
       { path: 'compliance/controls', Component: ControlsPage },
