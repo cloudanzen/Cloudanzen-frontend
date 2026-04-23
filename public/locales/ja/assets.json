@@ -161,6 +161,7 @@
     "noAssetFindings": "条件に一致するアセットの発見事項はありません。",
     "byFinding": "発見事項別",
     "byAsset": "アセット別",
+    "byVulnerability": "脆弱性別",
     "unlinked": "未リンク",
     "columns": {
       "source": "ソース",
@@ -179,6 +180,20 @@
       "TEST_RUN": "テスト実行",
       "AUDIT": "監査",
       "MANUAL": "手動"
+    },
+    "vuln": {
+      "totalOpen": "未対応合計",
+      "critical": "クリティカル",
+      "high": "高",
+      "mediumLow": "中 / 低",
+      "noResults": "条件に一致する脆弱性はありません。",
+      "columns": {
+        "title": "脆弱性",
+        "asset": "影響を受けるアセット",
+        "impact": "影響度",
+        "riskScore": "リスクスコア",
+        "detectedAt": "検出日"
+      }
     }
   },
   "vulnerabilities": {
