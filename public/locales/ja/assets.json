@@ -158,8 +158,22 @@
     "allStatuses": "すべてのステータス",
     "allSources": "すべてのソース",
     "noFindings": "条件に一致する発見事項はありません。",
+    "noAssetFindings": "条件に一致するアセットの発見事項はありません。",
+    "byFinding": "発見事項別",
+    "byAsset": "アセット別",
+    "unlinked": "未リンク",
     "columns": {
-      "source": "ソース"
+      "source": "ソース",
+      "asset": "アセット",
+      "openFindings": "未解決の発見事項",
+      "slaStatus": "SLAステータス",
+      "dueDate": "期限"
+    },
+    "assetSla": {
+      "overdue": "期限超過",
+      "dueSoon": "期限間近",
+      "dueLater": "期限あり",
+      "ok": "正常"
     },
     "sourceType": {
       "TEST_RUN": "テスト実行",

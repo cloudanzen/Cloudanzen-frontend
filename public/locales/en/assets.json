@@ -158,8 +158,22 @@
     "allStatuses": "All statuses",
     "allSources": "All sources",
     "noFindings": "No findings match your filters.",
+    "noAssetFindings": "No assets with findings match your filters.",
+    "byFinding": "By Finding",
+    "byAsset": "By Asset",
+    "unlinked": "Unlinked",
     "columns": {
-      "source": "Source"
+      "source": "Source",
+      "asset": "Asset",
+      "openFindings": "Open Findings",
+      "slaStatus": "SLA Status",
+      "dueDate": "Due Date"
+    },
+    "assetSla": {
+      "overdue": "Overdue",
+      "dueSoon": "Due soon",
+      "dueLater": "Due later",
+      "ok": "OK"
     },
     "sourceType": {
       "TEST_RUN": "Test Run",
