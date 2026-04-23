@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- legacy: to be typed progressively */
 import { apiClient, ApiResponse } from './client';
-import { Asset, AssetChangeLogEntry, AssetCoverage, AssetDetail, CreateAssetRequest, AssetType } from './types';
+import { Asset, AssetChangeLogEntry, AssetCoverage, AssetDetail, AssetMergeGroup, AssetReview, AssetReviewQueue, AssetSavedView, AssetSettings, CreateAssetRequest, AssetType } from './types';
 
 type UpdateAssetRequest = Partial<CreateAssetRequest>;
 
@@ -17,9 +17,13 @@ export class AssetsService {
     provider?: string;
     isStale?: boolean;
     status?: string;
-    managedBy?: string;
-    sortBy?: string;
-    sortOrder?: 'asc' | 'desc';
+      managedBy?: string;
+      recentDays?: number;
+      unclassified?: boolean;
+      withoutControls?: boolean;
+      ownerless?: boolean;
+      sortBy?: string;
+      sortOrder?: 'asc' | 'desc';
   }): Promise<ApiResponse<Asset[]> & { pagination?: { total: number; page: number; limit: number; totalPages: number } }> {
     return apiClient.get('/api/assets', params);
   }
@@ -42,6 +46,109 @@ export class AssetsService {
 
   async getCoverage(): Promise<ApiResponse<AssetCoverage>> {
     return apiClient.get('/api/assets/coverage');
+  }
+
+  async getMergeGroups(reviewStatus?: string): Promise<ApiResponse<AssetMergeGroup[]>> {
+    return apiClient.get('/api/assets/merge-groups', reviewStatus ? { reviewStatus } : undefined);
+  }
+
+  async getReviewQueues(): Promise<ApiResponse<AssetReviewQueue[]>> {
+    return apiClient.get('/api/assets/review-queues');
+  }
+
+  async getSavedViews(): Promise<ApiResponse<AssetSavedView[]>> {
+    return apiClient.get('/api/assets/saved-views');
+  }
+
+  async getSettings(): Promise<ApiResponse<AssetSettings>> {
+    return apiClient.get('/api/assets/settings');
+  }
+
+  async updateSettings(data: AssetSettings): Promise<ApiResponse<AssetSettings>> {
+    return apiClient.put('/api/assets/settings', data);
+  }
+
+  async createSavedView(data: {
+    name: string;
+    description?: string;
+    filters: Record<string, string | number | boolean | null>;
+    sharedWithTeam?: boolean;
+  }): Promise<ApiResponse<AssetSavedView>> {
+    return apiClient.post('/api/assets/saved-views', data);
+  }
+
+  async updateSavedView(viewId: string, data: {
+    name: string;
+    description?: string;
+    filters: Record<string, string | number | boolean | null>;
+    sharedWithTeam?: boolean;
+  }): Promise<ApiResponse<AssetSavedView>> {
+    return apiClient.put(`/api/assets/saved-views/${viewId}`, data);
+  }
+
+  async deleteSavedView(viewId: string): Promise<ApiResponse<void>> {
+    return apiClient.delete(`/api/assets/saved-views/${viewId}`);
+  }
+
+  async getAssetReviews(
+    id: string,
+    params?: { page?: number; limit?: number },
+  ): Promise<ApiResponse<AssetReview[]> & { pagination?: { total: number; page: number; limit: number; totalPages: number } }> {
+    return apiClient.get(`/api/assets/${id}/reviews`, params);
+  }
+
+  async createAssetReview(
+    id: string,
+    data: { reviewType: AssetReview['reviewType']; disposition: AssetReview['disposition']; notes?: string },
+  ): Promise<ApiResponse<AssetReview>> {
+    return apiClient.post(`/api/assets/${id}/review`, data);
+  }
+
+  async bulkUpdateAssets(data: {
+    assetIds: string[];
+    ownerId?: string | null;
+    classification?: {
+      dataSensitivity?: string | null;
+      environment?: string | null;
+      internetExposed?: boolean | null;
+    };
+  }): Promise<ApiResponse<{ updated: number }>> {
+    return apiClient.post('/api/assets/bulk-update', data);
+  }
+
+  async reviewMergeGroup(
+    groupId: string,
+    data: { reviewStatus: 'PENDING' | 'APPROVED' | 'DISMISSED'; notes?: string },
+  ): Promise<ApiResponse<AssetMergeGroup>> {
+    return apiClient.put(`/api/assets/merge-groups/${groupId}/review`, data);
+  }
+
+  async mergeWithAsset(assetId: string, targetAssetId: string): Promise<ApiResponse<AssetDetail>> {
+    return apiClient.post(`/api/assets/${assetId}/merge-with`, { targetAssetId });
+  }
+
+  async unmergeAsset(groupId: string, assetId: string): Promise<ApiResponse<void>> {
+    return apiClient.delete(`/api/assets/merge-groups/${groupId}/assets/${assetId}`);
+  }
+
+  async resolveMergeConflict(
+    groupId: string,
+    data: {
+      field: 'name' | 'provider' | 'externalId' | 'hostname' | 'serialNumber' | 'osType' | 'osVersion' | 'region' | 'externalResourceName' | 'criticality' | 'category' | 'subtype';
+      value: string | null;
+    },
+  ): Promise<ApiResponse<{ updated: number }>> {
+    return apiClient.post(`/api/assets/merge-groups/${groupId}/resolve-conflict`, data);
+  }
+
+  async resolveMergeFromProvider(
+    groupId: string,
+    data: {
+      provider: string;
+      fields?: Array<'name' | 'provider' | 'externalId' | 'hostname' | 'serialNumber' | 'osType' | 'osVersion' | 'region' | 'externalResourceName' | 'criticality' | 'category' | 'subtype'>;
+    },
+  ): Promise<ApiResponse<{ updated: number; provider: string; fields: string[] }>> {
+    return apiClient.post(`/api/assets/merge-groups/${groupId}/resolve-from-provider`, data);
   }
 
   // Create new asset
@@ -88,9 +195,34 @@ export class AssetsService {
   }
 
   // Export assets data
-  async exportAssets(format: 'csv' | 'xlsx' | 'pdf' = 'csv'): Promise<Blob> {
+  async exportAssets(
+    format: 'csv' | 'xlsx' | 'pdf' = 'csv',
+    params?: {
+      search?: string;
+      type?: string;
+      criticality?: string;
+      category?: string;
+      subtype?: string;
+      provider?: string;
+      isStale?: boolean;
+      status?: string;
+      managedBy?: string;
+      recentDays?: number;
+      unclassified?: boolean;
+      withoutControls?: boolean;
+      ownerless?: boolean;
+      sortBy?: string;
+      sortOrder?: 'asc' | 'desc';
+    },
+  ): Promise<Blob> {
+    const searchParams = new URLSearchParams({ format });
+    Object.entries(params ?? {}).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        searchParams.set(key, String(value));
+      }
+    });
     const response = await fetch(
-      `${apiClient.baseURL}/api/assets/export?format=${format}`,
+      `${apiClient.baseURL}/api/assets/export?${searchParams.toString()}`,
       {
         credentials: 'include',
         headers: apiClient.token

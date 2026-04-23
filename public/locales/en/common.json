@@ -25,6 +25,7 @@
     "vendors": "Vendors",
     "assets": "Assets",
     "inventory": "Inventory",
+    "mergeReview": "Merge review",
     "codeChanges": "Code changes",
     "vulnerabilities": "Vulnerabilities",
     "securityAlerts": "Security alerts",

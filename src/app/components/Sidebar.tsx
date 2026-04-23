@@ -18,7 +18,6 @@ import {
   UserCog,
   X,
   ClipboardCheck,
-  KeyRound,
   Bell,
   Sparkles,
   Crown,
@@ -247,6 +246,7 @@ export function Sidebar({ collapsed = false }: { collapsed?: boolean }) {
       icon: Server,
       children: [
         { id: 'inventory', title: t('nav.inventory'), href: '/assets/inventory' },
+        { id: 'mergeReview', title: t('nav.mergeReview'), href: '/assets/merge-review' },
         { id: 'codeChanges', title: t('nav.codeChanges'), href: '/assets/code-changes' },
         { id: 'vulnerabilities', title: t('nav.vulnerabilities'), href: '/assets/vulnerabilities' },
         { id: 'securityAlerts', title: t('nav.securityAlerts'), href: '/assets/security-alerts' },
@@ -261,16 +261,6 @@ export function Sidebar({ collapsed = false }: { collapsed?: boolean }) {
         { id: 'computers', title: t('nav.computers'), href: '/personnel/computers' },
         { id: 'accessManagement', title: t('nav.accessManagement'), href: '/personnel/access' },
         { id: 'personnel-settings', title: t('nav.settings'), href: '/settings/personnel', roles: [...ADMIN_ROLES] },
-      ],
-    },
-    {
-      id: 'access',
-      title: t('nav.access'),
-      icon: KeyRound,
-      children: [
-        { id: 'access-users', title: t('nav.users'), href: '/settings/access/users', roles: [...ADMIN_ROLES] },
-        { id: 'access-roles', title: t('nav.roles'), href: '/settings/access/roles', roles: [...ADMIN_ROLES] },
-        { id: 'accessRequests', title: t('nav.accessRequests'), href: '/settings/access/requests' },
       ],
     },
     { id: 'notifications', title: t('nav.notifications'), href: '/notifications', icon: Bell },

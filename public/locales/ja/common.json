@@ -25,6 +25,7 @@
     "vendors": "ベンダー",
     "assets": "資産",
     "inventory": "インベントリ",
+    "mergeReview": "マージレビュー",
     "codeChanges": "コード変更",
     "vulnerabilities": "脆弱性",
     "securityAlerts": "セキュリティアラート",

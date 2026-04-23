@@ -93,7 +93,7 @@ export interface Asset {
   id: string;
   name: string;
   type: AssetType;
-  ownerId: string;
+  ownerId: string | null;
   criticality: RiskLevel;
   description?: string;
   organizationId: string;
@@ -115,6 +115,11 @@ export interface Asset {
   serialNumber?: string | null;
   osType?: string | null;
   osVersion?: string | null;
+  mergeGroup?: {
+    id: string;
+    groupType?: string;
+    _count?: { assets: number };
+  } | null;
   _count?: { risks: number };
   risks?: Risk[];
 }
@@ -122,11 +127,26 @@ export interface Asset {
 export interface AssetCoverage {
   total: number;
   byProvider: Array<{ provider: string; count: number; staleCount: number }>;
-  byCategory: Array<{ category: string; count: number }>;
-  bySubtype: Array<{ subtype: string; count: number }>;
+  byCategory: Array<{ category: string; count: number }>; 
+  bySubtype: Array<{ subtype: string; count: number }>; 
   staleCount: number;
   unmanaged: number;
+  ownedCount: number;
+  classifiedCount: number;
+  ownershipPct: number;
+  classificationPct: number;
   lastScanTimes: Array<{ provider: string; lastScanAt: string | null }>;
+  providerHealth: Array<{
+    provider: string;
+    count: number;
+    staleCount: number;
+    stalePct: number;
+    configuredCount: number;
+    connected: boolean;
+    lastScanAt: string | null;
+    lastStatus: string | null;
+    health: 'healthy' | 'warning' | 'stale' | 'not_connected';
+  }>;
 }
 
 export interface AssetRelationshipItem {
@@ -147,19 +167,107 @@ export interface AssetChangeLogEntry {
   createdAt: string;
 }
 
+export interface AssetReview {
+  id: string;
+  reviewType: 'OWNERSHIP' | 'CLASSIFICATION' | 'STALE' | 'COMPLIANCE';
+  disposition: 'CONFIRMED' | 'UPDATED' | 'ARCHIVED' | 'DEFERRED';
+  reviewedBy?: string | null;
+  reviewedAt: string;
+  notes?: string | null;
+  createdAt: string;
+}
+
+export interface AssetReviewQueue {
+  key: string;
+  label: string;
+  count: number;
+  reviewType: AssetReview['reviewType'];
+  filters?: Record<string, unknown>;
+}
+
+export interface AssetSourceRecord {
+  id: string;
+  provider: string;
+  externalId: string;
+  lastSeenAt: string;
+  confidence: string;
+  isPrimary: boolean;
+  rawMetadata?: Record<string, unknown> | null;
+}
+
+export interface AssetSavedView {
+  id: string;
+  name: string;
+  description?: string | null;
+  filters: Record<string, string | number | boolean | null>;
+  sharedWithTeam: boolean;
+  isSystem: boolean;
+  createdBy?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AssetSettings {
+  organizationId?: string;
+  autoScanEnabled: boolean;
+  providerPriority: string[];
+}
+
 export interface AssetDetail extends Asset {
+  mergeGroup?: {
+    id: string;
+    dedupeKey?: string;
+    groupType?: string;
+    reviewStatus?: string;
+    reviewedBy?: string | null;
+    reviewedAt?: string | null;
+    notes?: string | null;
+    _count?: { assets: number };
+    assets?: Array<{
+      id: string;
+      name: string;
+      type: AssetType;
+      subtype?: string | null;
+      provider?: string | null;
+    }>;
+  } | null;
   classification?: {
     dataSensitivity?: string | null;
     environment?: string | null;
     regulatoryScope?: unknown;
     internetExposed?: boolean | null;
   } | null;
+  sourceRecords?: AssetSourceRecord[];
+  mergeConflicts?: Array<{
+    field: string;
+    values: Array<{ value: string; assetIds: string[] }>;
+  }>;
   parentRelations?: Array<{ relationshipType: string; parentAsset: AssetRelationshipItem }>;
   childRelations?: Array<{ relationshipType: string; childAsset: AssetRelationshipItem }>;
   changeLog?: AssetChangeLogEntry[];
+  reviews?: AssetReview[];
   controlMappings?: Array<{ id: string; controlId: string; control: { id: string; title: string; status: string } }>;
   testMappings?: Array<{ id: string; testId: string; test: { id: string; name: string; status: string } }>;
   findings?: Array<{ id: string; title: string; severity: string; status: string }>;
+}
+
+export interface AssetMergeGroup {
+  id: string;
+  dedupeKey: string;
+  groupType: string;
+  displayName?: string | null;
+  reviewStatus: string;
+  reviewedBy?: string | null;
+  reviewedAt?: string | null;
+  notes?: string | null;
+  _count?: { assets: number };
+  assets?: Array<{
+    id: string;
+    name: string;
+    provider?: string | null;
+    type: AssetType;
+    subtype?: string | null;
+  }>;
 }
 
 export interface Risk {
@@ -361,7 +469,7 @@ export interface CurrentUser {
 export interface CreateAssetRequest {
   name: string;
   type: AssetType;
-  ownerId: string;
+  ownerId?: string | null;
   criticality: RiskLevel;
   description?: string;
 }

@@ -27,7 +27,17 @@
       "staleOnly": "古い資産のみ"
     },
     "coverage": {
-      "stale": "古い資産"
+      "stale": "古い資産",
+      "providerHealth": "プロバイダー状態",
+      "providerHealthDesc": "コネクタのカバレッジ、鮮度、最新同期の状態。",
+      "connections": "接続",
+      "noScan": "未スキャン",
+      "health": {
+        "healthy": "正常",
+        "warning": "警告",
+        "stale": "古い状態",
+        "not_connected": "未接続"
+      }
     },
     "providers": {
       "aws": "AWS",
@@ -35,6 +45,11 @@
       "fleet": "Fleet",
       "gcp": "GCP",
       "azure": "Azure",
+      "gitlab": "GitLab",
+      "bitbucket": "Bitbucket",
+      "jamf": "Jamf",
+      "kandji": "Kandji",
+      "intune": "Intune",
       "manual": "手動"
     },
     "type": {
@@ -64,19 +79,55 @@
       "lastSeen": "最終検知"
     }
   },
+  "mergeReview": {
+    "title": "マージレビュー",
+    "description": "重複候補の資産グループを確認し、承認または却下します。",
+    "empty": "この条件に一致するマージグループはありません",
+    "approve": "承認",
+    "dismiss": "却下",
+    "saved": "マージレビューを更新しました",
+    "saveFailed": "マージレビューの更新に失敗しました",
+    "loadFailed": "マージレビューキューの読み込みに失敗しました",
+    "assetsLabel": "資産",
+    "status": {
+      "pending": "保留中",
+      "approved": "承認済み",
+      "dismissed": "却下済み"
+    }
+  },
   "detail": {
     "title": "資産詳細",
     "description": "インベントリのメタデータ、関係、変更履歴を表示します。",
     "back": "インベントリへ戻る",
     "overview": "概要",
+    "deduplication": "重複判定",
     "relationships": "関係",
     "compliance": "コンプライアンス",
+    "mergeGroupType": "グループ種別",
+    "groupedAssets": "グループ化された資産",
+    "potentialDuplicates": "重複候補",
+    "reviewStatus": "レビュー状態",
+    "reviewedAt": "レビュー日時",
+    "reviewNotes": "レビュー注記",
+    "approveGroup": "グループ承認",
+    "dismissGroup": "グループ却下",
+    "removeFromGroup": "解除",
+    "manualMerge": "手動マージ",
+    "targetAssetId": "対象資産ID",
+    "mergeAssets": "資産をマージ",
+    "reviewSaved": "マージグループのレビューを保存しました",
+    "reviewSaveFailed": "マージグループのレビュー保存に失敗しました",
+    "mergeSucceeded": "資産をマージしました",
+    "mergeFailed": "資産のマージに失敗しました",
+    "unmergeSucceeded": "資産をマージグループから解除しました",
+    "unmergeFailed": "資産をマージグループから解除できませんでした",
     "parents": "親資産",
     "children": "子資産",
     "linkedControls": "関連コントロール",
     "linkedTests": "関連テスト",
     "openFindings": "未解決の指摘",
     "noRelationships": "関係はありません",
+    "noDuplicates": "重複候補はありません",
     "history": "履歴",
     "noChanges": "変更履歴はありません",
     "loadFailed": "資産詳細の読み込みに失敗しました"

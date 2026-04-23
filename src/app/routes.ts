@@ -94,6 +94,11 @@ const PolicyDetailPage = lazy(() =>
     default: m.PolicyDetailPage,
   })),
 );
+const MergeReviewPage = lazy(() =>
+  import('@/app/pages/assets/MergeReviewPage').then((m) => ({
+    default: m.MergeReviewPage,
+  })),
+);
 const DocumentsPage = lazy(() =>
   import('@/app/pages/compliance/DocumentsPage').then((m) => ({
     default: m.DocumentsPage,
@@ -415,6 +420,7 @@ export const router = createBrowserRouter([
       // Assets
       { path: 'assets/inventory/:id', Component: AssetDetailPage },
       { path: 'assets/inventory', Component: InventoryPage },
+      { path: 'assets/merge-review', Component: MergeReviewPage },
       { path: 'assets/code-changes', Component: CodeChangesPage },
       { path: 'assets/vulnerabilities', Component: VulnerabilitiesPage },
       { path: 'assets/security-alerts', Component: SecurityAlertsPage },
