@@ -1,632 +1,406 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- legacy: to be typed progressively */
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  useQuery,
-  useQueries,
-  useMutation,
-  useQueryClient,
-} from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
+import { ArrowRight, Eye, FileText, Loader2, Lock, Plus, ShieldCheck, Archive, AlertTriangle, Search } from 'lucide-react';
 
 import { PageTemplate } from '@/app/components/PageTemplate';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/app/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { Badge } from '@/app/components/ui/badge';
 import { Button } from '@/app/components/ui/button';
-import { Progress } from '@/app/components/ui/progress';
-import { Separator } from '@/app/components/ui/separator';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/app/components/ui/dialog';
-import { Textarea } from '@/app/components/ui/textarea';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/app/components/ui/dialog';
 import { Label } from '@/app/components/ui/label';
-import {
-  ShieldCheck,
-  Target,
-  Activity,
-  ClipboardList,
-  Plus,
-  ArrowRight,
-  Loader2,
-  Lock,
-  AlertTriangle,
-  CheckCircle2,
-  Archive,
-  BookOpen,
-  Eye,
-} from 'lucide-react';
-import {
-  frameworksService,
-  type OrgFrameworkDto,
-  type FrameworkDto,
-} from '@/services/api/frameworks';
+import { Textarea } from '@/app/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/app/components/ui/tooltip';
+import { FRAMEWORK_CATALOG } from '@/app/pages/compliance/frameworkCatalog/catalogConfig';
 import { authService } from '@/services/api/auth';
+import { frameworksService, type FrameworkDto, type FrameworkRecommendationDto, type OrgFrameworkCardDto } from '@/services/api/frameworks';
+import { QK } from '@/lib/queryKeys';
 
-// ── Framework icon / color catalog (static metadata) ─────────────────────────
-const FRAMEWORK_META: Record<
-  string,
-  {
-    icon: React.ElementType;
-    color: string;
-    description: string;
-    requirementCount: number;
-  }
-> = {
-  'iso-27001': {
-    icon: ShieldCheck,
-    color: 'bg-blue-600',
-    description:
-      'International standard for information security management systems (ISMS). 93 Annex A controls across 4 themes.',
-    requirementCount: 93,
-  },
-  'soc-2': {
-    icon: Target,
-    color: 'bg-violet-600',
-    description:
-      'AICPA Trust Services Criteria for security, availability, processing integrity, confidentiality, and privacy.',
-    requirementCount: 32,
-  },
-  'nist-csf': {
-    icon: Activity,
-    color: 'bg-emerald-600',
-    description:
-      'NIST Cybersecurity Framework 2.0 — 6 functions, 22 categories, 106 subcategories.',
-    requirementCount: 106,
-  },
-  hipaa: {
-    icon: ClipboardList,
-    color: 'bg-rose-600',
-    description:
-      'HIPAA Security Rule safeguards for electronic protected health information (ePHI).',
-    requirementCount: 20,
-  },
+const FRAMEWORK_META: Record<string, { color: string; requirementCount: number }> = {
+  'iso-27001': { color: 'bg-blue-600', requirementCount: 93 },
+  'soc-2': { color: 'bg-violet-600', requirementCount: 32 },
+  'nist-csf': { color: 'bg-emerald-600', requirementCount: 106 },
+  hipaa: { color: 'bg-rose-600', requirementCount: 20 },
 };
 
-function getFrameworkMeta(slug: string) {
+function ProgressRing({ value, label }: { value: number; label: string }) {
+  const radius = 28;
+  const circumference = 2 * Math.PI * radius;
+  const progress = Math.max(0, Math.min(100, value));
+  const strokeDasharray = `${(progress / 100) * circumference} ${circumference}`;
+
   return (
-    FRAMEWORK_META[slug] ?? {
-      icon: BookOpen,
-      color: 'bg-gray-600',
-      description: 'Compliance framework',
-      requirementCount: 0,
-    }
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div className="relative h-20 w-20 cursor-default">
+          <svg viewBox="0 0 72 72" className="h-20 w-20 -rotate-90">
+            <circle cx="36" cy="36" r={radius} fill="none" stroke="currentColor" strokeWidth="6" className="text-muted/40" />
+            <circle cx="36" cy="36" r={radius} fill="none" stroke="currentColor" strokeWidth="6" strokeLinecap="round" strokeDasharray={strokeDasharray} className="text-primary transition-all" />
+          </svg>
+          <div className="absolute inset-0 flex items-center justify-center text-sm font-semibold text-foreground">{progress}%</div>
+        </div>
+      </TooltipTrigger>
+      <TooltipContent>{label}</TooltipContent>
+    </Tooltip>
   );
 }
 
-// ── Status badge helper ───────────────────────────────────────────────────────
-function statusBadge(status: OrgFrameworkDto['status']) {
-  if (status === 'active')
-    return (
-      <Badge className="bg-green-100 text-green-700 border-green-200">
-        Active
-      </Badge>
-    );
-  if (status === 'setup_in_progress')
-    return (
-      <Badge className="bg-amber-100 text-amber-700 border-amber-200">
-        Setting up
-      </Badge>
-    );
-  return (
-    <Badge variant="outline" className="text-muted-foreground">
-      Archived
-    </Badge>
-  );
+function statusBadge(status: OrgFrameworkCardDto['status']) {
+  if (status === 'active') return <Badge className="border-green-200 bg-green-100 text-green-700">Active</Badge>;
+  if (status === 'setup_in_progress') return <Badge className="border-amber-200 bg-amber-100 text-amber-700">Setting up</Badge>;
+  return <Badge variant="outline">Archived</Badge>;
 }
 
-// ── Active framework card ─────────────────────────────────────────────────────
-function ActiveFrameworkCard({
-  orgFw,
-  entitled,
-  canManageScope,
-  onRemove,
-  onUpgrade,
-}: {
-  orgFw: OrgFrameworkDto;
+type CatalogCardData = {
+  fw: FrameworkDto;
+  isActive: boolean;
+  coveragePct: number | null;
+  openGaps: number | null;
+  overlapPct: number | null;
   entitled: boolean;
-  canManageScope: boolean;
-  onRemove: (orgFw: OrgFrameworkDto) => void;
-  onUpgrade: (orgFw: OrgFrameworkDto) => void;
-}) {
-  const navigate = useNavigate();
-  const meta = getFrameworkMeta(orgFw.frameworkSlug);
-  const Icon = meta.icon;
+  domains: string[];
+};
 
-  return (
-    <Card className="border-border shadow-sm hover:shadow-md transition-shadow">
-      <CardHeader className="pb-3 bg-gradient-to-br from-slate-50 to-white">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div
-              className={`w-11 h-11 rounded-xl ${meta.color} flex items-center justify-center flex-shrink-0`}
-            >
-              <Icon className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <CardTitle className="text-base leading-tight">
-                {orgFw.frameworkName}
-              </CardTitle>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                v{orgFw.frameworkVersion}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            {!entitled && (
-              <Badge
-                variant="outline"
-                className="text-amber-700 border-amber-300"
-              >
-                View only
-              </Badge>
-            )}
-            {statusBadge(orgFw.status)}
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4 pt-4">
-        <div>
-          <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
-            <span>Coverage</span>
-            <span className="font-semibold text-foreground">
-              {orgFw.controlCoveragePct != null
-                ? `${orgFw.controlCoveragePct}%`
-                : '—%'}
-            </span>
-          </div>
-          <Progress value={orgFw.controlCoveragePct ?? 0} className="h-2" />
-          {orgFw.openGaps != null && orgFw.openGaps > 0 && (
-            <p className="text-[11px] text-amber-600 mt-1">
-              {orgFw.openGaps} open gaps
-            </p>
-          )}
-          {orgFw.controlCoveragePct == null && (
-            <p className="text-[11px] text-muted-foreground/70 mt-1">
-              No coverage snapshot yet
-            </p>
-          )}
-        </div>
-        {orgFw.activatedAt && (
-          <p className="text-xs text-muted-foreground/70">
-            Activated {new Date(orgFw.activatedAt).toLocaleDateString()}
-          </p>
-        )}
-        <Separator />
-        <div className="flex items-center justify-between gap-2">
-          <Button
-            size="sm"
-            variant="outline"
-            className="flex-1"
-            onClick={() =>
-              navigate(`/compliance/frameworks/${orgFw.frameworkSlug}`)
-            }
-          >
-            View readiness <ArrowRight className="w-3.5 h-3.5 ml-1" />
-          </Button>
-          {canManageScope ? (
-            <Button
-              size="sm"
-              variant="ghost"
-              className="text-muted-foreground/70 hover:text-red-600"
-              onClick={() => (entitled ? onRemove(orgFw) : onUpgrade(orgFw))}
-              title={
-                entitled
-                  ? 'Remove from active scope'
-                  : 'Upgrade to manage scope'
-              }
-            >
-              {entitled ? (
-                <Archive className="w-4 h-4" />
-              ) : (
-                <Lock className="w-4 h-4" />
-              )}
-            </Button>
-          ) : null}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-// ── Available framework card ──────────────────────────────────────────────────
-function AvailableFrameworkCard({
-  fw,
-  entitled,
+function FrameworkCatalogCard({
+  card,
   canManageScope,
   onActivate,
   onUpgrade,
-  activating,
 }: {
-  fw: FrameworkDto;
-  entitled: boolean;
+  card: CatalogCardData;
   canManageScope: boolean;
   onActivate: (fw: FrameworkDto) => void;
   onUpgrade: (fw: FrameworkDto) => void;
-  activating: boolean;
 }) {
-  const meta = getFrameworkMeta(fw.slug);
-  const Icon = meta.icon;
+  const navigate = useNavigate();
+  const { t } = useTranslation('compliance');
+  const meta = FRAMEWORK_META[card.fw.slug] ?? { color: 'bg-slate-600', requirementCount: 0 };
+  const catalogMeta = FRAMEWORK_CATALOG[card.fw.slug];
+  const value = card.isActive ? card.coveragePct ?? 0 : card.overlapPct ?? 0;
+  const tooltip = card.isActive
+    ? t('frameworks.coverageTooltip', { pct: value })
+    : t('frameworks.overlapTooltip', { pct: value });
 
   return (
-    <Card className="border-border shadow-sm opacity-90">
-      <CardHeader className="pb-3">
-        <div className="flex items-start gap-3">
-          <div
-            className={`w-10 h-10 rounded-xl ${meta.color} flex items-center justify-center flex-shrink-0`}
-          >
-            <Icon className="w-5 h-5 text-white" />
+    <Card className="h-full border-border bg-gradient-to-br from-white to-slate-50/50 shadow-sm transition-shadow hover:shadow-md">
+      <CardHeader className="pb-4">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-xl ${meta.color} text-sm font-semibold text-white`}>
+              {card.fw.name.slice(0, 1)}
+            </div>
+            <CardTitle className="text-base">{card.fw.name}</CardTitle>
+            <p className="mt-1 text-xs text-muted-foreground">v{card.fw.version} · {meta.requirementCount} {t('frameworks.requirements')}</p>
+            {catalogMeta?.tagline ? <p className="mt-2 max-w-sm text-sm text-muted-foreground">{catalogMeta.tagline}</p> : null}
           </div>
-          <div className="flex-1 min-w-0">
-            <CardTitle className="text-sm leading-tight">{fw.name}</CardTitle>
-            <p className="text-xs text-muted-foreground/70 mt-0.5">
-              v{fw.version} · {meta.requirementCount} requirements
-            </p>
-          </div>
-          {!entitled && (
-            <Lock className="w-4 h-4 text-muted-foreground/70 flex-shrink-0 mt-1" />
-          )}
+          {card.isActive ? statusBadge('active') : null}
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {card.domains.map((domain) => (
+            <Badge key={domain} variant="outline" className="text-xs">{domain}</Badge>
+          ))}
         </div>
       </CardHeader>
-      <CardContent className="pt-0 space-y-3">
-        <p className="text-xs text-muted-foreground leading-relaxed">
-          {fw.description ?? meta.description}
-        </p>
-        <Button
-          size="sm"
-          variant={entitled && canManageScope ? 'default' : 'outline'}
-          className="w-full"
-          disabled={activating || (!canManageScope && entitled)}
-          onClick={() => {
-            if (!canManageScope) return;
-            if (entitled) onActivate(fw);
-            else onUpgrade(fw);
-          }}
-        >
-          {activating ? (
-            <>
-              <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />{' '}
-              Activating…
-            </>
+      <CardContent className="space-y-4 pt-0">
+        <div className="flex items-center gap-4">
+          <ProgressRing value={value} label={tooltip} />
+          <div className="text-sm text-muted-foreground">
+            <p className="font-medium text-foreground">{card.isActive ? t('frameworks.coverage') : t('frameworks.headStart')}</p>
+            <p className="mt-1 text-xs leading-5">{card.isActive ? t('frameworks.coverageTooltip', { pct: value }) : t('frameworks.overlapTooltip', { pct: value })}</p>
+            {card.isActive && card.openGaps != null ? <p className="mt-2 text-xs text-amber-600">{t('frameworks.openGaps', { count: card.openGaps })}</p> : null}
+          </div>
+        </div>
+        <p className="line-clamp-3 text-sm leading-6 text-muted-foreground">{card.fw.description ?? catalogMeta?.overview}</p>
+        <div className="flex flex-wrap gap-2">
+          {!card.isActive ? (
+            <Button variant="outline" onClick={() => navigate(`/compliance/frameworks/${card.fw.slug}/explore`)}>
+              {t('frameworks.exploreFramework')}
+            </Button>
+          ) : null}
+          {card.isActive ? (
+            <Button onClick={() => navigate(`/compliance/frameworks/${card.fw.slug}`)}>
+              {t('frameworks.manageFramework')} <ArrowRight className="ml-1 h-4 w-4" />
+            </Button>
           ) : !canManageScope ? (
-            <>
-              <Eye className="w-3.5 h-3.5 mr-1.5" /> Contact admin
-            </>
-          ) : entitled ? (
-            <>
-              <Plus className="w-3.5 h-3.5 mr-1.5" /> Add to scope
-            </>
+            <Button variant="outline" disabled>
+              <Eye className="mr-1 h-4 w-4" /> {t('frameworks.contactAdmin')}
+            </Button>
+          ) : card.entitled ? (
+            <Button onClick={() => onActivate(card.fw)}>
+              <Plus className="mr-1 h-4 w-4" /> {t('frameworks.activateFramework', { name: card.fw.name })}
+            </Button>
           ) : (
-            <>
-              <Lock className="w-3.5 h-3.5 mr-1.5" /> Upgrade to add
-            </>
+            <Button variant="outline" onClick={() => onUpgrade(card.fw)}>
+              <Lock className="mr-1 h-4 w-4" /> {t('frameworks.upgradeRequired')}
+            </Button>
           )}
-        </Button>
+        </div>
       </CardContent>
     </Card>
   );
 }
 
-function EntitlementDialog({
-  framework,
-  canManageScope,
-  onClose,
-}: {
-  framework:
-    | Pick<FrameworkDto, 'name' | 'slug'>
-    | Pick<OrgFrameworkDto, 'frameworkName' | 'frameworkSlug'>
-    | null;
-  canManageScope: boolean;
-  onClose: () => void;
-}) {
+function EntitlementDialog({ framework, canManageScope, onClose }: { framework: Pick<FrameworkDto, 'name' | 'slug'> | null; canManageScope: boolean; onClose: () => void }) {
   if (!framework) return null;
-  const name = 'name' in framework ? framework.name : framework.frameworkName;
-  const slug = 'slug' in framework ? framework.slug : framework.frameworkSlug;
-
   return (
     <Dialog open={!!framework} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Lock className="w-5 h-5 text-amber-500" />
+            <Lock className="h-5 w-5 text-amber-500" />
             {canManageScope ? 'Upgrade required' : 'Admin action required'}
           </DialogTitle>
-          <DialogDescription className="text-sm text-muted-foreground pt-1">
+          <DialogDescription>
             {canManageScope
-              ? `${name} is not included in your current entitlement. Upgrade your plan to activate or manage this framework.`
-              : `${name} can be viewed, but only an org admin can add or remove frameworks from active scope.`}
+              ? `${framework.name} is not included in your current entitlement.`
+              : `${framework.name} can be explored, but only an admin can activate it.`}
           </DialogDescription>
         </DialogHeader>
-        <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          Framework: <span className="font-medium">{name}</span>
-          <span className="text-amber-600"> ({slug})</span>
-        </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
-            Close
-          </Button>
+          <Button variant="outline" onClick={onClose}>Close</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
 
-// ── Remove-from-scope dialog ──────────────────────────────────────────────────
-function RemoveDialog({
-  orgFw,
-  onClose,
-  onConfirm,
-  loading,
-}: {
-  orgFw: OrgFrameworkDto | null;
-  onClose: () => void;
-  onConfirm: (reason: string) => void;
-  loading: boolean;
-}) {
+function RemoveDialog({ orgFw, onClose, onConfirm, loading }: { orgFw: OrgFrameworkCardDto | null; onClose: () => void; onConfirm: (reason: string) => void; loading: boolean }) {
   const [reason, setReason] = useState('');
   if (!orgFw) return null;
   return (
     <Dialog open={!!orgFw} onOpenChange={onClose}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5 text-amber-500" />
-            Remove from active scope?
-          </DialogTitle>
-          <DialogDescription className="text-sm text-muted-foreground pt-1">
-            <strong>{orgFw.frameworkName}</strong> will be moved to Archived.
-            All controls, tests, policies, evidence, and historical reports will
-            be preserved. This framework can be re-added at any time.
-          </DialogDescription>
+          <DialogTitle className="flex items-center gap-2"><AlertTriangle className="h-5 w-5 text-amber-500" />Remove from active scope?</DialogTitle>
+          <DialogDescription>{orgFw.frameworkName} will be moved to Archived.</DialogDescription>
         </DialogHeader>
-        <div className="space-y-2 pt-1">
-          <Label htmlFor="reason" className="text-sm font-medium">
-            Reason (optional)
-          </Label>
-          <Textarea
-            id="reason"
-            placeholder="e.g. Pausing audit cycle for this quarter…"
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-            rows={3}
-          />
+        <div className="space-y-2">
+          <Label htmlFor="reason">Reason (optional)</Label>
+          <Textarea id="reason" value={reason} onChange={(e) => setReason(e.target.value)} rows={3} />
         </div>
-        <DialogFooter className="gap-2 pt-2">
-          <Button variant="outline" onClick={onClose} disabled={loading}>
-            Cancel
-          </Button>
-          <Button
-            variant="destructive"
-            onClick={() => onConfirm(reason)}
-            disabled={loading}
-          >
-            {loading ? (
-              <Loader2 className="w-4 h-4 animate-spin mr-1.5" />
-            ) : null}
-            Remove from active scope
-          </Button>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose} disabled={loading}>Cancel</Button>
+          <Button variant="destructive" onClick={() => onConfirm(reason)} disabled={loading}>{loading ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : null}Remove</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
 
-// ── Main page ─────────────────────────────────────────────────────────────────
 export function FrameworksPage() {
   const { t } = useTranslation('compliance');
   const qc = useQueryClient();
   const navigate = useNavigate();
   const cachedUser = authService.getCachedUser();
-  const canManageScope =
-    cachedUser?.role === 'ORG_ADMIN' || cachedUser?.role === 'SUPER_ADMIN';
-  const [removingFw, setRemovingFw] = useState<OrgFrameworkDto | null>(null);
-  const [activatingSlug, setActivatingSlug] = useState<string | null>(null);
-  const [upgradeTarget, setUpgradeTarget] = useState<
-    FrameworkDto | OrgFrameworkDto | null
-  >(null);
-
-  const { data: catalogRes, isLoading: catalogLoading } = useQuery({
-    queryKey: ['frameworks', 'catalog'],
-    queryFn: () => frameworksService.listCatalog(),
-  });
+  const canManageScope = cachedUser?.role === 'ORG_ADMIN' || cachedUser?.role === 'SUPER_ADMIN';
+  const [activeTab, setActiveTab] = useState<'active' | 'available' | 'updates'>('active');
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('ALL');
+  const [release, setRelease] = useState('ALL');
+  const [removingFw, setRemovingFw] = useState<OrgFrameworkCardDto | null>(null);
+  const [upgradeTarget, setUpgradeTarget] = useState<FrameworkDto | null>(null);
 
   const { data: orgFwRes, isLoading: orgFwLoading } = useQuery({
-    queryKey: ['frameworks', 'org'],
-    queryFn: () => frameworksService.listOrgFrameworks(),
+    queryKey: QK.orgFrameworks(),
+    queryFn: () => frameworksService.listOrgFrameworks('card'),
+  });
+  const { data: catalogRes, isLoading: catalogLoading } = useQuery({
+    queryKey: QK.frameworkCatalog(),
+    queryFn: () => frameworksService.listCatalog(),
+  });
+  const { data: entitlementsRes } = useQuery({
+    queryKey: QK.entitlements(),
+    queryFn: () => frameworksService.listEntitlements(),
+  });
+  const { data: recommendationsRes } = useQuery({
+    queryKey: QK.frameworkRecommendations(),
+    queryFn: () => frameworksService.getRecommendations(),
+    enabled: !orgFwLoading,
   });
 
-  const catalog: FrameworkDto[] = useMemo(
-    () => catalogRes?.data ?? [],
-    [catalogRes?.data],
-  );
-  const orgFrameworks: OrgFrameworkDto[] = useMemo(
-    () => orgFwRes?.data ?? [],
-    [orgFwRes?.data],
+  const orgFrameworks = useMemo(() => (orgFwRes?.data ?? []) as OrgFrameworkCardDto[], [orgFwRes?.data]);
+  const catalog = useMemo(() => catalogRes?.data ?? [], [catalogRes?.data]);
+  const recommendationRows = useMemo(() => (recommendationsRes?.data ?? []) as FrameworkRecommendationDto[], [recommendationsRes?.data]);
+
+  const activeMap = useMemo(() => new Map(orgFrameworks.map((fw) => [fw.frameworkSlug, fw])), [orgFrameworks]);
+  const recMap = useMemo(() => new Map(recommendationRows.map((row) => [row.slug, row])), [recommendationRows]);
+  const entitlementSet = useMemo(
+    () => new Set((entitlementsRes?.data ?? []).filter((entry) => entry.isActive).map((entry) => entry.frameworkSlug)),
+    [entitlementsRes?.data],
   );
 
-  const entitlementQueries = useQueries({
-    queries: [
-      ...catalog,
-      ...orgFrameworks.map((fw) => ({ slug: fw.frameworkSlug })),
-    ].map((fw) => ({
-      queryKey: ['frameworks', 'entitlement', fw.slug],
-      queryFn: () => frameworksService.checkEntitlement(fw.slug),
-      staleTime: 60_000,
-      enabled: !!fw.slug,
-    })),
+  const allFrameworkCards = useMemo<CatalogCardData[]>(() => (
+    catalog.map((fw) => ({
+      fw,
+      isActive: activeMap.has(fw.slug),
+      coveragePct: activeMap.get(fw.slug)?.controlCoveragePct ?? null,
+      openGaps: activeMap.get(fw.slug)?.openGaps ?? null,
+      overlapPct: recMap.get(fw.slug)?.overlapPct ?? null,
+      entitled: entitlementSet.has(fw.slug),
+      domains: FRAMEWORK_CATALOG[fw.slug]?.domains ?? [],
+    }))
+  ), [catalog, activeMap, recMap, entitlementSet]);
+
+  const recommendations = allFrameworkCards.filter((card) => !card.isActive).slice(0, 2);
+  const filteredCards = allFrameworkCards.filter((card) => {
+    const searchValue = search.trim().toLowerCase();
+    const matchesSearch = !searchValue || card.fw.name.toLowerCase().includes(searchValue) || (card.fw.description ?? '').toLowerCase().includes(searchValue);
+    const matchesCategory = category === 'ALL' || card.domains.includes(category);
+    const matchesRelease = release === 'ALL' || card.fw.version === release;
+    return matchesSearch && matchesCategory && matchesRelease;
   });
-
-  const entitlementMap = useMemo(() => {
-    const entries = [
-      ...catalog,
-      ...orgFrameworks.map((fw) => ({ slug: fw.frameworkSlug })),
-    ].map(
-      (fw, index) =>
-        [
-          fw.slug,
-          entitlementQueries[index]?.data?.data?.entitled ?? true,
-        ] as const,
-    );
-    return Object.fromEntries(entries);
-  }, [catalog, entitlementQueries, orgFrameworks]);
-
-  // Slugs already active for this org
-  const activeSlugSet = new Set(orgFrameworks.map((f) => f.frameworkSlug));
-
-  // Available = in catalog but not yet active for this org
-  const available = catalog.filter((fw) => !activeSlugSet.has(fw.slug));
 
   const activateMutation = useMutation({
-    mutationFn: (fw: FrameworkDto) =>
-      frameworksService.activateFramework({ frameworkSlug: fw.slug }),
-    onMutate: (fw) => setActivatingSlug(fw.slug),
+    mutationFn: (fw: FrameworkDto) => frameworksService.activateFramework({ frameworkSlug: fw.slug }),
     onSuccess: (res, fw) => {
-      qc.invalidateQueries({ queryKey: ['frameworks', 'org'] });
-      // Redirect to activation summary screen
-      navigate(`/compliance/frameworks/${fw.slug}/activated`, {
-        state: {
-          summary: res.summary,
-          orgFramework: res.data,
-        },
-      });
+      qc.invalidateQueries({ queryKey: QK.orgFrameworks() });
+      navigate(`/compliance/frameworks/${fw.slug}/activated`, { state: { summary: res.summary, orgFramework: res.data } });
     },
     onError: (err: any, fw) => {
-      if (err?.error === 'FRAMEWORK_NOT_ENTITLED' || err?.statusCode === 403) {
-        setUpgradeTarget(fw);
-      }
-      setActivatingSlug(null);
-    },
-    onSettled: () => {
-      setActivatingSlug(null);
+      if (err?.error === 'FRAMEWORK_NOT_ENTITLED' || err?.statusCode === 403) setUpgradeTarget(fw);
     },
   });
 
   const removeMutation = useMutation({
-    mutationFn: ({ slug, reason }: { slug: string; reason: string }) =>
-      frameworksService.removeFramework(slug, { reason }),
+    mutationFn: ({ slug, reason }: { slug: string; reason: string }) => frameworksService.removeFramework(slug, { reason }),
     onSettled: () => {
       setRemovingFw(null);
-      qc.invalidateQueries({ queryKey: ['frameworks', 'org'] });
+      qc.invalidateQueries({ queryKey: QK.orgFrameworks() });
     },
   });
 
   const loading = catalogLoading || orgFwLoading;
+  const domainOptions = Array.from(new Set(Object.values(FRAMEWORK_CATALOG).flatMap((entry) => entry.domains)));
+  const releaseOptions = Array.from(new Set(catalog.map((fw) => fw.version))).sort();
+  const filteredRecommendationSlugs = new Set(filteredCards.filter((card) => !card.isActive).map((card) => card.fw.slug));
+  const visibleRecommendations = recommendations.filter((card) => filteredRecommendationSlugs.has(card.fw.slug));
 
   return (
-    <PageTemplate
-      title={t('frameworks.title')}
-      description={t('frameworks.description')}
-    >
-      {loading && (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-7 h-7 animate-spin text-muted-foreground/70" />
-        </div>
-      )}
+    <PageTemplate title={t('frameworks.title')} description={t('frameworks.description')}>
+      {loading ? (
+        <div className="flex items-center justify-center py-20"><Loader2 className="h-7 w-7 animate-spin text-muted-foreground/70" /></div>
+      ) : (
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as typeof activeTab)} className="space-y-6">
+          <TabsList className="h-auto flex-wrap justify-start rounded-2xl bg-slate-100 p-1">
+            <TabsTrigger value="active">{t('frameworks.activeFrameworks')} ({orgFrameworks.length})</TabsTrigger>
+            <TabsTrigger value="available">{t('frameworks.tabAvailable')} ({allFrameworkCards.length - orgFrameworks.length})</TabsTrigger>
+            <TabsTrigger value="updates">{t('frameworks.tabUpdateNotes')}</TabsTrigger>
+          </TabsList>
 
-      {!loading && (
-        <div className="space-y-10">
-          {/* ── Active frameworks ── */}
-          <section>
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-green-600" />
-                  {t('frameworks.activeFrameworks')}
-                  {orgFrameworks.length > 0 && (
-                    <Badge variant="secondary" className="ml-1">
-                      {orgFrameworks.length}
-                    </Badge>
-                  )}
-                </h2>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {t('frameworks.activeDesc')}
-                </p>
-              </div>
-            </div>
-
+          <TabsContent value="active" className="space-y-4 mt-0">
             {orgFrameworks.length === 0 ? (
               <Card className="border-dashed border-border bg-muted">
                 <CardContent className="py-12 text-center">
-                  <ShieldCheck className="w-10 h-10 text-muted-foreground/70 mx-auto mb-3" />
-                  <p className="text-sm font-medium text-muted-foreground">
-                    {t('frameworks.noFrameworks')}
-                  </p>
-                  <p className="text-xs text-muted-foreground/70 mt-1">
-                    {t('frameworks.noFrameworksDesc')}
-                  </p>
+                  <ShieldCheck className="mx-auto mb-3 h-10 w-10 text-muted-foreground/70" />
+                  <p className="text-sm font-medium text-muted-foreground">{t('frameworks.noFrameworks')}</p>
+                  <p className="mt-1 text-xs text-muted-foreground/70">{t('frameworks.noFrameworksDesc')}</p>
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
                 {orgFrameworks.map((fw) => (
-                  <ActiveFrameworkCard
-                    key={fw.id}
-                    orgFw={fw}
-                    entitled={entitlementMap[fw.frameworkSlug] ?? true}
-                    canManageScope={canManageScope}
-                    onRemove={setRemovingFw}
-                    onUpgrade={setUpgradeTarget}
-                  />
+                  <Card key={fw.id} className="border-border shadow-sm hover:shadow-md">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <CardTitle className="text-base">{fw.frameworkName}</CardTitle>
+                          <p className="mt-1 text-xs text-muted-foreground">v{fw.frameworkVersion}</p>
+                        </div>
+                        {statusBadge(fw.status)}
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <ProgressRing value={fw.controlCoveragePct ?? 0} label={t('frameworks.coverageTooltip', { pct: fw.controlCoveragePct ?? 0 })} />
+                      {fw.openGaps != null ? <p className="text-xs text-amber-600">{t('frameworks.openGaps', { count: fw.openGaps })}</p> : null}
+                      <div className="flex gap-2">
+                        <Button onClick={() => navigate(`/compliance/frameworks/${fw.frameworkSlug}`)}>
+                          {t('frameworks.manageFramework')}
+                        </Button>
+                        {canManageScope ? <Button variant="ghost" onClick={() => setRemovingFw(fw)}><Archive className="h-4 w-4" /></Button> : null}
+                      </div>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
             )}
-          </section>
+          </TabsContent>
 
-          {/* ── Available frameworks ── */}
-          {available.length > 0 && (
-            <section>
-              <div className="mb-4">
-                <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-                  <BookOpen className="w-4 h-4 text-muted-foreground" />
-                  {t('frameworks.availableFrameworks')}
-                </h2>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {t('frameworks.availableDesc')}
-                </p>
+          <TabsContent value="available" className="space-y-6 mt-0">
+            <Card className="p-4">
+              <div className="grid gap-3 md:grid-cols-[1.8fr_1fr_1fr_auto]">
+                <label className="relative block">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('frameworks.searchAvailable')} className="w-full rounded-md border border-gray-200 py-2 pl-9 pr-3 text-sm" />
+                </label>
+                <select value={category} onChange={(e) => setCategory(e.target.value)} className="rounded-md border border-gray-200 px-3 py-2 text-sm">
+                  <option value="ALL">{t('frameworks.filterCategory')}</option>
+                  {domainOptions.map((domain) => <option key={domain} value={domain}>{domain}</option>)}
+                </select>
+                <select value={release} onChange={(e) => setRelease(e.target.value)} className="rounded-md border border-gray-200 px-3 py-2 text-sm">
+                  <option value="ALL">Release</option>
+                  {releaseOptions.map((version) => <option key={version} value={version}>{version}</option>)}
+                </select>
+                <a href="mailto:hello@cloudanzen.com?subject=Framework%20request" className="inline-flex items-center justify-center rounded-md border border-gray-200 px-3 py-2 text-sm text-gray-700">
+                  {t('frameworks.lookingForFramework')}
+                </a>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-                {available.map((fw) => (
-                  <AvailableFrameworkCard
-                    key={fw.id}
-                    fw={fw}
-                    entitled={entitlementMap[fw.slug] ?? true}
-                    canManageScope={canManageScope}
-                    onActivate={(f) => activateMutation.mutate(f)}
-                    onUpgrade={setUpgradeTarget}
-                    activating={activatingSlug === fw.slug}
-                  />
-                ))}
+              <div className="mt-3 flex items-center justify-between gap-3 text-xs text-muted-foreground">
+                <span>{filteredCards.length} frameworks shown</span>
+                {(search || category !== 'ALL' || release !== 'ALL') ? (
+                  <button type="button" onClick={() => { setSearch(''); setCategory('ALL'); setRelease('ALL'); }} className="text-primary hover:underline">
+                    Clear filters
+                  </button>
+                ) : null}
               </div>
+            </Card>
+
+            {visibleRecommendations.length > 0 ? (
+              <section className="space-y-4">
+                <div>
+                  <h2 className="text-base font-semibold text-foreground">{t('frameworks.recommendedForYou')}</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">{t('frameworks.recommendedDesc')}</p>
+                </div>
+                <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                  {visibleRecommendations.map((card) => (
+                    <FrameworkCatalogCard key={`rec-${card.fw.slug}`} card={card} canManageScope={canManageScope} onActivate={(fw) => activateMutation.mutate(fw)} onUpgrade={setUpgradeTarget} />
+                  ))}
+                </div>
+              </section>
+            ) : null}
+
+            <section className="space-y-4">
+              <div>
+                <h2 className="text-base font-semibold text-foreground">{t('frameworks.allFrameworks')}</h2>
+              </div>
+              {filteredCards.length ? (
+                <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+                  {filteredCards.map((card) => (
+                    <FrameworkCatalogCard key={card.fw.slug} card={card} canManageScope={canManageScope} onActivate={(fw) => activateMutation.mutate(fw)} onUpgrade={setUpgradeTarget} />
+                  ))}
+                </div>
+              ) : (
+                <Card className="border-dashed border-border bg-muted/40 p-8 text-center">
+                  <p className="text-sm font-medium text-foreground">No frameworks match the current filters.</p>
+                  <p className="mt-1 text-sm text-muted-foreground">Try broadening the search, category, or release filters.</p>
+                </Card>
+              )}
             </section>
-          )}
-        </div>
+          </TabsContent>
+
+          <TabsContent value="updates" className="mt-0">
+            <div className="py-16 text-center text-muted-foreground">
+              <FileText className="mx-auto mb-3 h-8 w-8 opacity-40" />
+              <p className="text-sm">{t('frameworks.updateNotesEmpty')}</p>
+            </div>
+          </TabsContent>
+        </Tabs>
       )}
 
-      {/* Remove dialog */}
-      <RemoveDialog
-        orgFw={removingFw}
-        onClose={() => setRemovingFw(null)}
-        onConfirm={(reason) =>
-          removingFw &&
-          removeMutation.mutate({ slug: removingFw.frameworkSlug, reason })
-        }
-        loading={removeMutation.isPending}
-      />
-
-      <EntitlementDialog
-        framework={upgradeTarget}
-        canManageScope={canManageScope}
-        onClose={() => setUpgradeTarget(null)}
-      />
+      <RemoveDialog orgFw={removingFw} onClose={() => setRemovingFw(null)} onConfirm={(reason) => removingFw && removeMutation.mutate({ slug: removingFw.frameworkSlug, reason })} loading={removeMutation.isPending} />
+      <EntitlementDialog framework={upgradeTarget} canManageScope={canManageScope} onClose={() => setUpgradeTarget(null)} />
     </PageTemplate>
   );
 }

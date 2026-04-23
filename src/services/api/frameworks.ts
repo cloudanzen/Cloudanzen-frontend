@@ -259,6 +259,29 @@ export interface FrameworkReadinessDto {
   calculatedAt: string | null;
 }
 
+export interface FrameworkRecommendationDto {
+  id: string;
+  slug: string;
+  name: string;
+  version: string;
+  description: string | null;
+  totalRequirements: number;
+  overlapCount: number;
+  overlapPct: number;
+}
+
+export interface FrameworkOverlapDto {
+  slug: string;
+  overlapCount: number;
+  totalRequirements: number;
+  overlapPct: number;
+  contributingFrameworks: Array<{
+    activeFrameworkSlug: string;
+    activeFrameworkName: string;
+    contributingRequirements: number;
+  }>;
+}
+
 class FrameworksService {
   /** GET /api/frameworks — global catalog */
   async listCatalog(): Promise<{ success: boolean; data: FrameworkDto[] }> {
@@ -295,6 +318,20 @@ class FrameworksService {
     view?: string;
   }> {
     return apiClient.get('/api/org/frameworks', view ? { view } : undefined);
+  }
+
+  async getRecommendations(): Promise<{
+    success: boolean;
+    data: FrameworkRecommendationDto[];
+  }> {
+    return apiClient.get('/api/org/frameworks/recommendations');
+  }
+
+  async getOverlap(slug: string): Promise<{
+    success: boolean;
+    data: FrameworkOverlapDto;
+  }> {
+    return apiClient.get(`/api/org/frameworks/${slug}/overlap`);
   }
 
   /** POST /api/org/frameworks — activate a framework */
