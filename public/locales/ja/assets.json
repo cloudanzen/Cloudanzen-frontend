@@ -145,6 +145,28 @@
       "timestamp": "時刻"
     }
   },
+  "findings": {
+    "title": "発見事項",
+    "description": "テスト実行、監査、手動評価からの発見事項を追跡・是正",
+    "searchPlaceholder": "発見事項を検索...",
+    "total": "合計",
+    "open": "未対応",
+    "inRemediation": "是正中",
+    "closed": "クローズ",
+    "overdue": "期限超過",
+    "allSeverities": "すべての重大度",
+    "allStatuses": "すべてのステータス",
+    "allSources": "すべてのソース",
+    "noFindings": "条件に一致する発見事項はありません。",
+    "columns": {
+      "source": "ソース"
+    },
+    "sourceType": {
+      "TEST_RUN": "テスト実行",
+      "AUDIT": "監査",
+      "MANUAL": "手動"
+    }
+  },
   "vulnerabilities": {
     "title": "脆弱性",
     "description": "セキュリティ脆弱性の追跡と是正",

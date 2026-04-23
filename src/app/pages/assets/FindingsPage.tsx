@@ -52,7 +52,12 @@ import {
   useRemediationActions,
   useEvidenceSynthesis,
   type EvidenceSynthesisResult,
-} from './useFindingsData';
+} from '@/app/pages/compliance/useFindingsData';
+
+const KNOWN_SOURCE_TYPES = ['TEST_RUN', 'AUDIT', 'MANUAL'] as const;
+type KnownSourceType = (typeof KNOWN_SOURCE_TYPES)[number];
+const isKnownSourceType = (v: unknown): v is KnownSourceType =>
+  typeof v === 'string' && (KNOWN_SOURCE_TYPES as readonly string[]).includes(v);
 
 function SeverityBadge({ severity }: { severity: FindingSeverity }) {
   const meta = SEVERITY_META[severity] ?? SEVERITY_META.LOW;
@@ -848,18 +853,22 @@ function FindingDetailPanel({
 }
 
 export function FindingsPage() {
-  const { t } = useTranslation('compliance');
+  const { t } = useTranslation('assets');
   const qc = useQueryClient();
   const [filterSeverity, setFilterSeverity] = useState<FindingSeverity | ''>(
     '',
   );
   const [filterStatus, setFilterStatus] = useState<FindingStatus | ''>('');
+  const [filterSourceType, setFilterSourceType] = useState<
+    KnownSourceType | ''
+  >('');
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<FindingRecord | null>(null);
 
   const { visible, stats, isLoading, error } = useFindingsData({
     filterSeverity,
     filterStatus,
+    filterSourceType,
     search,
   });
 
@@ -937,6 +946,28 @@ export function FindingsPage() {
             ))}
           </SelectContent>
         </Select>
+        <Select
+          value={filterSourceType || '__all_source__'}
+          onValueChange={(v) =>
+            setFilterSourceType(
+              v === '__all_source__' ? '' : (v as KnownSourceType),
+            )
+          }
+        >
+          <SelectTrigger className="w-36">
+            <SelectValue placeholder={t('findings.allSources')} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="__all_source__">
+              {t('findings.allSources')}
+            </SelectItem>
+            {KNOWN_SOURCE_TYPES.map((sourceType) => (
+              <SelectItem key={sourceType} value={sourceType}>
+                {t(`findings.sourceType.${sourceType}`)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <button
           onClick={() => qc.invalidateQueries({ queryKey: ['findings'] })}
           className="ml-auto rounded-lg p-2 text-gray-500 hover:bg-gray-100"
@@ -966,6 +997,7 @@ export function FindingsPage() {
                   <th className="px-4 py-3">Finding</th>
                   <th className="px-4 py-3">Control</th>
                   <th className="px-4 py-3">Asset</th>
+                  <th className="px-4 py-3">{t('findings.columns.source')}</th>
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3">Owner</th>
                   <th className="px-4 py-3">Due</th>
@@ -1001,6 +1033,11 @@ export function FindingsPage() {
                     <td className="px-4 py-3 text-xs text-gray-600">
                       {finding.asset?.name ?? '—'}
                     </td>
+                    <td className="px-4 py-3 text-xs text-gray-600">
+                      {isKnownSourceType(finding.sourceType)
+                        ? t(`findings.sourceType.${finding.sourceType}`)
+                        : '—'}
+                    </td>
                     <td className="px-4 py-3">
                       <div className="mb-1">
                         <SeverityBadge severity={finding.severity} />
@@ -1033,13 +1070,13 @@ export function FindingsPage() {
                 {visible.length === 0 && (
                   <tr>
                     <td
-                      colSpan={7}
+                      colSpan={8}
                       className="px-4 py-10 text-center text-sm text-gray-400"
                     >
                       <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-gray-50">
                         <Clock className="h-5 w-5" />
                       </div>
-                      No automated findings match your filters.
+                      {t('findings.noFindings')}
                     </td>
                   </tr>
                 )}
