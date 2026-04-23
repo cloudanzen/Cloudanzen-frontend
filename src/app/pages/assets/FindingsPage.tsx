@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- legacy: to be typed progressively */
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import {
@@ -58,6 +59,48 @@ const KNOWN_SOURCE_TYPES = ['TEST_RUN', 'AUDIT', 'MANUAL'] as const;
 type KnownSourceType = (typeof KNOWN_SOURCE_TYPES)[number];
 const isKnownSourceType = (v: unknown): v is KnownSourceType =>
   typeof v === 'string' && (KNOWN_SOURCE_TYPES as readonly string[]).includes(v);
+
+type AssetSlaStatus = 'OVERDUE' | 'DUE_SOON' | 'DUE_LATER' | 'OK';
+
+interface AssetGroup {
+  assetId: string | null;
+  assetName: string;
+  assetType: string | null;
+  openFindings: FindingRecord[];
+  severityCounts: Record<FindingSeverity, number>;
+  sourceTypes: string[];
+  slaStatus: AssetSlaStatus;
+  earliestDue: string | null;
+}
+
+const ASSET_SLA_META: Record<AssetSlaStatus, { label: string; color: string }> = {
+  OVERDUE:   { label: 'Overdue',   color: 'bg-red-100 text-red-700' },
+  DUE_SOON:  { label: 'Due soon',  color: 'bg-amber-100 text-amber-700' },
+  DUE_LATER: { label: 'Due later', color: 'bg-blue-100 text-blue-700' },
+  OK:        { label: 'OK',        color: 'bg-green-100 text-green-700' },
+};
+
+function SeverityBreakdown({ counts }: { counts: Record<FindingSeverity, number> }) {
+  const ALL_PARTS: { sev: FindingSeverity; color: string }[] = [
+    { sev: 'CRITICAL', color: 'text-red-600' },
+    { sev: 'HIGH',     color: 'text-orange-600' },
+    { sev: 'MEDIUM',   color: 'text-amber-600' },
+    { sev: 'LOW',      color: 'text-blue-600' },
+  ];
+  const parts = ALL_PARTS.filter(({ sev }) => counts[sev] > 0);
+
+  if (parts.length === 0) return <span className="text-xs text-gray-400">—</span>;
+
+  return (
+    <div className="flex flex-wrap gap-x-2 gap-y-0.5">
+      {parts.map(({ sev, color }) => (
+        <span key={sev} className={`text-xs font-semibold ${color}`}>
+          {counts[sev]} {sev.charAt(0) + sev.slice(1).toLowerCase()}
+        </span>
+      ))}
+    </div>
+  );
+}
 
 function SeverityBadge({ severity }: { severity: FindingSeverity }) {
   const meta = SEVERITY_META[severity] ?? SEVERITY_META.LOW;
@@ -865,6 +908,9 @@ export function FindingsPage() {
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<FindingRecord | null>(null);
 
+  const navigate = useNavigate();
+  const [view, setView] = useState<'byFinding' | 'byAsset'>('byFinding');
+
   const { visible, stats, isLoading, error } = useFindingsData({
     filterSeverity,
     filterStatus,
@@ -872,31 +918,134 @@ export function FindingsPage() {
     search,
   });
 
+  const assetGroups = useMemo<AssetGroup[]>(() => {
+    const groups = new Map<string, AssetGroup>();
+
+    for (const f of visible) {
+      const key = f.assetId ?? '__unlinked__';
+      if (!groups.has(key)) {
+        groups.set(key, {
+          assetId: f.assetId,
+          assetName: f.asset?.name ?? t('findings.unlinked'),
+          assetType: f.asset?.type ?? null,
+          openFindings: [],
+          severityCounts: { CRITICAL: 0, HIGH: 0, MEDIUM: 0, LOW: 0 },
+          sourceTypes: [],
+          slaStatus: 'OK',
+          earliestDue: null,
+        });
+      }
+      const g = groups.get(key)!;
+      if (f.status !== 'CLOSED') {
+        g.openFindings.push(f);
+        g.severityCounts[f.severity]++;
+        if (f.dueAt && (!g.earliestDue || f.dueAt < g.earliestDue)) {
+          g.earliestDue = f.dueAt;
+        }
+      }
+      if (f.sourceType && !g.sourceTypes.includes(f.sourceType)) {
+        g.sourceTypes.push(f.sourceType);
+      }
+    }
+
+    const now = new Date();
+    const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+    const slaOrder: Record<AssetSlaStatus, number> = { OVERDUE: 0, DUE_SOON: 1, DUE_LATER: 2, OK: 3 };
+
+    return [...groups.values()]
+      .map((g) => {
+        let slaStatus: AssetSlaStatus = 'OK';
+        if (g.openFindings.some(isOverdue)) {
+          slaStatus = 'OVERDUE';
+        } else if (g.earliestDue) {
+          slaStatus =
+            new Date(g.earliestDue).getTime() - now.getTime() <= sevenDaysMs
+              ? 'DUE_SOON'
+              : 'DUE_LATER';
+        }
+        return { ...g, slaStatus };
+      })
+      .sort((a, b) => {
+        const d = slaOrder[a.slaStatus] - slaOrder[b.slaStatus];
+        if (d !== 0) return d;
+        if (a.severityCounts.CRITICAL !== b.severityCounts.CRITICAL)
+          return b.severityCounts.CRITICAL - a.severityCounts.CRITICAL;
+        if (a.severityCounts.HIGH !== b.severityCounts.HIGH)
+          return b.severityCounts.HIGH - a.severityCounts.HIGH;
+        return a.assetName.localeCompare(b.assetName);
+      });
+  }, [visible, t]);
+
+  const assetSlaStats = useMemo(
+    () => ({
+      overdue:  assetGroups.filter((g) => g.slaStatus === 'OVERDUE').length,
+      dueSoon:  assetGroups.filter((g) => g.slaStatus === 'DUE_SOON').length,
+      dueLater: assetGroups.filter((g) => g.slaStatus === 'DUE_LATER').length,
+      ok:       assetGroups.filter((g) => g.slaStatus === 'OK').length,
+    }),
+    [assetGroups],
+  );
+
   return (
     <PageTemplate
       title={t('findings.title')}
       description={t('findings.description')}
     >
-      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-5">
-        {[
-          { key: 'total', label: t('findings.total'), value: stats.total, color: 'text-gray-700' },
-          { key: 'open', label: t('findings.open'), value: stats.open, color: 'text-red-600' },
-          {
-            key: 'inRemediation',
-            label: t('findings.inRemediation'),
-            value: stats.inRemediation,
-            color: 'text-amber-600',
-          },
-          { key: 'closed', label: t('findings.closed'), value: stats.closed, color: 'text-green-600' },
-          { key: 'overdue', label: t('findings.overdue'), value: stats.overdue, color: 'text-red-700' },
-        ].map((stat) => (
-          <Card key={stat.key} className="p-4 text-center">
-            <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
-            <p className="mt-0.5 text-xs text-gray-500">{stat.label}</p>
-          </Card>
+      {/* Tab toggle */}
+      <div className="mb-6 flex gap-1 rounded-lg border border-gray-200 bg-gray-50 p-1 w-fit">
+        {(
+          [
+            ['byFinding', t('findings.byFinding')] as const,
+            ['byAsset',   t('findings.byAsset')]   as const,
+          ] as const
+        ).map(([v, label]) => (
+          <button
+            key={v}
+            onClick={() => setView(v)}
+            className={`rounded-md px-4 py-1.5 text-sm font-medium transition-colors ${
+              view === v
+                ? 'bg-white shadow-sm text-gray-900'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            {label}
+          </button>
         ))}
       </div>
 
+      {/* Stat cards — differ by view */}
+      {view === 'byFinding' ? (
+        <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-5">
+          {[
+            { key: 'total',        label: t('findings.total'),        value: stats.total,        color: 'text-gray-700' },
+            { key: 'open',         label: t('findings.open'),         value: stats.open,         color: 'text-red-600' },
+            { key: 'inRemediation',label: t('findings.inRemediation'),value: stats.inRemediation,color: 'text-amber-600' },
+            { key: 'closed',       label: t('findings.closed'),       value: stats.closed,       color: 'text-green-600' },
+            { key: 'overdue',      label: t('findings.overdue'),      value: stats.overdue,      color: 'text-red-700' },
+          ].map((stat) => (
+            <Card key={stat.key} className="p-4 text-center">
+              <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
+              <p className="mt-0.5 text-xs text-gray-500">{stat.label}</p>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+          {[
+            { key: 'overdue',  label: t('findings.assetSla.overdue'),  value: assetSlaStats.overdue,  color: 'text-red-600' },
+            { key: 'dueSoon',  label: t('findings.assetSla.dueSoon'),  value: assetSlaStats.dueSoon,  color: 'text-amber-600' },
+            { key: 'dueLater', label: t('findings.assetSla.dueLater'), value: assetSlaStats.dueLater, color: 'text-blue-600' },
+            { key: 'ok',       label: t('findings.assetSla.ok'),       value: assetSlaStats.ok,       color: 'text-green-600' },
+          ].map((stat) => (
+            <Card key={stat.key} className="p-4 text-center">
+              <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
+              <p className="mt-0.5 text-xs text-gray-500">{stat.label}</p>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {/* Filters (shared across both views) */}
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <div className="relative w-56">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
@@ -910,9 +1059,7 @@ export function FindingsPage() {
         <Select
           value={filterSeverity || '__all_severity__'}
           onValueChange={(v) =>
-            setFilterSeverity(
-              v === '__all_severity__' ? '' : (v as FindingSeverity),
-            )
+            setFilterSeverity(v === '__all_severity__' ? '' : (v as FindingSeverity))
           }
         >
           <SelectTrigger className="w-40">
@@ -937,9 +1084,7 @@ export function FindingsPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="__all_status__">{t('findings.allStatuses')}</SelectItem>
-            {(
-              ['OPEN', 'IN_REMEDIATION', 'READY_FOR_REVIEW', 'CLOSED'] as const
-            ).map((status) => (
+            {(['OPEN', 'IN_REMEDIATION', 'READY_FOR_REVIEW', 'CLOSED'] as const).map((status) => (
               <SelectItem key={status} value={status}>
                 {STATUS_META[status].label}
               </SelectItem>
@@ -949,18 +1094,14 @@ export function FindingsPage() {
         <Select
           value={filterSourceType || '__all_source__'}
           onValueChange={(v) =>
-            setFilterSourceType(
-              v === '__all_source__' ? '' : (v as KnownSourceType),
-            )
+            setFilterSourceType(v === '__all_source__' ? '' : (v as KnownSourceType))
           }
         >
           <SelectTrigger className="w-36">
             <SelectValue placeholder={t('findings.allSources')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="__all_source__">
-              {t('findings.allSources')}
-            </SelectItem>
+            <SelectItem value="__all_source__">{t('findings.allSources')}</SelectItem>
             {KNOWN_SOURCE_TYPES.map((sourceType) => (
               <SelectItem key={sourceType} value={sourceType}>
                 {t(`findings.sourceType.${sourceType}`)}
@@ -988,7 +1129,7 @@ export function FindingsPage() {
         </div>
       )}
 
-      {!isLoading && !error && (
+      {!isLoading && !error && view === 'byFinding' && (
         <Card className="overflow-hidden border-gray-200">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-100 text-sm">
@@ -1015,9 +1156,7 @@ export function FindingsPage() {
                       <div className="flex items-start gap-2">
                         <Shield className="mt-0.5 h-4 w-4 text-gray-400" />
                         <div>
-                          <div className="font-medium text-gray-900">
-                            {finding.title}
-                          </div>
+                          <div className="font-medium text-gray-900">{finding.title}</div>
                           <div className="line-clamp-2 text-xs text-gray-500">
                             {finding.description ?? 'No description provided.'}
                           </div>
@@ -1026,9 +1165,7 @@ export function FindingsPage() {
                     </td>
                     <td className="px-4 py-3 text-xs text-gray-600">
                       {finding.control?.isoReference ?? '—'}
-                      <div className="text-gray-400">
-                        {finding.control?.title ?? 'Unmapped'}
-                      </div>
+                      <div className="text-gray-400">{finding.control?.title ?? 'Unmapped'}</div>
                     </td>
                     <td className="px-4 py-3 text-xs text-gray-600">
                       {finding.asset?.name ?? '—'}
@@ -1049,13 +1186,7 @@ export function FindingsPage() {
                     </td>
                     <td className="px-4 py-3 text-xs text-gray-600">
                       {finding.dueAt ? (
-                        <span
-                          className={
-                            isOverdue(finding)
-                              ? 'font-semibold text-red-600'
-                              : ''
-                          }
-                        >
+                        <span className={isOverdue(finding) ? 'font-semibold text-red-600' : ''}>
                           {fmt(finding.dueAt)}
                         </span>
                       ) : (
@@ -1069,14 +1200,103 @@ export function FindingsPage() {
                 ))}
                 {visible.length === 0 && (
                   <tr>
-                    <td
-                      colSpan={8}
-                      className="px-4 py-10 text-center text-sm text-gray-400"
-                    >
+                    <td colSpan={8} className="px-4 py-10 text-center text-sm text-gray-400">
                       <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-gray-50">
                         <Clock className="h-5 w-5" />
                       </div>
                       {t('findings.noFindings')}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      )}
+
+      {!isLoading && !error && view === 'byAsset' && (
+        <Card className="overflow-hidden border-gray-200">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-100 text-sm">
+              <thead className="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-400">
+                <tr>
+                  <th className="px-4 py-3">{t('findings.columns.asset')}</th>
+                  <th className="px-4 py-3">{t('findings.columns.source')}</th>
+                  <th className="px-4 py-3">{t('findings.columns.openFindings')}</th>
+                  <th className="px-4 py-3">{t('findings.columns.slaStatus')}</th>
+                  <th className="px-4 py-3">{t('findings.columns.dueDate')}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 bg-white">
+                {assetGroups.map((group) => (
+                  <tr
+                    key={group.assetId ?? '__unlinked__'}
+                    className={group.assetId ? 'cursor-pointer hover:bg-gray-50' : ''}
+                    onClick={() => {
+                      if (group.assetId) navigate(`/assets/inventory/${group.assetId}`);
+                    }}
+                  >
+                    <td className="px-4 py-3">
+                      <div className="flex items-start gap-2">
+                        <Shield className="mt-0.5 h-4 w-4 text-gray-400 shrink-0" />
+                        <div>
+                          <div className="font-medium text-gray-900">{group.assetName}</div>
+                          {group.assetType && (
+                            <div className="text-xs text-gray-400 capitalize">
+                              {group.assetType.toLowerCase()}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex flex-wrap gap-1">
+                        {group.sourceTypes.map((st) => (
+                          <span
+                            key={st}
+                            className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600"
+                          >
+                            {isKnownSourceType(st) ? t(`findings.sourceType.${st}`) : st}
+                          </span>
+                        ))}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      {group.openFindings.length === 0 ? (
+                        <span className="text-xs text-gray-400">All closed</span>
+                      ) : (
+                        <SeverityBreakdown counts={group.severityCounts} />
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${ASSET_SLA_META[group.slaStatus].color}`}
+                      >
+                        {ASSET_SLA_META[group.slaStatus].label}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-xs text-gray-600">
+                      {group.earliestDue ? (
+                        <span
+                          className={
+                            group.slaStatus === 'OVERDUE' ? 'font-semibold text-red-600' : ''
+                          }
+                        >
+                          {fmt(group.earliestDue)}
+                        </span>
+                      ) : (
+                        '—'
+                      )}
+                    </td>
+                  </tr>
+                ))}
+                {assetGroups.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="px-4 py-10 text-center text-sm text-gray-400">
+                      <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-gray-50">
+                        <Clock className="h-5 w-5" />
+                      </div>
+                      {t('findings.noAssetFindings')}
                     </td>
                   </tr>
                 )}
