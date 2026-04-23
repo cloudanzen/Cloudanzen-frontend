@@ -4,10 +4,12 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
-  AlertTriangle,
   CheckCircle2,
+  ChevronDown,
+  ChevronUp,
   Cloud,
   Database,
+  Download,
   Github,
   HardDrive,
   Link2,
@@ -26,6 +28,14 @@ import { PageFilterBar } from '@/app/components/filters/PageFilterBar';
 import { useUrlFilterState } from '@/app/hooks/useUrlFilterState';
 import { Card } from '@/app/components/ui/card';
 import { Badge } from '@/app/components/ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/app/components/ui/dropdown-menu';
 import { assetsService } from '@/services/api/assets';
 import { Asset } from '@/services/api/types';
 import { QK } from '@/lib/queryKeys';
@@ -104,6 +114,7 @@ export function InventoryPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const currentUser = useCurrentUser();
+  const [showCoverage, setShowCoverage] = useState(false);
   const [selectedAssetIds, setSelectedAssetIds] = useState<string[]>([]);
   const [bulkClassification, setBulkClassification] = useState({
     dataSensitivity: 'STANDARD',
@@ -340,54 +351,138 @@ export function InventoryPage() {
         </div>
       ) : null}
 
-      {coverage ? (
-        <div className="mb-6 space-y-4">
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-          <Card className="p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t('inventory.summary.total')}</p>
-            <p className="mt-2 text-2xl font-bold text-foreground">{coverage.total}</p>
-          </Card>
-          {coverage.byProvider.slice(0, 3).map((item) => (
-            <Card
-              key={item.provider}
-              className="cursor-pointer p-4 transition-shadow hover:shadow-md"
-              onClick={() => update({ provider: item.provider, page: '1' })}
+      {/* Toolbar: stat strip + actions */}
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        {/* Stat strip */}
+        <div className="flex flex-wrap items-center gap-4 text-sm">
+          <span className="text-muted-foreground">
+            <span className="font-semibold text-foreground">{coverage?.total ?? '—'}</span> assets
+          </span>
+          {(coverage?.staleCount ?? 0) > 0 && (
+            <span className="text-muted-foreground">
+              <span className="font-semibold text-amber-600">{coverage?.staleCount}</span> stale
+            </span>
+          )}
+          {coverage?.ownershipPct != null && (
+            <span className="text-muted-foreground">
+              <span className="font-semibold text-foreground">{coverage.ownershipPct}%</span> owned
+            </span>
+          )}
+          {coverage?.classificationPct != null && (
+            <span className="text-muted-foreground">
+              <span className="font-semibold text-foreground">{coverage.classificationPct}%</span> classified
+            </span>
+          )}
+          {coverage && (
+            <button
+              type="button"
+              onClick={() => setShowCoverage((v) => !v)}
+              className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
             >
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{item.provider.toUpperCase()}</p>
-              <p className="mt-2 text-2xl font-bold text-foreground">{item.count}</p>
-               <p className="text-xs text-muted-foreground">{item.staleCount} {t('inventory.coverage.stale').toLowerCase()}</p>
-            </Card>
-          ))}
-          <Card className="p-4">
-            <div className="flex items-center gap-2 text-amber-700">
-              <AlertTriangle className="h-4 w-4" />
-              <p className="text-xs font-semibold uppercase tracking-wide">{t('inventory.summary.stale')}</p>
-            </div>
-            <p className="mt-2 text-2xl font-bold text-foreground">{coverage.staleCount}</p>
-          </Card>
-          </div>
+              {showCoverage ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+              {showCoverage ? 'Hide coverage' : 'Coverage'}
+            </button>
+          )}
+        </div>
 
-          <div className="grid gap-3 md:grid-cols-2">
-            <Card className="p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Ownership completeness</p>
-              <p className="mt-2 text-2xl font-bold text-foreground">{coverage.ownershipPct}%</p>
-              <p className="text-xs text-muted-foreground">{coverage.ownedCount} of {coverage.total} assets have owners</p>
-            </Card>
-            <Card className="p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Classification completeness</p>
-              <p className="mt-2 text-2xl font-bold text-foreground">{coverage.classificationPct}%</p>
-              <p className="text-xs text-muted-foreground">{coverage.classifiedCount} of {coverage.total} assets are classified</p>
-            </Card>
-          </div>
+        {/* Action buttons */}
+        <div className="flex items-center gap-2">
+          {/* Views dropdown: saved views + specialized shortcuts */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
+              >
+                Views <ChevronDown className="h-3.5 w-3.5" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-52">
+              <DropdownMenuLabel className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Quick filters</DropdownMenuLabel>
+              {specializedViews.map((view) => (
+                <DropdownMenuItem key={view.label} onSelect={() => update({ ...view.patch, page: '1' })}>
+                  {view.label}
+                </DropdownMenuItem>
+              ))}
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Saved views</DropdownMenuLabel>
+              {savedViews.length === 0 && (
+                <DropdownMenuItem disabled>No saved views</DropdownMenuItem>
+              )}
+              {savedViews.map((view) => {
+                const canManage = !view.isSystem && (!view.createdBy || view.createdBy === currentUser?.id);
+                return (
+                  <DropdownMenuItem key={view.id} className="flex items-center justify-between gap-2" onSelect={() => applySavedView(view.filters)}>
+                    <span className="truncate">{view.name}</span>
+                    {canManage && (
+                      <div className="flex shrink-0 gap-1" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          type="button"
+                          className="text-xs text-muted-foreground hover:text-foreground"
+                          onClick={() => handleToggleSharedView(view.id, view.name, view.description, view.sharedWithTeam)}
+                        >
+                          {view.sharedWithTeam ? 'Unshare' : 'Share'}
+                        </button>
+                        <button
+                          type="button"
+                          className="text-xs text-muted-foreground hover:text-blue-600"
+                          onClick={() => handleUpdateView(view.id, view.name, view.description)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          className="text-xs text-muted-foreground hover:text-red-600"
+                          onClick={() => deleteViewMutation.mutate(view.id)}
+                        >
+                          Del
+                        </button>
+                      </div>
+                    )}
+                  </DropdownMenuItem>
+                );
+              })}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={handleSaveCurrentView}>
+                Save current view…
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
+          {/* Export dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
+              >
+                <Download className="h-3.5 w-3.5" /> Export <ChevronDown className="h-3.5 w-3.5" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onSelect={() => void handleExport('csv')}>CSV</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => void handleExport('xlsx')}>Excel (XLSX)</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => void handleExport('pdf')}>PDF</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <button
+            type="button"
+            onClick={() => navigate('/assets/merge-review')}
+            className="rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
+          >
+            {t('mergeReview.title')}
+          </button>
+        </div>
+      </div>
+
+      {/* Collapsible coverage details */}
+      {showCoverage && coverage && (
+        <div className="mb-4 space-y-3">
+          {/* Provider health */}
           <Card className="p-4">
-            <div className="mb-3 flex items-center justify-between gap-3">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t('inventory.coverage.providerHealth')}</p>
-                <p className="text-sm text-muted-foreground">{t('inventory.coverage.providerHealthDesc')}</p>
-              </div>
-            </div>
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t('inventory.coverage.providerHealth')}</p>
+            <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
               {coverage.providerHealth.slice(0, 6).map((item) => {
                 const Icon = healthIcon(item.health);
                 return (
@@ -395,171 +490,45 @@ export function InventoryPage() {
                     key={item.provider}
                     type="button"
                     onClick={() => update({ provider: item.provider, page: '1' })}
-                    className="rounded-xl border border-border p-4 text-left transition-shadow hover:shadow-sm"
+                    className="flex items-center justify-between rounded-lg border border-border px-3 py-2 text-left hover:bg-gray-50"
                   >
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-sm font-semibold text-foreground">{providerLabel(item.provider, t)}</p>
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          {item.count} {t('inventory.resultsLabel')} · {item.configuredCount} {t('inventory.coverage.connections')}
-                        </p>
-                      </div>
-                      <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-xs font-medium ${HEALTH_STYLES[item.health]}`}>
-                        <Icon className="h-3.5 w-3.5" />
-                        {t(`inventory.coverage.health.${item.health}`)}
-                      </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-foreground">{providerLabel(item.provider, t)}</p>
+                      <p className="text-xs text-muted-foreground">{item.count} assets · {item.lastScanAt ? relativeTime(item.lastScanAt) : t('inventory.coverage.noScan')}</p>
                     </div>
-                    <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
-                      <span>{item.stalePct}% {t('inventory.coverage.stale').toLowerCase()}</span>
-                      <span>{item.lastScanAt ? relativeTime(item.lastScanAt) : t('inventory.coverage.noScan')}</span>
-                    </div>
+                    <span className={`ml-3 inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium ${HEALTH_STYLES[item.health]}`}>
+                      <Icon className="h-3 w-3" />
+                      {t(`inventory.coverage.health.${item.health}`)}
+                    </span>
                   </button>
                 );
               })}
             </div>
           </Card>
 
+          {/* Review queues */}
           {reviewQueues.length ? (
             <Card className="p-4">
-              <div className="mb-3">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Review queues</p>
-                <p className="text-sm text-muted-foreground">Jump into stale, unclassified, or critical asset follow-up work.</p>
-              </div>
-              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Review queues</p>
+              <div className="flex flex-wrap gap-2">
                 {reviewQueues.map((queue) => (
                   <button
                     key={queue.key}
                     type="button"
                     onClick={() => applyQueueFilters(queue.filters)}
-                    className="rounded-xl border border-border p-4 text-left transition-shadow hover:shadow-sm"
+                    className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-left hover:bg-gray-50"
                   >
-                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{queue.label}</p>
-                    <p className="mt-2 text-2xl font-bold text-foreground">{queue.count}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">{queue.reviewType.toLowerCase()} review</p>
+                    <span className="text-sm font-semibold text-foreground">{queue.count}</span>
+                    <span className="text-xs text-muted-foreground">{queue.label}</span>
                   </button>
                 ))}
               </div>
             </Card>
           ) : null}
-
-          <Card className="p-4">
-            <div className="mb-3 flex items-center justify-between gap-3">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Specialized views</p>
-                <p className="text-sm text-muted-foreground">Apply focused inventory slices for common audit and ops workflows.</p>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {specializedViews.map((view) => (
-                <button
-                  key={view.label}
-                  type="button"
-                  onClick={() => update({ ...view.patch, page: '1' })}
-                  className="rounded-full border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
-                >
-                  {view.label}
-                </button>
-              ))}
-            </div>
-          </Card>
-
-          <Card className="p-4">
-            <div className="mb-3 flex items-center justify-between gap-3">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Saved views</p>
-                <p className="text-sm text-muted-foreground">Reuse the filter combinations your team comes back to most often.</p>
-              </div>
-              <button
-                type="button"
-                onClick={handleSaveCurrentView}
-                className="rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
-              >
-                Save current view
-              </button>
-            </div>
-            {savedViews.length ? (
-              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                {savedViews.map((view) => (
-                  <div key={view.id} className="rounded-xl border border-border p-4">
-                    {(() => {
-                      const canManage = !view.isSystem && (!view.createdBy || view.createdBy === currentUser?.id);
-                      return (
-                    <div className="flex items-start justify-between gap-3">
-                      <button type="button" onClick={() => applySavedView(view.filters)} className="text-left">
-                        <p className="text-sm font-semibold text-foreground">{view.name}</p>
-                        {view.description ? <p className="mt-1 text-xs text-muted-foreground">{view.description}</p> : null}
-                      </button>
-                      {canManage ? (
-                        <div className="flex gap-2">
-                          <button
-                            type="button"
-                            onClick={() => handleToggleSharedView(view.id, view.name, view.description, view.sharedWithTeam)}
-                            className="text-xs text-muted-foreground hover:text-foreground"
-                          >
-                            {view.sharedWithTeam ? 'Unshare' : 'Share'}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleUpdateView(view.id, view.name, view.description)}
-                            className="text-xs text-muted-foreground hover:text-blue-600"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => deleteViewMutation.mutate(view.id)}
-                            className="text-xs text-muted-foreground hover:text-red-600"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      ) : null}
-                    </div>
-                      );
-                    })()}
-                    <p className="mt-3 text-xs text-muted-foreground">{Object.keys(view.filters ?? {}).length} filters saved</p>
-                    <p className="mt-1 text-xs text-muted-foreground">{view.sharedWithTeam ? 'Shared with team' : 'Private view'}</p>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">No saved views yet.</p>
-            )}
-          </Card>
         </div>
-      ) : null}
+      )}
 
-      <div className="space-y-6">
-        <div className="flex flex-wrap justify-end gap-2">
-          <button
-            type="button"
-            onClick={() => void handleExport('csv')}
-            className="rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
-          >
-            Export CSV
-          </button>
-          <button
-            type="button"
-            onClick={() => void handleExport('xlsx')}
-            className="rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
-          >
-            Export XLSX
-          </button>
-          <button
-            type="button"
-            onClick={() => void handleExport('pdf')}
-            className="rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
-          >
-            Export PDF
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate('/assets/merge-review')}
-            className="rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
-          >
-            {t('mergeReview.title')}
-          </button>
-        </div>
+      <div className="space-y-4">
         <PageFilterBar
           searchValue={filters.search}
           onSearchChange={(value) => update({ search: value, page: '1' })}
