@@ -119,11 +119,6 @@ const AuditDetailPage = lazy(() =>
     default: m.AuditDetailPage,
   })),
 );
-const FindingsPage = lazy(() =>
-  import('@/app/pages/compliance/FindingsPage').then((m) => ({
-    default: m.FindingsPage,
-  })),
-);
 const ComplianceSettingsPage = lazy(() =>
   import('@/app/pages/compliance/SettingsPage').then((m) => ({
     default: m.ComplianceSettingsPage,
@@ -210,9 +205,9 @@ const CodeChangesPage = lazy(() =>
     default: m.CodeChangesPage,
   })),
 );
-const VulnerabilitiesPage = lazy(() =>
-  import('@/app/pages/assets/VulnerabilitiesPage').then((m) => ({
-    default: m.VulnerabilitiesPage,
+const AssetsFindingsPage = lazy(() =>
+  import('@/app/pages/assets/FindingsPage').then((m) => ({
+    default: m.FindingsPage,
   })),
 );
 const SecurityAlertsPage = lazy(() =>
@@ -396,7 +391,7 @@ export const router = createBrowserRouter([
       { path: 'compliance/documents/:documentId', Component: DocumentDetailPage },
       { path: 'compliance/audits', Component: AuditsPage },
       { path: 'compliance/audits/:auditId', Component: AuditDetailPage },
-      { path: 'compliance/findings', Component: FindingsPage },
+      { path: 'compliance/findings', loader: () => redirect('/assets/findings') },
       { path: 'compliance/settings', loader: () => redirect('/settings/compliance') },
 
       // Customer Trust
@@ -422,7 +417,8 @@ export const router = createBrowserRouter([
       { path: 'assets/inventory', Component: InventoryPage },
       { path: 'assets/merge-review', Component: MergeReviewPage },
       { path: 'assets/code-changes', Component: CodeChangesPage },
-      { path: 'assets/vulnerabilities', Component: VulnerabilitiesPage },
+      { path: 'assets/findings', Component: AssetsFindingsPage },
+      { path: 'assets/vulnerabilities', loader: () => redirect('/assets/findings') },
       { path: 'assets/security-alerts', Component: SecurityAlertsPage },
       { path: 'assets/settings', loader: () => redirect('/settings/assets') },
 

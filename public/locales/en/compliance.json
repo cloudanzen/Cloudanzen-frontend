@@ -430,36 +430,6 @@
       "progress": "Progress"
     }
   },
-  "findings": {
-    "title": "Findings",
-    "description": "Track automated findings raised from test executions",
-    "newFinding": "New Finding",
-    "noFindings": "No findings",
-    "searchPlaceholder": "Search findings...",
-    "total": "Total",
-    "open": "Open",
-    "inRemediation": "In Remediation",
-    "closed": "Closed",
-    "overdue": "Overdue",
-    "severity": {
-      "CRITICAL": "Critical",
-      "HIGH": "High",
-      "MEDIUM": "Medium",
-      "LOW": "Low",
-      "MINOR": "Minor",
-      "MAJOR": "Major",
-      "OBSERVATION": "Observation"
-    },
-    "allSeverities": "All severities",
-    "allStatuses": "All statuses",
-    "status": {
-      "OPEN": "Open",
-      "IN_PROGRESS": "In Progress",
-      "IN_REMEDIATION": "In Remediation",
-      "RESOLVED": "Resolved",
-      "CLOSED": "Closed"
-    }
-  },
   "frameworkDetail": {
     "badge": {
       "implemented": "Implemented",

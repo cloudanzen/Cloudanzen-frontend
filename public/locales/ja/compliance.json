@@ -430,36 +430,6 @@
       "progress": "進捗"
     }
   },
-  "findings": {
-    "title": "発見事項",
-    "description": "テスト実行から発生した自動発見事項の追跡",
-    "newFinding": "新規発見事項",
-    "noFindings": "発見事項なし",
-    "searchPlaceholder": "発見事項を検索...",
-    "total": "合計",
-    "open": "未対応",
-    "inRemediation": "是正中",
-    "closed": "クローズ",
-    "overdue": "期限超過",
-    "severity": {
-      "CRITICAL": "重大",
-      "HIGH": "高",
-      "MEDIUM": "中",
-      "LOW": "低",
-      "MINOR": "軽微",
-      "MAJOR": "重大",
-      "OBSERVATION": "観察事項"
-    },
-    "allSeverities": "すべての重大度",
-    "allStatuses": "すべてのステータス",
-    "status": {
-      "OPEN": "未対応",
-      "IN_PROGRESS": "対応中",
-      "IN_REMEDIATION": "是正中",
-      "RESOLVED": "解決済み",
-      "CLOSED": "クローズ"
-    }
-  },
   "frameworkDetail": {
     "badge": {
       "implemented": "実装済み",
