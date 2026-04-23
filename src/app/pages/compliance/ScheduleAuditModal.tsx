@@ -24,6 +24,26 @@ interface ControlRecord {
   title: string;
 }
 
+function Field({
+  label,
+  children,
+  required,
+}: {
+  label: string;
+  children: React.ReactNode;
+  required?: boolean;
+}) {
+  return (
+    <div>
+      <label className="block text-xs font-medium text-gray-700 mb-1">
+        {label}
+        {required && <span className="text-red-500 ml-0.5">*</span>}
+      </label>
+      {children}
+    </div>
+  );
+}
+
 export function ScheduleAuditModal({
   onClose,
   onCreated,
@@ -130,25 +150,6 @@ export function ScheduleAuditModal({
       setSaving(false);
     }
   }
-
-  // Field group helper
-  const Field = ({
-    label,
-    children,
-    required,
-  }: {
-    label: string;
-    children: React.ReactNode;
-    required?: boolean;
-  }) => (
-    <div>
-      <label className="block text-xs font-medium text-gray-700 mb-1">
-        {label}
-        {required && <span className="text-red-500 ml-0.5">*</span>}
-      </label>
-      {children}
-    </div>
-  );
 
   const inputCls =
     'w-full text-sm border border-gray-300 rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500';
