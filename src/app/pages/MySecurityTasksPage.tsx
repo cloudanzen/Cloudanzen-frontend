@@ -455,12 +455,21 @@ function Task3Training({
 
 function ProgressBanner({ status }: { status: OnboardingStatus }) {
   const { t } = useTranslation('common');
-  const done = [
-    status.policyAccepted,
-    status.mdmEnrolled,
-    status.trainingCompleted,
-  ].filter(Boolean).length;
-  const pct = Math.round((done / 3) * 100);
+  // [T-91] Compute progress over tasks that apply to the user's role.
+  const req = status.required;
+  const appliesPolicy   = req?.policyAcceptance   !== false;
+  const appliesMdm      = req?.mdmEnrollment      !== false;
+  const appliesTraining = req?.securityTraining   !== false;
+
+  const flags = [
+    appliesPolicy   ? status.policyAccepted    : null,
+    appliesMdm      ? status.mdmEnrolled       : null,
+    appliesTraining ? status.trainingCompleted : null,
+  ].filter((v) => v !== null) as boolean[];
+
+  const total = flags.length;
+  const done = flags.filter(Boolean).length;
+  const pct = total === 0 ? 100 : Math.round((done / total) * 100);
 
   if (status.allComplete) {
     return (
@@ -487,7 +496,7 @@ function ProgressBanner({ status }: { status: OnboardingStatus }) {
           {t('securityTasks.progress.title')}
         </p>
         <span className="text-sm font-semibold text-blue-700">
-          {t('securityTasks.progress.tasksComplete', { done })}
+          {t('securityTasks.progress.tasksComplete', { done, total, defaultValue: '{{done}}/{{total}} tasks complete' })}
         </span>
       </div>
       <div className="h-2.5 bg-muted rounded-full overflow-hidden">
@@ -775,44 +784,88 @@ export function MySecurityTasksPage() {
         {/* Progress banner */}
         <ProgressBanner status={status} />
 
-        {/* Task 1 */}
-        <TaskCard
-          number={1}
-          icon={FileText}
-          title={t('securityTasks.cards.policies.title')}
-          description={t('securityTasks.cards.policies.description')}
-          done={status.policyAccepted}
-          inProgress={
-            !status.policyAccepted &&
-            (status.pendingPolicyIds ?? []).length > 0 &&
-            !!status.policyAcceptedAt
+        {/* [T-91] Render each task card only if the user's role requires it.
+            Auditors (and any other role an admin exempts) see only the empty state below. */}
+        {(() => {
+          const req = status.required;
+          const showPolicy   = req?.policyAcceptance   !== false;
+          const showMdm      = req?.mdmEnrollment      !== false;
+          const showTraining = req?.securityTraining   !== false;
+
+          let n = 0;
+          const cards: React.ReactNode[] = [];
+          if (showPolicy) {
+            n += 1;
+            cards.push(
+              <TaskCard
+                key="policy"
+                number={n}
+                icon={FileText}
+                title={t('securityTasks.cards.policies.title')}
+                description={t('securityTasks.cards.policies.description')}
+                done={status.policyAccepted}
+                inProgress={
+                  !status.policyAccepted &&
+                  (status.pendingPolicyIds ?? []).length > 0 &&
+                  !!status.policyAcceptedAt
+                }
+              >
+                <Task1Policies status={status} onDone={setStatus} />
+              </TaskCard>,
+            );
           }
-        >
-          <Task1Policies status={status} onDone={setStatus} />
-        </TaskCard>
+          if (showMdm) {
+            n += 1;
+            cards.push(
+              <TaskCard
+                key="mdm"
+                number={n}
+                icon={Laptop}
+                title={t('securityTasks.cards.mdm.title')}
+                description={t('securityTasks.cards.mdm.description')}
+                done={status.mdmEnrolled}
+              >
+                <Task2Mdm status={status} />
+              </TaskCard>,
+            );
+          }
+          if (showTraining) {
+            n += 1;
+            cards.push(
+              <TaskCard
+                key="training"
+                number={n}
+                icon={BookOpen}
+                title={t('securityTasks.cards.training.title')}
+                description={t('securityTasks.cards.training.description')}
+                done={status.trainingCompleted}
+                inProgress={status.trainingStarted && !status.trainingCompleted}
+              >
+                <Task3Training status={status} onDone={setStatus} />
+              </TaskCard>,
+            );
+          }
 
-        {/* Task 2 */}
-        <TaskCard
-          number={2}
-          icon={Laptop}
-          title={t('securityTasks.cards.mdm.title')}
-          description={t('securityTasks.cards.mdm.description')}
-          done={status.mdmEnrolled}
-        >
-          <Task2Mdm status={status} />
-        </TaskCard>
-
-        {/* Task 3 */}
-        <TaskCard
-          number={3}
-          icon={BookOpen}
-          title={t('securityTasks.cards.training.title')}
-          description={t('securityTasks.cards.training.description')}
-          done={status.trainingCompleted}
-          inProgress={status.trainingStarted && !status.trainingCompleted}
-        >
-          <Task3Training status={status} onDone={setStatus} />
-        </TaskCard>
+          if (cards.length === 0) {
+            return (
+              <div className="rounded-2xl bg-card border border-border px-6 py-8 flex flex-col items-center gap-3 text-center">
+                <ShieldCheck className="w-10 h-10 text-muted-foreground" />
+                <p className="text-sm font-semibold text-foreground">
+                  {t('securityTasks.noTasksApplicable', {
+                    defaultValue: 'No onboarding tasks apply to your role.',
+                  })}
+                </p>
+                <p className="text-xs text-muted-foreground/70 max-w-sm">
+                  {t('securityTasks.noTasksApplicableDescription', {
+                    defaultValue:
+                      'Your role is exempt from policy acceptance, MDM enrollment, and security training. Reach out to an administrator if this looks wrong.',
+                  })}
+                </p>
+              </div>
+            );
+          }
+          return cards;
+        })()}
 
         {/* Remediation Tasks from audit findings */}
         <RemediationTasksSection />

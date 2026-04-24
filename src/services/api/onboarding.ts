@@ -2,9 +2,21 @@ import { apiClient } from './client';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
+/**
+ * Which onboarding tasks apply to the user, derived from the per-role matrix on the backend.
+ * Auditors (and any other role an admin exempts) get `false` for the disabled tasks. [T-91]
+ */
+export interface OnboardingRequiredBlock {
+  policyAcceptance: boolean;
+  mdmEnrollment: boolean;
+  securityTraining: boolean;
+}
+
 export interface OnboardingStatus {
   id: string;
   userId: string;
+  /** Per-role task requirements — the UI should only render cards where the flag is true. */
+  required: OnboardingRequiredBlock;
   // Task 1
   policyAccepted: boolean;
   policyAcceptedAt: string | null;
@@ -19,7 +31,9 @@ export interface OnboardingStatus {
   trainingStartedAt: string | null;
   trainingCompleted: boolean;
   trainingCompletedAt: string | null;
-  // Overall
+  // Aggregates computed over *required* tasks only
+  completedCount: number;
+  totalCount: number;
   allComplete: boolean;
 }
 
@@ -29,10 +43,7 @@ export interface UserOnboardingSummary {
   name: string | null;
   role: string;
   createdAt: string;
-  onboarding: OnboardingStatus & {
-    completedCount: number;
-    totalCount: number;
-  };
+  onboarding: OnboardingStatus;
 }
 
 // ── Service ───────────────────────────────────────────────────────────────────

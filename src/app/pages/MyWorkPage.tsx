@@ -116,9 +116,40 @@ export function MyWorkPage() {
   const dueSoon = pendingTests.filter(t => !isOverdue(t.dueDate));
 
   const onboarding = onboardingData;
-  const onboardingPendingCount = onboarding
-    ? [!onboarding.policyAccepted, !onboarding.mdmEnrolled, !onboarding.trainingCompleted].filter(Boolean).length
-    : 0;
+  // [T-91] Build the active task list from the server's `required` block so we only count tasks
+  // that apply to the user's role. Auditors with zero required tasks contribute 0 to pending.
+  const onboardingTasks = onboarding
+    ? [
+        {
+          key: 'policy' as const,
+          label: t('myTasks.acceptPolicies'),
+          description: t('myTasks.acceptPoliciesDesc'),
+          done: onboarding.policyAccepted,
+          doneAt: onboarding.policyAcceptedAt,
+          enabled: onboarding.required?.policyAcceptance !== false,
+        },
+        {
+          key: 'mdm' as const,
+          label: t('myTasks.enrollMdm'),
+          description: t('myTasks.enrollMdmDesc'),
+          done: onboarding.mdmEnrolled,
+          doneAt: onboarding.mdmEnrolledAt,
+          enabled: onboarding.required?.mdmEnrollment !== false,
+        },
+        {
+          key: 'training' as const,
+          label: t('myTasks.securityTraining'),
+          description: t('myTasks.securityTrainingDesc'),
+          done: onboarding.trainingCompleted,
+          doneAt: onboarding.trainingCompletedAt,
+          enabled: onboarding.required?.securityTraining !== false,
+        },
+      ].filter((task) => task.enabled)
+    : [];
+
+  const onboardingDoneCount   = onboardingTasks.filter((t) => t.done).length;
+  const onboardingTotalCount  = onboardingTasks.length;
+  const onboardingPendingCount = onboardingTotalCount - onboardingDoneCount;
 
   const totalPending = pendingTests.length + onboardingPendingCount;
 
@@ -154,9 +185,17 @@ export function MyWorkPage() {
           {
             key: 'onboardingTasks',
             label: t('myTasks.onboardingTasks'),
-            value: onboardingLoading ? '…' : `${3 - onboardingPendingCount}/3`,
+            value: onboardingLoading
+              ? '…'
+              : onboardingTotalCount === 0
+                ? t('myTasks.notApplicable', { defaultValue: 'N/A' })
+                : `${onboardingDoneCount}/${onboardingTotalCount}`,
             icon: <ShieldCheck className="w-4 h-4" />,
-            cls: onboardingPendingCount === 0 ? 'text-green-700 bg-green-50' : 'text-amber-700 bg-amber-50',
+            cls: onboardingTotalCount === 0
+              ? 'text-muted-foreground bg-muted'
+              : onboardingPendingCount === 0
+                ? 'text-green-700 bg-green-50'
+                : 'text-amber-700 bg-amber-50',
           },
         ].map(s => (
           <Card key={s.key} className={`p-4 flex items-center gap-3 ${s.cls}`}>
@@ -223,60 +262,58 @@ export function MyWorkPage() {
         </div>
 
         {/* ── Security Onboarding ── */}
-        <div>
-          <Card className="overflow-hidden">
-            <div className="px-4 py-3 bg-muted border-b border-border flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-muted-foreground" />
-              <h2 className="text-sm font-semibold text-foreground">{t('myTasks.securityOnboarding')}</h2>
-              {onboarding && (
-                <span className={`ml-auto text-xs font-medium ${onboarding.allComplete ? 'text-green-600' : 'text-amber-600'}`}>
-                  {onboarding.allComplete ? t('myTasks.complete') : t('myTasks.nDone', { count: 3 - onboardingPendingCount })}
-                </span>
-              )}
-            </div>
+        {/* [T-91] Hide entirely when the role has no onboarding tasks (e.g. Auditor). */}
+        {(onboardingLoading || onboardingTotalCount > 0) && (
+          <div>
+            <Card className="overflow-hidden">
+              <div className="px-4 py-3 bg-muted border-b border-border flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-muted-foreground" />
+                <h2 className="text-sm font-semibold text-foreground">{t('myTasks.securityOnboarding')}</h2>
+                {onboarding && onboardingTotalCount > 0 && (
+                  <span className={`ml-auto text-xs font-medium ${onboarding.allComplete ? 'text-green-600' : 'text-amber-600'}`}>
+                    {onboarding.allComplete
+                      ? t('myTasks.complete')
+                      : t('myTasks.nDone', { count: onboardingDoneCount })}
+                  </span>
+                )}
+              </div>
 
-            {onboardingLoading ? (
-              <div className="p-4 space-y-2">
-                {[...Array(3)].map((_, i) => <div key={i} className="h-10 bg-muted rounded animate-pulse" />)}
-              </div>
-            ) : onboarding ? (
-              <div className="px-4 py-2">
-                {/* Progress bar */}
-                <div className="mb-3 mt-1">
-                  <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-green-500 rounded-full transition-all"
-                      style={{ width: `${((3 - onboardingPendingCount) / 3) * 100}%` }}
-                    />
-                  </div>
+              {onboardingLoading ? (
+                <div className="p-4 space-y-2">
+                  {[...Array(onboardingTotalCount || 1)].map((_, i) => (
+                    <div key={i} className="h-10 bg-muted rounded animate-pulse" />
+                  ))}
                 </div>
-                <OnboardingTaskRow
-                  label={t('myTasks.acceptPolicies')}
-                  done={onboarding.policyAccepted}
-                  doneAt={onboarding.policyAcceptedAt}
-                  description={t('myTasks.acceptPoliciesDesc')}
-                  linkTo="/my-security-tasks"
-                />
-                <OnboardingTaskRow
-                  label={t('myTasks.enrollMdm')}
-                  done={onboarding.mdmEnrolled}
-                  doneAt={onboarding.mdmEnrolledAt}
-                  description={t('myTasks.enrollMdmDesc')}
-                  linkTo="/my-security-tasks"
-                />
-                <OnboardingTaskRow
-                  label={t('myTasks.securityTraining')}
-                  done={onboarding.trainingCompleted}
-                  doneAt={onboarding.trainingCompletedAt}
-                  description={t('myTasks.securityTrainingDesc')}
-                  linkTo="/my-security-tasks"
-                />
-              </div>
-            ) : (
-              <p className="p-4 text-sm text-muted-foreground/70">{t('myTasks.couldNotLoadOnboarding')}</p>
-            )}
-          </Card>
-        </div>
+              ) : onboarding ? (
+                <div className="px-4 py-2">
+                  {/* Progress bar */}
+                  <div className="mb-3 mt-1">
+                    <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-green-500 rounded-full transition-all"
+                        style={{
+                          width: `${onboardingTotalCount === 0 ? 100 : (onboardingDoneCount / onboardingTotalCount) * 100}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                  {onboardingTasks.map((task) => (
+                    <OnboardingTaskRow
+                      key={task.key}
+                      label={task.label}
+                      done={task.done}
+                      doneAt={task.doneAt}
+                      description={task.description}
+                      linkTo="/my-security-tasks"
+                    />
+                  ))}
+                </div>
+              ) : (
+                <p className="p-4 text-sm text-muted-foreground/70">{t('myTasks.couldNotLoadOnboarding')}</p>
+              )}
+            </Card>
+          </div>
+        )}
       </div>
 
       {/* ── Test detail side panel ── */}

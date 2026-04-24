@@ -8,7 +8,7 @@
  */
 
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import {
@@ -20,10 +20,17 @@ import {
   Lock,
   Check,
   Minus,
+  ClipboardCheck,
 } from 'lucide-react';
 import { QK } from '@/lib/queryKeys';
 import { STALE } from '@/lib/queryClient';
 import { usersService } from '@/services/api/users';
+import { useHasRole } from '@/hooks/useCurrentUser';
+import {
+  roleOnboardingService,
+  type OnboardingTaskType,
+  type RoleOnboardingMatrix,
+} from '@/services/api/roleOnboarding';
 import {
   AppRole,
   ROLE_LABELS,
@@ -313,6 +320,44 @@ export function AccessRolesPage() {
   const roleUserCount = (role: AppRole) =>
     users.filter((u) => u.role === role).length;
 
+  // [T-91] Per-role onboarding task requirements. Admin-only endpoint — non-admins see no data
+  // (the page itself is still rendered because permission cards are informational).
+  const canEditOnboarding = useHasRole('SUPER_ADMIN', 'ORG_ADMIN');
+  const queryClient = useQueryClient();
+  const { data: matrixResp } = useQuery({
+    queryKey: QK.roleOnboardingMatrix(),
+    queryFn: () => roleOnboardingService.getMatrix(),
+    staleTime: STALE.USERS,
+    enabled: canEditOnboarding,
+  });
+  const onboardingMatrix: RoleOnboardingMatrix | undefined = matrixResp?.data;
+
+  const updateReqMutation = useMutation({
+    mutationFn: (input: { role: AppRole; taskType: OnboardingTaskType; required: boolean }) =>
+      roleOnboardingService.updateRequirement(input),
+    onSuccess: (resp) => {
+      queryClient.setQueryData(QK.roleOnboardingMatrix(), {
+        success: true,
+        data: resp.data,
+      });
+    },
+  });
+
+  const requiredTaskCount = (role: AppRole): number => {
+    if (!onboardingMatrix) return 0;
+    const row = onboardingMatrix[role];
+    if (!row) return 0;
+    return (['POLICY_ACCEPTANCE', 'MDM_ENROLLMENT', 'SECURITY_TRAINING'] as OnboardingTaskType[])
+      .filter((t) => row[t])
+      .length;
+  };
+
+  const ONBOARDING_TASKS: { key: OnboardingTaskType; labelKey: string }[] = [
+    { key: 'POLICY_ACCEPTANCE', labelKey: 'roles.onboarding.policyAcceptance' },
+    { key: 'MDM_ENROLLMENT',    labelKey: 'roles.onboarding.mdmEnrollment' },
+    { key: 'SECURITY_TRAINING', labelKey: 'roles.onboarding.securityTraining' },
+  ];
+
   return (
     <div className="flex flex-col bg-gray-50">
       {selectedRole && (
@@ -338,6 +383,11 @@ export function AccessRolesPage() {
             <TabsTrigger value="matrix">
               {t('roles.tabs.permissionMatrix')}
             </TabsTrigger>
+            {canEditOnboarding && (
+              <TabsTrigger value="onboarding">
+                {t('roles.tabs.onboarding', { defaultValue: 'Onboarding' })}
+              </TabsTrigger>
+            )}
           </TabsList>
 
           {/* Role Cards */}
@@ -387,6 +437,17 @@ export function AccessRolesPage() {
                         <Users className="w-3.5 h-3.5" />
                         {t('roles.usersCount', { count })}
                       </div>
+                      {onboardingMatrix && (
+                        <div className="col-span-2 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-gray-50 text-gray-600 border border-gray-100">
+                          <ClipboardCheck className="w-3.5 h-3.5" />
+                          {t('roles.onboardingTaskCount', {
+                            count: requiredTaskCount(role),
+                            defaultValue_zero: 'No onboarding tasks',
+                            defaultValue_one:  '1 onboarding task',
+                            defaultValue_other:'{{count}} onboarding tasks',
+                          })}
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
@@ -424,6 +485,100 @@ export function AccessRolesPage() {
             </div>
             <PermissionMatrixTable focusRole={matrixFocus} />
           </TabsContent>
+
+          {/* Onboarding Requirements — [T-91] per-role task matrix */}
+          {canEditOnboarding && (
+            <TabsContent value="onboarding" className="mt-0 space-y-4">
+              <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                <div className="px-4 py-3 border-b border-gray-200 flex items-center gap-2">
+                  <ClipboardCheck className="w-4 h-4 text-gray-500" />
+                  <h2 className="text-sm font-semibold text-gray-900">
+                    {t('roles.onboarding.heading', {
+                      defaultValue: 'Onboarding tasks per role',
+                    })}
+                  </h2>
+                </div>
+                <p className="px-4 pt-3 text-xs text-gray-500">
+                  {t('roles.onboarding.description', {
+                    defaultValue:
+                      'Choose which onboarding tasks apply to each role. External roles like Auditor are exempt by default — auditors do not need policy acceptance, MDM enrollment, or security training on their personal devices.',
+                  })}
+                </p>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="text-left border-b border-gray-200">
+                        <th className="px-4 py-2 font-medium text-gray-600">
+                          {t('roles.tabs.roleCards')}
+                        </th>
+                        {ONBOARDING_TASKS.map((task) => (
+                          <th
+                            key={task.key}
+                            className="px-4 py-2 font-medium text-gray-600 text-center"
+                          >
+                            {t(task.labelKey, { defaultValue: task.key })}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {ALL_ROLES.map((role) => {
+                        const row = onboardingMatrix?.[role];
+                        const rc = ROLE_CONFIG[role];
+                        return (
+                          <tr
+                            key={role}
+                            className="border-b border-gray-100 hover:bg-gray-50"
+                          >
+                            <td className="px-4 py-3">
+                              <span
+                                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${rc.bg} ${rc.text} ${rc.border} border`}
+                              >
+                                {roleLabel(role, t)}
+                              </span>
+                            </td>
+                            {ONBOARDING_TASKS.map((task) => {
+                              const checked = !!row?.[task.key];
+                              const disabled =
+                                !canEditOnboarding ||
+                                updateReqMutation.isPending ||
+                                !onboardingMatrix;
+                              return (
+                                <td key={task.key} className="px-4 py-3 text-center">
+                                  <label className="inline-flex items-center justify-center cursor-pointer">
+                                    <input
+                                      type="checkbox"
+                                      className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:opacity-50"
+                                      checked={checked}
+                                      disabled={disabled}
+                                      onChange={(e) =>
+                                        updateReqMutation.mutate({
+                                          role,
+                                          taskType: task.key,
+                                          required: e.target.checked,
+                                        })
+                                      }
+                                    />
+                                  </label>
+                                </td>
+                              );
+                            })}
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+                {updateReqMutation.isError && (
+                  <p className="px-4 py-2 text-xs text-red-600">
+                    {t('roles.onboarding.saveError', {
+                      defaultValue: 'Failed to save. Please retry.',
+                    })}
+                  </p>
+                )}
+              </div>
+            </TabsContent>
+          )}
         </Tabs>
       </div>
     </div>

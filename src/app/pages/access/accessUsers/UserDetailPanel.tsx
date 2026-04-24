@@ -338,24 +338,42 @@ export function UserDetailPanel({
                     <span className="text-sm font-medium text-gray-700">
                       {t('userDetail.progress')}
                     </span>
-                    <span className="text-sm font-bold text-blue-700">
-                      {ob.completedCount}/{ob.totalCount}
-                    </span>
+                    {/* [T-91] Role-exempt users have totalCount === 0 → show an N/A badge
+                        instead of a misleading 0/0 fraction or NaN% progress bar. */}
+                    {ob.totalCount === 0 ? (
+                      <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 border border-gray-200">
+                        {t('userDetail.roleExempt', { defaultValue: 'N/A — role exempt' })}
+                      </span>
+                    ) : (
+                      <span className="text-sm font-bold text-blue-700">
+                        {ob.completedCount}/{ob.totalCount}
+                      </span>
+                    )}
                   </div>
-                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden mb-4">
-                    <div
-                      className={`h-full rounded-full transition-all ${ob.allComplete ? 'bg-green-500' : 'bg-blue-500'}`}
-                      style={{
-                        width: `${Math.round((ob.completedCount / ob.totalCount) * 100)}%`,
-                      }}
-                    />
-                  </div>
+                  {ob.totalCount > 0 ? (
+                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden mb-4">
+                      <div
+                        className={`h-full rounded-full transition-all ${ob.allComplete ? 'bg-green-500' : 'bg-blue-500'}`}
+                        style={{
+                          width: `${Math.round((ob.completedCount / ob.totalCount) * 100)}%`,
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <p className="text-xs text-gray-500 mb-4">
+                      {t('userDetail.onboardingNotApplicable', {
+                        defaultValue:
+                          'Onboarding tasks do not apply to this role. Update the Roles page if this is incorrect.',
+                      })}
+                    </p>
+                  )}
 
                   {[
                     {
                       icon: FileText,
                       title: t('userDetail.onboardingTasks.acceptPolicies'),
                       done: ob.policyAccepted,
+                      show: ob.required?.policyAcceptance !== false,
                       detail: ob.policyAcceptedAt
                         ? t('userDetail.onboardingDetail.accepted', {
                             date: fmtDate(ob.policyAcceptedAt),
@@ -366,6 +384,7 @@ export function UserDetailPanel({
                       icon: Laptop,
                       title: t('userDetail.onboardingTasks.installMdm'),
                       done: ob.mdmEnrolled,
+                      show: ob.required?.mdmEnrollment !== false,
                       detail: ob.mdmEnrolledAt
                         ? t('userDetail.onboardingDetail.enrolled', {
                             date: fmtDate(ob.mdmEnrolledAt),
@@ -376,6 +395,7 @@ export function UserDetailPanel({
                       icon: BookOpen,
                       title: t('userDetail.onboardingTasks.securityTraining'),
                       done: ob.trainingCompleted,
+                      show: ob.required?.securityTraining !== false,
                       detail: ob.trainingCompleted
                         ? t('userDetail.onboardingDetail.completed', {
                             date: fmtDate(ob.trainingCompletedAt),
@@ -384,7 +404,7 @@ export function UserDetailPanel({
                           ? t('userDetail.onboardingDetail.inProgress')
                           : t('userDetail.onboardingDetail.notStarted'),
                     },
-                  ].map(({ icon: Icon, title, done, detail }) => (
+                  ].filter((task) => task.show).map(({ icon: Icon, title, done, detail }) => (
                     <div
                       key={title}
                       className={`flex items-center gap-3 p-3 rounded-xl border ${done ? 'border-green-200 bg-green-50/40' : 'border-gray-200 bg-white'}`}

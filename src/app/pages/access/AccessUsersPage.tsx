@@ -402,22 +402,28 @@ export function AccessUsersPage() {
                           )}
                         </td>
 
-                        {/* Onboarding */}
+                        {/* Onboarding — [T-91] N/A chip for role-exempt users (totalCount === 0). */}
                         <td className="px-4 py-3.5">
                           {ob ? (
-                            <div className="flex items-center gap-1.5">
-                              {ob.onboarding.allComplete ? (
-                                <CheckCircle2 className="w-4 h-4 text-green-500" />
-                              ) : ob.onboarding.completedCount > 0 ? (
-                                <Clock className="w-4 h-4 text-amber-500" />
-                              ) : (
-                                <Circle className="w-4 h-4 text-gray-300" />
-                              )}
-                              <span className="text-xs text-gray-600 font-medium">
-                                {ob.onboarding.completedCount}/
-                                {ob.onboarding.totalCount}
+                            ob.onboarding.totalCount === 0 ? (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-gray-100 text-gray-500 border border-gray-200">
+                                {t('users.exempt', { defaultValue: 'N/A' })}
                               </span>
-                            </div>
+                            ) : (
+                              <div className="flex items-center gap-1.5">
+                                {ob.onboarding.allComplete ? (
+                                  <CheckCircle2 className="w-4 h-4 text-green-500" />
+                                ) : ob.onboarding.completedCount > 0 ? (
+                                  <Clock className="w-4 h-4 text-amber-500" />
+                                ) : (
+                                  <Circle className="w-4 h-4 text-gray-300" />
+                                )}
+                                <span className="text-xs text-gray-600 font-medium">
+                                  {ob.onboarding.completedCount}/
+                                  {ob.onboarding.totalCount}
+                                </span>
+                              </div>
+                            )
                           ) : (
                             <span className="text-xs text-gray-300">—</span>
                           )}
