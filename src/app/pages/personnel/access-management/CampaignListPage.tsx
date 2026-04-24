@@ -95,8 +95,8 @@ export function CampaignListPage() {
           {safeCampaigns.map((c) => {
             const prog = c.progress;
             const pct =
-              prog && prog.total > 0
-                ? Math.round((prog.reviewed / prog.total) * 100)
+              prog && prog.totalServices > 0
+                ? Math.round((prog.completedServices / prog.totalServices) * 100)
                 : 0;
             return (
               <Card key={c.id} className="p-4">
@@ -126,28 +126,26 @@ export function CampaignListPage() {
                       <div className="space-y-1">
                         <div className="flex gap-3 text-xs text-muted-foreground">
                           <span>
-                            {t('accessManagement.campaignList.accounts', {
-                              count: prog.total,
-                            })}
+                            {t(
+                              'accessManagement.campaignList.servicesComplete',
+                              {
+                                completed: prog.completedServices,
+                                total: prog.totalServices,
+                              },
+                            )}
                           </span>
                           <span>
-                            {t('accessManagement.campaignList.reviewed', {
-                              count: prog.reviewed,
-                            })}
-                          </span>
-                          <span className="text-green-600">
-                            {t('accessManagement.campaignList.accepted', {
-                              count: prog.accepted,
-                            })}
+                            {t(
+                              'accessManagement.campaignList.accountsReviewed',
+                              {
+                                reviewed: prog.reviewed,
+                                total: prog.total,
+                              },
+                            )}
                           </span>
                           <span className="text-red-600">
                             {t('accessManagement.campaignList.revoked', {
                               count: prog.revoked,
-                            })}
-                          </span>
-                          <span>
-                            {t('accessManagement.campaignList.pending', {
-                              count: prog.pending,
                             })}
                           </span>
                         </div>

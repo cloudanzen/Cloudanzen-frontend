@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import {
   Dialog,
   DialogContent,
@@ -18,6 +19,7 @@ import {
   SelectValue,
 } from '@/app/components/ui/select';
 import { accessManagementService } from '@/services/api/access-management';
+import { ApiError } from '@/services/api/client';
 import { usersService } from '@/services/api/users';
 
 interface Props {
@@ -32,7 +34,9 @@ export function CampaignCreateDialog({ onClose }: Props) {
   const [cadence, setCadence] = useState<string>('none');
   const [deadline, setDeadline] = useState('');
   const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>([]);
-  const [selectedReviewerIds, setSelectedReviewerIds] = useState<string[]>([]);
+  const [serviceReviewerMap, setServiceReviewerMap] = useState<
+    Record<string, string>
+  >({});
 
   const { data: services } = useQuery({
     queryKey: ['access-services'],
@@ -53,13 +57,18 @@ export function CampaignCreateDialog({ onClose }: Props) {
         name: name.trim(),
         description: description.trim() || undefined,
         scopeServiceIds: selectedServiceIds,
-        reviewerUserIds: selectedReviewerIds,
+        serviceReviewerMap,
         deadline: deadline || undefined,
         cadence: cadence !== 'none' ? cadence : undefined,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['access-campaigns'] });
       onClose();
+    },
+    onError: (err) => {
+      const msg =
+        err instanceof ApiError ? err.error : 'Failed to create campaign';
+      toast.error(msg);
     },
   });
 
@@ -70,13 +79,21 @@ export function CampaignCreateDialog({ onClose }: Props) {
     setSelectedServiceIds((prev) =>
       prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id],
     );
+    setServiceReviewerMap((prev) => {
+      if (!prev[id]) return prev;
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
   };
 
-  const toggleReviewer = (id: string) => {
-    setSelectedReviewerIds((prev) =>
-      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id],
-    );
+  const setReviewer = (serviceId: string, userId: string) => {
+    setServiceReviewerMap((prev) => ({ ...prev, [serviceId]: userId }));
   };
+
+  const allAssigned =
+    selectedServiceIds.length > 0 &&
+    selectedServiceIds.every((id) => Boolean(serviceReviewerMap[id]));
 
   return (
     <Dialog open onOpenChange={() => onClose()}>
@@ -145,31 +162,51 @@ export function CampaignCreateDialog({ onClose }: Props) {
             </div>
           </div>
 
-          {/* Reviewers */}
-          <div className="space-y-1">
-            <label className="text-sm font-medium">
-              {t('accessManagement.campaignCreate.reviewers')}
-            </label>
-            <p className="text-xs text-muted-foreground">
-              {t('accessManagement.campaignCreate.reviewersHint')}
-            </p>
-            <div className="max-h-[120px] overflow-y-auto border rounded p-2 space-y-1">
-              {safeUsers.map((u) => (
-                <label
-                  key={u.id}
-                  className="flex items-center gap-2 text-sm cursor-pointer"
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedReviewerIds.includes(u.id)}
-                    onChange={() => toggleReviewer(u.id)}
-                    className="rounded"
-                  />
-                  {u.name ?? u.email}
-                </label>
-              ))}
+          {/* Per-service reviewer assignment */}
+          {selectedServiceIds.length > 0 && (
+            <div className="space-y-1">
+              <label className="text-sm font-medium">
+                {t('accessManagement.campaignCreate.assignReviewers')}
+              </label>
+              <p className="text-xs text-muted-foreground">
+                {t('accessManagement.campaignCreate.assignReviewersHint')}
+              </p>
+              <div className="border rounded p-2 space-y-2">
+                {selectedServiceIds.map((sid) => {
+                  const svc = safeServices.find((s) => s.id === sid);
+                  return (
+                    <div
+                      key={sid}
+                      className="flex items-center gap-2 text-sm"
+                    >
+                      <span className="flex-1 truncate">
+                        {svc?.serviceName ?? sid}
+                      </span>
+                      <Select
+                        value={serviceReviewerMap[sid] ?? ''}
+                        onValueChange={(v) => setReviewer(sid, v)}
+                      >
+                        <SelectTrigger className="w-[200px]">
+                          <SelectValue
+                            placeholder={t(
+                              'accessManagement.campaignCreate.selectReviewer',
+                            )}
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {safeUsers.map((u) => (
+                            <SelectItem key={u.id} value={u.id}>
+                              {u.name ?? u.email}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Deadline */}
           <div className="space-y-1">
@@ -229,7 +266,8 @@ export function CampaignCreateDialog({ onClose }: Props) {
             onClick={() => mutation.mutate()}
             disabled={
               !name.trim() ||
-              selectedReviewerIds.length === 0 ||
+              selectedServiceIds.length === 0 ||
+              !allAssigned ||
               mutation.isPending
             }
           >
