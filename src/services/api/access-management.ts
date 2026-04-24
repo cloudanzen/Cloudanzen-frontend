@@ -58,6 +58,7 @@ export interface AccessReviewCampaign {
   status: 'draft' | 'in_progress' | 'completed' | 'cancelled';
   scopeServiceIds: string[];
   reviewerUserIds: string[];
+  serviceReviewerMap: Record<string, string>;
   deadline: string | null;
   cadence: string | null;
   nextReviewAt: string | null;
@@ -75,12 +76,15 @@ export interface CampaignProgress {
   accepted: number;
   revoked: number;
   pending: number;
+  totalServices: number;
+  completedServices: number;
 }
 
 export interface AccessReviewItem {
   id: string;
   campaignId: string;
   accountId: string;
+  snapshotServiceId: string | null;
   snapshotServiceName: string;
   snapshotAccountName: string;
   snapshotAccountEmail: string | null;
@@ -91,6 +95,24 @@ export interface AccessReviewItem {
   reviewerUserId: string | null;
   reviewedAt: string | null;
   notes: string | null;
+}
+
+export type AccessDataType = 'synced' | 'uploaded' | 'none';
+
+export interface CampaignServiceSummary {
+  serviceId: string;
+  serviceName: string | null;
+  providerCode: string | null;
+  reviewerUserId: string | null;
+  reviewerName: string | null;
+  reviewerEmail: string | null;
+  totalAccounts: number;
+  reviewedAccounts: number;
+  pendingAccounts: number;
+  isCompleted: boolean;
+  isAwaitingUpload: boolean;
+  accessDataType: AccessDataType;
+  lastSyncedAt: string | null;
 }
 
 // ── API service ─────────────────────────────────────────────────────────────
@@ -223,7 +245,7 @@ export const accessManagementService = {
     name: string;
     description?: string;
     scopeServiceIds: string[];
-    reviewerUserIds: string[];
+    serviceReviewerMap: Record<string, string>;
     deadline?: string;
     cadence?: string;
   }) {
@@ -249,6 +271,22 @@ export const accessManagementService = {
   completeCampaign(id: string) {
     return apiClient.post<{ completed: boolean; nextReviewAt: string | null }>(
       `${BASE}/campaigns/${id}/complete`,
+    );
+  },
+  getCampaignServices(campaignId: string) {
+    return apiClient.get<CampaignServiceSummary[]>(
+      `${BASE}/campaigns/${campaignId}/services`,
+    );
+  },
+  updateServiceReviewer(campaignId: string, serviceId: string, reviewerUserId: string) {
+    return apiClient.put(
+      `${BASE}/campaigns/${campaignId}/services/${serviceId}/reviewer`,
+      { reviewerUserId },
+    );
+  },
+  refreshServiceItems(campaignId: string, serviceId: string) {
+    return apiClient.post<{ refreshed: boolean; itemCount: number }>(
+      `${BASE}/campaigns/${campaignId}/services/${serviceId}/refresh`,
     );
   },
   getReportUrl(campaignId: string) {
