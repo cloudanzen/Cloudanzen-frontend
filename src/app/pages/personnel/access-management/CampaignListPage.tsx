@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { Card } from '@/app/components/ui/card';
 import { Badge } from '@/app/components/ui/badge';
 import { Button } from '@/app/components/ui/button';
@@ -9,6 +10,7 @@ import {
   accessManagementService,
   type AccessReviewCampaign,
 } from '@/services/api/access-management';
+import { ApiError } from '@/services/api/client';
 import { CampaignCreateDialog } from './CampaignCreateDialog';
 import { CampaignReviewPage } from './CampaignReviewPage';
 
@@ -32,14 +34,23 @@ export function CampaignListPage() {
 
   const launchMutation = useMutation({
     mutationFn: (id: string) => accessManagementService.launchCampaign(id),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ['access-campaigns'] }),
+    onSuccess: (data) => {
+      toast.success(`Review started — ${data.snapshotCount} accounts snapshotted`);
+      queryClient.invalidateQueries({ queryKey: ['access-campaigns'] });
+    },
+    onError: (err) => {
+      const msg = err instanceof ApiError ? err.error : 'Failed to launch campaign';
+      toast.error(msg);
+    },
   });
 
   const completeMutation = useMutation({
     mutationFn: (id: string) => accessManagementService.completeCampaign(id),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ['access-campaigns'] }),
+    onSuccess: () => {
+      toast.success('Review marked as complete');
+      queryClient.invalidateQueries({ queryKey: ['access-campaigns'] });
+    },
+    onError: () => toast.error('Failed to complete campaign'),
   });
 
   const safeCampaigns: AccessReviewCampaign[] = Array.isArray(campaigns)
