@@ -36,6 +36,20 @@ export interface PublishPolicyRequest extends UpdatePolicyRequest {
   acceptanceUserIds?: string[];
 }
 
+/**
+ * Users excluded from a policy publish because their role has POLICY_ACCEPTANCE
+ * disabled in the role-onboarding matrix (e.g. Auditors). [T-91]
+ */
+export interface SkippedAcceptanceUser {
+  id: string;
+  name: string | null;
+  role: string;
+}
+
+export interface PolicyUpdateResponse extends ApiResponse<Policy> {
+  skippedUsers?: SkippedAcceptanceUser[];
+}
+
 export class PoliciesService {
   // Get all policies
   async getPolicies(params?: {
@@ -64,11 +78,11 @@ export class PoliciesService {
     return apiClient.post('/api/policies', data);
   }
 
-  // Update policy
+  // Update policy — on publish, response may include `skippedUsers` for role-exempt targets [T-91]
   async updatePolicy(
     id: string,
     data: PublishPolicyRequest,
-  ): Promise<ApiResponse<Policy>> {
+  ): Promise<PolicyUpdateResponse> {
     return apiClient.put(`/api/policies/${id}`, data);
   }
 

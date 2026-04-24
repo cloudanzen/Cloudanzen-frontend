@@ -59,6 +59,7 @@ export const QK = {
   // Onboarding
   onboardingMe: () => ['onboarding', 'me'] as const,
   onboardingUsers: () => ['onboarding', 'users'] as const,
+  roleOnboardingMatrix: () => ['role-onboarding', 'matrix'] as const,
 
   // Tests
   tests: (filter?: object) => ['tests', 'list', filter] as const,

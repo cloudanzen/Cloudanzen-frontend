@@ -158,8 +158,28 @@ export function PolicyDetailPage() {
         nextVersion={policy.status === 'PUBLISHED' ? currentVersionNumber + 1 : currentVersionNumber}
         onClose={() => setPublishOpen(false)}
         onSubmit={async (data) => {
-          await policiesService.updatePolicy(policy.id, { status: 'PUBLISHED', ...data });
+          const resp = await policiesService.updatePolicy(policy.id, { status: 'PUBLISHED', ...data });
           toast.success('Policy published');
+
+          // [T-91] Surface role-exempt users who were dropped from `acceptanceUserIds`
+          // (e.g. Auditors). The backend enforces the exemption even when an admin explicitly
+          // selects them — the toast tells the admin *why* certain users didn't receive a task.
+          const skipped = resp.skippedUsers ?? [];
+          if (skipped.length > 0) {
+            const names = skipped
+              .slice(0, 3)
+              .map((u) => u.name ?? u.role)
+              .join(', ');
+            const suffix = skipped.length > 3 ? `, +${skipped.length - 3} more` : '';
+            toast.info(
+              `${skipped.length} user${skipped.length > 1 ? 's' : ''} excluded (role exempt): ${names}${suffix}`,
+              {
+                description: 'Adjust the per-role onboarding matrix in Settings → Access → Roles if this is unexpected.',
+                duration: 8000,
+              },
+            );
+          }
+
           await invalidatePolicy();
         }}
       />
