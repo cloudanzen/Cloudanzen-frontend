@@ -19,7 +19,6 @@ import {
 import { Card } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
 import { Badge } from '@/app/components/ui/badge';
-import { type Policy } from '@/services/api/types';
 import { frameworksService, type FrameworkDto } from '@/services/api/frameworks';
 import { integrationsService, type Integration } from '@/services/api/integrations';
 import { type TestSummary } from '@/services/api/tests';
@@ -30,8 +29,13 @@ interface RiskOverview {
   total: number;
 }
 
+interface PolicyStats {
+  total: number;
+  published: number;
+}
+
 interface ComplianceLaunchpadProps {
-  policies: Policy[];
+  policyStats: PolicyStats;
   riskOverview: RiskOverview | null;
   testSummary: TestSummary | null;
   loadingPolicies: boolean;
@@ -63,7 +67,7 @@ function statusBadge(status: StepStatus, label: string) {
 }
 
 export function ComplianceLaunchpad({
-  policies,
+  policyStats,
   riskOverview,
   testSummary,
   loadingPolicies,
@@ -100,7 +104,6 @@ export function ComplianceLaunchpad({
   });
 
   const safeIntegrations = Array.isArray(integrations) ? integrations : [];
-  const safePolicies = Array.isArray(policies) ? policies : [];
 
   const featuredFrameworks = useMemo(
     () => (Array.isArray(catalog) ? catalog : []).filter((fw) => ['soc-2', 'iso-27001', 'hipaa'].includes(fw.slug)),
@@ -110,9 +113,9 @@ export function ComplianceLaunchpad({
   const hasActiveIntegration = safeIntegrations.some((integration) => integration.status === 'ACTIVE');
   const policyStatus: StepStatus = loadingPolicies
     ? 'not_started'
-    : safePolicies.some((policy) => policy.status === 'PUBLISHED')
+    : policyStats.published > 0
       ? 'done'
-      : safePolicies.length > 0
+      : policyStats.total > 0
         ? 'in_progress'
         : 'not_started';
   const riskStatus: StepStatus = loadingRisks

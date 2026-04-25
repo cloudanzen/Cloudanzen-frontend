@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { Card } from '@/app/components/ui/card';
@@ -26,40 +27,29 @@ import {
   FileCheck,
   Building2,
 } from 'lucide-react';
-import { controlsService } from '@/services/api/controls';
-import { riskLibraryService } from '@/services/api/risk-library';
-import { vendorsService } from '@/services/api/vendors';
-import { testsService, type TestSummary } from '@/services/api/tests';
 import {
-  frameworksService,
-  type FrameworkReadinessDto,
-} from '@/services/api/frameworks';
-import { policiesService } from '@/services/api/policies';
-import {
-  complianceDocumentService,
-  type ComplianceDocumentStats,
-} from '@/services/api/compliance-documents';
-import { type Policy } from '@/services/api/types';
-import { QK } from '@/lib/queryKeys';
+  dashboardService,
+  type DashboardSummary,
+} from '@/services/api/dashboard';
+import { type FrameworkReadinessDto } from '@/services/api/frameworks';
 import { STALE } from '@/lib/queryClient';
 import { ComplianceLaunchpad } from './ComplianceLaunchpad';
 
-interface ComplianceStats {
-  total: number;
-  implemented: number;
-  partiallyImplemented: number;
-  notImplemented: number;
-  compliancePercentage: number;
-}
+const DASHBOARD_QUERY_KEY = ['dashboard', 'summary'] as const;
 
-interface RiskOverview {
-  total: number;
-  open: number;
-  mitigated: number;
-  critical: number;
-  high: number;
-  medium: number;
-  low: number;
+const EMPTY_POLICY_STATS = { total: 0, published: 0, draft: 0, review: 0 } as const;
+
+// Risk severity bars consume flat critical/high/medium/low counts. The
+// /api/dashboard/summary risks payload exposes them via severityBreakdown
+// (an array keyed by inherent_impact level), so we project to the flat shape
+// the existing UI already expects.
+type RiskSeverityLabel = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+function severityCount(
+  raw: DashboardSummary['sections']['risks']['data'],
+  label: RiskSeverityLabel,
+): number {
+  if (!raw) return 0;
+  return raw.severityBreakdown.find((b) => b.label === label)?.count ?? 0;
 }
 
 export function HomePage() {
@@ -68,19 +58,18 @@ export function HomePage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
 
-  // ── Queries ──────────────────────────────────────────────────────────────────
+  // ── Single-roundtrip dashboard summary ───────────────────────────────────────
+  // Replaces seven parallel useQuery calls with one /api/dashboard/summary
+  // request. Section-level errors are isolated: a downed loader makes its
+  // section render its empty state instead of blanking the whole page.
 
   const {
-    data: complianceRaw,
-    isLoading: loadingCompliance,
-    isFetching: fetchingCompliance,
+    data: summary,
+    isLoading: loadingAll,
+    isFetching: fetchingAll,
   } = useQuery({
-    queryKey: QK.complianceStats(),
-    queryFn: async () => {
-      const res = await controlsService.getControlCompliance();
-      return ((res as { data?: ComplianceStats })?.data ??
-        res) as ComplianceStats;
-    },
+    queryKey: DASHBOARD_QUERY_KEY,
+    queryFn: () => dashboardService.getSummary(),
     staleTime: STALE.DASHBOARD,
     retry: (count, err: unknown) => {
       if ((err as { statusCode?: number })?.statusCode === 401) {
@@ -91,90 +80,75 @@ export function HomePage() {
     },
   });
 
-  const { data: riskRaw, isLoading: loadingRisks } = useQuery({
-    queryKey: QK.riskOverview(),
-    queryFn: async () => {
-      const res = await riskLibraryService.getRegisterOverview();
-      return ((res as { data?: RiskOverview })?.data ?? res) as RiskOverview;
-    },
-    staleTime: STALE.DASHBOARD,
-  });
-
-  const { data: readinessRaw, isLoading: loadingReadiness } = useQuery({
-    queryKey: ['frameworks', 'readiness-summary'],
-    queryFn: async () => {
-      try {
-        const res = await frameworksService.getReadinessSummary();
-        return (res?.data ?? []) as FrameworkReadinessDto[];
-      } catch {
-        return [] as FrameworkReadinessDto[];
-      }
-    },
-    staleTime: STALE.DASHBOARD,
-  });
-
-  const { data: testSummaryRaw, isLoading: loadingTests } = useQuery({
-    queryKey: QK.testSummary(),
-    queryFn: async () => {
-      const res = await testsService.getTestSummary();
-      return ((res as { data?: TestSummary })?.data ?? res) as TestSummary;
-    },
-    staleTime: STALE.DASHBOARD,
-  });
-
-  const { data: policiesRaw, isLoading: loadingPolicies } = useQuery({
-    queryKey: QK.policies(),
-    queryFn: async () => {
-      const res = await policiesService.getPolicies();
-      return ((res as { data?: Policy[] })?.data ?? []) as Policy[];
-    },
-    staleTime: STALE.DASHBOARD,
-  });
-
-  const { data: docsRaw, isLoading: loadingDocs } = useQuery({
-    queryKey: ['compliance-documents', 'dashboard'],
-    queryFn: async () => {
-      const res = await complianceDocumentService.list();
-      return (res as unknown as { stats?: ComplianceDocumentStats })?.stats ?? null;
-    },
-    staleTime: STALE.DASHBOARD,
-  });
-
-  const { data: vendorsRaw, isLoading: loadingVendors } = useQuery({
-    queryKey: QK.vendors(),
-    queryFn: async () => vendorsService.list(),
-    staleTime: STALE.DASHBOARD,
-  });
-
   // ── Derived data ─────────────────────────────────────────────────────────────
 
-  const compliance = complianceRaw ?? null;
-  const riskOverview = riskRaw ?? null;
-  const readiness = Array.isArray(readinessRaw) ? readinessRaw : [];
-  const testSummary = testSummaryRaw ?? null;
-  const policies = Array.isArray(policiesRaw) ? policiesRaw : [];
-  const docStats = docsRaw ?? null;
-  const vendors = Array.isArray(vendorsRaw) ? vendorsRaw : [];
+  const compliance = useMemo(
+    () => summary?.sections.compliance.data ?? null,
+    [summary],
+  );
 
-  const vendorNeedAttention = vendors.filter(
-    (v) => v.status === 'ASSESSMENT_DUE' || v.status === 'IN_REVIEW' || v.status === 'BLOCKED',
-  ).length;
+  const rawRisks = useMemo(
+    () => summary?.sections.risks.data ?? null,
+    [summary],
+  );
 
-  const policyStats = {
-    total: policies.length,
-    published: policies.filter((p) => p.status === 'PUBLISHED').length,
-    draft: policies.filter((p) => p.status === 'DRAFT').length,
-    review: policies.filter((p) => p.status === 'REVIEW').length,
-  };
+  // Project the risks payload to the flat shape the UI bars expect.
+  const riskOverview = useMemo(() => {
+    if (!rawRisks) return null;
+    return {
+      total: rawRisks.total,
+      open: rawRisks.open,
+      monitoring: rawRisks.monitoring,
+      closed: rawRisks.closed,
+      critical: severityCount(rawRisks, 'CRITICAL'),
+      high: severityCount(rawRisks, 'HIGH'),
+      medium: severityCount(rawRisks, 'MEDIUM'),
+      low: severityCount(rawRisks, 'LOW'),
+      mitigated: rawRisks.closed,
+    };
+  }, [rawRisks]);
+
+  const readiness: FrameworkReadinessDto[] = useMemo(
+    () => summary?.sections.frameworks.data ?? [],
+    [summary],
+  );
+
+  const testSummary = useMemo(
+    () => summary?.sections.tests.data ?? null,
+    [summary],
+  );
+
+  const policyStats = useMemo(
+    () => summary?.sections.policies.data ?? EMPTY_POLICY_STATS,
+    [summary],
+  );
+
+  const docStats = useMemo(
+    () => summary?.sections.documents.data ?? null,
+    [summary],
+  );
+
+  const vendorStats = useMemo(
+    () => summary?.sections.vendors.data ?? null,
+    [summary],
+  );
+
+  // Single bundled query, so all section loading flags share one boolean.
+  // The granular flags below are kept so the existing per-card render logic
+  // (skeletons, empty states) doesn't have to change.
+  const loadingCompliance = loadingAll;
+  const loadingRisks = loadingAll;
+  const loadingReadiness = loadingAll;
+  const loadingTests = loadingAll;
+  const loadingPolicies = loadingAll;
+  const loadingDocs = loadingAll;
+  const loadingVendors = loadingAll;
+  const fetchingCompliance = fetchingAll;
+
+  const vendorNeedAttention = vendorStats?.needAttention ?? 0;
 
   const handleRefresh = () => {
-    qc.invalidateQueries({ queryKey: QK.complianceStats() });
-    qc.invalidateQueries({ queryKey: QK.riskOverview() });
-    qc.invalidateQueries({ queryKey: QK.testSummary() });
-    qc.invalidateQueries({ queryKey: ['frameworks', 'readiness-summary'] });
-    qc.invalidateQueries({ queryKey: QK.policies() });
-    qc.invalidateQueries({ queryKey: ['compliance-documents', 'dashboard'] });
-    qc.invalidateQueries({ queryKey: QK.vendors() });
+    qc.invalidateQueries({ queryKey: DASHBOARD_QUERY_KEY });
   };
 
   const vendorsAttention = loadingVendors
@@ -289,7 +263,7 @@ export function HomePage() {
       <div className="space-y-8">
         {!loadingReadiness && readiness.length === 0 ? (
           <ComplianceLaunchpad
-            policies={policies}
+            policyStats={policyStats}
             riskOverview={riskOverview}
             testSummary={testSummary}
             loadingPolicies={loadingPolicies}
