@@ -13,12 +13,10 @@
  */
 
 import React from 'react';
-import { Navigate } from 'react-router';
 import { ShieldOff } from 'lucide-react';
 import {
   useHasPermission,
   useHasRole,
-  useCurrentUser,
 } from '@/hooks/useCurrentUser';
 import type { Permission, AppRole } from '@/lib/rbac/permissions';
 
@@ -63,48 +61,6 @@ export function RequireRole({
 }: RequireRoleProps) {
   const has = useHasRole(...roles);
   return has ? <>{children}</> : <>{fallback}</>;
-}
-
-// ── ProtectedPage ──────────────────────────────────────────────────────────────
-
-interface ProtectedPageProps {
-  /** Required permission to view the page */
-  permission?: Permission;
-  /** OR: required roles (any of these) */
-  roles?: AppRole[];
-  /** Where to redirect if access denied (default: /tests) */
-  redirectTo?: string;
-  children: React.ReactNode;
-}
-
-/**
- * Page-level guard. Redirects to `redirectTo` if the user doesn't have
- * the required permission or role.
- *
- * Usage in a route component:
- *   <ProtectedPage permission={PERMISSIONS.USERS_MANAGE}>
- *     <UsersPage />
- *   </ProtectedPage>
- */
-export function ProtectedPage({
-  permission,
-  roles,
-  redirectTo = '/tests',
-  children,
-}: ProtectedPageProps) {
-  // Hooks must be called unconditionally — never after an early return.
-  // We call all three hooks here, then apply the guard logic below.
-  const user = useCurrentUser();
-  const hasPermission = useHasPermission(permission as Permission);
-  const hasRole = useHasRole(...(roles ?? []));
-
-  if (!user) return <Navigate to="/login" replace />;
-
-  const permitted =
-    (permission == null || hasPermission) && (roles == null || hasRole);
-  if (!permitted) return <Navigate to={redirectTo} replace />;
-
-  return <>{children}</>;
 }
 
 // ── AccessDenied ───────────────────────────────────────────────────────────────
