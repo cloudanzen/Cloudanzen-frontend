@@ -5,9 +5,12 @@ import {
 } from '@/services/authStorage';
 
 // Base API configuration and types
-export const API_BASE_URL =
+// Trim defensively: Vercel-stored values can carry trailing whitespace
+// (a newline crept into the prod VITE_API_URL once and corrupted every URL).
+export const API_BASE_URL = (
   (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env
-    ?.VITE_API_URL || 'https://api.cloudanzen.com';
+    ?.VITE_API_URL || 'https://api.cloudanzen.com'
+).trim();
 
 export interface ApiResponse<T = unknown> {
   success: boolean;
