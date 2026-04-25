@@ -145,33 +145,6 @@ export function TestsPage() {
     staleTime: STALE.TESTS,
   });
 
-  useQuery({
-    queryKey: ['tests', 'dashboard'],
-    queryFn: async () => {
-      const res = await testsService.getDashboard();
-      return res.data ?? null;
-    },
-    staleTime: STALE.TESTS,
-  });
-
-  useQuery({
-    queryKey: ['tests', 'gaps'],
-    queryFn: async () => {
-      const res = await testsService.getGapAnalysis();
-      return res.data ?? null;
-    },
-    staleTime: STALE.TESTS,
-  });
-
-  useQuery({
-    queryKey: ['tests', 'escalations'],
-    queryFn: async () => {
-      const res = await testsService.listEscalations();
-      return res.data ?? [];
-    },
-    staleTime: STALE.TESTS,
-  });
-
   const { data: usersData = [] } = useQuery({
     queryKey: QK.users(),
     queryFn: async () => {

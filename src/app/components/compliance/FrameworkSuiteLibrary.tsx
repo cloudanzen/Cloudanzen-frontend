@@ -31,8 +31,6 @@ export function FrameworkSuiteLibrary({
       qc.invalidateQueries({ queryKey: ['tests'] });
       qc.invalidateQueries({ queryKey: ['tests', 'library'] });
       qc.invalidateQueries({ queryKey: ['tests', 'summary'] });
-      qc.invalidateQueries({ queryKey: ['tests', 'dashboard'] });
-      qc.invalidateQueries({ queryKey: ['tests', 'gaps'] });
       toast.success(count > 0 ? `${template.framework} suite created with ${count} tests.` : `${template.framework} suite created.`);
       navigate('/tests');
     },
