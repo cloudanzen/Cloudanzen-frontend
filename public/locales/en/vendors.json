@@ -39,6 +39,7 @@
     "monitored": "Monitored",
     "discovered": "Discovered apps",
     "intakeRequests": "Pending intake"
+    "monitored": "Monitored"
   },
   "filters": {
     "searchLabel": "Search: {{value}}",

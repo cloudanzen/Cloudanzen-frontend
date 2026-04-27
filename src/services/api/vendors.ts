@@ -140,6 +140,39 @@ export interface VendorReviewActor {
   email: string;
 }
 
+}
+
+export interface CreateVendorContactInput {
+  name: string;
+  email?: string | null;
+  phone?: string | null;
+  role?: VendorContactRole;
+  isPrimary?: boolean;
+  notes?: string | null;
+}
+
+export type UpdateVendorContactInput = Partial<CreateVendorContactInput>;
+
+// ── Review types ─────────────────────────────────────────────────────────────
+
+export type VendorReviewStatus =
+  | 'DRAFT'
+  | 'IN_PROGRESS'
+  | 'UNDER_APPROVAL'
+  | 'COMPLETED'
+  | 'CANCELLED';
+
+export type VendorReviewDecision =
+  | 'APPROVED'
+  | 'APPROVED_WITH_CONDITIONS'
+  | 'REJECTED';
+
+export interface VendorReviewActor {
+  id: string;
+  name: string | null;
+  email: string;
+}
+
 export interface VendorReview {
   id: string;
   organizationId: string;

@@ -39,6 +39,7 @@
     "monitored": "監視中",
     "discovered": "検出済みアプリ",
     "intakeRequests": "申請待ち"
+    "monitored": "監視中"
   },
   "filters": {
     "searchLabel": "検索: {{value}}",
