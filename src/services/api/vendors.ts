@@ -140,6 +140,39 @@ export interface VendorReviewActor {
   email: string;
 }
 
+}
+
+export interface CreateVendorContactInput {
+  name: string;
+  email?: string | null;
+  phone?: string | null;
+  role?: VendorContactRole;
+  isPrimary?: boolean;
+  notes?: string | null;
+}
+
+export type UpdateVendorContactInput = Partial<CreateVendorContactInput>;
+
+// ── Review types ─────────────────────────────────────────────────────────────
+
+export type VendorReviewStatus =
+  | 'DRAFT'
+  | 'IN_PROGRESS'
+  | 'UNDER_APPROVAL'
+  | 'COMPLETED'
+  | 'CANCELLED';
+
+export type VendorReviewDecision =
+  | 'APPROVED'
+  | 'APPROVED_WITH_CONDITIONS'
+  | 'REJECTED';
+
+export interface VendorReviewActor {
+  id: string;
+  name: string | null;
+  email: string;
+}
+
 export interface VendorReview {
   id: string;
   organizationId: string;
@@ -182,6 +215,74 @@ export interface ReviewDecisionInput {
   residualTier?: RiskTier;
   decisionNotes: string;
   validUntil?: string | null;
+}
+
+export type VendorDiscoveryStatus = 'PENDING' | 'PROMOTED' | 'DISMISSED' | 'MERGED';
+export type VendorDiscoverySource = 'OKTA' | 'AZUREAD' | 'JUMPCLOUD' | 'WORKSPACE';
+
+export interface VendorDiscoveryCandidate {
+  id: string;
+  organizationId: string;
+  source: VendorDiscoverySource;
+  externalAppId: string;
+  appName: string;
+  ssoEnabled: boolean;
+  status: VendorDiscoveryStatus;
+  mergedToVendorId: string | null;
+  firstSeenAt: string;
+  lastSeenAt: string;
+  mergedVendor?: { id: string; name: string } | null;
+}
+
+export interface PromoteDiscoveryCandidateInput {
+  name?: string;
+  category: string;
+  ownerUserId: string;
+  website?: string;
+  businessCriticality?: BusinessCriticality;
+  dataClass?: DataClass;
+  subprocessors?: number;
+  dpaSigned?: boolean;
+}
+
+export interface VendorIntakeRequest {
+  id: string;
+  organizationId: string;
+  requestedByUserId: string;
+  vendorName: string;
+  vendorWebsite: string | null;
+  businessJustification: string;
+  dataAccessRequested: string | null;
+  expectedUserCount: number | null;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'WITHDRAWN';
+  reviewedByUserId: string | null;
+  reviewedAt: string | null;
+  reviewerNotes: string | null;
+  createdVendorId: string | null;
+  createdAt: string;
+  updatedAt: string;
+  requester?: VendorOwnerSummary | null;
+  reviewer?: VendorOwnerSummary | null;
+  createdVendor?: { id: string; name: string } | null;
+}
+
+export interface CreateVendorIntakeRequestInput {
+  vendorName: string;
+  vendorWebsite?: string | null;
+  businessJustification: string;
+  dataAccessRequested?: string | null;
+  expectedUserCount?: number | null;
+}
+
+export interface DecideVendorIntakeRequestInput {
+  decision: 'APPROVE' | 'REJECT';
+  reviewerNotes: string;
+  category?: string;
+  ownerUserId?: string;
+  businessCriticality?: BusinessCriticality;
+  dataClass?: DataClass;
+  subprocessors?: number;
+  dpaSigned?: boolean;
 }
 
 // ── Service ──────────────────────────────────────────────────────────────────
@@ -291,6 +392,68 @@ export const vendorsService = {
         `/api/vendors/${vendorId}/reviews/${reviewId}/cancel`,
         {},
       );
+      return res.data;
+    },
+  },
+
+  discovery: {
+    async list(params?: {
+      status?: VendorDiscoveryStatus;
+      search?: string;
+    }): Promise<VendorDiscoveryCandidate[]> {
+      const res = await apiClient.get<ApiResp<VendorDiscoveryCandidate[]>>(
+        '/api/vendors/discovery/candidates',
+        params,
+      );
+      return res?.data ?? [];
+    },
+    async promote(candidateId: string, input: PromoteDiscoveryCandidateInput): Promise<{ candidate: VendorDiscoveryCandidate; vendor: VendorRecord }> {
+      const res = await apiClient.post<ApiResp<{ candidate: VendorDiscoveryCandidate; vendor: VendorRecord }>>(
+        `/api/vendors/discovery/candidates/${candidateId}/promote`,
+        input,
+      );
+      return res.data;
+    },
+    async dismiss(candidateId: string): Promise<VendorDiscoveryCandidate> {
+      const res = await apiClient.post<ApiResp<VendorDiscoveryCandidate>>(
+        `/api/vendors/discovery/candidates/${candidateId}/dismiss`,
+        {},
+      );
+      return res.data;
+    },
+    async merge(candidateId: string, vendorId: string): Promise<VendorDiscoveryCandidate> {
+      const res = await apiClient.post<ApiResp<VendorDiscoveryCandidate>>(
+        `/api/vendors/discovery/candidates/${candidateId}/merge`,
+        { vendorId },
+      );
+      return res.data;
+    },
+  },
+
+  intake: {
+    async create(input: CreateVendorIntakeRequestInput): Promise<VendorIntakeRequest> {
+      const res = await apiClient.post<ApiResp<VendorIntakeRequest>>(
+        '/api/vendors/intake-requests',
+        input,
+      );
+      return res.data;
+    },
+    async list(params?: {
+      status?: VendorIntakeRequest['status'];
+    }): Promise<VendorIntakeRequest[]> {
+      const res = await apiClient.get<ApiResp<VendorIntakeRequest[]>>(
+        '/api/vendors/intake-requests',
+        params,
+      );
+      return res?.data ?? [];
+    },
+    async decide(
+      id: string,
+      input: DecideVendorIntakeRequestInput,
+    ): Promise<VendorIntakeRequest | { intake: VendorIntakeRequest; vendor: VendorRecord }> {
+      const res = await apiClient.post<
+        ApiResp<VendorIntakeRequest | { intake: VendorIntakeRequest; vendor: VendorRecord }>
+      >(`/api/vendors/intake-requests/${id}/decision`, input);
       return res.data;
     },
   },

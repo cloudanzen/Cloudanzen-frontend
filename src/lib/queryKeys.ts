@@ -104,6 +104,10 @@ export const QK = {
     ['vendors', 'reviews', vendorId] as const,
   vendorContacts: (vendorId: string) =>
     ['vendors', 'contacts', vendorId] as const,
+  vendorDiscoveryCandidates: (filter?: object) =>
+    ['vendors', 'discovery', filter] as const,
+  vendorIntakeRequests: (filter?: object) =>
+    ['vendors', 'intake-requests', filter] as const,
   integrationsStatus: () => ['integrations', 'status'] as const,
 
   // Frameworks

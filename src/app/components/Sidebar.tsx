@@ -238,7 +238,16 @@ export function Sidebar({ collapsed = false }: { collapsed?: boolean }) {
         { id: 'risk-settings', title: t('nav.settings'), href: '/settings/risk', roles: [...ADMIN_ROLES] },
       ],
     },
-    { id: 'vendors', title: t('nav.vendors'), href: '/vendors', icon: Building2 },
+    {
+      id: 'vendors',
+      title: t('nav.vendors'),
+      icon: Building2,
+      children: [
+        { id: 'vendors-list', title: t('nav.vendors'), href: '/vendors' },
+        { id: 'vendors-discovery', title: t('nav.vendorDiscovery'), href: '/vendors/discovery', roles: [...ADMIN_ROLES] },
+        { id: 'vendors-intake', title: t('nav.vendorIntakeRequests'), href: '/vendors/intake-requests', roles: [...ADMIN_ROLES] },
+      ],
+    },
     {
       id: 'assets',
       title: t('nav.assets'),

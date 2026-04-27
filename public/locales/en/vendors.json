@@ -36,6 +36,9 @@
     "highRisk": "High risk",
     "assessmentsDue": "Assessments due (30d)",
     "openFindings": "Open findings",
+    "monitored": "Monitored",
+    "discovered": "Discovered apps",
+    "intakeRequests": "Pending intake"
     "monitored": "Monitored"
   },
   "filters": {
@@ -196,5 +199,51 @@
     "websiteLabel": "Website",
     "riskLevelLabel": "Risk Level",
     "statusLabel": "Status"
+  },
+  "discovery": {
+    "title": "Vendor discovery",
+    "description": "Review IdP-managed apps that are not yet tracked as vendors.",
+    "searchPlaceholder": "Search discovered apps...",
+    "pendingCandidates": "{{count}} pending candidates",
+    "empty": "No unmanaged IdP apps waiting for review.",
+    "promote": "Promote",
+    "dismiss": "Dismiss",
+    "mergeInto": "Merge into vendor...",
+    "promoteTitle": "Promote discovered app",
+    "ssoEnabled": "SSO enabled",
+    "ssoUnknown": "SSO status unknown",
+    "promotedSuccess": "Discovery candidate promoted to vendor.",
+    "promoteFailed": "Failed to promote discovery candidate.",
+    "dismissedSuccess": "Discovery candidate dismissed.",
+    "dismissFailed": "Failed to dismiss discovery candidate.",
+    "mergedSuccess": "Discovery candidate merged into vendor.",
+    "mergeFailed": "Failed to merge discovery candidate."
+  },
+  "intake": {
+    "requestCta": "Request a tool",
+    "requestTitle": "Request a vendor",
+    "requestDescription": "Submit a tool or vendor for review.",
+    "vendorName": "Vendor name",
+    "vendorWebsite": "Website (optional)",
+    "businessJustification": "Why do you need this vendor?",
+    "dataAccessRequested": "What data will it access?",
+    "expectedUserCount": "Expected user count",
+    "submit": "Submit request",
+    "submitting": "Submitting...",
+    "requestSubmitted": "Vendor request submitted.",
+    "submitFailed": "Failed to submit vendor request.",
+    "queueTitle": "Vendor intake requests",
+    "queueDescription": "Review employee-submitted vendor requests.",
+    "pendingRequests": "{{count}} pending requests",
+    "empty": "No pending intake requests.",
+    "reviewRequest": "Review request",
+    "reviewTitle": "Review intake request",
+    "approve": "Approve",
+    "reject": "Reject",
+    "reviewerNotes": "Reviewer notes",
+    "submitDecision": "Submit decision",
+    "approvedSuccess": "Vendor intake request approved.",
+    "rejectedSuccess": "Vendor intake request rejected.",
+    "decisionFailed": "Failed to update intake request."
   }
 }

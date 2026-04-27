@@ -188,6 +188,16 @@ const VendorDetailPage = lazy(() =>
     default: m.VendorDetailPage,
   })),
 );
+const VendorDiscoveryPage = lazy(() =>
+  import('@/app/pages/vendors/VendorDiscoveryPage').then((m) => ({
+    default: m.VendorDiscoveryPage,
+  })),
+);
+const VendorIntakeRequestsPage = lazy(() =>
+  import('@/app/pages/vendors/VendorIntakeRequestsPage').then((m) => ({
+    default: m.VendorIntakeRequestsPage,
+  })),
+);
 
 // Assets
 const InventoryPage = lazy(() =>
@@ -419,6 +429,16 @@ export const router = createBrowserRouter([
 
       // Vendors
       { path: 'vendors', Component: VendorsPage },
+      {
+        path: 'vendors/discovery',
+        loader: requireRoles(['SUPER_ADMIN', 'ORG_ADMIN', 'SECURITY_OWNER'], '/vendors'),
+        Component: VendorDiscoveryPage,
+      },
+      {
+        path: 'vendors/intake-requests',
+        loader: requireRoles(['SUPER_ADMIN', 'ORG_ADMIN', 'SECURITY_OWNER'], '/vendors'),
+        Component: VendorIntakeRequestsPage,
+      },
       { path: 'vendors/:vendorId', Component: VendorDetailPage },
 
       // Assets

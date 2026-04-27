@@ -23,6 +23,8 @@ import {
   CalendarClock,
   ClipboardCheck,
   Plus,
+  SearchCode,
+  UserPlus,
 } from 'lucide-react';
 import {
   CreateVendorInput,
@@ -33,6 +35,9 @@ import {
 } from '@/services/api/vendors';
 import { usersService } from '@/services/api/users';
 import { QK } from '@/lib/queryKeys';
+import { useCurrentUser, useIsAdmin } from '@/hooks/useCurrentUser';
+import { PERMISSIONS, roleHasPermission } from '@/lib/rbac/permissions';
+import { RequestVendorDialog } from './RequestVendorDialog';
 
 type TabKey = 'ALL' | 'DUE' | 'HIGH_RISK';
 
@@ -111,6 +116,11 @@ export function VendorsPage() {
   const { t } = useTranslation('vendors');
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const currentUser = useCurrentUser();
+  const isAdmin = useIsAdmin();
+  const canCreateIntake = currentUser
+    ? roleHasPermission(currentUser.role, PERMISSIONS.ACCESS_REQUESTS_CREATE)
+    : false;
   const { filters, update, reset } = useUrlFilterState({
     defaults: { search: '', status: 'ALL', tier: 'ALL', tab: 'ALL' },
   });
@@ -120,6 +130,7 @@ export function VendorsPage() {
   const tab = filters.tab as TabKey;
 
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isRequestOpen, setIsRequestOpen] = useState(false);
   const [form, setForm] = useState<CreateVendorInput>(emptyVendorInput);
   const [creating, setCreating] = useState(false);
 
@@ -139,6 +150,20 @@ export function VendorsPage() {
     queryKey: QK.users(),
     queryFn: () => usersService.listUsers(),
     staleTime: 5 * 60_000,
+  });
+
+  const { data: discoveryCandidates = [] } = useQuery({
+    queryKey: QK.vendorDiscoveryCandidates({ status: 'PENDING' }),
+    queryFn: () => vendorsService.discovery.list({ status: 'PENDING' }),
+    enabled: isAdmin,
+    staleTime: 30_000,
+  });
+
+  const { data: intakeRequests = [] } = useQuery({
+    queryKey: QK.vendorIntakeRequests({ status: 'PENDING' }),
+    queryFn: () => vendorsService.intake.list({ status: 'PENDING' }),
+    enabled: isAdmin,
+    staleTime: 30_000,
   });
 
   const stats = useMemo(() => {
@@ -260,10 +285,18 @@ export function VendorsPage() {
       title={t('title')}
       description={t('description')}
       actions={
-        <Button onClick={() => setIsAddOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          {t('addVendor')}
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          {canCreateIntake && (
+            <Button variant="outline" onClick={() => setIsRequestOpen(true)}>
+              <UserPlus className="mr-2 h-4 w-4" />
+              {t('intake.requestCta')}
+            </Button>
+          )}
+          <Button onClick={() => setIsAddOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            {t('addVendor')}
+          </Button>
+        </div>
       }
     >
       {error && (
@@ -273,7 +306,7 @@ export function VendorsPage() {
       )}
       <div className="space-y-6">
         {/* KPI cards */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
           <Card>
             <CardContent className="pt-6">
               <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -326,6 +359,36 @@ export function VendorsPage() {
               </div>
             </CardContent>
           </Card>
+          {isAdmin && (
+            <Card className="cursor-pointer" onClick={() => navigate('/vendors/discovery')}>
+              <CardContent className="pt-6">
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  {t('stats.discovered')}
+                </p>
+                <div className="mt-2 flex items-center justify-between">
+                  <p className="text-2xl font-bold text-foreground">
+                    {discoveryCandidates.length}
+                  </p>
+                  <SearchCode className="h-5 w-5 text-sky-500" />
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          {isAdmin && (
+            <Card className="cursor-pointer" onClick={() => navigate('/vendors/intake-requests')}>
+              <CardContent className="pt-6">
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  {t('stats.intakeRequests')}
+                </p>
+                <div className="mt-2 flex items-center justify-between">
+                  <p className="text-2xl font-bold text-foreground">
+                    {intakeRequests.length}
+                  </p>
+                  <UserPlus className="h-5 w-5 text-violet-500" />
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Filter + table */}
@@ -509,6 +572,11 @@ export function VendorsPage() {
           </CardContent>
         </Card>
       </div>
+
+      <RequestVendorDialog
+        open={isRequestOpen}
+        onOpenChange={setIsRequestOpen}
+      />
 
       {/* Add Vendor Dialog */}
       <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
