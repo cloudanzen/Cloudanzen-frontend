@@ -59,6 +59,11 @@ export function VendorMonitoringTab({ vendorId }: { vendorId: string }) {
     queryFn: () => vendorsService.monitoring.list(vendorId),
   });
 
+  const { data: status } = useQuery({
+    queryKey: QK.vendorMonitoringStatus(vendorId),
+    queryFn: () => vendorsService.monitoring.getStatus(vendorId),
+  });
+
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<CreateVendorMonitoringEventInput>(emptyForm());
 
@@ -91,6 +96,38 @@ export function VendorMonitoringTab({ vendorId }: { vendorId: string }) {
 
   return (
     <div className="space-y-4">
+      {status && (
+        <Card>
+          <CardContent className="grid gap-3 pt-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                {t('detail.nextReview')}
+              </p>
+              <p className="font-medium">{status.nextAssessmentAt ? fmtDate(status.nextAssessmentAt) : '—'}</p>
+              <p className="text-xs text-muted-foreground">{t(`monitoring.state.${status.reviewState}`)}</p>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                {t('monitoring.unacknowledged')}
+              </p>
+              <p className="font-medium">{status.unacknowledgedEvents}</p>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                {t('detail.lastAssessment')}
+              </p>
+              <p className="font-medium">{status.lastAssessmentAt ? fmtDate(status.lastAssessmentAt) : '—'}</p>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                {t('monitoring.lastIncident')}
+              </p>
+              <p className="font-medium">{status.lastIncidentAt ? fmtDate(status.lastIncidentAt) : '—'}</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="flex justify-end">
         <Button size="sm" onClick={() => setOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />

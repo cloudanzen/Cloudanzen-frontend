@@ -327,7 +327,15 @@
     "acknowledge": "Acknowledge",
     "acknowledged": "Event acknowledged.",
     "acknowledgeFailed": "Failed to acknowledge event.",
-    "acknowledgedBy": "Acknowledged by {{name}} on {{date}}"
+    "acknowledgedBy": "Acknowledged by {{name}} on {{date}}",
+    "unacknowledged": "Unacknowledged events",
+    "lastIncident": "Last incident",
+    "state": {
+      "UNKNOWN": "Review cadence unavailable",
+      "OVERDUE": "Review overdue",
+      "DUE_SOON": "Review due soon",
+      "ON_TRACK": "Review on track"
+    }
   },
   "incidents": {
     "loading": "Loading incidents...",

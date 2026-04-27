@@ -278,6 +278,21 @@ export interface VendorMonitoringEvent {
   acknowledgedBy?: VendorOwnerSummary | null;
 }
 
+export interface VendorMonitoringStatusSummary {
+  nextAssessmentAt: string | null;
+  lastAssessmentAt: string | null;
+  lastIncidentAt: string | null;
+  daysUntilNextReview: number | null;
+  reviewState: 'UNKNOWN' | 'OVERDUE' | 'DUE_SOON' | 'ON_TRACK';
+  unacknowledgedEvents: number;
+  highestUnackSeverity: 'INFO' | 'LOW' | 'MEDIUM' | 'HIGH' | null;
+  latestCompletedReview: {
+    id: string;
+    completedAt: string | null;
+    validUntil: string | null;
+  } | null;
+}
+
 export interface CreateVendorMonitoringEventInput {
   type: VendorMonitoringEventType;
   severity?: VendorMonitoringSeverity;
@@ -600,6 +615,12 @@ export const vendorsService = {
   },
 
   monitoring: {
+    async getStatus(vendorId: string): Promise<VendorMonitoringStatusSummary> {
+      const res = await apiClient.get<ApiResp<VendorMonitoringStatusSummary>>(
+        `/api/vendors/${vendorId}/monitoring/status`,
+      );
+      return res.data;
+    },
     async list(vendorId: string, params?: { acknowledged?: 'true' | 'false'; severity?: VendorMonitoringSeverity }): Promise<VendorMonitoringEvent[]> {
       const res = await apiClient.get<ApiResp<VendorMonitoringEvent[]>>(
         `/api/vendors/${vendorId}/monitoring`,
