@@ -295,6 +295,35 @@
     "acknowledgeFailed": "イベントの確認に失敗しました。",
     "acknowledgedBy": "{{name}} が {{date}} に確認済み"
   },
+  "monitoring": {
+    "loading": "監視イベントを読み込み中...",
+    "empty": "監視イベントはまだありません。",
+    "log": "イベントを記録",
+    "logTitle": "監視イベントを記録",
+    "title": "タイトル",
+    "type": "イベント種別",
+    "severity": "重要度",
+    "detectedAt": "検出日",
+    "sourceUrl": "ソースURL (任意)",
+    "source": "ソース",
+    "save": "イベントを記録",
+    "saving": "保存中...",
+    "cancel": "キャンセル",
+    "created": "監視イベントを記録しました。",
+    "createFailed": "監視イベントの記録に失敗しました。",
+    "acknowledge": "確認済みにする",
+    "acknowledged": "イベントを確認済みにしました。",
+    "acknowledgeFailed": "イベントの確認に失敗しました。",
+    "acknowledgedBy": "{{name}} が {{date}} に確認",
+    "unacknowledged": "未確認イベント",
+    "lastIncident": "最新インシデント",
+    "state": {
+      "UNKNOWN": "レビュー日程未設定",
+      "OVERDUE": "レビュー期限超過",
+      "DUE_SOON": "レビュー期限間近",
+      "ON_TRACK": "レビュー予定どおり"
+    }
+  },
   "incidents": {
     "loading": "インシデントを読み込み中...",
     "empty": "記録されたインシデントはありません。",

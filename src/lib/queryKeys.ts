@@ -116,6 +116,8 @@ export const QK = {
     ['vendors', 'findings', vendorId] as const,
   vendorMonitoring: (vendorId: string, filter?: object) =>
     ['vendors', 'monitoring', vendorId, filter] as const,
+  vendorMonitoringStatus: (vendorId: string) =>
+    ['vendors', 'monitoring', vendorId, 'status'] as const,
   vendorIncidents: (vendorId: string) =>
     ['vendors', 'incidents', vendorId] as const,
   vendorDiscoveryCandidates: (filter?: object) =>
