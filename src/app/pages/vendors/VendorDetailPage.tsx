@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any -- legacy: to be typed progressively */
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PageTemplate } from '@/app/components/PageTemplate';
 import {
   Tabs,
@@ -18,15 +17,27 @@ import {
   CardHeader,
   CardTitle,
 } from '@/app/components/ui/card';
-import { Progress } from '@/app/components/ui/progress';
 import { Input } from '@/app/components/ui/input';
-import { AlertTriangle, ArrowLeft } from 'lucide-react';
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/app/components/ui/dialog';
+import { ArrowLeft, ClipboardCheck, ShieldCheck } from 'lucide-react';
+import {
+  RiskTier,
+  UpdateVendorInput,
   VendorRecord,
+  VendorReview,
+  VendorReviewDecision,
+  VendorReviewStatus,
   VendorStatus,
-  VendorTier,
   vendorsService,
 } from '@/services/api/vendors';
+import { usersService, type UserWithGit } from '@/services/api/users';
 import { QK } from '@/lib/queryKeys';
 import {
   getStatusColors,
@@ -35,508 +46,224 @@ import {
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
-const statusMeta: Record<VendorStatus, { label: string; className: string }> = {
-  MONITORED: {
-    label: 'Monitored',
-    className: getStatusColors('MONITORED').className,
-  },
-  ASSESSMENT_DUE: {
-    label: 'Assessment due',
-    className: getStatusColors('ASSESSMENT_DUE').className,
-  },
-  IN_REVIEW: {
-    label: 'In review',
-    className: getStatusColors('IN_REVIEW').className,
-  },
-  BLOCKED: {
-    label: 'Blocked',
-    className: getStatusColors('BLOCKED').className,
-  },
+const statusMeta: Record<VendorStatus, { className: string }> = {
+  MONITORED: { className: getStatusColors('MONITORED').className },
+  ASSESSMENT_DUE: { className: getStatusColors('ASSESSMENT_DUE').className },
+  IN_REVIEW: { className: getStatusColors('IN_REVIEW').className },
+  BLOCKED: { className: getStatusColors('BLOCKED').className },
 };
 
-const tierMeta: Record<VendorTier, { label: string; className: string }> = {
-  LOW: { label: 'Low', className: getSeverityColors('LOW').className },
-  MEDIUM: { label: 'Medium', className: getSeverityColors('MEDIUM').className },
-  HIGH: { label: 'High', className: getSeverityColors('HIGH').className },
-  CRITICAL: {
-    label: 'Critical',
-    className: getSeverityColors('CRITICAL').className,
-  },
+const tierMeta: Record<RiskTier, { className: string }> = {
+  LOW: { className: getSeverityColors('LOW').className },
+  MEDIUM: { className: getSeverityColors('MEDIUM').className },
+  HIGH: { className: getSeverityColors('HIGH').className },
+  CRITICAL: { className: getSeverityColors('CRITICAL').className },
 };
 
-function scoreColor(score: number): string {
-  if (score >= 70) return 'text-emerald-600';
-  if (score >= 50) return 'text-amber-500';
-  return 'text-red-500';
-}
-
-function scoreBarIndicator(score: number): string {
-  if (score >= 70) return '[&>div]:bg-emerald-500';
-  if (score >= 50) return '[&>div]:bg-amber-500';
-  return '[&>div]:bg-red-500';
-}
-
-function getRiskSummary(criticality: string, dataClass: string): string {
-  const isPII = dataClass === 'PII';
-  const isCritical = criticality === 'Mission-critical';
-  if (isCritical && isPII)
-    return 'High inherent risk — mission-critical vendor with access to PII data. Requires annual assessment and signed DPA. Escalate any open findings immediately.';
-  if (isCritical)
-    return 'Elevated inherent risk — mission-critical vendor. Validate access scope and schedule assessment within 6 months.';
-  if (isPII)
-    return 'Elevated inherent risk — processes PII data. Ensure DPA is signed and questionnaire is complete before approving.';
-  return 'Standard inherent risk profile. Maintain regular annual assessment cycle.';
-}
+const reviewStatusMeta: Record<VendorReviewStatus, string> = {
+  DRAFT: 'bg-gray-100 text-gray-700',
+  IN_PROGRESS: 'bg-blue-100 text-blue-700',
+  UNDER_APPROVAL: 'bg-amber-100 text-amber-700',
+  COMPLETED: 'bg-emerald-100 text-emerald-700',
+  CANCELLED: 'bg-gray-100 text-gray-500',
+};
 
 function fmtDate(iso: string | null | undefined): string {
   if (!iso) return '—';
   return new Date(iso).toLocaleDateString();
 }
 
-// ── Sub-components ─────────────────────────────────────────────────────────────
-
-interface VendorActions {
-  onUpdate: (patch: Partial<VendorRecord>) => Promise<void>;
-  onCompleteAssessment: () => Promise<void>;
+function isOpenReview(s: VendorReviewStatus): boolean {
+  return s === 'DRAFT' || s === 'IN_PROGRESS' || s === 'UNDER_APPROVAL';
 }
 
-function StatusWorkflow({
-  vendor,
-  onUpdate,
-  onCompleteAssessment,
-}: { vendor: VendorRecord } & VendorActions) {
-  const { t } = useTranslation('vendors');
-  const [saving, setSaving] = useState(false);
+// ── Decision dialog ──────────────────────────────────────────────────────────
 
-  const transitions: Record<
-    VendorStatus,
-    Array<{
-      label: string;
-      variant: 'default' | 'outline' | 'destructive';
-      action: () => Promise<void>;
-    }>
-  > = {
-    IN_REVIEW: [
-      {
-        label: t('detail.approveMonitored'),
-        variant: 'default',
-        action: () => onUpdate({ status: 'MONITORED' }),
-      },
-      {
-        label: t('detail.flagForAssessment'),
-        variant: 'outline',
-        action: () => onUpdate({ status: 'ASSESSMENT_DUE' }),
-      },
-    ],
-    ASSESSMENT_DUE: [
-      {
-        label: t('detail.completeAssessment'),
-        variant: 'default',
-        action: onCompleteAssessment,
-      },
-      {
-        label: t('detail.backToReview'),
-        variant: 'outline',
-        action: () => onUpdate({ status: 'IN_REVIEW' }),
-      },
-    ],
-    MONITORED: [
-      {
-        label: t('detail.requestReassessment'),
-        variant: 'outline',
-        action: () => onUpdate({ status: 'ASSESSMENT_DUE' }),
-      },
-      {
-        label: t('detail.blockVendor'),
-        variant: 'destructive',
-        action: () => onUpdate({ status: 'BLOCKED' }),
-      },
-    ],
-    BLOCKED: [
-      {
-        label: t('detail.unblockVendor'),
-        variant: 'outline',
-        action: () => onUpdate({ status: 'IN_REVIEW' }),
-      },
-    ],
-  };
-
-  const actions = transitions[vendor.status] ?? [];
-
-  return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-2">
-        <span className="text-sm text-muted-foreground">
-          {t('detail.currentStatus')}
-        </span>
-        <Badge
-          variant="outline"
-          className={statusMeta[vendor.status].className}
-        >
-          {t(`status.${vendor.status}`)}
-        </Badge>
-      </div>
-      <div className="flex flex-wrap gap-2">
-        {actions.map((t) => (
-          <Button
-            key={t.label}
-            variant={t.variant}
-            className="h-8"
-            disabled={saving}
-            onClick={async () => {
-              setSaving(true);
-              try {
-                await t.action();
-              } finally {
-                setSaving(false);
-              }
-            }}
-          >
-            {t.label}
-          </Button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function AssessmentTab({
-  vendor,
-  onUpdate,
-  onCompleteAssessment,
-}: { vendor: VendorRecord } & VendorActions) {
-  const { t } = useTranslation('vendors');
-  const [completing, setCompleting] = useState(false);
-  const [updatingFindings, setUpdatingFindings] = useState(false);
-
-  async function handleFindingsChange(delta: number) {
-    const newVal = Math.max(0, vendor.openFindings + delta);
-    setUpdatingFindings(true);
-    try {
-      await onUpdate({ openFindings: newVal });
-    } finally {
-      setUpdatingFindings(false);
-    }
-  }
-
-  async function handleDpaToggle() {
-    await onUpdate({ dpaSigned: !vendor.dpaSigned });
-  }
-
-  return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">{t('detail.securityScore')}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
-            <span>{t('detail.score')}</span>
-            <span
-              className={`font-semibold ${scoreColor(vendor.securityScore)}`}
-            >
-              {vendor.securityScore}/100
-            </span>
-          </div>
-          <Progress
-            value={vendor.securityScore}
-            className={scoreBarIndicator(vendor.securityScore)}
-          />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">
-            {t('detail.questionnaireCompletion')}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
-            <span>{t('detail.completion')}</span>
-            <span>{vendor.questionnaireCompletion}%</span>
-          </div>
-          <Progress value={vendor.questionnaireCompletion} />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">{t('detail.openFindings')}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8 w-8 p-0"
-              disabled={updatingFindings || vendor.openFindings <= 0}
-              onClick={() => handleFindingsChange(-1)}
-            >
-              −
-            </Button>
-            <span className="text-2xl font-bold text-foreground">
-              {vendor.openFindings}
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8 w-8 p-0"
-              disabled={updatingFindings}
-              onClick={() => handleFindingsChange(1)}
-            >
-              +
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium">{t('detail.dpaSigned')}</p>
-              <p className="text-xs text-muted-foreground">
-                {t('detail.dpaDescription')}
-              </p>
-            </div>
-            <button
-              onClick={handleDpaToggle}
-              className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer items-center rounded-full transition-colors focus:outline-none ${vendor.dpaSigned ? 'bg-emerald-500' : 'bg-muted-foreground/30'}`}
-              role="switch"
-              aria-checked={vendor.dpaSigned}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${vendor.dpaSigned ? 'translate-x-6' : 'translate-x-1'}`}
-              />
-            </button>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Button
-        className="w-full"
-        disabled={completing}
-        onClick={async () => {
-          setCompleting(true);
-          try {
-            await onCompleteAssessment();
-          } finally {
-            setCompleting(false);
-          }
-        }}
-      >
-        {completing
-          ? t('detail.completing')
-          : t('detail.markAssessmentComplete')}
-      </Button>
-    </div>
-  );
-}
-
-function RiskContextTab({
-  vendor,
-  onUpdate,
-}: {
-  vendor: VendorRecord;
-  onUpdate: (patch: Partial<VendorRecord>) => Promise<void>;
+function ReviewDecisionDialog(props: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSubmit: (data: {
+    decision: VendorReviewDecision;
+    decisionNotes: string;
+    residualTier?: RiskTier;
+  }) => Promise<void>;
+  saving: boolean;
 }) {
   const { t } = useTranslation('vendors');
-  const [criticality, setCriticality] = useState(vendor.businessCriticality);
-  const [dataClass, setDataClass] = useState(vendor.dataClass);
-  const [subprocessors, setSubprocessors] = useState(
-    String(vendor.subprocessors),
-  );
-  const [contractEnd, setContractEnd] = useState(
-    vendor.contractEndDate ? vendor.contractEndDate.slice(0, 10) : '',
-  );
-  const [saving, setSaving] = useState(false);
-
-  // Sync when vendor reloads after save
-  useEffect(() => {
-    setCriticality(vendor.businessCriticality);
-    setDataClass(vendor.dataClass);
-    setSubprocessors(String(vendor.subprocessors));
-    setContractEnd(
-      vendor.contractEndDate ? vendor.contractEndDate.slice(0, 10) : '',
-    );
-  }, [
-    vendor.businessCriticality,
-    vendor.dataClass,
-    vendor.subprocessors,
-    vendor.contractEndDate,
-  ]);
-
-  async function handleSave() {
-    setSaving(true);
-    try {
-      await onUpdate({
-        businessCriticality: criticality,
-        dataClass,
-        subprocessors: parseInt(subprocessors, 10) || 0,
-        contractEndDate: contractEnd
-          ? new Date(contractEnd).toISOString()
-          : null,
-      });
-    } finally {
-      setSaving(false);
-    }
-  }
+  const [decision, setDecision] = useState<VendorReviewDecision>('APPROVED');
+  const [residualTier, setResidualTier] = useState<RiskTier>('MEDIUM');
+  const [notes, setNotes] = useState('');
 
   return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">
-            {t('detail.classification')}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <label className="mb-1 block text-xs text-muted-foreground">
-              {t('detail.businessCriticality')}
-            </label>
+    <Dialog open={props.open} onOpenChange={props.onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{t('review.decisionTitle')}</DialogTitle>
+          <DialogDescription>
+            {t('review.decisionDescription')}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-3">
+          <select
+            value={decision}
+            onChange={(e) =>
+              setDecision(e.target.value as VendorReviewDecision)
+            }
+            className="rounded-md border border-border px-3 py-2 text-sm"
+          >
+            <option value="APPROVED">{t('review.decision.APPROVED')}</option>
+            <option value="APPROVED_WITH_CONDITIONS">
+              {t('review.decision.APPROVED_WITH_CONDITIONS')}
+            </option>
+            <option value="REJECTED">{t('review.decision.REJECTED')}</option>
+          </select>
+          {decision !== 'REJECTED' && (
             <select
-              value={criticality}
-              onChange={(e) => setCriticality(e.target.value as any)}
-              className="w-full rounded-md border border-border px-3 py-2 text-sm"
+              value={residualTier}
+              onChange={(e) => setResidualTier(e.target.value as RiskTier)}
+              className="rounded-md border border-border px-3 py-2 text-sm"
             >
-              <option value="Mission-critical">
-                {t('detail.missionCritical')}
-              </option>
-              <option value="Business-important">
-                {t('detail.businessImportant')}
-              </option>
-              <option value="Operational">{t('detail.operational')}</option>
+              <option value="LOW">{t('riskLevel.LOW')}</option>
+              <option value="MEDIUM">{t('riskLevel.MEDIUM')}</option>
+              <option value="HIGH">{t('riskLevel.HIGH')}</option>
+              <option value="CRITICAL">{t('riskLevel.CRITICAL')}</option>
             </select>
-          </div>
-          <div>
-            <label className="mb-1 block text-xs text-muted-foreground">
-              {t('detail.dataClassification')}
-            </label>
-            <select
-              value={dataClass}
-              onChange={(e) => setDataClass(e.target.value as any)}
-              className="w-full rounded-md border border-border px-3 py-2 text-sm"
-            >
-              <option value="PII">PII</option>
-              <option value="Sensitive">Sensitive</option>
-              <option value="Internal">Internal</option>
-              <option value="Public">Public</option>
-            </select>
-          </div>
-          <div>
-            <label className="mb-1 block text-xs text-muted-foreground">
-              {t('detail.subProcessors')}
-            </label>
-            <Input
-              type="number"
-              min="0"
-              value={subprocessors}
-              onChange={(e) => setSubprocessors(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs text-muted-foreground">
-              {t('detail.contractEndDate')}
-            </label>
-            <Input
-              type="date"
-              value={contractEnd}
-              onChange={(e) => setContractEnd(e.target.value)}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="border-amber-200 bg-amber-50/50 dark:border-amber-900/50 dark:bg-amber-950/20">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-sm">
-            <AlertTriangle className="h-4 w-4 text-amber-500" />
-            {t('detail.inherentRisk')}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-foreground">
-            {getRiskSummary(criticality, dataClass) ===
-            'High inherent risk — mission-critical vendor with access to PII data. Requires annual assessment and signed DPA. Escalate any open findings immediately.'
-              ? t('detail.riskHighPii')
-              : getRiskSummary(criticality, dataClass) ===
-                  'Elevated inherent risk — mission-critical vendor. Validate access scope and schedule assessment within 6 months.'
-                ? t('detail.riskElevatedCritical')
-                : getRiskSummary(criticality, dataClass) ===
-                    'Elevated inherent risk — processes PII data. Ensure DPA is signed and questionnaire is complete before approving.'
-                  ? t('detail.riskElevatedPii')
-                  : t('detail.riskStandard')}
-          </p>
-        </CardContent>
-      </Card>
-
-      <div className="flex justify-end">
-        <Button onClick={handleSave} disabled={saving}>
-          {saving ? t('detail.saving') : t('detail.saveChanges')}
-        </Button>
-      </div>
-    </div>
+          )}
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder={t('review.decisionNotesPlaceholder')}
+            className="min-h-[100px] rounded-md border border-border px-3 py-2 text-sm"
+          />
+        </div>
+        <DialogFooter>
+          <Button
+            variant="outline"
+            onClick={() => props.onOpenChange(false)}
+          >
+            {t('dialog.cancel')}
+          </Button>
+          <Button
+            disabled={props.saving || !notes.trim()}
+            onClick={async () => {
+              await props.onSubmit({
+                decision,
+                decisionNotes: notes.trim(),
+                residualTier:
+                  decision === 'REJECTED' ? undefined : residualTier,
+              });
+              setNotes('');
+            }}
+          >
+            {props.saving ? t('dialog.saving') : t('review.submitDecision')}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
-// ── Main page ──────────────────────────────────────────────────────────────────
+// ── Main page ────────────────────────────────────────────────────────────────
 
 export function VendorDetailPage() {
-  const { t } = useTranslation('vendors');
   const { vendorId } = useParams<{ vendorId: string }>();
   const navigate = useNavigate();
+  const { t } = useTranslation('vendors');
   const qc = useQueryClient();
 
   const { data: vendor, isLoading } = useQuery({
-    queryKey: ['vendors', vendorId],
-    queryFn: () => vendorsService.get(vendorId!),
-    enabled: !!vendorId,
+    queryKey: QK.vendor(vendorId ?? ''),
+    queryFn: () => vendorsService.get(vendorId ?? ''),
+    enabled: Boolean(vendorId),
   });
 
-  const [notes, setNotes] = useState('');
-  const [savingNotes, setSavingNotes] = useState(false);
+  const { data: reviews = [] } = useQuery({
+    queryKey: QK.vendorReviews(vendorId ?? ''),
+    queryFn: () => vendorsService.reviews.list(vendorId ?? ''),
+    enabled: Boolean(vendorId),
+  });
 
-  useEffect(() => {
-    if (vendor) setNotes(vendor.notes ?? '');
-  }, [vendor]);
+  const { data: orgUsers = [] } = useQuery({
+    queryKey: QK.users(),
+    queryFn: () => usersService.listUsers(),
+    staleTime: 5 * 60_000,
+  });
 
-  async function handleUpdate(patch: Partial<VendorRecord>) {
-    if (!vendor) return;
-    await vendorsService.update(vendor.id, patch);
-    await qc.invalidateQueries({ queryKey: ['vendors', vendorId] });
-    await qc.invalidateQueries({ queryKey: QK.vendors() });
-  }
+  const openReview = useMemo<VendorReview | null>(
+    () => reviews.find((r) => isOpenReview(r.status)) ?? null,
+    [reviews],
+  );
 
-  async function handleCompleteAssessment() {
-    if (!vendor) return;
-    await vendorsService.completeAssessment(vendor.id);
-    await qc.invalidateQueries({ queryKey: ['vendors', vendorId] });
-    await qc.invalidateQueries({ queryKey: QK.vendors() });
-  }
+  const [decisionOpen, setDecisionOpen] = useState(false);
 
-  if (isLoading) {
+  // ── Mutations ──
+  const updateMutation = useMutation({
+    mutationFn: (patch: UpdateVendorInput) =>
+      vendorsService.update(vendorId ?? '', patch),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: QK.vendor(vendorId ?? '') });
+      qc.invalidateQueries({ queryKey: QK.vendors() });
+    },
+  });
+
+  const startReviewMutation = useMutation({
+    mutationFn: () => vendorsService.reviews.start(vendorId ?? ''),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: QK.vendorReviews(vendorId ?? '') });
+    },
+  });
+
+  const submitReviewMutation = useMutation({
+    mutationFn: (reviewId: string) =>
+      vendorsService.reviews.submit(vendorId ?? '', reviewId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: QK.vendorReviews(vendorId ?? '') });
+    },
+  });
+
+  const cancelReviewMutation = useMutation({
+    mutationFn: (reviewId: string) =>
+      vendorsService.reviews.cancel(vendorId ?? '', reviewId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: QK.vendorReviews(vendorId ?? '') });
+    },
+  });
+
+  const decideMutation = useMutation({
+    mutationFn: ({
+      reviewId,
+      data,
+    }: {
+      reviewId: string;
+      data: {
+        decision: VendorReviewDecision;
+        decisionNotes: string;
+        residualTier?: RiskTier;
+      };
+    }) =>
+      vendorsService.reviews.decide(vendorId ?? '', reviewId, {
+        decision: data.decision,
+        decisionNotes: data.decisionNotes,
+        residualTier: data.residualTier,
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: QK.vendorReviews(vendorId ?? '') });
+      qc.invalidateQueries({ queryKey: QK.vendor(vendorId ?? '') });
+      qc.invalidateQueries({ queryKey: QK.vendors() });
+      setDecisionOpen(false);
+    },
+  });
+
+  // ── Render ──
+  if (!vendorId) return null;
+  if (isLoading || !vendor) {
     return (
-      <PageTemplate title="Loading..." description="">
-        <div className="py-20 text-center text-muted-foreground">
+      <PageTemplate
+        title={t('detail.loading')}
+        description={t('detail.loadingDescription')}
+      >
+        <div className="py-8 text-center text-sm text-muted-foreground">
           {t('detail.loadingDescription')}
-        </div>
-      </PageTemplate>
-    );
-  }
-
-  if (!vendor) {
-    return (
-      <PageTemplate title="Not found" description="">
-        <div className="py-20 text-center text-muted-foreground">
-          {t('detail.vendorNotFound')}
-        </div>
-        <div className="mt-4 text-center">
-          <Button variant="outline" onClick={() => navigate('/vendors')}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            {t('detail.backToVendors')}
-          </Button>
         </div>
       </PageTemplate>
     );
@@ -545,193 +272,448 @@ export function VendorDetailPage() {
   return (
     <PageTemplate
       title={vendor.name}
-      description={[
-        vendor.category,
-        t('detail.ownerLabel', { owner: vendor.owner }),
-        vendor.website,
-      ]
-        .filter(Boolean)
-        .join(' · ')}
+      description={vendor.category}
       actions={
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className={tierMeta[vendor.tier].className}>
-            {t(`riskLevel.${vendor.tier}`)}
-          </Badge>
-          <Badge
-            variant="outline"
-            className={statusMeta[vendor.status].className}
-          >
-            {t(`status.${vendor.status}`)}
-          </Badge>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => navigate('/vendors')}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            {t('detail.back')}
+          </Button>
+          {!openReview && (
+            <Button
+              onClick={() => startReviewMutation.mutate()}
+              disabled={startReviewMutation.isPending}
+            >
+              <ClipboardCheck className="mr-2 h-4 w-4" />
+              {startReviewMutation.isPending
+                ? t('review.starting')
+                : t('review.start')}
+            </Button>
+          )}
         </div>
       }
     >
-      <div className="mb-6">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => navigate('/vendors')}
-          className="-ml-2"
-        >
-          <ArrowLeft className="mr-1 h-4 w-4" />
-          {t('detail.backToVendors')}
-        </Button>
-      </div>
+      <div className="space-y-6">
+        {/* Header summary card */}
+        <Card>
+          <CardContent className="flex flex-wrap items-center gap-3 pt-6">
+            <Badge
+              variant="outline"
+              className={statusMeta[vendor.status].className}
+            >
+              {t(`status.${vendor.status}`)}
+            </Badge>
+            {vendor.inherentTier && (
+              <Badge
+                variant="outline"
+                className={tierMeta[vendor.inherentTier].className}
+              >
+                {t('inherent.tierLabel', {
+                  tier: t(`riskLevel.${vendor.inherentTier}`),
+                })}
+              </Badge>
+            )}
+            {vendor.residualTier ? (
+              <Badge
+                variant="outline"
+                className={tierMeta[vendor.residualTier].className}
+              >
+                {t('residual.tierLabel', {
+                  tier: t(`riskLevel.${vendor.residualTier}`),
+                })}
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="text-muted-foreground">
+                {t('residual.pending')}
+              </Badge>
+            )}
+            <span className="text-sm text-muted-foreground">
+              {t('detail.ownerLabel', {
+                owner:
+                  vendor.ownerUser?.name ??
+                  vendor.ownerUser?.email ??
+                  t('emptyValue'),
+              })}
+            </span>
+            <span className="text-sm text-muted-foreground">
+              {t('detail.nextReviewLabel', {
+                date: fmtDate(vendor.nextAssessmentAt),
+              })}
+            </span>
+          </CardContent>
+        </Card>
 
-      <Tabs defaultValue="overview">
-        <TabsList className="mb-6">
-          <TabsTrigger value="overview">{t('detail.overview')}</TabsTrigger>
-          <TabsTrigger value="assessment">{t('detail.assessment')}</TabsTrigger>
-          <TabsTrigger value="risk">{t('detail.riskContext')}</TabsTrigger>
-          <TabsTrigger value="notes">{t('detail.notes')}</TabsTrigger>
-        </TabsList>
+        <Tabs defaultValue="overview">
+          <TabsList>
+            <TabsTrigger value="overview">{t('detail.overview')}</TabsTrigger>
+            <TabsTrigger value="reviews">{t('detail.reviews')}</TabsTrigger>
+            <TabsTrigger value="risk">{t('detail.riskContext')}</TabsTrigger>
+            <TabsTrigger value="notes">{t('detail.notes')}</TabsTrigger>
+          </TabsList>
 
-        {/* ── Overview ── */}
-        <TabsContent value="overview">
-          <div className="space-y-4">
-            {/* Score + stat row */}
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <Card>
-                <CardContent className="pt-6">
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    {t('detail.securityScore')}
-                  </p>
-                  <p
-                    className={`mt-2 text-4xl font-extrabold ${scoreColor(vendor.securityScore)}`}
-                  >
-                    {vendor.securityScore}
-                  </p>
-                  <p className="text-xs text-muted-foreground">/ 100</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-6">
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    {t('detail.openFindings')}
-                  </p>
-                  <p className="mt-2 text-4xl font-extrabold text-foreground">
-                    {vendor.openFindings}
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-6">
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    {t('detail.questionnaire')}
-                  </p>
-                  <p className="mt-2 text-4xl font-extrabold text-foreground">
-                    {vendor.questionnaireCompletion}%
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-6">
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    {t('detail.subProcessors')}
-                  </p>
-                  <p className="mt-2 text-4xl font-extrabold text-foreground">
-                    {vendor.subprocessors}
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Date row */}
-            <div className="grid gap-4 sm:grid-cols-3">
-              <Card>
-                <CardContent className="pt-4">
-                  <p className="text-xs text-muted-foreground">
-                    {t('detail.lastAssessment')}
-                  </p>
-                  <p className="mt-1 font-medium">
-                    {fmtDate(vendor.lastAssessmentAt)}
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-4">
-                  <p className="text-xs text-muted-foreground">
-                    {t('detail.nextAssessment')}
-                  </p>
-                  <p className="mt-1 font-medium">
-                    {fmtDate(vendor.nextAssessmentAt)}
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-4">
-                  <p className="text-xs text-muted-foreground">
-                    {t('detail.contractEnd')}
-                  </p>
-                  <p className="mt-1 font-medium">
-                    {fmtDate(vendor.contractEndDate)}
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Status workflow */}
+          {/* ── Overview ── */}
+          <TabsContent value="overview" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle className="text-sm">
-                  {t('detail.lifecycleActions')}
-                </CardTitle>
+                <CardTitle>{t('detail.overview')}</CardTitle>
+              </CardHeader>
+              <CardContent className="grid gap-4 sm:grid-cols-2">
+                <Field
+                  label={t('detail.inherentScore')}
+                  value={vendor.inherentRiskScore?.toString() ?? '—'}
+                />
+                <Field
+                  label={t('detail.residualScore')}
+                  value={vendor.residualRiskScore?.toString() ?? '—'}
+                />
+                <Field
+                  label={t('detail.dataClass')}
+                  value={vendor.dataClass}
+                />
+                <Field
+                  label={t('detail.businessCriticality')}
+                  value={vendor.businessCriticality}
+                />
+                <Field
+                  label={t('detail.subprocessors')}
+                  value={vendor.subprocessors.toString()}
+                />
+                <Field
+                  label={t('detail.dpa')}
+                  value={vendor.dpaSigned ? t('detail.yes') : t('detail.no')}
+                />
+                <Field
+                  label={t('detail.lastAssessment')}
+                  value={fmtDate(vendor.lastAssessmentAt)}
+                />
+                <Field
+                  label={t('detail.nextReview')}
+                  value={fmtDate(vendor.nextAssessmentAt)}
+                />
+                {vendor.contractEndDate && (
+                  <Field
+                    label={t('detail.contractEnd')}
+                    value={fmtDate(vendor.contractEndDate)}
+                  />
+                )}
+                {vendor.trustCenterUrl && (
+                  <Field
+                    label={t('detail.trustCenter')}
+                    value={vendor.trustCenterUrl}
+                  />
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* ── Reviews ── */}
+          <TabsContent value="reviews" className="space-y-3">
+            {reviews.length === 0 && (
+              <Card>
+                <CardContent className="pt-6 text-sm text-muted-foreground">
+                  {t('review.empty')}
+                </CardContent>
+              </Card>
+            )}
+            {reviews.map((review) => (
+              <Card key={review.id}>
+                <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
+                  <div>
+                    <CardTitle className="text-base">
+                      {t('review.cycleLabel', { cycle: review.cycleNumber })}
+                    </CardTitle>
+                    <p className="text-xs text-muted-foreground">
+                      {t('review.startedLabel', {
+                        date: fmtDate(review.startedAt),
+                      })}
+                    </p>
+                  </div>
+                  <Badge
+                    variant="outline"
+                    className={reviewStatusMeta[review.status]}
+                  >
+                    {t(`review.status.${review.status}`)}
+                  </Badge>
+                </CardHeader>
+                <CardContent className="space-y-3 text-sm">
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    <Field
+                      label={t('review.reviewer')}
+                      value={
+                        review.reviewer?.name ??
+                        review.reviewer?.email ??
+                        t('emptyValue')
+                      }
+                    />
+                    <Field
+                      label={t('review.approver')}
+                      value={
+                        review.approver?.name ??
+                        review.approver?.email ??
+                        t('emptyValue')
+                      }
+                    />
+                    <Field
+                      label={t('inherent.tierLabel', {
+                        tier: t(`riskLevel.${review.inherentTierSnapshot ?? 'MEDIUM'}`),
+                      })}
+                      value={review.inherentRiskScoreSnapshot?.toString() ?? '—'}
+                    />
+                    <Field
+                      label={t('review.residual')}
+                      value={
+                        review.residualTier
+                          ? `${t(`riskLevel.${review.residualTier}`)} (${review.residualRiskScore ?? '—'})`
+                          : t('emptyValue')
+                      }
+                    />
+                    {review.decisionNotes && (
+                      <div className="sm:col-span-2">
+                        <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                          {t('review.decisionNotes')}
+                        </p>
+                        <p className="mt-1 text-sm text-foreground">
+                          {review.decisionNotes}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                  {isOpenReview(review.status) && (
+                    <div className="flex flex-wrap gap-2">
+                      {(review.status === 'DRAFT' ||
+                        review.status === 'IN_PROGRESS') && (
+                        <Button
+                          size="sm"
+                          onClick={() => submitReviewMutation.mutate(review.id)}
+                          disabled={submitReviewMutation.isPending}
+                        >
+                          <ShieldCheck className="mr-2 h-4 w-4" />
+                          {t('review.submitForApproval')}
+                        </Button>
+                      )}
+                      {review.status === 'UNDER_APPROVAL' && (
+                        <Button
+                          size="sm"
+                          onClick={() => setDecisionOpen(true)}
+                        >
+                          {t('review.decide')}
+                        </Button>
+                      )}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => cancelReviewMutation.mutate(review.id)}
+                        disabled={cancelReviewMutation.isPending}
+                      >
+                        {t('review.cancel')}
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </TabsContent>
+
+          {/* ── Risk context (editable) ── */}
+          <TabsContent value="risk">
+            <Card>
+              <CardHeader>
+                <CardTitle>{t('detail.riskContext')}</CardTitle>
               </CardHeader>
               <CardContent>
-                <StatusWorkflow
+                <RiskContextForm
                   vendor={vendor}
-                  onUpdate={handleUpdate}
-                  onCompleteAssessment={handleCompleteAssessment}
+                  orgUsers={orgUsers}
+                  onSave={(patch) => updateMutation.mutateAsync(patch)}
+                  saving={updateMutation.isPending}
                 />
               </CardContent>
             </Card>
-          </div>
-        </TabsContent>
+          </TabsContent>
 
-        {/* ── Assessment ── */}
-        <TabsContent value="assessment">
-          <AssessmentTab
-            vendor={vendor}
-            onUpdate={handleUpdate}
-            onCompleteAssessment={handleCompleteAssessment}
-          />
-        </TabsContent>
+          {/* ── Notes ── */}
+          <TabsContent value="notes">
+            <Card>
+              <CardHeader>
+                <CardTitle>{t('detail.notes')}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <NotesEditor
+                  initial={vendor.notes ?? ''}
+                  onSave={(notes) =>
+                    updateMutation.mutateAsync({ notes: notes || null })
+                  }
+                  saving={updateMutation.isPending}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
 
-        {/* ── Risk Context ── */}
-        <TabsContent value="risk">
-          <RiskContextTab vendor={vendor} onUpdate={handleUpdate} />
-        </TabsContent>
-
-        {/* ── Notes ── */}
-        <TabsContent value="notes">
-          <Card>
-            <CardContent className="pt-6">
-              <textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                rows={10}
-                className="w-full resize-none rounded-md border border-border bg-background p-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                placeholder="Add notes about this vendor, assessment findings, or decisions..."
-              />
-              <div className="mt-3 flex justify-end">
-                <Button
-                  disabled={savingNotes}
-                  onClick={async () => {
-                    setSavingNotes(true);
-                    try {
-                      await handleUpdate({ notes });
-                    } finally {
-                      setSavingNotes(false);
-                    }
-                  }}
-                >
-                  {savingNotes ? 'Saving...' : 'Save notes'}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      {openReview && (
+        <ReviewDecisionDialog
+          open={decisionOpen}
+          onOpenChange={setDecisionOpen}
+          saving={decideMutation.isPending}
+          onSubmit={(data) =>
+            decideMutation.mutateAsync({
+              reviewId: openReview.id,
+              data,
+            }).then(() => undefined)
+          }
+        />
+      )}
     </PageTemplate>
+  );
+}
+
+// ── Tiny presentational helpers ──────────────────────────────────────────────
+
+function Field({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-xs uppercase tracking-wide text-muted-foreground">
+        {label}
+      </p>
+      <p className="mt-1 text-sm font-medium text-foreground">{value}</p>
+    </div>
+  );
+}
+
+function RiskContextForm(props: {
+  vendor: VendorRecord;
+  orgUsers: UserWithGit[];
+  onSave: (patch: UpdateVendorInput) => Promise<unknown>;
+  saving: boolean;
+}) {
+  const { t } = useTranslation('vendors');
+  const [businessCriticality, setBusinessCriticality] = useState<
+    UpdateVendorInput['businessCriticality']
+  >(props.vendor.businessCriticality);
+  const [dataClass, setDataClass] = useState<UpdateVendorInput['dataClass']>(
+    props.vendor.dataClass,
+  );
+  const [subprocessors, setSubprocessors] = useState(props.vendor.subprocessors);
+  const [dpaSigned, setDpaSigned] = useState(props.vendor.dpaSigned);
+  const [ownerUserId, setOwnerUserId] = useState(props.vendor.ownerUserId ?? '');
+
+  return (
+    <div className="grid gap-4 sm:grid-cols-2">
+      <Labeled label={t('detail.owner')}>
+        <select
+          value={ownerUserId}
+          onChange={(e) => setOwnerUserId(e.target.value)}
+          className="rounded-md border border-border px-3 py-2 text-sm"
+        >
+          <option value="">{t('dialog.ownerPlaceholder')}</option>
+          {props.orgUsers.map((u) => (
+            <option key={u.id} value={u.id}>
+              {u.name ? `${u.name} (${u.email})` : u.email}
+            </option>
+          ))}
+        </select>
+      </Labeled>
+      <Labeled label={t('detail.businessCriticality')}>
+        <select
+          value={businessCriticality}
+          onChange={(e) =>
+            setBusinessCriticality(
+              e.target.value as UpdateVendorInput['businessCriticality'],
+            )
+          }
+          className="rounded-md border border-border px-3 py-2 text-sm"
+        >
+          <option value="Mission-critical">Mission-critical</option>
+          <option value="Business-important">Business-important</option>
+          <option value="Operational">Operational</option>
+        </select>
+      </Labeled>
+      <Labeled label={t('detail.dataClass')}>
+        <select
+          value={dataClass}
+          onChange={(e) =>
+            setDataClass(e.target.value as UpdateVendorInput['dataClass'])
+          }
+          className="rounded-md border border-border px-3 py-2 text-sm"
+        >
+          <option value="PII">PII</option>
+          <option value="Sensitive">Sensitive</option>
+          <option value="Internal">Internal</option>
+          <option value="Public">Public</option>
+        </select>
+      </Labeled>
+      <Labeled label={t('detail.subprocessors')}>
+        <Input
+          type="number"
+          min={0}
+          value={subprocessors}
+          onChange={(e) => setSubprocessors(Number(e.target.value) || 0)}
+        />
+      </Labeled>
+      <Labeled label={t('detail.dpa')}>
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={dpaSigned}
+            onChange={(e) => setDpaSigned(e.target.checked)}
+          />
+          {t('detail.dpaCheckboxLabel')}
+        </label>
+      </Labeled>
+      <div className="sm:col-span-2 flex justify-end">
+        <Button
+          disabled={props.saving}
+          onClick={() =>
+            props.onSave({
+              businessCriticality,
+              dataClass,
+              subprocessors,
+              dpaSigned,
+              ownerUserId: ownerUserId || null,
+            })
+          }
+        >
+          {props.saving ? t('dialog.saving') : t('detail.save')}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function Labeled(props: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="grid gap-1">
+      <p className="text-xs uppercase tracking-wide text-muted-foreground">
+        {props.label}
+      </p>
+      {props.children}
+    </div>
+  );
+}
+
+function NotesEditor(props: {
+  initial: string;
+  onSave: (notes: string) => Promise<unknown>;
+  saving: boolean;
+}) {
+  const { t } = useTranslation('vendors');
+  const [notes, setNotes] = useState(props.initial);
+  return (
+    <div className="space-y-3">
+      <textarea
+        value={notes}
+        onChange={(e) => setNotes(e.target.value)}
+        className="min-h-[160px] w-full rounded-md border border-border px-3 py-2 text-sm"
+      />
+      <div className="flex justify-end">
+        <Button
+          disabled={props.saving || notes === props.initial}
+          onClick={() => props.onSave(notes)}
+        >
+          {props.saving ? t('dialog.saving') : t('detail.save')}
+        </Button>
+      </div>
+    </div>
   );
 }
