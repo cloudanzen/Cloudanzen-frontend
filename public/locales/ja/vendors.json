@@ -35,7 +35,8 @@
     "vendors": "ベンダー",
     "highRisk": "高リスク",
     "assessmentsDue": "評価期限 (30日)",
-    "openFindings": "未対応の発見事項"
+    "openFindings": "未対応の発見事項",
+    "monitored": "監視中"
   },
   "filters": {
     "searchLabel": "検索: {{value}}",
@@ -54,20 +55,43 @@
   },
   "table": {
     "tier": "ティア",
-    "nextReview": "次回レビュー"
+    "inherentTier": "固有",
+    "residualTier": "残存",
+    "inherentScore": "固有スコア",
+    "nextReview": "次回レビュー",
+    "pendingReview": "レビュー待ち"
+  },
+  "inherent": {
+    "tierLabel": "固有: {{tier}}"
+  },
+  "residual": {
+    "tierLabel": "残存: {{tier}}",
+    "pending": "残存リスク: レビュー待ち"
   },
   "dialog": {
     "addVendorTitle": "ベンダーを追加",
-    "addVendorDescription": "基本情報を登録して評価ワークフローを開始します。"
+    "addVendorDescription": "基本情報を登録して評価ワークフローを開始します。",
+    "nameField": "ベンダー名",
+    "categoryField": "カテゴリー (例: ID管理、給与)",
+    "ownerPlaceholder": "オーナーを選択…",
+    "websiteField": "ウェブサイト (任意)",
+    "cancel": "キャンセル",
+    "create": "ベンダーを作成",
+    "creating": "作成中...",
+    "saving": "保存中..."
   },
   "detail": {
     "loading": "読み込み中...",
     "loadingDescription": "ベンダー情報を読み込んでいます...",
     "notFound": "見つかりません",
     "vendorNotFound": "ベンダーが見つかりません。",
+    "back": "戻る",
     "backToVendors": "ベンダー一覧に戻る",
     "ownerLabel": "オーナー: {{owner}}",
+    "nextReviewLabel": "次回レビュー: {{date}}",
+    "owner": "オーナー",
     "overview": "概要",
+    "reviews": "レビュー",
     "assessment": "評価",
     "riskContext": "リスクコンテキスト",
     "notes": "メモ",
@@ -95,14 +119,20 @@
     "questionnaireCompletion": "アンケート完了率",
     "completion": "完了率",
     "openFindings": "未対応の発見事項",
+    "dpa": "DPA署名済み",
     "dpaSigned": "DPA署名済み",
+    "dpaCheckboxLabel": "署名済み",
     "dpaDescription": "データ処理契約",
+    "yes": "はい",
+    "no": "いいえ",
     "completing": "完了処理中...",
     "markAssessmentComplete": "評価完了としてマーク",
     "subProcessors": "再委託先",
+    "subprocessors": "再委託先",
     "questionnaire": "アンケート",
     "lastAssessment": "前回評価",
     "nextAssessment": "次回評価",
+    "nextReview": "次回レビュー",
     "contractEnd": "契約終了日",
     "lifecycleActions": "ライフサイクルアクション",
     "classification": "分類",
@@ -110,18 +140,53 @@
     "missionCritical": "ミッションクリティカル",
     "businessImportant": "ビジネス重要",
     "operational": "運用",
+    "dataClass": "データ分類",
     "dataClassification": "データ分類",
     "contractEndDate": "契約終了日",
+    "trustCenter": "トラストセンター",
     "inherentRisk": "固有リスク",
+    "inherentScore": "固有スコア",
+    "residualScore": "残存スコア",
     "riskHighPii": "高い固有リスク — PIIデータにアクセスするミッションクリティカルなベンダーです。年次評価と署名済みDPAが必要です。未対応の発見事項がある場合は直ちにエスカレーションしてください。",
     "riskElevatedCritical": "高い固有リスク — ミッションクリティカルなベンダーです。アクセス範囲を検証し、6か月以内に評価をスケジュールしてください。",
     "riskElevatedPii": "高い固有リスク — PIIデータを処理しています。承認前にDPAの署名とアンケートの完了を確認してください。",
     "riskStandard": "標準的な固有リスクプロファイル。定期的な年次評価サイクルを維持してください。",
     "saving": "保存中...",
+    "save": "保存",
     "saveChanges": "変更を保存",
     "notesPlaceholder": "このベンダーに関するメモ、評価の発見事項、または決定事項を追加...",
     "savingNotes": "保存中...",
     "saveNotes": "メモを保存"
+  },
+  "review": {
+    "start": "レビューを開始",
+    "starting": "開始中...",
+    "empty": "まだレビューはありません。最初のレビューを開始してセキュリティ評価サイクルを始めましょう。",
+    "cycleLabel": "サイクル #{{cycle}}",
+    "startedLabel": "開始日 {{date}}",
+    "reviewer": "レビュアー",
+    "approver": "承認者",
+    "residual": "残存",
+    "decisionNotes": "決定理由",
+    "decisionNotesPlaceholder": "必須: 決定の理由を記入...",
+    "submitForApproval": "承認に提出",
+    "decide": "承認 / 却下",
+    "cancel": "レビューをキャンセル",
+    "decisionTitle": "レビュー決定",
+    "decisionDescription": "残存リスクと条件を記録します。決定理由は必須です。",
+    "submitDecision": "決定を提出",
+    "decision": {
+      "APPROVED": "承認",
+      "APPROVED_WITH_CONDITIONS": "条件付き承認",
+      "REJECTED": "却下"
+    },
+    "status": {
+      "DRAFT": "ドラフト",
+      "IN_PROGRESS": "進行中",
+      "UNDER_APPROVAL": "承認待ち",
+      "COMPLETED": "完了",
+      "CANCELLED": "キャンセル済み"
+    }
   },
   "form": {
     "nameLabel": "ベンダー名",

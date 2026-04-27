@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any -- legacy: to be typed progressively */
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
@@ -9,7 +8,6 @@ import { useUrlFilterState } from '@/app/hooks/useUrlFilterState';
 import { Button } from '@/app/components/ui/button';
 import { Card, CardContent } from '@/app/components/ui/card';
 import { Badge } from '@/app/components/ui/badge';
-import { Progress } from '@/app/components/ui/progress';
 import { Input } from '@/app/components/ui/input';
 import {
   Dialog,
@@ -23,15 +21,17 @@ import {
   AlertTriangle,
   Building2,
   CalendarClock,
-  FileWarning,
+  ClipboardCheck,
   Plus,
 } from 'lucide-react';
 import {
   CreateVendorInput,
+  RiskTier,
+  VendorRecord,
   VendorStatus,
-  VendorTier,
   vendorsService,
 } from '@/services/api/vendors';
+import { usersService } from '@/services/api/users';
 import { QK } from '@/lib/queryKeys';
 
 type TabKey = 'ALL' | 'DUE' | 'HIGH_RISK';
@@ -60,7 +60,7 @@ const statusMeta: Record<VendorStatus, { label: string; className: string }> = {
   },
 };
 
-const tierMeta: Record<VendorTier, { label: string; className: string }> = {
+const tierMeta: Record<RiskTier, { label: string; className: string }> = {
   LOW: { label: 'Low', className: getSeverityColors('LOW').className },
   MEDIUM: { label: 'Medium', className: getSeverityColors('MEDIUM').className },
   HIGH: { label: 'High', className: getSeverityColors('HIGH').className },
@@ -70,13 +70,17 @@ const tierMeta: Record<VendorTier, { label: string; className: string }> = {
   },
 };
 
+// Initial form state for the Add Vendor dialog. ownerUserId is empty until
+// the User picker fires its onChange.
 const emptyVendorInput: CreateVendorInput = {
   name: '',
   category: '',
-  owner: '',
+  ownerUserId: '',
   website: '',
   businessCriticality: 'Business-important',
   dataClass: 'Sensitive',
+  subprocessors: 0,
+  dpaSigned: false,
 };
 
 function isDueWithinDays(
@@ -90,10 +94,17 @@ function isDueWithinDays(
   return diffMs <= days * 24 * 60 * 60 * 1000;
 }
 
-function scoreColor(score: number): string {
-  if (score >= 70) return 'text-emerald-600 font-semibold';
-  if (score >= 50) return 'text-amber-500 font-semibold';
+function scoreColor(score: number | null): string {
+  if (score === null) return 'text-muted-foreground';
+  if (score < 25) return 'text-emerald-600 font-semibold';
+  if (score < 50) return 'text-amber-500 font-semibold';
   return 'text-red-500 font-semibold';
+}
+
+// "Effective" tier shown on the list = residual where set (review approved),
+// otherwise inherent. Mirrors what users actually want to see on a row glance.
+function effectiveTier(v: VendorRecord): RiskTier | null {
+  return v.residualTier ?? v.inherentTier;
 }
 
 export function VendorsPage() {
@@ -105,7 +116,7 @@ export function VendorsPage() {
   });
   const search = filters.search;
   const statusFilter = filters.status as 'ALL' | VendorStatus;
-  const tierFilter = filters.tier as 'ALL' | VendorTier;
+  const tierFilter = filters.tier as 'ALL' | RiskTier;
   const tab = filters.tab as TabKey;
 
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -122,15 +133,24 @@ export function VendorsPage() {
     staleTime: 30_000,
   });
 
+  // Org users feed the owner picker. listUsers() pattern matches TestsPage and
+  // TestDetailPanel; not enough repeated use yet to justify a shared component.
+  const { data: orgUsers = [] } = useQuery({
+    queryKey: QK.users(),
+    queryFn: () => usersService.listUsers(),
+    staleTime: 5 * 60_000,
+  });
+
   const stats = useMemo(() => {
     const dueSoon = vendors.filter((v) =>
       isDueWithinDays(v.nextAssessmentAt, 30),
     ).length;
-    const highRisk = vendors.filter(
-      (v) => v.tier === 'HIGH' || v.tier === 'CRITICAL',
-    ).length;
-    const openFindings = vendors.reduce((sum, v) => sum + v.openFindings, 0);
-    return { dueSoon, highRisk, openFindings };
+    const highRisk = vendors.filter((v) => {
+      const tier = effectiveTier(v);
+      return tier === 'HIGH' || tier === 'CRITICAL';
+    }).length;
+    const monitored = vendors.filter((v) => v.status === 'MONITORED').length;
+    return { dueSoon, highRisk, monitored };
   }, [vendors]);
 
   const filteredVendors = useMemo(() => {
@@ -138,26 +158,36 @@ export function VendorsPage() {
     return vendors
       .filter((v) => {
         if (!normalized) return true;
+        const ownerName = v.ownerUser?.name?.toLowerCase() ?? '';
+        const ownerEmail = v.ownerUser?.email.toLowerCase() ?? '';
         return (
           v.name.toLowerCase().includes(normalized) ||
           v.category.toLowerCase().includes(normalized) ||
-          v.owner.toLowerCase().includes(normalized)
+          ownerName.includes(normalized) ||
+          ownerEmail.includes(normalized)
         );
       })
       .filter((v) =>
         statusFilter === 'ALL' ? true : v.status === statusFilter,
       )
-      .filter((v) => (tierFilter === 'ALL' ? true : v.tier === tierFilter))
+      .filter((v) =>
+        tierFilter === 'ALL' ? true : effectiveTier(v) === tierFilter,
+      )
       .filter((v) => {
         if (tab === 'ALL') return true;
         if (tab === 'DUE') return isDueWithinDays(v.nextAssessmentAt, 30);
-        return v.tier === 'HIGH' || v.tier === 'CRITICAL';
+        const tier = effectiveTier(v);
+        return tier === 'HIGH' || tier === 'CRITICAL';
       })
-      .sort(
-        (a, b) =>
-          new Date(a.nextAssessmentAt).getTime() -
-          new Date(b.nextAssessmentAt).getTime(),
-      );
+      .sort((a, b) => {
+        const aTime = a.nextAssessmentAt
+          ? new Date(a.nextAssessmentAt).getTime()
+          : Number.POSITIVE_INFINITY;
+        const bTime = b.nextAssessmentAt
+          ? new Date(b.nextAssessmentAt).getTime()
+          : Number.POSITIVE_INFINITY;
+        return aTime - bTime;
+      });
   }, [vendors, search, statusFilter, tierFilter, tab]);
 
   const activeFilters = [
@@ -206,15 +236,15 @@ export function VendorsPage() {
   ];
 
   async function onCreateVendor() {
-    if (!form.name.trim() || !form.category.trim() || !form.owner.trim())
+    if (!form.name.trim() || !form.category.trim() || !form.ownerUserId) {
       return;
+    }
     setCreating(true);
     try {
       await vendorsService.create({
         ...form,
         name: form.name.trim(),
         category: form.category.trim(),
-        owner: form.owner.trim(),
         website: form.website?.trim() || undefined,
       });
       setForm(emptyVendorInput);
@@ -286,13 +316,13 @@ export function VendorsPage() {
           <Card>
             <CardContent className="pt-6">
               <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                {t('stats.openFindings')}
+                {t('stats.monitored')}
               </p>
               <div className="mt-2 flex items-center justify-between">
                 <p className="text-2xl font-bold text-foreground">
-                  {stats.openFindings}
+                  {stats.monitored}
                 </p>
-                <FileWarning className="h-5 w-5 text-red-500" />
+                <ClipboardCheck className="h-5 w-5 text-emerald-500" />
               </div>
             </CardContent>
           </Card>
@@ -328,7 +358,7 @@ export function VendorsPage() {
                   value: tierFilter,
                   placeholder: t('filters.riskTier'),
                   onChange: (value) =>
-                    update({ tier: value as 'ALL' | VendorTier }),
+                    update({ tier: value as 'ALL' | RiskTier }),
                   options: [
                     { value: 'ALL', label: t('filters.allRiskTiers') },
                     { value: 'LOW', label: t('riskLevel.LOW') },
@@ -367,10 +397,9 @@ export function VendorsPage() {
                   <tr className="border-b text-left text-xs uppercase tracking-wide text-muted-foreground">
                     <th className="py-3 pr-4">{t('columns.name')}</th>
                     <th className="py-3 pr-4">{t('columns.category')}</th>
-                    <th className="py-3 pr-4">{t('table.tier')}</th>
-                    <th className="py-3 pr-4">{t('detail.score')}</th>
-                    <th className="py-3 pr-4">{t('detail.questionnaire')}</th>
-                    <th className="py-3 pr-4">{t('detail.openFindings')}</th>
+                    <th className="py-3 pr-4">{t('table.inherentTier')}</th>
+                    <th className="py-3 pr-4">{t('table.residualTier')}</th>
+                    <th className="py-3 pr-4">{t('table.inherentScore')}</th>
                     <th className="py-3 pr-4">{t('table.nextReview')}</th>
                     <th className="py-3 pr-0">{t('columns.status')}</th>
                   </tr>
@@ -379,7 +408,7 @@ export function VendorsPage() {
                   {isLoading && (
                     <tr>
                       <td
-                        colSpan={8}
+                        colSpan={7}
                         className="py-10 text-center text-muted-foreground"
                       >
                         {t('detail.loadingDescription')}
@@ -389,73 +418,91 @@ export function VendorsPage() {
                   {!isLoading && filteredVendors.length === 0 && (
                     <tr>
                       <td
-                        colSpan={8}
+                        colSpan={7}
                         className="py-10 text-center text-muted-foreground"
                       >
                         {t('noResults')}
                       </td>
                     </tr>
                   )}
-                  {filteredVendors.map((vendor) => (
-                    <tr
-                      key={vendor.id}
-                      className="cursor-pointer border-b last:border-b-0 hover:bg-muted"
-                      onClick={() => navigate(`/vendors/${vendor.id}`)}
-                    >
-                      <td className="py-3 pr-4">
-                        <div>
-                          <p className="font-medium text-foreground">
-                            {vendor.name}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {t('detail.ownerLabel', { owner: vendor.owner })}
-                          </p>
-                        </div>
-                      </td>
-                      <td className="py-3 pr-4 text-foreground">
-                        {vendor.category}
-                      </td>
-                      <td className="py-3 pr-4">
-                        <Badge
-                          variant="outline"
-                          className={tierMeta[vendor.tier].className}
-                        >
-                          {t(`riskLevel.${vendor.tier}`)}
-                        </Badge>
-                      </td>
-                      <td
-                        className={`py-3 pr-4 ${scoreColor(vendor.securityScore)}`}
+                  {filteredVendors.map((vendor) => {
+                    const inherent = vendor.inherentTier;
+                    const residual = vendor.residualTier;
+                    return (
+                      <tr
+                        key={vendor.id}
+                        className="cursor-pointer border-b last:border-b-0 hover:bg-muted"
+                        onClick={() => navigate(`/vendors/${vendor.id}`)}
                       >
-                        {vendor.securityScore}
-                      </td>
-                      <td className="py-3 pr-4">
-                        <div className="w-28">
-                          <Progress value={vendor.questionnaireCompletion} />
-                          <p className="mt-1 text-xs text-muted-foreground">
-                            {vendor.questionnaireCompletion}%
-                          </p>
-                        </div>
-                      </td>
-                      <td className="py-3 pr-4 text-foreground">
-                        {vendor.openFindings}
-                      </td>
-                      <td className="py-3 pr-4 text-foreground">
-                        {vendor.nextAssessmentAt
-                          ? new Date(
-                              vendor.nextAssessmentAt,
-                            ).toLocaleDateString()
-                          : t('emptyValue')}
-                      </td>
-                      <td className="py-3 pr-0">
-                        <Badge
-                          variant="outline"
-                          className={statusMeta[vendor.status].className}
+                        <td className="py-3 pr-4">
+                          <div>
+                            <p className="font-medium text-foreground">
+                              {vendor.name}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {t('detail.ownerLabel', {
+                                owner:
+                                  vendor.ownerUser?.name ??
+                                  vendor.ownerUser?.email ??
+                                  t('emptyValue'),
+                              })}
+                            </p>
+                          </div>
+                        </td>
+                        <td className="py-3 pr-4 text-foreground">
+                          {vendor.category}
+                        </td>
+                        <td className="py-3 pr-4">
+                          {inherent ? (
+                            <Badge
+                              variant="outline"
+                              className={tierMeta[inherent].className}
+                            >
+                              {t(`riskLevel.${inherent}`)}
+                            </Badge>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">
+                              {t('emptyValue')}
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-3 pr-4">
+                          {residual ? (
+                            <Badge
+                              variant="outline"
+                              className={tierMeta[residual].className}
+                            >
+                              {t(`riskLevel.${residual}`)}
+                            </Badge>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">
+                              {t('table.pendingReview')}
+                            </span>
+                          )}
+                        </td>
+                        <td
+                          className={`py-3 pr-4 ${scoreColor(vendor.inherentRiskScore)}`}
                         >
-                          {t(`status.${vendor.status}`)}
-                        </Badge>
-                      </td>
-                    </tr>
-                  ))}
+                          {vendor.inherentRiskScore ?? t('emptyValue')}
+                        </td>
+                        <td className="py-3 pr-4 text-foreground">
+                          {vendor.nextAssessmentAt
+                            ? new Date(
+                                vendor.nextAssessmentAt,
+                              ).toLocaleDateString()
+                            : t('emptyValue')}
+                        </td>
+                        <td className="py-3 pr-0">
+                          <Badge
+                            variant="outline"
+                            className={statusMeta[vendor.status].className}
+                          >
+                            {t(`status.${vendor.status}`)}
+                          </Badge>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -474,27 +521,34 @@ export function VendorsPage() {
           </DialogHeader>
           <div className="grid gap-3">
             <Input
-              placeholder="Vendor name"
+              placeholder={t('dialog.nameField')}
               value={form.name}
               onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
             />
             <Input
-              placeholder="Category (e.g. Identity, Payroll)"
+              placeholder={t('dialog.categoryField')}
               value={form.category}
               onChange={(e) =>
                 setForm((p) => ({ ...p, category: e.target.value }))
               }
             />
-            <Input
-              placeholder="Business owner"
-              value={form.owner}
+            <select
+              value={form.ownerUserId}
               onChange={(e) =>
-                setForm((p) => ({ ...p, owner: e.target.value }))
+                setForm((p) => ({ ...p, ownerUserId: e.target.value }))
               }
-            />
+              className="rounded-md border border-border px-3 py-2 text-sm"
+            >
+              <option value="">{t('dialog.ownerPlaceholder')}</option>
+              {orgUsers.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.name ? `${u.name} (${u.email})` : u.email}
+                </option>
+              ))}
+            </select>
             <Input
-              placeholder="Website (optional)"
-              value={form.website}
+              placeholder={t('dialog.websiteField')}
+              value={form.website ?? ''}
               onChange={(e) =>
                 setForm((p) => ({ ...p, website: e.target.value }))
               }
@@ -505,7 +559,8 @@ export function VendorsPage() {
                 onChange={(e) =>
                   setForm((p) => ({
                     ...p,
-                    businessCriticality: e.target.value as any,
+                    businessCriticality:
+                      e.target.value as CreateVendorInput['businessCriticality'],
                   }))
                 }
                 className="rounded-md border border-border px-3 py-2 text-sm"
@@ -517,7 +572,10 @@ export function VendorsPage() {
               <select
                 value={form.dataClass}
                 onChange={(e) =>
-                  setForm((p) => ({ ...p, dataClass: e.target.value as any }))
+                  setForm((p) => ({
+                    ...p,
+                    dataClass: e.target.value as CreateVendorInput['dataClass'],
+                  }))
                 }
                 className="rounded-md border border-border px-3 py-2 text-sm"
               >
@@ -530,10 +588,18 @@ export function VendorsPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsAddOpen(false)}>
-              Cancel
+              {t('dialog.cancel')}
             </Button>
-            <Button onClick={onCreateVendor} disabled={creating}>
-              {creating ? 'Creating...' : 'Create vendor'}
+            <Button
+              onClick={onCreateVendor}
+              disabled={
+                creating ||
+                !form.name.trim() ||
+                !form.category.trim() ||
+                !form.ownerUserId
+              }
+            >
+              {creating ? t('dialog.creating') : t('dialog.create')}
             </Button>
           </DialogFooter>
         </DialogContent>

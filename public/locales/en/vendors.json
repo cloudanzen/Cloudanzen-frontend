@@ -35,7 +35,8 @@
     "vendors": "Vendors",
     "highRisk": "High risk",
     "assessmentsDue": "Assessments due (30d)",
-    "openFindings": "Open findings"
+    "openFindings": "Open findings",
+    "monitored": "Monitored"
   },
   "filters": {
     "searchLabel": "Search: {{value}}",
@@ -54,20 +55,43 @@
   },
   "table": {
     "tier": "Tier",
-    "nextReview": "Next review"
+    "inherentTier": "Inherent",
+    "residualTier": "Residual",
+    "inherentScore": "Inherent score",
+    "nextReview": "Next review",
+    "pendingReview": "Pending review"
+  },
+  "inherent": {
+    "tierLabel": "Inherent: {{tier}}"
+  },
+  "residual": {
+    "tierLabel": "Residual: {{tier}}",
+    "pending": "Residual: pending review"
   },
   "dialog": {
     "addVendorTitle": "Add vendor",
-    "addVendorDescription": "Capture basic details and start the assessment workflow."
+    "addVendorDescription": "Capture basic details and start the assessment workflow.",
+    "nameField": "Vendor name",
+    "categoryField": "Category (e.g. Identity, Payroll)",
+    "ownerPlaceholder": "Select owner…",
+    "websiteField": "Website (optional)",
+    "cancel": "Cancel",
+    "create": "Create vendor",
+    "creating": "Creating...",
+    "saving": "Saving..."
   },
   "detail": {
     "loading": "Loading...",
     "loadingDescription": "Loading vendor details...",
     "notFound": "Not found",
     "vendorNotFound": "Vendor not found.",
+    "back": "Back",
     "backToVendors": "Back to Vendors",
     "ownerLabel": "Owner: {{owner}}",
+    "nextReviewLabel": "Next review: {{date}}",
+    "owner": "Owner",
     "overview": "Overview",
+    "reviews": "Reviews",
     "assessment": "Assessment",
     "riskContext": "Risk Context",
     "notes": "Notes",
@@ -95,14 +119,20 @@
     "questionnaireCompletion": "Questionnaire Completion",
     "completion": "Completion",
     "openFindings": "Open Findings",
+    "dpa": "DPA Signed",
     "dpaSigned": "DPA Signed",
+    "dpaCheckboxLabel": "Signed",
     "dpaDescription": "Data Processing Agreement",
+    "yes": "Yes",
+    "no": "No",
     "completing": "Completing...",
     "markAssessmentComplete": "Mark Assessment Complete",
     "subProcessors": "Sub-processors",
+    "subprocessors": "Sub-processors",
     "questionnaire": "Questionnaire",
     "lastAssessment": "Last Assessment",
     "nextAssessment": "Next Assessment",
+    "nextReview": "Next review",
     "contractEnd": "Contract End",
     "lifecycleActions": "Lifecycle Actions",
     "classification": "Classification",
@@ -110,18 +140,53 @@
     "missionCritical": "Mission-critical",
     "businessImportant": "Business-important",
     "operational": "Operational",
+    "dataClass": "Data Class",
     "dataClassification": "Data Classification",
     "contractEndDate": "Contract End Date",
+    "trustCenter": "Trust Center",
     "inherentRisk": "Inherent Risk",
+    "inherentScore": "Inherent score",
+    "residualScore": "Residual score",
     "riskHighPii": "High inherent risk — mission-critical vendor with access to PII data. Requires annual assessment and signed DPA. Escalate any open findings immediately.",
     "riskElevatedCritical": "Elevated inherent risk — mission-critical vendor. Validate access scope and schedule assessment within 6 months.",
     "riskElevatedPii": "Elevated inherent risk — processes PII data. Ensure DPA is signed and questionnaire is complete before approving.",
     "riskStandard": "Standard inherent risk profile. Maintain regular annual assessment cycle.",
     "saving": "Saving...",
+    "save": "Save",
     "saveChanges": "Save changes",
     "notesPlaceholder": "Add notes about this vendor, assessment findings, or decisions...",
     "savingNotes": "Saving...",
     "saveNotes": "Save notes"
+  },
+  "review": {
+    "start": "Start review",
+    "starting": "Starting...",
+    "empty": "No reviews yet. Start the first review to begin the security assessment cycle.",
+    "cycleLabel": "Cycle #{{cycle}}",
+    "startedLabel": "Started {{date}}",
+    "reviewer": "Reviewer",
+    "approver": "Approver",
+    "residual": "Residual",
+    "decisionNotes": "Decision notes",
+    "decisionNotesPlaceholder": "Required: rationale for the decision...",
+    "submitForApproval": "Submit for approval",
+    "decide": "Approve / Reject",
+    "cancel": "Cancel review",
+    "decisionTitle": "Review decision",
+    "decisionDescription": "Record the residual risk and any conditions. Decision notes are required.",
+    "submitDecision": "Submit decision",
+    "decision": {
+      "APPROVED": "Approve",
+      "APPROVED_WITH_CONDITIONS": "Approve with conditions",
+      "REJECTED": "Reject"
+    },
+    "status": {
+      "DRAFT": "Draft",
+      "IN_PROGRESS": "In progress",
+      "UNDER_APPROVAL": "Under approval",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled"
+    }
   },
   "form": {
     "nameLabel": "Vendor Name",

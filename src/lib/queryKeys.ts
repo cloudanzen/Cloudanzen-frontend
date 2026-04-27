@@ -98,7 +98,12 @@ export const QK = {
 
   // Vendors
   vendors: (filter?: object) => ['vendors', 'list', filter] as const,
+  vendor: (id: string) => ['vendors', 'detail', id] as const,
   vendorDetail: (id: string) => ['vendors', 'detail', id] as const,
+  vendorReviews: (vendorId: string) =>
+    ['vendors', 'reviews', vendorId] as const,
+  vendorContacts: (vendorId: string) =>
+    ['vendors', 'contacts', vendorId] as const,
   integrationsStatus: () => ['integrations', 'status'] as const,
 
   // Frameworks

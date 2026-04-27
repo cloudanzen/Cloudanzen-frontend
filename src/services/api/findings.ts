@@ -30,7 +30,11 @@ export interface FindingRecord {
   riskId: string | null;
   remediationOwner: string | null;
   dueAt: string | null;
-  sourceType: 'TEST_RUN' | 'AUDIT' | 'MANUAL';
+  sourceType: 'TEST_RUN' | 'AUDIT' | 'MANUAL' | 'VENDOR_REVIEW' | 'VENDOR_AUTOMATED';
+  // Vendor lifecycle linkage. Both nullable; only set when the finding came
+  // from a vendor review or was manually tagged to a vendor.
+  vendorId: string | null;
+  vendorReviewId: string | null;
   createdAt: string;
   updatedAt: string;
   ageInDays?: number;
@@ -50,6 +54,8 @@ export interface FindingRecord {
     startedAt?: string | null;
     durationMs?: number | null;
   } | null;
+  vendor?: { id: string; name: string } | null;
+  vendorReview?: { id: string; cycleNumber: number; status: string } | null;
   remediations?: FindingRemediationRecord[];
 }
 
@@ -59,13 +65,31 @@ export interface ListFindingsParams {
   controlId?: string;
   assetId?: string;
   remediationOwner?: string;
-  sourceType?: 'TEST_RUN' | 'AUDIT' | 'MANUAL';
+  sourceType?: 'TEST_RUN' | 'AUDIT' | 'MANUAL' | 'VENDOR_REVIEW' | 'VENDOR_AUTOMATED';
+  vendorId?: string;
+  vendorReviewId?: string;
 }
 
 export interface UpdateFindingRequest {
   status?: FindingStatus;
   dueAt?: string | null;
   remediationOwner?: string | null;
+}
+
+// Manual finding creation (Vanta parity, Phase 1). Used by the vendor review
+// UI to log a gap discovered during diligence.
+export interface CreateFindingRequest {
+  title: string;
+  description?: string | null;
+  severity: FindingSeverity;
+  sourceType?: 'VENDOR_REVIEW' | 'VENDOR_AUTOMATED' | 'MANUAL';
+  vendorId?: string | null;
+  vendorReviewId?: string | null;
+  controlId?: string | null;
+  riskId?: string | null;
+  assetId?: string | null;
+  remediationOwner?: string | null;
+  dueAt?: string | null;
 }
 
 export const findingsService = {
@@ -92,8 +116,14 @@ export const findingsService = {
     if (params?.remediationOwner)
       qs.set('remediationOwner', params.remediationOwner);
     if (params?.sourceType) qs.set('sourceType', params.sourceType);
+    if (params?.vendorId) qs.set('vendorId', params.vendorId);
+    if (params?.vendorReviewId) qs.set('vendorReviewId', params.vendorReviewId);
     const query = qs.toString() ? `?${qs.toString()}` : '';
     return apiClient.get(`/api/findings${query}`);
+  },
+
+  create(data: CreateFindingRequest): Promise<FindingRecord> {
+    return apiClient.post('/api/findings', data);
   },
 
   myTasks(): Promise<FindingRecord[]> {
