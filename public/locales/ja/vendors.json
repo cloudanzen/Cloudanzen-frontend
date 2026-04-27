@@ -36,7 +36,9 @@
     "highRisk": "高リスク",
     "assessmentsDue": "評価期限 (30日)",
     "openFindings": "未対応の発見事項",
-    "monitored": "監視中"
+    "monitored": "監視中",
+    "discovered": "検出済みアプリ",
+    "intakeRequests": "申請待ち"
   },
   "filters": {
     "searchLabel": "検索: {{value}}",
@@ -196,5 +198,51 @@
     "websiteLabel": "ウェブサイト",
     "riskLevelLabel": "リスクレベル",
     "statusLabel": "ステータス"
+  },
+  "discovery": {
+    "title": "ベンダー検出",
+    "description": "まだベンダーとして管理されていない IdP 管理アプリを確認します。",
+    "searchPlaceholder": "検出済みアプリを検索...",
+    "pendingCandidates": "保留候補 {{count}} 件",
+    "empty": "レビュー待ちの未管理 IdP アプリはありません。",
+    "promote": "昇格",
+    "dismiss": "却下",
+    "mergeInto": "既存ベンダーに統合...",
+    "promoteTitle": "検出アプリを昇格",
+    "ssoEnabled": "SSO 有効",
+    "ssoUnknown": "SSO 状態不明",
+    "promotedSuccess": "検出候補をベンダーに昇格しました。",
+    "promoteFailed": "検出候補の昇格に失敗しました。",
+    "dismissedSuccess": "検出候補を却下しました。",
+    "dismissFailed": "検出候補の却下に失敗しました。",
+    "mergedSuccess": "検出候補を既存ベンダーに統合しました。",
+    "mergeFailed": "検出候補の統合に失敗しました。"
+  },
+  "intake": {
+    "requestCta": "ツールを申請",
+    "requestTitle": "ベンダーを申請",
+    "requestDescription": "レビュー対象のツールまたはベンダーを申請します。",
+    "vendorName": "ベンダー名",
+    "vendorWebsite": "ウェブサイト (任意)",
+    "businessJustification": "このベンダーが必要な理由",
+    "dataAccessRequested": "アクセスするデータ",
+    "expectedUserCount": "想定利用者数",
+    "submit": "申請を送信",
+    "submitting": "送信中...",
+    "requestSubmitted": "ベンダー申請を送信しました。",
+    "submitFailed": "ベンダー申請の送信に失敗しました。",
+    "queueTitle": "ベンダー申請キュー",
+    "queueDescription": "従業員からのベンダー申請を確認します。",
+    "pendingRequests": "保留申請 {{count}} 件",
+    "empty": "保留中の申請はありません。",
+    "reviewRequest": "申請を確認",
+    "reviewTitle": "申請を確認",
+    "approve": "承認",
+    "reject": "却下",
+    "reviewerNotes": "レビューノート",
+    "submitDecision": "決定を送信",
+    "approvedSuccess": "ベンダー申請を承認しました。",
+    "rejectedSuccess": "ベンダー申請を却下しました。",
+    "decisionFailed": "ベンダー申請の更新に失敗しました。"
   }
 }

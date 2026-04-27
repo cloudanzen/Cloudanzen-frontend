@@ -23,6 +23,8 @@
     "snapshot": "スナップショット",
     "riskEngine": "リスクエンジン",
     "vendors": "ベンダー",
+    "vendorDiscovery": "ベンダー検出",
+    "vendorIntakeRequests": "ベンダー申請キュー",
     "assets": "資産",
     "inventory": "インベントリ",
     "mergeReview": "マージレビュー",

@@ -23,6 +23,8 @@
     "snapshot": "Snapshot",
     "riskEngine": "Risk Engine",
     "vendors": "Vendors",
+    "vendorDiscovery": "Vendor Discovery",
+    "vendorIntakeRequests": "Vendor Intake Requests",
     "assets": "Assets",
     "inventory": "Inventory",
     "mergeReview": "Merge review",
