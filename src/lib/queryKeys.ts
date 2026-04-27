@@ -102,8 +102,22 @@ export const QK = {
   vendorDetail: (id: string) => ['vendors', 'detail', id] as const,
   vendorReviews: (vendorId: string) =>
     ['vendors', 'reviews', vendorId] as const,
+  vendorReviewDocuments: (vendorId: string, reviewId: string) =>
+    ['vendors', 'reviews', vendorId, 'documents', reviewId] as const,
+  vendorQuestionnaireAnswers: (vendorId: string, reviewId: string) =>
+    ['vendors', 'reviews', vendorId, 'questionnaire', reviewId] as const,
+  vendorQuestionnaireSuggestions: (vendorId: string, reviewId: string) =>
+    ['vendors', 'reviews', vendorId, 'questionnaire', reviewId, 'suggestions'] as const,
+  vendorQuestionnaireStatus: (vendorId: string, reviewId: string) =>
+    ['vendors', 'reviews', vendorId, 'questionnaire', reviewId, 'status'] as const,
   vendorContacts: (vendorId: string) =>
     ['vendors', 'contacts', vendorId] as const,
+  vendorFindings: (vendorId: string) =>
+    ['vendors', 'findings', vendorId] as const,
+  vendorMonitoring: (vendorId: string, filter?: object) =>
+    ['vendors', 'monitoring', vendorId, filter] as const,
+  vendorIncidents: (vendorId: string) =>
+    ['vendors', 'incidents', vendorId] as const,
   vendorDiscoveryCandidates: (filter?: object) =>
     ['vendors', 'discovery', filter] as const,
   vendorIntakeRequests: (filter?: object) =>

@@ -140,39 +140,6 @@ export interface VendorReviewActor {
   email: string;
 }
 
-}
-
-export interface CreateVendorContactInput {
-  name: string;
-  email?: string | null;
-  phone?: string | null;
-  role?: VendorContactRole;
-  isPrimary?: boolean;
-  notes?: string | null;
-}
-
-export type UpdateVendorContactInput = Partial<CreateVendorContactInput>;
-
-// ── Review types ─────────────────────────────────────────────────────────────
-
-export type VendorReviewStatus =
-  | 'DRAFT'
-  | 'IN_PROGRESS'
-  | 'UNDER_APPROVAL'
-  | 'COMPLETED'
-  | 'CANCELLED';
-
-export type VendorReviewDecision =
-  | 'APPROVED'
-  | 'APPROVED_WITH_CONDITIONS'
-  | 'REJECTED';
-
-export interface VendorReviewActor {
-  id: string;
-  name: string | null;
-  email: string;
-}
-
 export interface VendorReview {
   id: string;
   organizationId: string;
@@ -216,6 +183,137 @@ export interface ReviewDecisionInput {
   decisionNotes: string;
   validUntil?: string | null;
 }
+
+export type VendorDocumentKind = 'SOC2' | 'ISO27001' | 'PEN_TEST' | 'DPA' | 'PRIVACY_POLICY' | 'OTHER';
+
+export interface VendorDocumentControlLink {
+  id: string;
+  controlId: string;
+  confidence: 'HIGH' | 'MEDIUM' | 'LOW' | null;
+  acceptedAt: string;
+  notes: string | null;
+  control: { id: string; title: string; isoReference: string | null } | null;
+}
+
+export interface VendorReviewDocument {
+  id: string;
+  vendorId: string;
+  vendorReviewId: string | null;
+  kind: VendorDocumentKind;
+  fileName: string;
+  fileUrl: string;
+  size: number;
+  uploadedAt: string;
+  uploadedByUserId: string | null;
+  aiDocumentId: string | null;
+  downloadUrl: string | null;
+  extractionStatus: 'READY' | 'FAILED';
+  extractionWarning: string | null;
+  controlLinks: VendorDocumentControlLink[];
+}
+
+export interface VendorQuestionnaireAnswer {
+  id: string;
+  questionKey: string;
+  questionText: string;
+  draftText: string | null;
+  finalText: string | null;
+  citationsJson: Array<{
+    chunkId: string;
+    documentId: string;
+    documentTitle: string;
+    excerpt: string;
+  }> | null;
+  status: 'PENDING' | 'ACCEPTED' | 'EDITED' | 'DISMISSED';
+  confidence: 'HIGH' | 'MEDIUM' | 'LOW' | null;
+  generationId: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface VendorQuestionnaireRunResult {
+  answers: VendorQuestionnaireAnswer[];
+  suggestedControls: Array<{
+    documentId: string;
+    controlId: string;
+    controlTitle: string;
+    confidence: 'HIGH' | 'MEDIUM' | 'LOW';
+    rationale: string;
+  }>;
+  warning: string | null;
+  generationId?: string;
+}
+
+export interface VendorQuestionnaireStatus {
+  state: 'IDLE' | 'QUEUED' | 'COMPLETED';
+  generationId: string | null;
+  answerCount: number;
+  suggestionCount: number;
+  queuedAt: string | null;
+  completedAt: string | null;
+}
+
+// ── Monitoring types ──────────────────────────────────────────────────────────
+
+export type VendorMonitoringEventType =
+  | 'BREACH' | 'VULN_DISCLOSED' | 'CERT_EXPIRED' | 'CERT_REISSUED'
+  | 'SOC2_REISSUED' | 'SUBPROCESSOR_CHANGE' | 'POLICY_UPDATE' | 'ADVERSE_NEWS' | 'OTHER';
+export type VendorMonitoringSeverity = 'INFO' | 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+
+export interface VendorMonitoringEvent {
+  id: string;
+  organizationId: string;
+  vendorId: string;
+  type: VendorMonitoringEventType;
+  severity: VendorMonitoringSeverity;
+  title: string;
+  details: Record<string, unknown> | null;
+  sourceUrl: string | null;
+  sourceSystem: string | null;
+  detectedAt: string;
+  acknowledgedAt: string | null;
+  acknowledgedByUserId: string | null;
+  triggeredReviewId: string | null;
+  createdAt: string;
+  acknowledgedBy?: VendorOwnerSummary | null;
+}
+
+export interface CreateVendorMonitoringEventInput {
+  type: VendorMonitoringEventType;
+  severity?: VendorMonitoringSeverity;
+  title: string;
+  details?: Record<string, unknown> | null;
+  sourceUrl?: string | null;
+  sourceSystem?: string | null;
+  detectedAt: string;
+}
+
+// ── Incident types ────────────────────────────────────────────────────────────
+
+export type VendorIncidentKind = 'BREACH' | 'OUTAGE' | 'SUBPROCESSOR_CHANGE' | 'OTHER';
+
+export interface VendorIncident {
+  id: string;
+  organizationId: string;
+  vendorId: string;
+  kind: VendorIncidentKind;
+  summary: string;
+  occurredAt: string;
+  sourceUrl: string | null;
+  scoreDelta: number;
+  loggedByUserId: string | null;
+  createdAt: string;
+}
+
+export interface CreateVendorIncidentInput {
+  kind: VendorIncidentKind;
+  summary: string;
+  occurredAt: string;
+  sourceUrl?: string | null;
+  scoreDelta?: number;
+}
+
+// ── Discovery types ───────────────────────────────────────────────────────────
 
 export type VendorDiscoveryStatus = 'PENDING' | 'PROMOTED' | 'DISMISSED' | 'MERGED';
 export type VendorDiscoverySource = 'OKTA' | 'AZUREAD' | 'JUMPCLOUD' | 'WORKSPACE';
@@ -394,6 +492,77 @@ export const vendorsService = {
       );
       return res.data;
     },
+    documents: {
+      async list(vendorId: string, reviewId: string): Promise<VendorReviewDocument[]> {
+        const res = await apiClient.get<ApiResp<VendorReviewDocument[]>>(
+          `/api/vendors/${vendorId}/reviews/${reviewId}/documents`,
+        );
+        return res?.data ?? [];
+      },
+      async upload(vendorId: string, reviewId: string, file: File, kind: VendorDocumentKind): Promise<VendorReviewDocument> {
+        const formData = new FormData();
+        formData.append('file', file);
+        const response = await fetch(
+          `${apiClient.baseURL}/api/vendors/${vendorId}/reviews/${reviewId}/documents?kind=${encodeURIComponent(kind)}`,
+          {
+            method: 'POST',
+            body: formData,
+            credentials: 'include',
+            headers: apiClient.token ? { Authorization: `Bearer ${apiClient.token}` } : {},
+          },
+        );
+        if (!response.ok) {
+          const payload = await response.json().catch(() => undefined);
+          throw new Error(payload?.message || 'Failed to upload vendor document');
+        }
+        const payload = await response.json();
+        return payload.data;
+      },
+      async remove(vendorId: string, reviewId: string, documentId: string): Promise<void> {
+        await apiClient.delete<void>(`/api/vendors/${vendorId}/reviews/${reviewId}/documents/${documentId}`);
+      },
+      async createControlLink(vendorId: string, reviewId: string, documentId: string, input: { controlId: string; confidence?: 'HIGH' | 'MEDIUM' | 'LOW'; notes?: string | null }): Promise<VendorDocumentControlLink> {
+        const res = await apiClient.post<ApiResp<VendorDocumentControlLink>>(
+          `/api/vendors/${vendorId}/reviews/${reviewId}/documents/${documentId}/control-links`,
+          input,
+        );
+        return res.data;
+      },
+    },
+    questionnaire: {
+      async list(vendorId: string, reviewId: string): Promise<VendorQuestionnaireAnswer[]> {
+        const res = await apiClient.get<ApiResp<VendorQuestionnaireAnswer[]>>(
+          `/api/vendors/${vendorId}/reviews/${reviewId}/questionnaire/answers`,
+        );
+        return res?.data ?? [];
+      },
+      async listSuggestions(vendorId: string, reviewId: string): Promise<VendorQuestionnaireRunResult['suggestedControls']> {
+        const res = await apiClient.get<ApiResp<VendorQuestionnaireRunResult['suggestedControls']>>(
+          `/api/vendors/${vendorId}/reviews/${reviewId}/questionnaire/suggestions`,
+        );
+        return res?.data ?? [];
+      },
+      async getStatus(vendorId: string, reviewId: string): Promise<VendorQuestionnaireStatus> {
+        const res = await apiClient.get<ApiResp<VendorQuestionnaireStatus>>(
+          `/api/vendors/${vendorId}/reviews/${reviewId}/questionnaire/status`,
+        );
+        return res.data;
+      },
+      async run(vendorId: string, reviewId: string): Promise<VendorQuestionnaireRunResult> {
+        const res = await apiClient.post<ApiResp<{ queued: boolean; reviewId: string }>>(
+          `/api/vendors/${vendorId}/reviews/${reviewId}/questionnaire/run`,
+          {},
+        );
+        return { answers: [], suggestedControls: [], warning: null, generationId: undefined, ...res.data } as VendorQuestionnaireRunResult;
+      },
+      async updateAnswer(vendorId: string, reviewId: string, answerId: string, input: { status: 'ACCEPTED' | 'EDITED' | 'DISMISSED'; finalText?: string | null }): Promise<VendorQuestionnaireAnswer> {
+        const res = await apiClient.patch<ApiResp<VendorQuestionnaireAnswer>>(
+          `/api/vendors/${vendorId}/reviews/${reviewId}/questionnaire/answers/${answerId}`,
+          input,
+        );
+        return res.data;
+      },
+    },
   },
 
   discovery: {
@@ -425,6 +594,46 @@ export const vendorsService = {
       const res = await apiClient.post<ApiResp<VendorDiscoveryCandidate>>(
         `/api/vendors/discovery/candidates/${candidateId}/merge`,
         { vendorId },
+      );
+      return res.data;
+    },
+  },
+
+  monitoring: {
+    async list(vendorId: string, params?: { acknowledged?: 'true' | 'false'; severity?: VendorMonitoringSeverity }): Promise<VendorMonitoringEvent[]> {
+      const res = await apiClient.get<ApiResp<VendorMonitoringEvent[]>>(
+        `/api/vendors/${vendorId}/monitoring`,
+        params,
+      );
+      return res?.data ?? [];
+    },
+    async create(vendorId: string, input: CreateVendorMonitoringEventInput): Promise<VendorMonitoringEvent> {
+      const res = await apiClient.post<ApiResp<VendorMonitoringEvent>>(
+        `/api/vendors/${vendorId}/monitoring`,
+        input,
+      );
+      return res.data;
+    },
+    async acknowledge(vendorId: string, eventId: string): Promise<VendorMonitoringEvent> {
+      const res = await apiClient.post<ApiResp<VendorMonitoringEvent>>(
+        `/api/vendors/${vendorId}/monitoring/${eventId}/acknowledge`,
+        {},
+      );
+      return res.data;
+    },
+  },
+
+  incidents: {
+    async list(vendorId: string): Promise<VendorIncident[]> {
+      const res = await apiClient.get<ApiResp<VendorIncident[]>>(
+        `/api/vendors/${vendorId}/incidents`,
+      );
+      return res?.data ?? [];
+    },
+    async create(vendorId: string, input: CreateVendorIncidentInput): Promise<VendorIncident> {
+      const res = await apiClient.post<ApiResp<VendorIncident>>(
+        `/api/vendors/${vendorId}/incidents`,
+        input,
       );
       return res.data;
     },
