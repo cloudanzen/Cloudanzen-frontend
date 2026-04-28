@@ -3,7 +3,7 @@ import { apiClient } from './client';
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export type AuditType    = 'INTERNAL' | 'EXTERNAL' | 'SURVEILLANCE' | 'RECERTIFICATION';
-export type AuditStatus  = 'DRAFT' | 'PLANNED' | 'IN_PROGRESS' | 'COMPLETED';
+export type AuditStatus  = 'DRAFT' | 'UPCOMING' | 'PLANNED' | 'IN_PROGRESS' | 'AWAITING_REPORT' | 'COMPLETED';
 export type AuditControlStatus = 'PENDING' | 'COMPLIANT' | 'NON_COMPLIANT' | 'NOT_APPLICABLE';
 export type FindingSeverity = 'MINOR' | 'MAJOR' | 'OBSERVATION' | 'OFI';
 export type AuditEvidenceStatus = 'PENDING' | 'READY' | 'FLAGGED' | 'APPROVED';
@@ -133,12 +133,16 @@ export interface AuditRecord {
   id:                   string;
   name:                 string;
   type:                 AuditType;
+  frameworkId:          string | null;
   frameworkName:        string | null;
   periodStart:          string | null;
   periodEnd:            string | null;
   startDate:            string;
   endDate:              string | null;
   status:               AuditStatus;
+  earlyAccessDate:      string | null;
+  startedAt:            string | null;
+  awaitingReportAt:     string | null;
   assignedAuditorId:    string | null;
   externalAuditorEmail: string | null;
   ownerId:              string;
@@ -183,12 +187,15 @@ export interface AuditReportResponse {
 export interface CreateAuditPayload {
   name:                  string;
   type:                  AuditType;
+  frameworkId?:          string;
   frameworkName?:        string;
   periodStart?:          string;
   periodEnd?:            string;
   startDate:             string;
   endDate?:              string;
+  earlyAccessDate?:      string;
   assignedAuditorId?:    string;
+  auditorIds?:           string[];
   externalAuditorEmail?: string;
   controlIds?:           string[];
   allControls?:          boolean;
@@ -247,6 +254,10 @@ export const auditsService = {
 
   close(id: string) {
     return apiClient.post<{ success: boolean; data: AuditRecord }>(`/api/audits/${id}/close`);
+  },
+
+  transitionToAwaitingReport(id: string) {
+    return apiClient.post<{ success: boolean; data: AuditRecord }>(`/api/audits/${id}/transition-to-awaiting-report`);
   },
 
   listControls(id: string) {
