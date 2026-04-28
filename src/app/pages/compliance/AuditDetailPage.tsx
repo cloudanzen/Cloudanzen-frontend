@@ -652,21 +652,21 @@ function ReportTab({ audit, onRefresh }: { audit: AuditRecord; onRefresh: () => 
   const [acting, setActing] = useState(false);
   const snap = audit.snapshot;
 
-  async function handleClose() {
+  async function handleMoveToAwaitingReport() {
     const ok = await confirm({
-      title: t('auditDetail.report.completeConfirmTitle'),
-      description: t('auditDetail.report.completeConfirmDesc'),
-      confirmLabel: t('auditDetail.report.completeConfirmLabel'),
+      title: t('auditDetail.report.awaitingReportConfirmTitle'),
+      description: t('auditDetail.report.awaitingReportConfirmDesc'),
+      confirmLabel: t('auditDetail.report.awaitingReportConfirmLabel'),
       variant: 'default',
     });
     if (!ok) return;
     setActing(true);
     try {
-      await auditsService.close(audit.id);
-      toast.success(t('auditDetail.report.auditCompleted'));
+      await auditsService.transitionToAwaitingReport(audit.id);
+      toast.success(t('auditDetail.report.auditAwaitingReport'));
       onRefresh();
     } catch {
-      toast.error(t('auditDetail.report.completeFailed'));
+      toast.error(t('auditDetail.report.awaitingReportFailed'));
     } finally {
       setActing(false);
     }
@@ -725,7 +725,7 @@ function ReportTab({ audit, onRefresh }: { audit: AuditRecord; onRefresh: () => 
         )}
 
         <div className="flex flex-wrap gap-2">
-          {(audit.status === 'DRAFT' || audit.status === 'PLANNED') && canAudit && (
+          {(audit.status === 'UPCOMING' || audit.status === 'PLANNED') && canAudit && (
             <Button onClick={handleStart} disabled={acting}>
               {acting ? t('auditDetail.report.starting') : t('auditDetail.report.startAudit')}
             </Button>
@@ -733,11 +733,11 @@ function ReportTab({ audit, onRefresh }: { audit: AuditRecord; onRefresh: () => 
           {audit.status === 'IN_PROGRESS' && canAudit && (
             <>
               <Button
-                onClick={handleClose}
+                onClick={handleMoveToAwaitingReport}
                 disabled={acting}
-                className="bg-green-700 hover:bg-green-600"
+                className="bg-purple-700 hover:bg-purple-600"
               >
-                {acting ? t('auditDetail.report.completing') : t('auditDetail.report.completeAudit')}
+                {acting ? t('auditDetail.report.movingToAwaitingReport') : t('auditDetail.report.moveToAwaitingReport')}
               </Button>
               <Button
                 variant="outline"
@@ -748,7 +748,7 @@ function ReportTab({ audit, onRefresh }: { audit: AuditRecord; onRefresh: () => 
               </Button>
             </>
           )}
-          {audit.status === 'COMPLETED' && (
+          {(audit.status === 'AWAITING_REPORT' || audit.status === 'COMPLETED') && (
             <>
               <Button
                 variant="outline"

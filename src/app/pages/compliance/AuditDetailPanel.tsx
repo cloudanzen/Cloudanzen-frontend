@@ -46,10 +46,20 @@ export const STATUS_META: Record<
     color: 'bg-blue-50 text-blue-700',
     icon: <Clock className="w-3 h-3" />,
   },
+  UPCOMING: {
+    key: 'UPCOMING',
+    color: 'bg-slate-100 text-slate-700',
+    icon: <Calendar className="w-3 h-3" />,
+  },
   IN_PROGRESS: {
     key: 'IN_PROGRESS',
     color: 'bg-amber-50 text-amber-700',
     icon: <AlertCircle className="w-3 h-3" />,
+  },
+  AWAITING_REPORT: {
+    key: 'AWAITING_REPORT',
+    color: 'bg-purple-50 text-purple-700',
+    icon: <ClipboardList className="w-3 h-3" />,
   },
   COMPLETED: {
     key: 'COMPLETED',
@@ -126,17 +136,17 @@ export function AuditDetailPanel({
     }
   }
 
-  async function handleClose() {
+  async function handleMoveToAwaitingReport() {
     const confirmed = await confirm({
-      title: t('auditPanel.completeTitle'),
-      description: t('auditPanel.completeDesc'),
-      confirmLabel: t('auditPanel.completeConfirm'),
+      title: t('auditPanel.awaitingReportTitle'),
+      description: t('auditPanel.awaitingReportDesc'),
+      confirmLabel: t('auditPanel.awaitingReportConfirm'),
       variant: 'default',
     });
     if (!confirmed) return;
     setActing(true);
     try {
-      await auditsService.close(audit.id);
+      await auditsService.transitionToAwaitingReport(audit.id);
       onRefresh();
     } catch {
       /* ignore */
@@ -283,21 +293,21 @@ export function AuditDetailPanel({
 
         {/* Actions */}
         <div className="p-5 flex gap-2 mt-auto flex-wrap">
-          {(audit.status === 'DRAFT' || audit.status === 'PLANNED') && (
+          {(audit.status === 'UPCOMING' || audit.status === 'PLANNED') && (
             <Button onClick={handleStart} disabled={acting} className="flex-1">
               {acting ? t('auditPanel.starting') : t('auditPanel.startAudit')}
             </Button>
           )}
           {audit.status === 'IN_PROGRESS' && (
             <Button
-              onClick={handleClose}
+              onClick={handleMoveToAwaitingReport}
               disabled={acting}
-              className="flex-1 bg-green-700 hover:bg-green-600"
+              className="flex-1 bg-purple-700 hover:bg-purple-600"
             >
-              {acting ? t('auditPanel.closing') : t('auditPanel.closeAudit')}
+              {acting ? t('auditPanel.movingToAwaitingReport') : t('auditPanel.moveToAwaitingReport')}
             </Button>
           )}
-          {(audit.status === 'IN_PROGRESS' || audit.status === 'COMPLETED') && (
+          {(audit.status === 'IN_PROGRESS' || audit.status === 'AWAITING_REPORT' || audit.status === 'COMPLETED') && (
             <Button
               size="sm"
               variant="outline"
