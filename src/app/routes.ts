@@ -55,6 +55,11 @@ const AuditFinalReportPage = lazy(() =>
     default: m.AuditFinalReportPage,
   })),
 );
+const AuditorInvitationPage = lazy(() =>
+  import('@/app/pages/auth/AuditorInvitationPage').then((m) => ({
+    default: m.AuditorInvitationPage,
+  })),
+);
 
 // Public Trust Portal
 const PublicTrustPortalPage = lazy(() =>
@@ -362,6 +367,7 @@ export const router = createBrowserRouter([
   { path: '/login', Component: LoginPage },
   { path: '/register', Component: RegisterPage },
   { path: '/auth/callback', Component: AuthCallbackPage },
+  { path: '/auditor/invitations/:secret', Component: AuditorInvitationPage },
 
   // Public Trust Center portal (no auth, no app layout)
   { path: '/trust/:orgSlug', Component: PublicTrustPortalPage },

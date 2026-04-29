@@ -49,7 +49,7 @@ export function useIsAuditor(): boolean {
 
 export function useCanAudit(): boolean {
   const user = useCurrentUser();
-  return ['SUPER_ADMIN', 'ORG_ADMIN', 'SECURITY_OWNER', 'AUDITOR'].includes(
+  return ['SUPER_ADMIN', 'ORG_ADMIN', 'SECURITY_OWNER', 'AUDITOR', 'EXTERNAL_AUDITOR'].includes(
     user?.role ?? '',
   );
 }

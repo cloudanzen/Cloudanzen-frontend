@@ -91,6 +91,7 @@ export type AppRole =
   | 'ORG_ADMIN'
   | 'SECURITY_OWNER'
   | 'AUDITOR'
+  | 'EXTERNAL_AUDITOR'
   | 'CONTRIBUTOR'
   | 'VIEWER';
 
@@ -99,6 +100,7 @@ export const ROLE_LABELS: Record<AppRole, string> = {
   ORG_ADMIN:      'Org Admin',
   SECURITY_OWNER: 'Security Owner',
   AUDITOR:        'Auditor',
+  EXTERNAL_AUDITOR: 'External Auditor',
   CONTRIBUTOR:    'Contributor',
   VIEWER:         'Viewer',
 };
@@ -108,6 +110,7 @@ export const ROLE_DESCRIPTIONS: Record<AppRole, string> = {
   ORG_ADMIN:      'Full control of tenant. Manages users, roles, and all compliance modules.',
   SECURITY_OWNER: 'Owns the compliance program. Can manage all GRC content and approve policies.',
   AUDITOR:        'Read-only audit access. Can conduct audits and log findings.',
+  EXTERNAL_AUDITOR: 'Scoped external auditor. Can access assigned audits only.',
   CONTRIBUTOR:    'Can update evidence, tests, and risks. Cannot manage users or approve policies.',
   VIEWER:         'Read-only access to all compliance content.',
 };
@@ -118,6 +121,7 @@ export const ROLE_CONFIG: Record<AppRole, { bg: string; text: string; border: st
   ORG_ADMIN:      { bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-200', dot: 'bg-orange-500' },
   SECURITY_OWNER: { bg: 'bg-blue-50',   text: 'text-blue-700',   border: 'border-blue-200',   dot: 'bg-blue-500' },
   AUDITOR:        { bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200', dot: 'bg-purple-500' },
+  EXTERNAL_AUDITOR: { bg: 'bg-violet-50', text: 'text-violet-700', border: 'border-violet-200', dot: 'bg-violet-500' },
   CONTRIBUTOR:    { bg: 'bg-green-50',  text: 'text-green-700',  border: 'border-green-200',  dot: 'bg-green-500' },
   VIEWER:         { bg: 'bg-gray-50',   text: 'text-gray-600',   border: 'border-gray-200',   dot: 'bg-gray-400' },
 };
@@ -179,6 +183,17 @@ export const ROLE_PERMISSIONS: Record<AppRole, Permission[]> = {
     P.VENDORS_READ,
     P.ACCESS_REQUESTS_READ,
     P.AUDIT_LOG_READ,
+  ],
+
+  EXTERNAL_AUDITOR: [
+    P.CONTROLS_READ,
+    P.EVIDENCE_READ,
+    P.AUDITS_READ,
+    P.AUDITS_CONDUCT,
+    P.FINDINGS_READ,
+    P.FINDINGS_WRITE,
+    P.REPORTS_READ,
+    P.REPORTS_EXPORT,
   ],
 
   CONTRIBUTOR: [

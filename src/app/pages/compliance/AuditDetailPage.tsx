@@ -10,6 +10,9 @@ import { Card } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
 import { Badge } from '@/app/components/ui/badge';
 import { Progress } from '@/app/components/ui/progress';
+import { Input } from '@/app/components/ui/input';
+import { Label } from '@/app/components/ui/label';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/app/components/ui/dialog';
 import {
   ArrowLeft,
   ChevronDown,
@@ -32,10 +35,14 @@ import {
   AuditComment,
   AuditRequestRecord,
   AuditRequestStatus,
+  AuditDataSnapshotType,
+  AuditFrameworkResponse,
+  AuditSummaryResponse,
+  AuditorInvitationRecord,
 } from '@/services/api/audits';
 import { usersService } from '@/services/api/users';
 import { vendorsService, VendorRecord } from '@/services/api/vendors';
-import { useCanAudit, useCurrentUser } from '@/hooks/useCurrentUser';
+import { useCanAudit, useCurrentUser, useIsAdmin } from '@/hooks/useCurrentUser';
 import { useConfirmDialog } from '@/app/hooks/useConfirmDialog';
 import { ControlReviewPanel } from '@/app/pages/auditor/auditorDashboard/ControlReviewPanel';
 import { AddFindingModal } from '@/app/pages/auditor/auditorDashboard/AddFindingModal';
@@ -1037,6 +1044,176 @@ function ReportTab({ audit, onRefresh }: { audit: AuditRecord; onRefresh: () => 
   );
 }
 
+// ── Framework / Snapshot-backed Audit Data Tabs ──────────────────────────────
+
+function BreakdownChips({ data }: { data?: Record<string, number> }) {
+  if (!data || Object.keys(data).length === 0) return null;
+  return (
+    <div className="flex flex-wrap gap-2">
+      {Object.entries(data).map(([key, value]) => (
+        <span key={key} className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
+          {key.replaceAll('_', ' ')}: {value}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function FrameworkTab({ auditId }: { auditId: string }) {
+  const { t } = useTranslation('compliance');
+  const { data, isLoading } = useQuery<{ success: boolean; data: AuditFrameworkResponse }>({
+    queryKey: ['audit-framework', auditId],
+    queryFn: () => auditsService.getFramework(auditId),
+  });
+
+  const framework = data?.data.framework;
+  const requirements = data?.data.requirements ?? [];
+
+  if (isLoading) return <Card className="p-6 text-sm text-muted-foreground">{t('auditDetail.dataTabs.loading')}</Card>;
+  if (!framework) return <Card className="p-6 text-sm text-muted-foreground">{t('auditDetail.dataTabs.noFramework')}</Card>;
+
+  return (
+    <div className="space-y-4">
+      <Card className="p-5">
+        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t('auditDetail.tabs.framework')}</p>
+        <h3 className="mt-1 text-lg font-semibold text-foreground">{framework.name}</h3>
+        <p className="text-sm text-muted-foreground">{framework.version}</p>
+      </Card>
+      <Card className="overflow-hidden">
+        <div className="divide-y divide-border">
+          {requirements.map((req) => {
+            const active = req.auditControlCount - req.notApplicableControlCount;
+            const pct = active > 0 ? Math.round((req.compliantControlCount / active) * 100) : 0;
+            return (
+              <div key={req.frameworkRequirementId} className="p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-foreground">{req.code} · {req.title}</p>
+                    {req.domain && <p className="mt-0.5 text-xs text-muted-foreground">{req.domain}</p>}
+                  </div>
+                  <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">{pct}%</span>
+                </div>
+                <div className="mt-3 grid grid-cols-4 gap-2 text-center text-xs">
+                  <span>{t('auditDetail.overview.compliant')}: {req.compliantControlCount}</span>
+                  <span>{t('auditDetail.overview.nonCompliant')}: {req.nonCompliantControlCount}</span>
+                  <span>{t('auditDetail.overview.pending')}: {req.pendingControlCount}</span>
+                  <span>{t('auditDetail.overview.na')}: {req.notApplicableControlCount}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+function SnapshotSummaryCard({ auditId }: { auditId: string }) {
+  const { t } = useTranslation('compliance');
+  const [selected, setSelected] = useState<AuditDataSnapshotType>('START');
+  const { data: snapshotsData } = useQuery({
+    queryKey: ['audit-snapshots', auditId],
+    queryFn: () => auditsService.listSnapshots(auditId),
+  });
+  const { data: snapshotData } = useQuery({
+    queryKey: ['audit-snapshot', auditId, selected],
+    queryFn: () => auditsService.getSnapshot(auditId, selected),
+    enabled: (snapshotsData?.data ?? []).some((snapshot) => snapshot.snapshotType === selected),
+  });
+
+  const snapshots = snapshotsData?.data ?? [];
+  return (
+    <Card className="p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="text-sm font-semibold text-foreground">{t('auditDetail.dataTabs.snapshots')}</p>
+          <p className="text-xs text-muted-foreground">{t('auditDetail.dataTabs.snapshotsDesc')}</p>
+        </div>
+        <select
+          value={selected}
+          onChange={(event) => setSelected(event.target.value as AuditDataSnapshotType)}
+          className="rounded-md border border-border bg-background px-2 py-1 text-xs"
+        >
+          <option value="START">START</option>
+          <option value="COMPLETION">COMPLETION</option>
+        </select>
+      </div>
+      {snapshots.length === 0 ? (
+        <p className="mt-3 text-sm text-muted-foreground">{t('auditDetail.dataTabs.noSnapshots')}</p>
+      ) : snapshotData?.data ? (
+        <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-4">
+          <span>{t('auditDetail.tabs.risk')}: {((snapshotData.data.riskRegister as any)?.total ?? 0)}</span>
+          <span>{t('auditDetail.tabs.assets')}: {((snapshotData.data.assetInventory as any)?.total ?? 0)}</span>
+          <span>{t('auditDetail.tabs.personnel')}: {((snapshotData.data.personnel as any)?.total ?? 0)}</span>
+          <span>{t('auditDetail.tabs.integrations')}: {((snapshotData.data.integrations as any)?.total ?? 0)}</span>
+        </div>
+      ) : (
+        <p className="mt-3 text-sm text-muted-foreground">{t('auditDetail.dataTabs.snapshotMissing')}</p>
+      )}
+    </Card>
+  );
+}
+
+function DataSummaryTab({
+  auditId,
+  type,
+}: {
+  auditId: string;
+  type: 'risk' | 'assets' | 'personnel' | 'integrations';
+}) {
+  const { t } = useTranslation('compliance');
+  const query = useQuery<{ success: boolean; data: AuditSummaryResponse }>({
+    queryKey: ['audit-data-summary', auditId, type],
+    queryFn: () => {
+      if (type === 'risk') return auditsService.getRiskSummary(auditId);
+      if (type === 'assets') return auditsService.getAssetSummary(auditId);
+      if (type === 'personnel') return auditsService.getPersonnelSummary(auditId);
+      return auditsService.getIntegrationSummary(auditId);
+    },
+  });
+
+  const data = query.data?.data;
+  const rows = (data?.risks ?? data?.assets ?? data?.personnel ?? data?.integrations ?? []) as any[];
+
+  if (query.isLoading) return <Card className="p-6 text-sm text-muted-foreground">{t('auditDetail.dataTabs.loading')}</Card>;
+
+  return (
+    <div className="space-y-4">
+      <SnapshotSummaryCard auditId={auditId} />
+      <div className="grid gap-3 sm:grid-cols-3">
+        <Card className="p-4">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t('auditDetail.dataTabs.currentTotal')}</p>
+          <p className="mt-1 text-2xl font-bold text-foreground">{data?.total ?? 0}</p>
+        </Card>
+        <Card className="p-4 sm:col-span-2">
+          <BreakdownChips data={data?.byStatus ?? data?.byImpact ?? data?.byCriticality ?? data?.byRole ?? data?.byType} />
+        </Card>
+      </div>
+      <Card className="overflow-hidden">
+        {rows.length === 0 ? (
+          <p className="p-6 text-center text-sm text-muted-foreground">{t('auditDetail.dataTabs.noRows')}</p>
+        ) : (
+          <div className="divide-y divide-border">
+            {rows.slice(0, 25).map((row, index) => (
+              <div key={row.id ?? index} className="flex items-center justify-between gap-3 p-4 text-sm">
+                <div className="min-w-0">
+                  <p className="truncate font-medium text-foreground">{row.title ?? row.name ?? row.email ?? row.provider ?? row.id}</p>
+                  <p className="truncate text-xs text-muted-foreground">{row.status ?? row.role ?? row.type ?? row.impact ?? '—'}</p>
+                </div>
+                {(row.riskScore || row.criticality || row.mfaEnabled !== undefined) && (
+                  <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                    {row.riskScore ?? row.criticality ?? (row.mfaEnabled ? 'MFA' : 'No MFA')}
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
+    </div>
+  );
+}
+
 // ── Vendors Tab ───────────────────────────────────────────────────────────────
 
 const VENDOR_STATUS_COLORS: Record<string, string> = {
@@ -1130,6 +1307,132 @@ function VendorsTab() {
   );
 }
 
+function AuditorInvitationsDialog({
+  auditId,
+  open,
+  onOpenChange,
+}: {
+  auditId: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const { t } = useTranslation('compliance');
+  const queryClient = useQueryClient();
+  const [email, setEmail] = useState('');
+  const [role, setRole] = useState<'LEAD' | 'REVIEWER'>('REVIEWER');
+  const [saving, setSaving] = useState(false);
+
+  const { data } = useQuery<{ success: boolean; data: AuditorInvitationRecord[] }>({
+    queryKey: ['audit-invitations', auditId],
+    queryFn: () => auditsService.listInvitations(auditId),
+    enabled: open,
+  });
+
+  const invitations = data?.data ?? [];
+
+  async function inviteAuditor() {
+    if (!email.trim()) return;
+    setSaving(true);
+    try {
+      await auditsService.createInvitation(auditId, { email: email.trim(), role });
+      toast.success(t('auditDetail.invitations.sent'));
+      setEmail('');
+      setRole('REVIEWER');
+      queryClient.invalidateQueries({ queryKey: ['audit-invitations', auditId] });
+    } catch {
+      toast.error(t('auditDetail.invitations.sendFailed'));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function revokeInvitation(invitationId: string) {
+    try {
+      await auditsService.revokeInvitation(auditId, invitationId);
+      toast.success(t('auditDetail.invitations.revoked'));
+      queryClient.invalidateQueries({ queryKey: ['audit-invitations', auditId] });
+    } catch {
+      toast.error(t('auditDetail.invitations.revokeFailed'));
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>{t('auditDetail.invitations.title')}</DialogTitle>
+          <DialogDescription>{t('auditDetail.invitations.description')}</DialogDescription>
+        </DialogHeader>
+
+        <div className="grid gap-3 sm:grid-cols-[1fr_140px_auto]">
+          <div className="space-y-1.5">
+            <Label htmlFor="auditor-email">{t('auditDetail.invitations.email')}</Label>
+            <Input
+              id="auditor-email"
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="auditor@example.com"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="auditor-role">{t('auditDetail.invitations.role')}</Label>
+            <select
+              id="auditor-role"
+              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+              value={role}
+              onChange={(event) => setRole(event.target.value as 'LEAD' | 'REVIEWER')}
+            >
+              <option value="REVIEWER">{t('auditDetail.invitations.reviewer')}</option>
+              <option value="LEAD">{t('auditDetail.invitations.lead')}</option>
+            </select>
+          </div>
+          <div className="flex items-end">
+            <Button onClick={inviteAuditor} disabled={saving || !email.trim()}>
+              <Send className="mr-1 h-4 w-4" />
+              {saving ? t('auditDetail.invitations.sending') : t('auditDetail.invitations.send')}
+            </Button>
+          </div>
+        </div>
+
+        <div className="rounded-md border">
+          {invitations.length === 0 ? (
+            <p className="p-4 text-sm text-muted-foreground">{t('auditDetail.invitations.empty')}</p>
+          ) : (
+            invitations.map((invitation) => {
+              const status = invitation.revokedAt
+                ? t('auditDetail.invitations.revokedStatus')
+                : invitation.acceptedAt
+                  ? t('auditDetail.invitations.acceptedStatus')
+                  : t('auditDetail.invitations.pendingStatus');
+              return (
+                <div key={invitation.id} className="flex items-center justify-between gap-3 border-b p-3 last:border-b-0">
+                  <div>
+                    <p className="text-sm font-medium">{invitation.email}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {invitation.role} · {status} · {t('auditDetail.invitations.expires', { date: fmt(invitation.expiresAt) })}
+                    </p>
+                  </div>
+                  {!invitation.revokedAt && !invitation.acceptedAt && (
+                    <Button variant="ghost" size="sm" onClick={() => revokeInvitation(invitation.id)}>
+                      <Trash2 className="mr-1 h-4 w-4" />
+                      {t('auditDetail.invitations.revoke')}
+                    </Button>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>{t('auditDetail.invitations.close')}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export function AuditDetailPage() {
@@ -1137,6 +1440,8 @@ export function AuditDetailPage() {
   const { auditId } = useParams<{ auditId: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const canInviteAuditors = useIsAdmin();
+  const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
 
   const { data, isLoading } = useQuery<{ success: boolean; data: AuditRecord }>({
     queryKey: ['audit', auditId],
@@ -1188,6 +1493,12 @@ export function AuditDetailPage() {
       description={descriptionStr}
       actions={
         <div className="flex items-center gap-2">
+          {canInviteAuditors && (
+            <Button variant="outline" size="sm" onClick={() => setInviteDialogOpen(true)}>
+              <Send className="w-4 h-4 mr-1" />
+              {t('auditDetail.invitations.invite')}
+            </Button>
+          )}
           <StatusBadge status={audit.status as AuditStatus} />
           <Button variant="ghost" size="sm" onClick={() => navigate('/compliance/audits')}>
             <ArrowLeft className="w-4 h-4 mr-1" />
@@ -1214,6 +1525,11 @@ export function AuditDetailPage() {
           </TabsTrigger>
           <TabsTrigger value="comments">{t('auditDetail.tabs.comments')}</TabsTrigger>
           <TabsTrigger value="report">{t('auditDetail.tabs.report')}</TabsTrigger>
+          <TabsTrigger value="framework">{t('auditDetail.tabs.framework')}</TabsTrigger>
+          <TabsTrigger value="risk">{t('auditDetail.tabs.risk')}</TabsTrigger>
+          <TabsTrigger value="assets">{t('auditDetail.tabs.assets')}</TabsTrigger>
+          <TabsTrigger value="personnel">{t('auditDetail.tabs.personnel')}</TabsTrigger>
+          <TabsTrigger value="integrations">{t('auditDetail.tabs.integrations')}</TabsTrigger>
           <TabsTrigger value="vendors">
             <Building2 className="w-3.5 h-3.5 mr-1" />
             {t('auditDetail.tabs.vendors')}
@@ -1244,10 +1560,35 @@ export function AuditDetailPage() {
           <ReportTab audit={audit} onRefresh={refresh} />
         </TabsContent>
 
+        <TabsContent value="framework">
+          <FrameworkTab auditId={audit.id} />
+        </TabsContent>
+
+        <TabsContent value="risk">
+          <DataSummaryTab auditId={audit.id} type="risk" />
+        </TabsContent>
+
+        <TabsContent value="assets">
+          <DataSummaryTab auditId={audit.id} type="assets" />
+        </TabsContent>
+
+        <TabsContent value="personnel">
+          <DataSummaryTab auditId={audit.id} type="personnel" />
+        </TabsContent>
+
+        <TabsContent value="integrations">
+          <DataSummaryTab auditId={audit.id} type="integrations" />
+        </TabsContent>
+
         <TabsContent value="vendors">
           <VendorsTab />
         </TabsContent>
       </Tabs>
+      <AuditorInvitationsDialog
+        auditId={audit.id}
+        open={inviteDialogOpen}
+        onOpenChange={setInviteDialogOpen}
+      />
     </PageTemplate>
   );
 }

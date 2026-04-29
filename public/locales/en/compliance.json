@@ -563,6 +563,11 @@
       "findings": "Findings",
       "comments": "Comments",
       "report": "Report",
+      "framework": "Framework",
+      "risk": "Risk",
+      "assets": "Assets",
+      "personnel": "Personnel",
+      "integrations": "Integrations",
       "vendors": "Vendors"
     },
     "overview": {
@@ -588,6 +593,28 @@
       "auditPeriod": "Audit Period",
       "endDate": "End Date",
       "closed": "Closed"
+    },
+    "invitations": {
+      "invite": "Invite auditor",
+      "title": "Auditor invitations",
+      "description": "Invite an external auditor with scoped access to this audit only.",
+      "email": "Email",
+      "role": "Role",
+      "reviewer": "Reviewer",
+      "lead": "Lead",
+      "send": "Send invite",
+      "sending": "Sending…",
+      "sent": "Invitation sent",
+      "sendFailed": "Failed to send invitation",
+      "empty": "No invitations yet.",
+      "pendingStatus": "Pending",
+      "acceptedStatus": "Accepted",
+      "revokedStatus": "Revoked",
+      "expires": "expires {{date}}",
+      "revoke": "Revoke",
+      "revoked": "Invitation revoked",
+      "revokeFailed": "Failed to revoke invitation",
+      "close": "Close"
     },
     "evidence": {
       "noControls": "No controls in scope for this audit.",
@@ -675,6 +702,16 @@
       "completeFailed": "Failed to complete audit",
       "auditStarted": "Audit started",
       "startFailed": "Failed to start audit"
+    },
+    "dataTabs": {
+      "loading": "Loading audit data…",
+      "noFramework": "No framework is linked to this audit.",
+      "snapshots": "Point-in-time snapshots",
+      "snapshotsDesc": "Captured automatically at audit start and completion.",
+      "noSnapshots": "No snapshots captured yet.",
+      "snapshotMissing": "This snapshot has not been captured yet.",
+      "currentTotal": "Current total",
+      "noRows": "No current data found."
     },
     "vendors": {
       "loading": "Loading vendors…",

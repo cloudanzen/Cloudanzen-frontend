@@ -8,6 +8,7 @@ export type AuditControlStatus = 'PENDING' | 'COMPLIANT' | 'NON_COMPLIANT' | 'NO
 export type FindingSeverity = 'MINOR' | 'MAJOR' | 'OBSERVATION' | 'OFI';
 export type AuditEvidenceStatus = 'PENDING' | 'READY' | 'FLAGGED' | 'APPROVED';
 export type AuditRequestStatus = 'NOT_READY' | 'IN_REVIEW' | 'READY_FOR_AUDIT' | 'FLAGGED' | 'ACCEPTED' | 'NOT_APPLICABLE';
+export type AuditAuditorRole = 'LEAD' | 'REVIEWER';
 
 // ── Nested item shapes returned by the API inside control sub-objects ─────────
 
@@ -185,6 +186,26 @@ export interface AuditReportResponse {
   metrics: AuditReportMetrics;
 }
 
+export interface AuditorInvitationRecord {
+  id: string;
+  email: string;
+  role: AuditAuditorRole;
+  expiresAt: string;
+  acceptedAt: string | null;
+  acceptedBy?: string | null;
+  revokedAt: string | null;
+  invitedBy?: string;
+}
+
+export interface PublicAuditorInvitation {
+  auditName: string;
+  organizationName: string;
+  frameworkName: string | null;
+  email: string;
+  expiresAt: string;
+  role: AuditAuditorRole;
+}
+
 export interface CreateAuditPayload {
   name:                  string;
   type:                  AuditType;
@@ -282,6 +303,54 @@ export interface CreateAuditRequestPayload {
   assignedTo?: string | null;
 }
 
+export type AuditDataSnapshotType = 'START' | 'COMPLETION';
+
+export interface AuditSnapshotListItem {
+  id: string;
+  snapshotType: AuditDataSnapshotType;
+  capturedAt: string;
+}
+
+export interface AuditDataSnapshotRecord extends AuditSnapshotListItem {
+  auditId: string;
+  organizationId: string;
+  riskRegister?: unknown;
+  assetInventory?: unknown;
+  personnel?: unknown;
+  integrations?: unknown;
+}
+
+export interface AuditFrameworkRequirement {
+  frameworkRequirementId: string;
+  code: string;
+  title: string;
+  domain?: string | null;
+  isMandatory?: boolean;
+  auditControlCount: number;
+  compliantControlCount: number;
+  nonCompliantControlCount: number;
+  pendingControlCount: number;
+  notApplicableControlCount: number;
+}
+
+export interface AuditFrameworkResponse {
+  framework: { id: string; slug: string; name: string; version: string; description?: string | null } | null;
+  requirements: AuditFrameworkRequirement[];
+}
+
+export interface AuditSummaryResponse<TItem = Record<string, unknown>> {
+  total: number;
+  byStatus?: Record<string, number>;
+  byImpact?: Record<string, number>;
+  byCriticality?: Record<string, number>;
+  byType?: Record<string, number>;
+  byRole?: Record<string, number>;
+  risks?: TItem[];
+  assets?: TItem[];
+  personnel?: TItem[];
+  integrations?: TItem[];
+}
+
 // ── Service ───────────────────────────────────────────────────────────────────
 
 export const auditsService = {
@@ -326,6 +395,34 @@ export const auditsService = {
     return apiClient.get<{ success: boolean; data: AuditEvidenceSummaryResponse }>(`/api/audits/${id}/evidence-summary`);
   },
 
+  getFramework(auditId: string) {
+    return apiClient.get<{ success: boolean; data: AuditFrameworkResponse }>(`/api/audits/${auditId}/framework`);
+  },
+
+  getRiskSummary(auditId: string) {
+    return apiClient.get<{ success: boolean; data: AuditSummaryResponse }>(`/api/audits/${auditId}/risk-summary`);
+  },
+
+  getAssetSummary(auditId: string) {
+    return apiClient.get<{ success: boolean; data: AuditSummaryResponse }>(`/api/audits/${auditId}/asset-summary`);
+  },
+
+  getPersonnelSummary(auditId: string) {
+    return apiClient.get<{ success: boolean; data: AuditSummaryResponse }>(`/api/audits/${auditId}/personnel-summary`);
+  },
+
+  getIntegrationSummary(auditId: string) {
+    return apiClient.get<{ success: boolean; data: AuditSummaryResponse }>(`/api/audits/${auditId}/integration-summary`);
+  },
+
+  listSnapshots(auditId: string) {
+    return apiClient.get<{ success: boolean; data: AuditSnapshotListItem[] }>(`/api/audits/${auditId}/snapshots`);
+  },
+
+  getSnapshot(auditId: string, snapshotType: AuditDataSnapshotType) {
+    return apiClient.get<{ success: boolean; data: AuditDataSnapshotRecord }>(`/api/audits/${auditId}/snapshots/${snapshotType}`);
+  },
+
   updateControl(auditId: string, controlId: string, payload: { reviewStatus?: AuditControlStatus; notes?: string }) {
     return apiClient.patch<{ success: boolean; data: AuditControlRecord }>(`/api/audits/${auditId}/controls/${controlId}`, payload);
   },
@@ -362,6 +459,41 @@ export const auditsService = {
 
   linkRequestEvidence(auditId: string, requestId: string, payload: { evidenceId: string; action?: 'link' | 'unlink' }) {
     return apiClient.post<{ success: boolean; data: AuditRequestRecord }>(`/api/audits/${auditId}/requests/${requestId}/evidence`, payload);
+  },
+
+  // ── Auditor invitations ────────────────────────────────────────────────────
+
+  listInvitations(auditId: string) {
+    return apiClient.get<{ success: boolean; data: AuditorInvitationRecord[] }>(`/api/audits/${auditId}/invitations`);
+  },
+
+  createInvitation(auditId: string, payload: { email: string; role?: AuditAuditorRole; expiresAt?: string }) {
+    return apiClient.post<{ success: boolean; data: AuditorInvitationRecord }>(`/api/audits/${auditId}/invitations`, payload);
+  },
+
+  revokeInvitation(auditId: string, invitationId: string) {
+    return apiClient.delete<{ success: boolean }>(`/api/audits/${auditId}/invitations/${invitationId}`);
+  },
+
+  getPublicInvitation(secret: string) {
+    return apiClient.get<{ success: boolean; data: PublicAuditorInvitation }>(`/api/auditor-invitations/${secret}`);
+  },
+
+  acceptPublicInvitation(secret: string) {
+    return apiClient.post<{
+      success: boolean;
+      token: string;
+      user: {
+        id: string;
+        email: string;
+        name: string | null;
+        role: string;
+        organizationId: string;
+        preferredLocale?: string;
+        createdAt?: string;
+      };
+      redirectTo: string;
+    }>(`/api/auditor-invitations/${secret}/accept`);
   },
 
   // ── Final Report ────────────────────────────────────────────────────────────
