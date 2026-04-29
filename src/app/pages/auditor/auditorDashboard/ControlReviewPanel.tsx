@@ -266,7 +266,7 @@ function ControlCommentsSection({ auditId, controlId }: { auditId: string; contr
 
   const { data, refetch } = useQuery<{ success: boolean; data: AuditComment[] }>({
     queryKey: ['audit-comments', auditId, controlId],
-    queryFn: () => auditsService.listComments(auditId, controlId),
+    queryFn: () => auditsService.listComments(auditId, { controlId }),
   });
 
   const comments = data?.data ?? [];

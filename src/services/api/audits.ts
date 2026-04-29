@@ -7,6 +7,7 @@ export type AuditStatus  = 'DRAFT' | 'UPCOMING' | 'PLANNED' | 'IN_PROGRESS' | 'A
 export type AuditControlStatus = 'PENDING' | 'COMPLIANT' | 'NON_COMPLIANT' | 'NOT_APPLICABLE';
 export type FindingSeverity = 'MINOR' | 'MAJOR' | 'OBSERVATION' | 'OFI';
 export type AuditEvidenceStatus = 'PENDING' | 'READY' | 'FLAGGED' | 'APPROVED';
+export type AuditRequestStatus = 'NOT_READY' | 'IN_REVIEW' | 'READY_FOR_AUDIT' | 'FLAGGED' | 'ACCEPTED' | 'NOT_APPLICABLE';
 
 // ── Nested item shapes returned by the API inside control sub-objects ─────────
 
@@ -213,6 +214,7 @@ export interface AuditComment {
   id:         string;
   auditId:    string;
   controlId?: string | null;
+  auditEvidenceId?: string | null;
   authorId:   string;
   text:       string;
   createdAt:  string;
@@ -222,6 +224,62 @@ export interface AuditComment {
     email: string;
     role:  string;
   };
+}
+
+export interface AuditRequestRecord {
+  id: string;
+  auditId: string;
+  organizationId: string;
+  controlId: string | null;
+  title: string;
+  description: string | null;
+  status: AuditRequestStatus;
+  dueDate: string | null;
+  assignedTo: string | null;
+  createdBy: string;
+  updatedBy: string | null;
+  createdAt: string;
+  updatedAt: string;
+  assignee?: { id: string; name?: string | null; email: string; role: string } | null;
+  evidenceLinks?: Array<{
+    auditRequestId: string;
+    evidenceId: string;
+    linkedAt: string;
+    evidence: ControlEvidenceItem & { controlId: string };
+  }>;
+}
+
+export interface AuditEvidenceSummaryItem {
+  id: string;
+  auditId: string;
+  controlId: string;
+  evidenceId: string;
+  status: AuditEvidenceStatus;
+  trackerStatus: AuditRequestStatus;
+  flagReason: string | null;
+  flaggedAt: string | null;
+  approvedAt: string | null;
+  createdAt: string;
+  control: { id: string; isoReference: string; title: string };
+  evidence: ControlEvidenceItem & { controlId: string };
+  requests: Array<Pick<AuditRequestRecord, 'id' | 'title' | 'status' | 'assignedTo' | 'dueDate'>>;
+  commentCount: number;
+}
+
+export interface AuditEvidenceSummaryResponse {
+  items: AuditEvidenceSummaryItem[];
+  totals: {
+    total: number;
+    byStatus: Record<AuditRequestStatus, number>;
+  };
+}
+
+export interface CreateAuditRequestPayload {
+  controlId?: string | null;
+  title: string;
+  description?: string | null;
+  dueDate?: string | null;
+  assignedTo?: string | null;
 }
 
 // ── Service ───────────────────────────────────────────────────────────────────
@@ -264,6 +322,10 @@ export const auditsService = {
     return apiClient.get<{ success: boolean; data: AuditControlRecord[] }>(`/api/audits/${id}/controls`);
   },
 
+  getEvidenceSummary(id: string) {
+    return apiClient.get<{ success: boolean; data: AuditEvidenceSummaryResponse }>(`/api/audits/${id}/evidence-summary`);
+  },
+
   updateControl(auditId: string, controlId: string, payload: { reviewStatus?: AuditControlStatus; notes?: string }) {
     return apiClient.patch<{ success: boolean; data: AuditControlRecord }>(`/api/audits/${auditId}/controls/${controlId}`, payload);
   },
@@ -278,6 +340,28 @@ export const auditsService = {
 
   deleteFinding(auditId: string, findingId: string) {
     return apiClient.delete<{ success: boolean }>(`/api/audits/${auditId}/findings/${findingId}`);
+  },
+
+  // ── Requests ────────────────────────────────────────────────────────────────
+
+  listRequests(auditId: string, params?: { controlId?: string; status?: AuditRequestStatus; assignedTo?: string }) {
+    return apiClient.get<{ success: boolean; data: AuditRequestRecord[] }>(`/api/audits/${auditId}/requests`, params);
+  },
+
+  createRequest(auditId: string, payload: CreateAuditRequestPayload) {
+    return apiClient.post<{ success: boolean; data: AuditRequestRecord }>(`/api/audits/${auditId}/requests`, payload);
+  },
+
+  updateRequest(auditId: string, requestId: string, payload: Partial<CreateAuditRequestPayload> & { status?: AuditRequestStatus }) {
+    return apiClient.patch<{ success: boolean; data: AuditRequestRecord }>(`/api/audits/${auditId}/requests/${requestId}`, payload);
+  },
+
+  deleteRequest(auditId: string, requestId: string) {
+    return apiClient.delete<{ success: boolean }>(`/api/audits/${auditId}/requests/${requestId}`);
+  },
+
+  linkRequestEvidence(auditId: string, requestId: string, payload: { evidenceId: string; action?: 'link' | 'unlink' }) {
+    return apiClient.post<{ success: boolean; data: AuditRequestRecord }>(`/api/audits/${auditId}/requests/${requestId}/evidence`, payload);
   },
 
   // ── Final Report ────────────────────────────────────────────────────────────
@@ -303,12 +387,12 @@ export const auditsService = {
 
   // ── Comments ────────────────────────────────────────────────────────────────
 
-  listComments(auditId: string, controlId?: string) {
-    const params = controlId ? { controlId } : undefined;
+  listComments(auditId: string, filters?: { controlId?: string; auditEvidenceId?: string }) {
+    const params = filters && Object.keys(filters).length > 0 ? filters : undefined;
     return apiClient.get<{ success: boolean; data: AuditComment[] }>(`/api/audits/${auditId}/comments`, params);
   },
 
-  postComment(auditId: string, payload: { text: string; controlId?: string | null }) {
+  postComment(auditId: string, payload: { text: string; controlId?: string | null; auditEvidenceId?: string | null }) {
     return apiClient.post<{ success: boolean; data: AuditComment }>(`/api/audits/${auditId}/comments`, payload);
   },
 

@@ -30,6 +30,8 @@ import {
   AuditControlRecord,
   AuditStatus,
   AuditComment,
+  AuditRequestRecord,
+  AuditRequestStatus,
 } from '@/services/api/audits';
 import { usersService } from '@/services/api/users';
 import { vendorsService, VendorRecord } from '@/services/api/vendors';
@@ -68,6 +70,24 @@ const FINDING_SEVERITY_COLORS: Record<string, string> = {
   OBSERVATION: 'bg-blue-50 text-blue-700',
   OFI: 'bg-slate-100 text-slate-600',
 };
+
+const REQUEST_STATUS_COLORS: Record<AuditRequestStatus, string> = {
+  NOT_READY: 'bg-slate-100 text-slate-600',
+  IN_REVIEW: 'bg-blue-50 text-blue-700',
+  READY_FOR_AUDIT: 'bg-purple-50 text-purple-700',
+  FLAGGED: 'bg-amber-50 text-amber-700',
+  ACCEPTED: 'bg-green-50 text-green-700',
+  NOT_APPLICABLE: 'bg-gray-100 text-gray-500',
+};
+
+const REQUEST_STATUS_OPTIONS: AuditRequestStatus[] = [
+  'NOT_READY',
+  'IN_REVIEW',
+  'READY_FOR_AUDIT',
+  'FLAGGED',
+  'ACCEPTED',
+  'NOT_APPLICABLE',
+];
 
 // ── Overview Tab ─────────────────────────────────────────────────────────────
 
@@ -190,6 +210,14 @@ function OverviewTab({
         </div>
       </Card>
     </div>
+  );
+}
+
+function RequestStatusBadge({ status }: { status: AuditRequestStatus }) {
+  return (
+    <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${REQUEST_STATUS_COLORS[status]}`}>
+      {status.replaceAll('_', ' ')}
+    </span>
   );
 }
 
@@ -501,6 +529,224 @@ function FindingsTab({
   );
 }
 
+// ── Requests / Evidence Tracker Tab ──────────────────────────────────────────
+
+function RequestsTab({
+  audit,
+  users,
+}: {
+  audit: AuditRecord;
+  users: AuditorIdentity[];
+}) {
+  const { t } = useTranslation('compliance');
+  const canAudit = useCanAudit();
+  const queryClient = useQueryClient();
+  const controls = audit.auditControls ?? [];
+  const [creating, setCreating] = useState(false);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [form, setForm] = useState({
+    title: '',
+    controlId: '',
+    assignedTo: '',
+    dueDate: '',
+  });
+
+  const { data: requestsData } = useQuery<{ success: boolean; data: AuditRequestRecord[] }>({
+    queryKey: ['audit-requests', audit.id],
+    queryFn: () => auditsService.listRequests(audit.id),
+  });
+
+  const { data: summaryData } = useQuery({
+    queryKey: ['audit-evidence-summary', audit.id],
+    queryFn: () => auditsService.getEvidenceSummary(audit.id),
+  });
+
+  const requests = requestsData?.data ?? [];
+  const summary = summaryData?.data;
+
+  function refreshTracker() {
+    queryClient.invalidateQueries({ queryKey: ['audit-requests', audit.id] });
+    queryClient.invalidateQueries({ queryKey: ['audit-evidence-summary', audit.id] });
+  }
+
+  function controlLabel(controlId: string | null | undefined) {
+    if (!controlId) return t('auditDetail.requests.auditLevel');
+    const control = controls.find((item) => item.control.id === controlId)?.control;
+    return control ? `${control.isoReference} · ${control.title}` : controlId;
+  }
+
+  async function handleCreateRequest() {
+    if (!form.title.trim()) return;
+    setCreating(true);
+    try {
+      await auditsService.createRequest(audit.id, {
+        title: form.title.trim(),
+        controlId: form.controlId || null,
+        assignedTo: form.assignedTo || null,
+        dueDate: form.dueDate || null,
+      });
+      setForm({ title: '', controlId: '', assignedTo: '', dueDate: '' });
+      refreshTracker();
+      toast.success(t('auditDetail.requests.created'));
+    } catch {
+      toast.error(t('auditDetail.requests.createFailed'));
+    } finally {
+      setCreating(false);
+    }
+  }
+
+  async function handleStatusChange(requestId: string, status: AuditRequestStatus) {
+    setUpdatingId(requestId);
+    try {
+      await auditsService.updateRequest(audit.id, requestId, { status });
+      refreshTracker();
+    } catch {
+      toast.error(t('auditDetail.requests.updateFailed'));
+    } finally {
+      setUpdatingId(null);
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-3 md:grid-cols-3">
+        <Card className="p-4">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t('auditDetail.requests.totalRequests')}</p>
+          <p className="mt-1 text-2xl font-bold text-foreground">{requests.length}</p>
+        </Card>
+        <Card className="p-4">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t('auditDetail.requests.evidenceItems')}</p>
+          <p className="mt-1 text-2xl font-bold text-foreground">{summary?.totals.total ?? 0}</p>
+        </Card>
+        <Card className="p-4">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t('auditDetail.requests.flagged')}</p>
+          <p className="mt-1 text-2xl font-bold text-amber-700">{summary?.totals.byStatus.FLAGGED ?? 0}</p>
+        </Card>
+      </div>
+
+      {canAudit && !audit.isLocked && (
+        <Card className="p-4">
+          <div className="grid gap-3 md:grid-cols-[1.5fr_1fr_1fr_0.8fr_auto]">
+            <input
+              value={form.title}
+              onChange={(event) => setForm((prev) => ({ ...prev, title: event.target.value }))}
+              placeholder={t('auditDetail.requests.titlePlaceholder')}
+              className="rounded-md border border-border bg-background px-3 py-2 text-sm"
+            />
+            <select
+              value={form.controlId}
+              onChange={(event) => setForm((prev) => ({ ...prev, controlId: event.target.value }))}
+              className="rounded-md border border-border bg-background px-3 py-2 text-sm"
+            >
+              <option value="">{t('auditDetail.requests.auditLevel')}</option>
+              {controls.map((control) => (
+                <option key={control.control.id} value={control.control.id}>
+                  {control.control.isoReference} · {control.control.title}
+                </option>
+              ))}
+            </select>
+            <select
+              value={form.assignedTo}
+              onChange={(event) => setForm((prev) => ({ ...prev, assignedTo: event.target.value }))}
+              className="rounded-md border border-border bg-background px-3 py-2 text-sm"
+            >
+              <option value="">{t('auditDetail.requests.unassigned')}</option>
+              {users.map((user) => (
+                <option key={user.id} value={user.id}>
+                  {user.name ?? user.email}
+                </option>
+              ))}
+            </select>
+            <input
+              type="date"
+              value={form.dueDate}
+              onChange={(event) => setForm((prev) => ({ ...prev, dueDate: event.target.value }))}
+              className="rounded-md border border-border bg-background px-3 py-2 text-sm"
+              aria-label={t('auditDetail.requests.dueDate')}
+            />
+            <Button onClick={handleCreateRequest} disabled={!form.title.trim() || creating}>
+              <Plus className="mr-1 h-4 w-4" />
+              {creating ? t('auditDetail.requests.creating') : t('auditDetail.requests.create')}
+            </Button>
+          </div>
+        </Card>
+      )}
+
+      <div className="grid gap-4 lg:grid-cols-[1fr_1.2fr]">
+        <Card className="overflow-hidden">
+          <div className="border-b border-border p-4">
+            <h3 className="text-sm font-semibold text-foreground">{t('auditDetail.requests.requestsTitle')}</h3>
+          </div>
+          <div className="divide-y divide-border">
+            {requests.length === 0 ? (
+              <p className="p-6 text-center text-sm text-muted-foreground">{t('auditDetail.requests.noRequests')}</p>
+            ) : (
+              requests.map((item) => (
+                <div key={item.id} className="space-y-3 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-foreground">{item.title}</p>
+                      <p className="mt-0.5 truncate text-xs text-muted-foreground">{controlLabel(item.controlId)}</p>
+                    </div>
+                    <RequestStatusBadge status={item.status} />
+                  </div>
+                  <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                    <span>{item.assignee?.name ?? item.assignee?.email ?? t('auditDetail.requests.unassigned')}</span>
+                    <span>{t('auditDetail.requests.due')}: {fmt(item.dueDate)}</span>
+                    <span>{t('auditDetail.requests.linkedEvidence', { count: item.evidenceLinks?.length ?? 0 })}</span>
+                  </div>
+                  {!audit.isLocked && (
+                    <select
+                      value={item.status}
+                      disabled={updatingId === item.id}
+                      onChange={(event) => handleStatusChange(item.id, event.target.value as AuditRequestStatus)}
+                      className="rounded-md border border-border bg-background px-2 py-1 text-xs"
+                    >
+                      {REQUEST_STATUS_OPTIONS.map((status) => (
+                        <option key={status} value={status}>
+                          {status.replaceAll('_', ' ')}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        </Card>
+
+        <Card className="overflow-hidden">
+          <div className="border-b border-border p-4">
+            <h3 className="text-sm font-semibold text-foreground">{t('auditDetail.requests.evidenceTracker')}</h3>
+          </div>
+          <div className="divide-y divide-border">
+            {(summary?.items ?? []).length === 0 ? (
+              <p className="p-6 text-center text-sm text-muted-foreground">{t('auditDetail.requests.noEvidence')}</p>
+            ) : (
+              (summary?.items ?? []).map((item) => (
+                <div key={item.id} className="flex items-start justify-between gap-3 p-4">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium text-foreground">
+                      {item.evidence.fileName ?? item.evidence.type}
+                    </p>
+                    <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                      {item.control.isoReference} · {item.control.title}
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {t('auditDetail.requests.requestLinks', { count: item.requests.length })} · {t('auditDetail.requests.comments', { count: item.commentCount })}
+                    </p>
+                  </div>
+                  <RequestStatusBadge status={item.trackerStatus} />
+                </div>
+              ))
+            )}
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
 // ── Comments Tab ──────────────────────────────────────────────────────────────
 
 function CommentsTab({ auditId, controls }: { auditId: string; controls: AuditControlRecord[] }) {
@@ -514,7 +760,7 @@ function CommentsTab({ auditId, controls }: { auditId: string; controls: AuditCo
 
   const { data, refetch } = useQuery<{ success: boolean; data: AuditComment[] }>({
     queryKey: ['audit-comments', auditId, selectedControlId || null],
-    queryFn: () => auditsService.listComments(auditId, selectedControlId || undefined),
+    queryFn: () => auditsService.listComments(auditId, selectedControlId ? { controlId: selectedControlId } : undefined),
   });
 
   const comments = data?.data ?? [];
@@ -954,6 +1200,10 @@ export function AuditDetailPage() {
         <TabsList>
           <TabsTrigger value="overview">{t('auditDetail.tabs.overview')}</TabsTrigger>
           <TabsTrigger value="evidence">{t('auditDetail.tabs.evidence')}</TabsTrigger>
+          <TabsTrigger value="requests">
+            <ClipboardList className="w-3.5 h-3.5 mr-1" />
+            {t('auditDetail.tabs.requests')}
+          </TabsTrigger>
           <TabsTrigger value="findings">
             {t('auditDetail.tabs.findings')}
             {(audit.findings ?? []).length > 0 && (
@@ -976,6 +1226,10 @@ export function AuditDetailPage() {
 
         <TabsContent value="evidence">
           <EvidenceTab auditId={audit.id} isLocked={audit.isLocked} />
+        </TabsContent>
+
+        <TabsContent value="requests">
+          <RequestsTab audit={audit} users={users} />
         </TabsContent>
 
         <TabsContent value="findings">
