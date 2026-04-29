@@ -563,6 +563,11 @@
       "findings": "発見事項",
       "comments": "コメント",
       "report": "レポート",
+      "framework": "フレームワーク",
+      "risk": "リスク",
+      "assets": "資産",
+      "personnel": "人員",
+      "integrations": "連携",
       "vendors": "ベンダー"
     },
     "overview": {
@@ -588,6 +593,28 @@
       "auditPeriod": "監査期間",
       "endDate": "終了日",
       "closed": "完了"
+    },
+    "invitations": {
+      "invite": "監査人を招待",
+      "title": "監査人の招待",
+      "description": "この監査のみにアクセスできる外部監査人を招待します。",
+      "email": "メールアドレス",
+      "role": "ロール",
+      "reviewer": "レビュアー",
+      "lead": "リード",
+      "send": "招待を送信",
+      "sending": "送信中…",
+      "sent": "招待を送信しました",
+      "sendFailed": "招待の送信に失敗しました",
+      "empty": "招待はまだありません。",
+      "pendingStatus": "保留中",
+      "acceptedStatus": "承諾済み",
+      "revokedStatus": "取り消し済み",
+      "expires": "有効期限 {{date}}",
+      "revoke": "取り消す",
+      "revoked": "招待を取り消しました",
+      "revokeFailed": "招待の取り消しに失敗しました",
+      "close": "閉じる"
     },
     "evidence": {
       "noControls": "この監査の対象管理策はありません。",
@@ -675,6 +702,16 @@
       "completeFailed": "監査の完了に失敗しました",
       "auditStarted": "監査が開始されました",
       "startFailed": "監査の開始に失敗しました"
+    },
+    "dataTabs": {
+      "loading": "監査データを読み込み中…",
+      "noFramework": "この監査にはフレームワークが関連付けられていません。",
+      "snapshots": "時点スナップショット",
+      "snapshotsDesc": "監査開始時と完了時に自動取得されます。",
+      "noSnapshots": "スナップショットはまだ取得されていません。",
+      "snapshotMissing": "このスナップショットはまだ取得されていません。",
+      "currentTotal": "現在の合計",
+      "noRows": "現在のデータはありません。"
     },
     "vendors": {
       "loading": "ベンダーを読み込み中…",
