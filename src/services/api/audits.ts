@@ -517,6 +517,16 @@ export const auditsService = {
     return apiClient.post<{ success: boolean; data: AuditRecord }>(`/api/audits/${auditId}/sign-and-complete`);
   },
 
+  generateReportPdf(auditId: string) {
+    return apiClient.post<{
+      success: boolean;
+      message: string;
+      auditId: string;
+      auditName: string;
+      existingPdfUrl: string | null;
+    }>(`/api/reports/audits/${auditId}/pdf`);
+  },
+
   // ── Comments ────────────────────────────────────────────────────────────────
 
   listComments(auditId: string, filters?: { controlId?: string; auditEvidenceId?: string }) {

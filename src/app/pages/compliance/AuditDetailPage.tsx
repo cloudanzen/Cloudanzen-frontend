@@ -900,9 +900,11 @@ function CommentsTab({ auditId, controls }: { auditId: string; controls: AuditCo
 function ReportTab({ audit, onRefresh }: { audit: AuditRecord; onRefresh: () => void }) {
   const { t } = useTranslation('compliance');
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const canAudit = useCanAudit();
   const confirm = useConfirmDialog();
   const [acting, setActing] = useState(false);
+  const [generatingPdf, setGeneratingPdf] = useState(false);
   const snap = audit.snapshot;
 
   async function handleMoveToAwaitingReport() {
@@ -935,6 +937,31 @@ function ReportTab({ audit, onRefresh }: { audit: AuditRecord; onRefresh: () => 
       toast.error(t('auditDetail.report.startFailed'));
     } finally {
       setActing(false);
+    }
+  }
+
+  async function handleGeneratePdf() {
+    setGeneratingPdf(true);
+    try {
+      await auditsService.generateReportPdf(audit.id);
+      toast.success(t('auditDetail.report.pdfQueued'));
+
+      for (let attempt = 0; attempt < 10; attempt += 1) {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        const refreshed = await auditsService.get(audit.id);
+        queryClient.setQueryData(['audit', audit.id], refreshed);
+        if (refreshed.data.signedPdfUrl && refreshed.data.signedPdfUrl !== audit.signedPdfUrl) {
+          toast.success(t('auditDetail.report.pdfReady'));
+          return;
+        }
+      }
+
+      toast.info(t('auditDetail.report.pdfStillProcessing'));
+      onRefresh();
+    } catch {
+      toast.error(t('auditDetail.report.pdfFailed'));
+    } finally {
+      setGeneratingPdf(false);
     }
   }
 
@@ -1003,6 +1030,12 @@ function ReportTab({ audit, onRefresh }: { audit: AuditRecord; onRefresh: () => 
           )}
           {(audit.status === 'AWAITING_REPORT' || audit.status === 'COMPLETED') && (
             <>
+              {canAudit && (
+                <Button onClick={handleGeneratePdf} disabled={generatingPdf}>
+                  <FileText className="w-4 h-4 mr-1.5" />
+                  {generatingPdf ? t('auditDetail.report.generatingPdf') : t('auditDetail.report.generatePdf')}
+                </Button>
+              )}
               <Button
                 variant="outline"
                 onClick={() => navigate(`/auditor/audits/${audit.id}/final-report`)}
@@ -1038,6 +1071,27 @@ function ReportTab({ audit, onRefresh }: { audit: AuditRecord; onRefresh: () => 
               <p className="text-sm text-foreground whitespace-pre-wrap">{audit.auditConclusion}</p>
             </div>
           )}
+        </Card>
+      )}
+
+      {audit.signedPdfUrl && (
+        <Card className="p-5 space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-foreground">{t('auditDetail.report.pdfPreview')}</p>
+              <p className="text-xs text-muted-foreground">{t('auditDetail.report.pdfPreviewDesc')}</p>
+            </div>
+            <Button variant="outline" size="sm" asChild>
+              <a href={audit.signedPdfUrl} target="_blank" rel="noopener noreferrer">
+                {t('auditDetail.report.openPdf')}
+              </a>
+            </Button>
+          </div>
+          <iframe
+            src={audit.signedPdfUrl}
+            title={t('auditDetail.report.pdfPreview')}
+            className="h-[520px] w-full rounded-md border bg-white"
+          />
         </Card>
       )}
     </div>
@@ -1130,6 +1184,7 @@ function SnapshotSummaryCard({ auditId }: { auditId: string }) {
           <p className="text-xs text-muted-foreground">{t('auditDetail.dataTabs.snapshotsDesc')}</p>
         </div>
         <select
+          aria-label={t('auditDetail.dataTabs.snapshotSelector')}
           value={selected}
           onChange={(event) => setSelected(event.target.value as AuditDataSnapshotType)}
           className="rounded-md border border-border bg-background px-2 py-1 text-xs"
