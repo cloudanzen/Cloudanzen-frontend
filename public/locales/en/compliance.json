@@ -559,6 +559,7 @@
     "tabs": {
       "overview": "Overview",
       "evidence": "Evidence",
+      "requests": "Requests",
       "findings": "Findings",
       "comments": "Comments",
       "report": "Report",
@@ -610,6 +611,28 @@
       "addFinding": "Add Finding",
       "noMatch": "No findings match this filter.",
       "columns": ["Control", "Severity", "Description", "Status", ""]
+    },
+    "requests": {
+      "totalRequests": "Total requests",
+      "evidenceItems": "Evidence items",
+      "flagged": "Flagged",
+      "titlePlaceholder": "Request title",
+      "auditLevel": "Audit-level request",
+      "unassigned": "Unassigned",
+      "dueDate": "Due date",
+      "creating": "Creating…",
+      "create": "Create",
+      "created": "Request created",
+      "createFailed": "Failed to create request",
+      "updateFailed": "Failed to update request",
+      "requestsTitle": "Requests",
+      "noRequests": "No requests yet.",
+      "due": "Due",
+      "linkedEvidence": "{{count}} linked evidence",
+      "evidenceTracker": "Evidence Tracker",
+      "noEvidence": "No evidence is in scope for this audit yet.",
+      "requestLinks": "{{count}} requests",
+      "comments": "{{count}} comments"
     },
     "comments": {
       "filterByControl": "Filter by control:",

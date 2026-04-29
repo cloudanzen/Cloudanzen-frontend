@@ -559,6 +559,7 @@
     "tabs": {
       "overview": "概要",
       "evidence": "証拠",
+      "requests": "リクエスト",
       "findings": "発見事項",
       "comments": "コメント",
       "report": "レポート",
@@ -610,6 +611,28 @@
       "addFinding": "発見事項を追加",
       "noMatch": "フィルターに一致する発見事項はありません。",
       "columns": ["管理策", "重大度", "説明", "ステータス", ""]
+    },
+    "requests": {
+      "totalRequests": "リクエスト合計",
+      "evidenceItems": "証拠項目",
+      "flagged": "フラグ付き",
+      "titlePlaceholder": "リクエスト件名",
+      "auditLevel": "監査全体のリクエスト",
+      "unassigned": "未割り当て",
+      "dueDate": "期限日",
+      "creating": "作成中…",
+      "create": "作成",
+      "created": "リクエストを作成しました",
+      "createFailed": "リクエストの作成に失敗しました",
+      "updateFailed": "リクエストの更新に失敗しました",
+      "requestsTitle": "リクエスト",
+      "noRequests": "リクエストはまだありません。",
+      "due": "期限",
+      "linkedEvidence": "紐付け証拠 {{count}}件",
+      "evidenceTracker": "証拠トラッカー",
+      "noEvidence": "この監査の対象証拠はまだありません。",
+      "requestLinks": "リクエスト {{count}}件",
+      "comments": "コメント {{count}}件"
     },
     "comments": {
       "filterByControl": "管理策でフィルター：",
