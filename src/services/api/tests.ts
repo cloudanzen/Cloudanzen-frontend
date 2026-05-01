@@ -146,6 +146,8 @@ export interface ListTestsParams {
   status?: TestStatus | '';
   type?: TestType | '';
   ownerId?: string;
+  integrationId?: string;
+  controlId?: string;
   search?: string;
   dueFrom?: string;
   dueTo?: string;
@@ -153,6 +155,12 @@ export interface ListTestsParams {
   /** F5: pass 'card' to request a lightweight projection (name, status, dueDate, counts only).
    * Use for list-card views where full relational detail is not needed. */
   view?: 'card';
+}
+
+export interface TestFilterOptions {
+  integrations: Array<{ id: string; provider: string; status: string }>;
+  owners: Array<{ id: string; name: string | null; email: string }>;
+  controls: Array<{ id: string; title: string; isoReference: string }>;
 }
 
 /** F5: lightweight test record returned by GET /api/tests?view=card */
@@ -326,6 +334,8 @@ export class TestsService {
       if (params.status) clean.status = params.status;
       if (params.type) clean.type = params.type;
       if (params.ownerId) clean.ownerId = params.ownerId;
+      if (params.integrationId) clean.integrationId = params.integrationId;
+      if (params.controlId) clean.controlId = params.controlId;
       if (params.dueFrom) clean.dueFrom = params.dueFrom;
       if (params.dueTo) clean.dueTo = params.dueTo;
       if (params.frameworkSlugs?.length)
@@ -339,6 +349,10 @@ export class TestsService {
       '/api/tests',
       Object.keys(clean).length ? clean : undefined,
     );
+  }
+
+  async getFilterOptions(): Promise<ApiResponse<TestFilterOptions>> {
+    return apiClient.get('/api/tests/filter-options');
   }
 
   async getTestSummary(params?: {

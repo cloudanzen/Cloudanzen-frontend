@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any -- legacy: to be typed progressively */
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
@@ -52,12 +51,13 @@ export function AuditsPage() {
     success: boolean;
     data: AuditRecord[];
   }>({
-    queryKey: ['audits', statusFilter, typeFilter],
+    queryKey: ['audits', search.trim(), statusFilter, typeFilter],
     queryFn: () =>
       auditsService.list({
+        search: search.trim() || undefined,
         status: statusFilter || undefined,
         type: typeFilter || undefined,
-      } as any),
+      }),
   });
   const { data: users = [] } = useQuery({
     queryKey: ['users'],
@@ -69,14 +69,6 @@ export function AuditsPage() {
   );
 
   const audits = data?.data ?? [];
-
-  const filtered = search
-    ? audits.filter(
-        (a) =>
-          a.name.toLowerCase().includes(search.toLowerCase()) ||
-          (a.frameworkName ?? '').toLowerCase().includes(search.toLowerCase()),
-      )
-    : audits;
 
   const activeFilters = [
     ...(search.trim()
@@ -187,7 +179,7 @@ export function AuditsPage() {
               ],
             },
           ]}
-          resultCount={filtered.length}
+          resultCount={audits.length}
           resultLabel="audits"
           activeFilters={activeFilters}
           onClearAll={reset}
@@ -200,7 +192,7 @@ export function AuditsPage() {
           <div className="p-8 text-center text-sm text-muted-foreground/70">
             {t('audits.loading')}
           </div>
-        ) : filtered.length === 0 ? (
+        ) : audits.length === 0 ? (
           <div className="p-12 text-center">
             <Shield className="w-10 h-10 mx-auto mb-3 text-muted-foreground/70" />
             <p className="text-sm font-medium text-muted-foreground">{t('audits.noAudits')}</p>
@@ -233,7 +225,7 @@ export function AuditsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {filtered.map((audit) => {
+                {audits.map((audit) => {
                   const findings = audit.findings ?? [];
                   const majorCount = findings.filter(
                     (f) => f.severity === 'MAJOR',

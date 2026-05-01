@@ -115,13 +115,30 @@ function RequiredDocumentsTab() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [frameworkFilter, setFrameworkFilter] = useState<string>('ALL');
+  const hasActiveFilters = Boolean(
+    search.trim() || statusFilter !== 'ALL' || frameworkFilter !== 'ALL',
+  );
 
   const { data, isLoading } = useQuery({
-    queryKey: ['compliance-documents'],
-    queryFn: () => complianceDocumentService.list(),
+    queryKey: ['compliance-documents', search.trim(), statusFilter, frameworkFilter],
+    queryFn: () =>
+      complianceDocumentService.list({
+        search: search.trim() || undefined,
+        status: statusFilter === 'ALL' ? undefined : statusFilter,
+        framework: frameworkFilter === 'ALL' ? undefined : frameworkFilter,
+      }),
   });
 
-  const documents = useMemo(() => data?.data ?? [], [data]);
+  const { data: filterOptions } = useQuery({
+    queryKey: ['compliance-documents', 'filter-options'],
+    queryFn: async () => {
+      const res = await complianceDocumentService.getFilterOptions();
+      return res.data ?? { frameworks: [] };
+    },
+    staleTime: 5 * 60_000,
+  });
+
+  const documents = data?.data ?? [];
   const stats = data?.stats ?? {
     total: 0,
     pending: 0,
@@ -130,30 +147,7 @@ function RequiredDocumentsTab() {
     expired: 0,
   };
 
-  const filtered = useMemo(() => {
-    return documents.filter((d) => {
-      const matchesStatus = statusFilter === 'ALL' || d.status === statusFilter;
-      const matchesFramework =
-        frameworkFilter === 'ALL' || d.frameworkName === frameworkFilter;
-      const haystack =
-        `${d.name} ${d.slug} ${d.category} ${d.frameworkName ?? ''}`.toLowerCase();
-      const matchesSearch =
-        !search.trim() || haystack.includes(search.trim().toLowerCase());
-      return matchesStatus && matchesFramework && matchesSearch;
-    });
-  }, [documents, frameworkFilter, statusFilter, search]);
-
-  const frameworkOptions = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          documents
-            .map((doc) => doc.frameworkName)
-            .filter((framework): framework is string => Boolean(framework)),
-        ),
-      ).sort(),
-    [documents],
-  );
+  const frameworkOptions = filterOptions?.frameworks ?? [];
 
   const activeFilters = [
     ...(search.trim()
@@ -178,7 +172,7 @@ function RequiredDocumentsTab() {
       ? [
           {
             key: 'framework',
-            label: `Framework: ${frameworkFilter}`,
+            label: `Framework: ${frameworkOptions.find((framework) => framework.slug === frameworkFilter)?.name ?? frameworkFilter}`,
             onRemove: () => setFrameworkFilter('ALL'),
           },
         ]
@@ -193,7 +187,7 @@ function RequiredDocumentsTab() {
     );
   }
 
-  if (stats.total === 0) {
+  if (stats.total === 0 && !hasActiveFilters) {
     return (
       <div className="text-center py-16">
         <ClipboardCheck className="w-12 h-12 text-gray-300 mx-auto mb-4" />
@@ -281,14 +275,14 @@ function RequiredDocumentsTab() {
             options: [
               { value: 'ALL', label: 'All frameworks' },
               ...frameworkOptions.map((framework) => ({
-                value: framework,
-                label: framework,
+                value: framework.slug,
+                label: framework.name,
               })),
             ],
           },
         ]}
-        resultCount={filtered.length}
-        resultLabel={filtered.length === 1 ? 'document' : 'documents'}
+        resultCount={documents.length}
+        resultLabel={documents.length === 1 ? 'document' : 'documents'}
         activeFilters={activeFilters}
         onClearAll={() => {
           setSearch('');
@@ -322,7 +316,7 @@ function RequiredDocumentsTab() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filtered.length === 0 ? (
+              {documents.length === 0 ? (
                 <tr>
                   <td
                     colSpan={7}
@@ -332,7 +326,7 @@ function RequiredDocumentsTab() {
                   </td>
                 </tr>
               ) : (
-                filtered.map((doc) => (
+                documents.map((doc) => (
                   <DocumentRow
                     key={doc.id}
                     doc={doc}

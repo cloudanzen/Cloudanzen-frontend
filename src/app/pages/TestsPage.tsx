@@ -112,6 +112,9 @@ export function TestsPage() {
     category: (effectiveFilter.category as TestCategory) || undefined,
     status:   (effectiveFilter.status  as TestStatus)   || undefined,
     type:     (effectiveFilter.type    as TestType)     || undefined,
+    ownerId:  effectiveFilter.owner    || undefined,
+    integrationId: effectiveFilter.integration || undefined,
+    controlId: effectiveFilter.control || undefined,
     dueFrom:  effectiveFilter.dueFrom  || undefined,
     dueTo:    effectiveFilter.dueTo    || undefined,
     frameworkSlugs: frameworkFilter.length > 0 ? frameworkFilter : undefined,
@@ -154,6 +157,16 @@ export function TestsPage() {
     staleTime: STALE.USERS,
   });
 
+  const { data: filterOptions } = useQuery({
+    queryKey: ['tests', 'filter-options'],
+    queryFn: async () => {
+      const res = await testsService.getFilterOptions();
+      if (res.success && res.data) return res.data;
+      return { integrations: [], owners: [], controls: [] };
+    },
+    staleTime: STALE.TESTS,
+  });
+
   const { data: controlsData = [] } = useQuery({
     queryKey: ['controls', 'bulk-picker'],
     queryFn: async () => {
@@ -193,17 +206,8 @@ export function TestsPage() {
 
   const testsRaw = useMemo(() => (testsData ?? []) as TestRecord[], [testsData]);
 
-  // Client-side filtering for owner, integration, and control
-  const tests = useMemo(() => {
-    let result = testsRaw;
-    if (filter.owner) result = result.filter((t) => t.ownerId === filter.owner || t.owner?.id === filter.owner);
-    if (filter.integration) result = result.filter((t) => t.integrationId === filter.integration || t.integration?.id === filter.integration);
-    if (filter.control) result = result.filter((t) => t.controls?.some((c) => c.controlId === filter.control));
-    return result;
-  }, [testsRaw, filter.owner, filter.integration, filter.control]);
-
   // Client-side sort — cast through unknown to allow dynamic key access
-  const sorted = [...tests].sort((a, b) => {
+  const sorted = [...testsRaw].sort((a, b) => {
     const aVal = (a as unknown as Record<string, unknown>)[sortColumn];
     const bVal = (b as unknown as Record<string, unknown>)[sortColumn];
     if (aVal == null || bVal == null) return 0;
@@ -228,35 +232,27 @@ export function TestsPage() {
     setPage(1);
   };
 
-  // Build option lists for Owner, Integration, Control filters from loaded data
+  // Build option lists from stable filter metadata, not the current result page.
   const ownerOptions = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const t of testsRaw) {
-      if (t.owner) map.set(t.owner.id, t.owner.name || t.owner.email);
-      else if (t.ownerId) map.set(t.ownerId, t.ownerId);
-    }
-    return Array.from(map, ([value, label]) => ({ value, label }));
-  }, [testsRaw]);
+    return (filterOptions?.owners ?? []).map((owner) => ({
+      value: owner.id,
+      label: owner.name || owner.email,
+    }));
+  }, [filterOptions?.owners]);
 
   const integrationOptions = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const t of testsRaw) {
-      if (t.integration) map.set(t.integration.id, t.integration.provider);
-      else if (t.integrationId) map.set(t.integrationId, t.integrationId);
-    }
-    return Array.from(map, ([value, label]) => ({ value, label }));
-  }, [testsRaw]);
+    return (filterOptions?.integrations ?? []).map((integration) => ({
+      value: integration.id,
+      label: integration.provider,
+    }));
+  }, [filterOptions?.integrations]);
 
   const controlOptions = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const t of testsRaw) {
-      for (const link of t.controls ?? []) {
-        const c = link.control;
-        map.set(link.controlId, c ? `${c.isoReference} - ${c.title}` : link.controlId);
-      }
-    }
-    return Array.from(map, ([value, label]) => ({ value, label }));
-  }, [testsRaw]);
+    return (filterOptions?.controls ?? []).map((control) => ({
+      value: control.id,
+      label: `${control.isoReference} - ${control.title}`,
+    }));
+  }, [filterOptions?.controls]);
 
   const activeFilters = [
     ...(filter.search.trim() ? [{ key: 'search', label: `Search: ${filter.search.trim()}`, onRemove: () => update({ search: '' }) }] : []),

@@ -40,6 +40,12 @@
     "discovered": "検出済みアプリ",
     "intakeRequests": "申請待ち"
   },
+  "pagination": {
+    "summary_one": "ページ <1>{{page}}</1> · <3>{{total}}</3> 件中 <2>{{shown}}</2> 件のベンダーを表示",
+    "summary_other": "ページ <1>{{page}}</1> · <3>{{total}}</3> 件中 <2>{{shown}}</2> 件のベンダーを表示",
+    "previousAria": "前のベンダーページ",
+    "nextAria": "次のベンダーページ"
+  },
   "filters": {
     "searchLabel": "検索: {{value}}",
     "statusLabel": "ステータス: {{value}}",

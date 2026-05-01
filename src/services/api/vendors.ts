@@ -81,8 +81,21 @@ export interface VendorListParams {
   status?: VendorStatus;
   inherentTier?: RiskTier;
   residualTier?: RiskTier;
+  effectiveTier?: RiskTier;
+  highRisk?: boolean;
+  dueWithinDays?: number;
   page?: number;
   limit?: number;
+}
+
+export interface VendorListResponse {
+  data: VendorRecord[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 }
 
 // ── Contact types ────────────────────────────────────────────────────────────
@@ -409,6 +422,9 @@ function paramsToRecord(params?: VendorListParams): Record<string, string | numb
   if (params.status) out.status = params.status;
   if (params.inherentTier) out.inherentTier = params.inherentTier;
   if (params.residualTier) out.residualTier = params.residualTier;
+  if (params.effectiveTier) out.effectiveTier = params.effectiveTier;
+  if (params.highRisk !== undefined) out.highRisk = params.highRisk;
+  if (params.dueWithinDays !== undefined) out.dueWithinDays = params.dueWithinDays;
   if (params.page !== undefined) out.page = params.page;
   if (params.limit !== undefined) out.limit = params.limit;
   return Object.keys(out).length > 0 ? out : undefined;
@@ -423,6 +439,17 @@ export const vendorsService = {
   async list(params?: VendorListParams): Promise<VendorRecord[]> {
     const res = await apiClient.get<ApiResp<VendorRecord[]>>('/api/vendors', paramsToRecord(params));
     return res?.data ?? [];
+  },
+
+  async listPage(params?: VendorListParams): Promise<VendorListResponse> {
+    const res = await apiClient.get<ApiResp<VendorRecord[]> & VendorListResponse>(
+      '/api/vendors',
+      paramsToRecord(params),
+    );
+    return {
+      data: res?.data ?? [],
+      pagination: res.pagination,
+    };
   },
 
   async create(input: CreateVendorInput): Promise<VendorRecord> {
