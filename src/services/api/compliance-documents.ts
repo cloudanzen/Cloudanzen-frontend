@@ -33,6 +33,11 @@ export interface ComplianceDocumentListResponse extends ApiResponse<
   ComplianceDocumentDto[]
 > {
   stats: ComplianceDocumentStats;
+  total?: number;
+}
+
+export interface ComplianceDocumentFilterOptions {
+  frameworks: Array<{ slug: string; name: string }>;
 }
 
 export interface UpdateComplianceDocumentRequest {
@@ -71,15 +76,23 @@ export const complianceDocumentService = {
     category?: string;
     search?: string;
     testId?: string;
+    framework?: string;
   }) {
     const qs = new URLSearchParams();
     if (params?.status) qs.set('status', params.status);
     if (params?.category) qs.set('category', params.category);
     if (params?.search) qs.set('search', params.search);
     if (params?.testId) qs.set('testId', params.testId);
+    if (params?.framework) qs.set('framework', params.framework);
     const query = qs.toString();
     return apiClient.get<ComplianceDocumentListResponse>(
       `/api/compliance-documents${query ? `?${query}` : ''}`,
+    );
+  },
+
+  getFilterOptions() {
+    return apiClient.get<ApiResponse<ComplianceDocumentFilterOptions>>(
+      '/api/compliance-documents/filter-options',
     );
   },
 

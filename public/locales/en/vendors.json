@@ -40,6 +40,12 @@
     "discovered": "Discovered apps",
     "intakeRequests": "Pending intake"
   },
+  "pagination": {
+    "summary_one": "Page <1>{{page}}</1> · Showing <2>{{shown}}</2> of <3>{{total}}</3> vendor",
+    "summary_other": "Page <1>{{page}}</1> · Showing <2>{{shown}}</2> of <3>{{total}}</3> vendors",
+    "previousAria": "Previous vendors page",
+    "nextAria": "Next vendors page"
+  },
   "filters": {
     "searchLabel": "Search: {{value}}",
     "statusLabel": "Status: {{value}}",

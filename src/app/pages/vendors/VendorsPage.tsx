@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { PageFilterBar } from '@/app/components/filters/PageFilterBar';
@@ -21,6 +21,8 @@ import {
   AlertTriangle,
   Building2,
   CalendarClock,
+  ChevronLeft,
+  ChevronRight,
   ClipboardCheck,
   Plus,
   SearchCode,
@@ -29,7 +31,6 @@ import {
 import {
   CreateVendorInput,
   RiskTier,
-  VendorRecord,
   VendorStatus,
   vendorsService,
 } from '@/services/api/vendors';
@@ -40,6 +41,8 @@ import { PERMISSIONS, roleHasPermission } from '@/lib/rbac/permissions';
 import { RequestVendorDialog } from './RequestVendorDialog';
 
 type TabKey = 'ALL' | 'DUE' | 'HIGH_RISK';
+
+const PAGE_SIZE = 25;
 
 import {
   getStatusColors,
@@ -88,28 +91,11 @@ const emptyVendorInput: CreateVendorInput = {
   dpaSigned: false,
 };
 
-function isDueWithinDays(
-  isoDate: string | null | undefined,
-  days: number,
-): boolean {
-  if (!isoDate) return false;
-  const now = new Date();
-  const due = new Date(isoDate);
-  const diffMs = due.getTime() - now.getTime();
-  return diffMs <= days * 24 * 60 * 60 * 1000;
-}
-
 function scoreColor(score: number | null): string {
   if (score === null) return 'text-muted-foreground';
   if (score < 25) return 'text-emerald-600 font-semibold';
   if (score < 50) return 'text-amber-500 font-semibold';
   return 'text-red-500 font-semibold';
-}
-
-// "Effective" tier shown on the list = residual where set (review approved),
-// otherwise inherent. Mirrors what users actually want to see on a row glance.
-function effectiveTier(v: VendorRecord): RiskTier | null {
-  return v.residualTier ?? v.inherentTier;
 }
 
 export function VendorsPage() {
@@ -133,14 +119,46 @@ export function VendorsPage() {
   const [isRequestOpen, setIsRequestOpen] = useState(false);
   const [form, setForm] = useState<CreateVendorInput>(emptyVendorInput);
   const [creating, setCreating] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const vendorListParams = {
+    search: search.trim() || undefined,
+    status: statusFilter === 'ALL' ? undefined : statusFilter,
+    effectiveTier: tierFilter === 'ALL' ? undefined : tierFilter,
+    highRisk: tab === 'HIGH_RISK' ? true : undefined,
+    dueWithinDays: tab === 'DUE' ? 30 : undefined,
+    page: currentPage,
+    limit: PAGE_SIZE,
+  };
 
   const {
-    data: vendors = [],
+    data: vendorPage,
     isLoading,
     error,
   } = useQuery({
-    queryKey: QK.vendors(),
-    queryFn: () => vendorsService.list(),
+    queryKey: QK.vendors(vendorListParams),
+    queryFn: () => vendorsService.listPage(vendorListParams),
+    staleTime: 30_000,
+  });
+  const vendors = useMemo(() => vendorPage?.data ?? [], [vendorPage?.data]);
+  const pagination = vendorPage?.pagination;
+
+  const { data: vendorStats } = useQuery({
+    queryKey: ['vendors', 'stats'],
+    queryFn: async () => {
+      const [all, dueSoon, highRisk, monitored] = await Promise.all([
+        vendorsService.listPage({ page: 1, limit: 1 }),
+        vendorsService.listPage({ page: 1, limit: 1, dueWithinDays: 30 }),
+        vendorsService.listPage({ page: 1, limit: 1, highRisk: true }),
+        vendorsService.listPage({ page: 1, limit: 1, status: 'MONITORED' }),
+      ]);
+      return {
+        total: all.pagination.total,
+        dueSoon: dueSoon.pagination.total,
+        highRisk: highRisk.pagination.total,
+        monitored: monitored.pagination.total,
+      };
+    },
     staleTime: 30_000,
   });
 
@@ -166,44 +184,8 @@ export function VendorsPage() {
     staleTime: 30_000,
   });
 
-  const stats = useMemo(() => {
-    const dueSoon = vendors.filter((v) =>
-      isDueWithinDays(v.nextAssessmentAt, 30),
-    ).length;
-    const highRisk = vendors.filter((v) => {
-      const tier = effectiveTier(v);
-      return tier === 'HIGH' || tier === 'CRITICAL';
-    }).length;
-    const monitored = vendors.filter((v) => v.status === 'MONITORED').length;
-    return { dueSoon, highRisk, monitored };
-  }, [vendors]);
-
   const filteredVendors = useMemo(() => {
-    const normalized = search.trim().toLowerCase();
     return vendors
-      .filter((v) => {
-        if (!normalized) return true;
-        const ownerName = v.ownerUser?.name?.toLowerCase() ?? '';
-        const ownerEmail = v.ownerUser?.email.toLowerCase() ?? '';
-        return (
-          v.name.toLowerCase().includes(normalized) ||
-          v.category.toLowerCase().includes(normalized) ||
-          ownerName.includes(normalized) ||
-          ownerEmail.includes(normalized)
-        );
-      })
-      .filter((v) =>
-        statusFilter === 'ALL' ? true : v.status === statusFilter,
-      )
-      .filter((v) =>
-        tierFilter === 'ALL' ? true : effectiveTier(v) === tierFilter,
-      )
-      .filter((v) => {
-        if (tab === 'ALL') return true;
-        if (tab === 'DUE') return isDueWithinDays(v.nextAssessmentAt, 30);
-        const tier = effectiveTier(v);
-        return tier === 'HIGH' || tier === 'CRITICAL';
-      })
       .sort((a, b) => {
         const aTime = a.nextAssessmentAt
           ? new Date(a.nextAssessmentAt).getTime()
@@ -213,7 +195,12 @@ export function VendorsPage() {
           : Number.POSITIVE_INFINITY;
         return aTime - bTime;
       });
-  }, [vendors, search, statusFilter, tierFilter, tab]);
+  }, [vendors]);
+
+  const updateFilters = (patch: Record<string, string>) => {
+    update(patch);
+    setCurrentPage(1);
+  };
 
   const activeFilters = [
     ...(search.trim()
@@ -221,7 +208,7 @@ export function VendorsPage() {
           {
             key: 'search',
             label: t('filters.searchLabel', { value: search.trim() }),
-            onRemove: () => update({ search: '' }),
+            onRemove: () => updateFilters({ search: '' }),
           },
         ]
       : []),
@@ -232,7 +219,7 @@ export function VendorsPage() {
             label: t('filters.statusLabel', {
               value: t(`status.${statusFilter}`),
             }),
-            onRemove: () => update({ status: 'ALL' }),
+            onRemove: () => updateFilters({ status: 'ALL' }),
           },
         ]
       : []),
@@ -243,7 +230,7 @@ export function VendorsPage() {
             label: t('filters.tierLabel', {
               value: t(`riskLevel.${tierFilter}`),
             }),
-            onRemove: () => update({ tier: 'ALL' }),
+            onRemove: () => updateFilters({ tier: 'ALL' }),
           },
         ]
       : []),
@@ -254,7 +241,7 @@ export function VendorsPage() {
             label: t('filters.viewLabel', {
               value: tab === 'DUE' ? t('tabs.dueSoon') : t('tabs.highRisk'),
             }),
-            onRemove: () => update({ tab: 'ALL' }),
+            onRemove: () => updateFilters({ tab: 'ALL' }),
           },
         ]
       : []),
@@ -274,7 +261,7 @@ export function VendorsPage() {
       });
       setForm(emptyVendorInput);
       setIsAddOpen(false);
-      await qc.invalidateQueries({ queryKey: QK.vendors() });
+      await qc.invalidateQueries({ queryKey: ['vendors'] });
     } finally {
       setCreating(false);
     }
@@ -314,7 +301,7 @@ export function VendorsPage() {
               </p>
               <div className="mt-2 flex items-center justify-between">
                 <p className="text-2xl font-bold text-foreground">
-                  {vendors.length}
+                  {vendorStats?.total ?? pagination?.total ?? vendors.length}
                 </p>
                 <Building2 className="h-5 w-5 text-muted-foreground" />
               </div>
@@ -327,7 +314,7 @@ export function VendorsPage() {
               </p>
               <div className="mt-2 flex items-center justify-between">
                 <p className="text-2xl font-bold text-foreground">
-                  {stats.highRisk}
+                  {vendorStats?.highRisk ?? 0}
                 </p>
                 <AlertTriangle className="h-5 w-5 text-orange-500" />
               </div>
@@ -340,7 +327,7 @@ export function VendorsPage() {
               </p>
               <div className="mt-2 flex items-center justify-between">
                 <p className="text-2xl font-bold text-foreground">
-                  {stats.dueSoon}
+                  {vendorStats?.dueSoon ?? 0}
                 </p>
                 <CalendarClock className="h-5 w-5 text-amber-500" />
               </div>
@@ -353,7 +340,7 @@ export function VendorsPage() {
               </p>
               <div className="mt-2 flex items-center justify-between">
                 <p className="text-2xl font-bold text-foreground">
-                  {stats.monitored}
+                  {vendorStats?.monitored ?? 0}
                 </p>
                 <ClipboardCheck className="h-5 w-5 text-emerald-500" />
               </div>
@@ -396,7 +383,7 @@ export function VendorsPage() {
           <CardContent className="pt-6">
             <PageFilterBar
               searchValue={search}
-              onSearchChange={(value) => update({ search: value })}
+              onSearchChange={(value) => updateFilters({ search: value })}
               searchPlaceholder={t('searchPlaceholder')}
               selects={[
                 {
@@ -404,7 +391,7 @@ export function VendorsPage() {
                   value: statusFilter,
                   placeholder: t('filters.status'),
                   onChange: (value) =>
-                    update({ status: value as 'ALL' | VendorStatus }),
+                    updateFilters({ status: value as 'ALL' | VendorStatus }),
                   options: [
                     { value: 'ALL', label: t('filters.allStatuses') },
                     { value: 'MONITORED', label: t('status.MONITORED') },
@@ -421,7 +408,7 @@ export function VendorsPage() {
                   value: tierFilter,
                   placeholder: t('filters.riskTier'),
                   onChange: (value) =>
-                    update({ tier: value as 'ALL' | RiskTier }),
+                    updateFilters({ tier: value as 'ALL' | RiskTier }),
                   options: [
                     { value: 'ALL', label: t('filters.allRiskTiers') },
                     { value: 'LOW', label: t('riskLevel.LOW') },
@@ -431,10 +418,13 @@ export function VendorsPage() {
                   ],
                 },
               ]}
-              resultCount={filteredVendors.length}
+              resultCount={pagination?.total ?? filteredVendors.length}
               resultLabel={t('stats.vendors').toLowerCase()}
               activeFilters={activeFilters}
-              onClearAll={reset}
+              onClearAll={() => {
+                reset();
+                setCurrentPage(1);
+              }}
             />
 
             <div className="mt-4 flex flex-wrap gap-2">
@@ -446,7 +436,7 @@ export function VendorsPage() {
                 <Button
                   key={item.key}
                   variant={tab === item.key ? 'default' : 'outline'}
-                  onClick={() => update({ tab: item.key as TabKey })}
+                  onClick={() => updateFilters({ tab: item.key as TabKey })}
                   className="h-8"
                 >
                   {item.label}
@@ -569,6 +559,47 @@ export function VendorsPage() {
                 </tbody>
               </table>
             </div>
+            {pagination && pagination.totalPages > 1 && (
+              <div className="mt-4 flex items-center justify-between text-sm text-muted-foreground">
+                <span>
+                  <Trans
+                    t={t}
+                    i18nKey="pagination.summary"
+                    count={pagination.total}
+                    values={{
+                      page: pagination.page,
+                      shown: filteredVendors.length,
+                      total: pagination.total,
+                    }}
+                    components={{
+                      1: <span className="font-medium text-foreground" />,
+                      2: <span className="font-medium text-foreground" />,
+                      3: <span className="font-medium text-foreground" />,
+                    }}
+                  />
+                </span>
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                    disabled={pagination.page <= 1}
+                    aria-label={t('pagination.previousAria')}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setCurrentPage((page) => page + 1)}
+                    disabled={pagination.page >= pagination.totalPages}
+                    aria-label={t('pagination.nextAria')}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
