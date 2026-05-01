@@ -44,8 +44,6 @@ import {
   FileDown,
   User,
   Calendar,
-  XCircle,
-  CheckCircle2,
   ListChecks,
 } from 'lucide-react';
 import {
@@ -167,46 +165,30 @@ function riskLevelBadge(level: string | null, t: TFunction) {
   return null;
 }
 
-function applicabilityBadge(status: string, t: TFunction) {
-  if (status === 'not_applicable')
-    return (
-      <Badge variant="outline" className="text-gray-400 border-gray-200 text-[11px]">
-        {t('frameworkDetail.badge.notApplicable')}
-      </Badge>
-    );
-  return (
-    <Badge variant="outline" className="text-blue-600 border-blue-200 text-[11px]">
-      {t('frameworkDetail.badge.applicable')}
-    </Badge>
-  );
+function getRequirementProgress(req: RequirementDetailRow) {
+  const completedControls = req.controls.filter(
+    (control) => control.controlStatus === 'IMPLEMENTED',
+  ).length;
+  const completedTests = req.tests.filter(
+    (test) => test.testStatus === 'OK',
+  ).length;
+  const completedPolicies = req.policies.filter(
+    (policy) => policy.policyStatus === 'PUBLISHED',
+  ).length;
+  const total = req.controls.length + req.tests.length + req.policies.length;
+
+  return {
+    completed: completedControls + completedTests + completedPolicies,
+    total,
+  };
 }
 
-function mandatoryBadge() {
-  return (
-    <span className="inline-flex items-center rounded-full border border-purple-200 bg-purple-50 px-2 py-0.5 text-[11px] font-medium text-purple-700">
-      Mandatory
-    </span>
-  );
-}
-
-function reviewBadge(status: string, t: TFunction) {
-  if (status === 'accepted')
-    return (
-      <Badge className="bg-green-100 text-green-700 border-green-200 text-[11px]">
-        {t('frameworkDetail.badge.accepted')}
-      </Badge>
-    );
-  if (status === 'in_review')
-    return (
-      <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-[11px]">
-        {t('frameworkDetail.badge.inReview')}
-      </Badge>
-    );
-  return (
-    <Badge variant="outline" className="text-gray-400 text-[11px]">
-      {t('frameworkDetail.badge.notStarted')}
-    </Badge>
-  );
+function requirementProgressLabel(req: RequirementDetailRow, t: TFunction) {
+  const progress = getRequirementProgress(req);
+  if (progress.total === 0) {
+    return t('frameworkDetail.requirement.noMappedItems');
+  }
+  return t('frameworkDetail.requirement.progress', progress);
 }
 
 function mappingTypeBadge(type: string, t: TFunction) {
@@ -411,44 +393,54 @@ function RequirementRow({
             )}
           </div>
         </div>
-        <div className="flex items-center gap-1.5 shrink-0">
-          {req.isMandatory && mandatoryBadge()}
-          {reviewBadge(req.reviewStatus, t)}
-          {applicabilityBadge(req.applicabilityStatus, t)}
-          <button
-            className="p-1 text-gray-300 hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity"
-            title={t('frameworkDetail.requirement.assignOwner')}
-            onClick={(e) => {
-              e.stopPropagation();
-              onOwnerClick();
-            }}
-          >
-              <User className="w-3.5 h-3.5" />
-            </button>
-          {!req.isMandatory &&
-            (req.applicabilityStatus === 'applicable' ? (
-              <button
-                className="p-1 text-gray-300 hover:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                title={t('frameworkDetail.requirement.markNA')}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onNAClick();
-                }}
-              >
-                <XCircle className="w-3.5 h-3.5" />
-              </button>
-            ) : (
-              <button
-                className="p-1 text-gray-300 hover:text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                title={t('frameworkDetail.requirement.markApplicable')}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onMarkApplicable();
-                }}
-              >
-                <CheckCircle2 className="w-3.5 h-3.5" />
-              </button>
-            ))}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 shrink-0">
+          <span className="text-xs font-medium text-gray-500 sm:text-right whitespace-nowrap">
+            {requirementProgressLabel(req, t)}
+          </span>
+          <div className="flex items-center gap-1.5 justify-end">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 px-2 text-xs"
+              title={t('frameworkDetail.requirement.assignOwner')}
+              onClick={(e) => {
+                e.stopPropagation();
+                onOwnerClick();
+              }}
+            >
+              {req.ownerId
+                ? t('frameworkDetail.requirement.reassign')
+                : t('frameworkDetail.requirement.assign')}
+            </Button>
+            {!req.isMandatory &&
+              (req.applicabilityStatus === 'applicable' ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 px-2 text-xs"
+                  title={t('frameworkDetail.requirement.markNA')}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onNAClick();
+                  }}
+                >
+                  {t('frameworkDetail.requirement.notApplicable')}
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 px-2 text-xs border-blue-200 text-blue-600 hover:text-blue-700"
+                  title={t('frameworkDetail.requirement.markApplicable')}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onMarkApplicable();
+                  }}
+                >
+                  {t('frameworkDetail.requirement.applicable')}
+                </Button>
+              ))}
+          </div>
         </div>
       </div>
 
