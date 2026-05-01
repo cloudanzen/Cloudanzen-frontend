@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- legacy: to be typed progressively */
-import { apiClient, API_BASE_URL } from './client';
-import { getAuthToken } from '@/services/authStorage';
+import { apiClient } from './client';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -65,11 +64,6 @@ export interface NotionUserMapping {
 // ─── Service ──────────────────────────────────────────────────────────────────
 
 export const notionService = {
-  getConnectUrl(): string {
-    const token = getAuthToken() ?? '';
-    return `${API_BASE_URL}/api/integrations/notion/connect?token=${encodeURIComponent(token)}`;
-  },
-
   async getStatus(): Promise<{
     connected: boolean;
     data: NotionStatus | null;
