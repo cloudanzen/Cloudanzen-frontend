@@ -11,10 +11,13 @@ import { ColumnSelector } from './ColumnSelector';
 import { ControlDetailPanel } from './ControlDetailPanel';
 import { FrameworkFilter } from '@/app/components/compliance/FrameworkFilter';
 import { PageFilterBar } from '@/app/components/filters/PageFilterBar';
+import { ListPaginationBar } from '@/app/components/pagination/ListPaginationBar';
 import { useUrlFilterState } from '@/app/hooks/useUrlFilterState';
 import { RefreshCw } from 'lucide-react';
 import { QK } from '@/lib/queryKeys';
 import { STALE } from '@/lib/queryClient';
+
+const PAGE_SIZE = 200;
 
 export function ControlsPage() {
   const { t } = useTranslation('compliance');
@@ -39,6 +42,8 @@ export function ControlsPage() {
   const [sortColumn, setSortColumn] = useState<string>('isoReference');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [selectedControl, setSelectedControl] = useState<Control | null>(null);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(PAGE_SIZE);
 
   // Load / persist column preferences in localStorage (unchanged)
   useEffect(() => {
@@ -60,10 +65,12 @@ export function ControlsPage() {
     status: filter.status,
     isoReference: filter.isoReference,
     frameworkSlugs: frameworkFilter,
+    page,
+    limit: pageSize,
   };
 
   const {
-    data: rawControls,
+    data: controlsResponse,
     isLoading: loading,
     isError,
     error: queryError,
@@ -75,10 +82,12 @@ export function ControlsPage() {
         search: filter.search || undefined,
         status: filter.status || undefined,
         isoReference: filter.isoReference || undefined,
-        frameworkSlugs:
-          frameworkFilter.length > 0 ? frameworkFilter : undefined,
+          frameworkSlugs:
+            frameworkFilter.length > 0 ? frameworkFilter : undefined,
+          page,
+          limit: pageSize,
       });
-      if (response.success && response.data) return response.data as Control[];
+      if (response.success && response.data) return response;
       throw new Error('Failed to load controls from the server.');
     },
     staleTime: STALE.CONTROLS,
@@ -93,8 +102,10 @@ export function ControlsPage() {
   });
 
   // Client-side sort applied to cached data
-  const controls: Control[] = rawControls
-    ? [...rawControls].sort((a, b) => {
+  const pagination = controlsResponse?.pagination;
+
+  const controls: Control[] = controlsResponse?.data
+    ? [...(controlsResponse.data as Control[])].sort((a, b) => {
         const aVal = a[sortColumn as keyof Control];
         const bVal = b[sortColumn as keyof Control];
         if (aVal === undefined || bVal === undefined) return 0;
@@ -120,6 +131,12 @@ export function ControlsPage() {
 
   const handleClearFilters = () => {
     reset();
+    setPage(1);
+  };
+
+  const updateFilters = (patch: Record<string, string | string[]>) => {
+    update(patch);
+    setPage(1);
   };
 
   const handleColumnToggle = (columnId: string) =>
@@ -150,7 +167,7 @@ export function ControlsPage() {
           {
             key: 'search',
             label: `Search: ${filter.search.trim()}`,
-            onRemove: () => update({ search: '' }),
+            onRemove: () => updateFilters({ search: '' }),
           },
         ]
       : []),
@@ -159,7 +176,7 @@ export function ControlsPage() {
           {
             key: 'status',
             label: `Status: ${filter.status.replace(/_/g, ' ').toLowerCase()}`,
-            onRemove: () => update({ status: '' }),
+            onRemove: () => updateFilters({ status: '' }),
           },
         ]
       : []),
@@ -168,7 +185,7 @@ export function ControlsPage() {
           {
             key: 'isoReference',
             label: `Ref: ${filter.isoReference.trim()}`,
-            onRemove: () => update({ isoReference: '' }),
+            onRemove: () => updateFilters({ isoReference: '' }),
           },
         ]
       : []),
@@ -176,7 +193,7 @@ export function ControlsPage() {
       key: `framework-${slug}`,
       label: `Framework: ${slug.replace(/-/g, ' ')}`,
       onRemove: () =>
-        update({ frameworks: frameworkFilter.filter((item) => item !== slug) }),
+        updateFilters({ frameworks: frameworkFilter.filter((item) => item !== slug) }),
     })),
   ];
 
@@ -238,21 +255,21 @@ export function ControlsPage() {
       <div className="px-6 pt-3 pb-1">
         <PageFilterBar
           searchValue={filter.search}
-          onSearchChange={(value) => update({ search: value })}
+          onSearchChange={(value) => updateFilters({ search: value })}
           searchPlaceholder={t('controls.searchTitleOrDescription')}
           selects={[
             {
               key: 'isoReference',
               value: filter.isoReference,
               placeholder: t('controls.reference'),
-              onChange: (value) => update({ isoReference: value }),
+              onChange: (value) => updateFilters({ isoReference: value }),
               options: [{ value: '', label: t('controls.allReferences') }],
             },
             {
               key: 'status',
               value: filter.status,
               placeholder: t('controls.columns.status'),
-              onChange: (value) => update({ status: value }),
+              onChange: (value) => updateFilters({ status: value }),
               options: [
                 { value: '', label: t('controls.allStatuses') },
                 { value: 'IMPLEMENTED', label: t('controls.implemented') },
@@ -267,11 +284,11 @@ export function ControlsPage() {
           inlineExtras={
             <FrameworkFilter
               selected={frameworkFilter}
-              onChange={(value) => update({ frameworks: value })}
+              onChange={(value) => updateFilters({ frameworks: value })}
               className="w-full"
             />
           }
-          resultCount={filteredControls.length}
+          resultCount={pagination?.total ?? filteredControls.length}
           resultLabel={t('controls.resultLabel')}
           activeFilters={activeFilters}
           onClearAll={handleClearFilters}
@@ -354,11 +371,18 @@ export function ControlsPage() {
                 sortDirection={sortDirection}
                 onSelect={setSelectedControl}
               />
-              <div className="flex items-center justify-between px-4 py-2 bg-card rounded-xl border border-border shadow-sm">
-                <span className="text-sm text-muted-foreground">
-                  {t('controls.showingCount', { count: filteredControls.length })}
-                  {hasActiveFilters && ` ${t('controls.filtered')}`}
-                </span>
+              <div className="bg-card rounded-xl border border-border px-4 py-2 shadow-sm">
+                <ListPaginationBar
+                  page={pagination?.page ?? page}
+                  pageSize={pageSize}
+                  total={pagination?.total ?? filteredControls.length}
+                  itemLabel="control"
+                  onPageChange={setPage}
+                  onPageSizeChange={(nextPageSize) => {
+                    setPageSize(nextPageSize);
+                    setPage(1);
+                  }}
+                />
               </div>
             </>
           )}

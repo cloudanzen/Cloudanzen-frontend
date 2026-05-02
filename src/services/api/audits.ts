@@ -351,16 +351,29 @@ export interface AuditSummaryResponse<TItem = Record<string, unknown>> {
   integrations?: TItem[];
 }
 
+export interface AuditListResponse {
+  success: boolean;
+  data: AuditRecord[];
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
 // ── Service ───────────────────────────────────────────────────────────────────
 
 export const auditsService = {
-  list(params?: { type?: AuditType; status?: AuditStatus; search?: string }) {
+  list(params?: { type?: AuditType; status?: AuditStatus; search?: string; page?: number; limit?: number }) {
     // Strip out undefined/empty values so they aren't sent as the string "undefined"
     const clean: Record<string, string> = {};
     if (params?.type   && (params.type   as unknown) !== 'undefined' && (params.type   as unknown) !== 'all') clean.type   = params.type;
     if (params?.status && (params.status as unknown) !== 'undefined' && (params.status as unknown) !== 'all') clean.status = params.status;
     if (params?.search && params.search !== 'undefined' && params.search !== 'all') clean.search = params.search;
-    return apiClient.get<{ success: boolean; data: AuditRecord[] }>('/api/audits', Object.keys(clean).length ? clean : undefined);
+    if (params?.page !== undefined) clean.page = String(params.page);
+    if (params?.limit !== undefined) clean.limit = String(params.limit);
+    return apiClient.get<AuditListResponse>('/api/audits', Object.keys(clean).length ? clean : undefined);
   },
 
   get(id: string) {

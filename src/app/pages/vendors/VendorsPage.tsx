@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { Trans, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { PageFilterBar } from '@/app/components/filters/PageFilterBar';
+import { ListPaginationBar } from '@/app/components/pagination/ListPaginationBar';
 import { useUrlFilterState } from '@/app/hooks/useUrlFilterState';
 import { Button } from '@/app/components/ui/button';
 import { Card, CardContent } from '@/app/components/ui/card';
@@ -21,8 +22,6 @@ import {
   AlertTriangle,
   Building2,
   CalendarClock,
-  ChevronLeft,
-  ChevronRight,
   ClipboardCheck,
   Plus,
   SearchCode,
@@ -120,6 +119,7 @@ export function VendorsPage() {
   const [form, setForm] = useState<CreateVendorInput>(emptyVendorInput);
   const [creating, setCreating] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(PAGE_SIZE);
 
   const vendorListParams = {
     search: search.trim() || undefined,
@@ -128,7 +128,7 @@ export function VendorsPage() {
     highRisk: tab === 'HIGH_RISK' ? true : undefined,
     dueWithinDays: tab === 'DUE' ? 30 : undefined,
     page: currentPage,
-    limit: PAGE_SIZE,
+    limit: pageSize,
   };
 
   const {
@@ -559,46 +559,19 @@ export function VendorsPage() {
                 </tbody>
               </table>
             </div>
-            {pagination && pagination.totalPages > 1 && (
-              <div className="mt-4 flex items-center justify-between text-sm text-muted-foreground">
-                <span>
-                  <Trans
-                    t={t}
-                    i18nKey="pagination.summary"
-                    count={pagination.total}
-                    values={{
-                      page: pagination.page,
-                      shown: filteredVendors.length,
-                      total: pagination.total,
-                    }}
-                    components={{
-                      1: <span className="font-medium text-foreground" />,
-                      2: <span className="font-medium text-foreground" />,
-                      3: <span className="font-medium text-foreground" />,
-                    }}
-                  />
-                </span>
-                <div className="flex items-center gap-1">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
-                    disabled={pagination.page <= 1}
-                    aria-label={t('pagination.previousAria')}
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setCurrentPage((page) => page + 1)}
-                    disabled={pagination.page >= pagination.totalPages}
-                    aria-label={t('pagination.nextAria')}
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
+            {pagination && (
+              <ListPaginationBar
+                className="mt-4"
+                page={pagination.page}
+                pageSize={pageSize}
+                total={pagination.total}
+                itemLabel="vendor"
+                onPageChange={setCurrentPage}
+                onPageSizeChange={(nextPageSize) => {
+                  setPageSize(nextPageSize);
+                  setCurrentPage(1);
+                }}
+              />
             )}
           </CardContent>
         </Card>

@@ -25,6 +25,7 @@ import { toast } from 'sonner';
 
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { PageFilterBar } from '@/app/components/filters/PageFilterBar';
+import { ListPaginationBar } from '@/app/components/pagination/ListPaginationBar';
 import { useUrlFilterState } from '@/app/hooks/useUrlFilterState';
 import { Card } from '@/app/components/ui/card';
 import { Badge } from '@/app/components/ui/badge';
@@ -721,27 +722,14 @@ export function InventoryPage() {
         </Card>
 
         {pagination ? (
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <p>{t('inventory.pagination', { page: pagination.page, totalPages: pagination.totalPages })}</p>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                disabled={pagination.page <= 1}
-                onClick={() => update({ page: String(Math.max(1, pagination.page - 1)) })}
-                className="rounded-md border border-gray-200 px-3 py-1.5 disabled:opacity-50"
-              >
-                {t('inventory.prev')}
-              </button>
-              <button
-                type="button"
-                disabled={pagination.page >= pagination.totalPages}
-                onClick={() => update({ page: String(Math.min(pagination.totalPages, pagination.page + 1)) })}
-                className="rounded-md border border-gray-200 px-3 py-1.5 disabled:opacity-50"
-              >
-                {t('inventory.next')}
-              </button>
-            </div>
-          </div>
+          <ListPaginationBar
+            page={pagination.page}
+            pageSize={Number(filters.limit || '50')}
+            total={pagination.total}
+            itemLabel="asset"
+            onPageChange={(nextPage) => update({ page: String(nextPage) })}
+            onPageSizeChange={(nextPageSize) => update({ page: '1', limit: String(nextPageSize) })}
+          />
         ) : null}
       </div>
     </PageTemplate>

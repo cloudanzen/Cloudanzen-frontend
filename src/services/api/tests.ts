@@ -163,6 +163,13 @@ export interface TestFilterOptions {
   controls: Array<{ id: string; title: string; isoReference: string }>;
 }
 
+export interface TestListResponse<T = TestRecord[]> extends ApiResponse<T> {
+  total: number;
+  page: number;
+  limit: number;
+  view?: 'full' | 'card';
+}
+
 /** F5: lightweight test record returned by GET /api/tests?view=card */
 export interface TestCardRecord {
   id: string;
@@ -320,13 +327,13 @@ export interface WorkflowIntegrationConfigStatus {
 
 // ─── Service ─────────────────────────────────────────────────────────────────
 export class TestsService {
-  async listTests(params?: ListTestsParams): Promise<ApiResponse<TestRecord[]>>;
+  async listTests(params?: ListTestsParams): Promise<TestListResponse<TestRecord[]>>;
   async listTests(
     params: ListTestsParams & { view: 'card' },
-  ): Promise<ApiResponse<TestCardRecord[]> & { view: 'card' }>;
+  ): Promise<TestListResponse<TestCardRecord[]> & { view: 'card' }>;
   async listTests(
     params?: ListTestsParams,
-  ): Promise<ApiResponse<TestRecord[] | TestCardRecord[]>> {
+  ): Promise<TestListResponse<TestRecord[] | TestCardRecord[]>> {
     const clean: Record<string, string> = {};
     if (params) {
       if (params.search) clean.search = params.search;
