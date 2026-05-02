@@ -5,6 +5,7 @@ import { Card } from '@/app/components/ui/card';
 import { Badge } from '@/app/components/ui/badge';
 import { Button } from '@/app/components/ui/button';
 import { Input } from '@/app/components/ui/input';
+import { ListPaginationBar } from '@/app/components/pagination/ListPaginationBar';
 import {
   Select,
   SelectContent,
@@ -20,8 +21,6 @@ import {
   Link2,
   Unlink,
   Bot,
-  ChevronLeft,
-  ChevronRight,
 } from 'lucide-react';
 import {
   accessManagementService,
@@ -42,6 +41,7 @@ export function UnifiedAccessTable() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [mappingFilter, setMappingFilter] = useState<string>('all');
   const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(PAGE_SIZE);
   const [mapDialogAccount, setMapDialogAccount] =
     useState<AccessAccount | null>(null);
 
@@ -54,6 +54,7 @@ export function UnifiedAccessTable() {
       statusFilter,
       mappingFilter,
       page,
+      pageSize,
     ],
     queryFn: () =>
       accessManagementService.listAccounts({
@@ -61,8 +62,8 @@ export function UnifiedAccessTable() {
         serviceId: serviceFilter !== 'all' ? serviceFilter : undefined,
         status: statusFilter !== 'all' ? statusFilter : undefined,
         mappingStatus: mappingFilter !== 'all' ? mappingFilter : undefined,
-        limit: PAGE_SIZE,
-        offset: page * PAGE_SIZE,
+        limit: pageSize,
+        offset: page * pageSize,
       }),
   });
 
@@ -114,7 +115,7 @@ export function UnifiedAccessTable() {
 
   const accounts = accountsData?.rows ?? [];
   const total = accountsData?.total ?? 0;
-  const totalPages = Math.ceil(total / PAGE_SIZE);
+  const currentPage = page + 1;
   const safeStats: AccountStats = stats ?? {
     total: 0,
     mapped: 0,
@@ -443,35 +444,19 @@ export function UnifiedAccessTable() {
         </div>
 
         {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between p-3 border-t">
-            <span className="text-xs text-muted-foreground">
-              {t('accessManagement.unifiedAccess.showing', {
-                start: page * PAGE_SIZE + 1,
-                end: Math.min((page + 1) * PAGE_SIZE, total),
-                total,
-              })}
-            </span>
-            <div className="flex gap-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                disabled={page === 0}
-                onClick={() => setPage(page - 1)}
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                disabled={page >= totalPages - 1}
-                onClick={() => setPage(page + 1)}
-              >
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-        )}
+        <div className="border-t p-3">
+          <ListPaginationBar
+            page={currentPage}
+            pageSize={pageSize}
+            total={total}
+            itemLabel="account"
+            onPageChange={(nextPage) => setPage(nextPage - 1)}
+            onPageSizeChange={(nextPageSize) => {
+              setPageSize(nextPageSize);
+              setPage(0);
+            }}
+          />
+        </div>
       </Card>
 
       {/* Map dialog */}

@@ -4,11 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { Bell, Loader2 } from 'lucide-react';
 import { PageTemplate } from '@/app/components/PageTemplate';
+import { ListPaginationBar } from '@/app/components/pagination/ListPaginationBar';
 import { Button } from '@/app/components/ui/button';
 import { Card } from '@/app/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/components/ui/select';
-import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from '@/app/components/ui/pagination';
 import { NotificationRow } from '@/app/components/notifications/NotificationRow';
 import { notificationEventDefinitions, getNotificationTargetPath } from '@/app/features/notifications/notificationHelpers';
 import { useMarkAllNotificationsRead, useMarkNotificationRead } from '@/app/features/notifications/useNotifications';
@@ -24,23 +24,22 @@ export function NotificationsPage() {
   const [tab, setTab] = useState<'all' | 'unread' | 'critical'>('all');
   const [eventType, setEventType] = useState<string>('all');
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(PAGE_SIZE);
   const markRead = useMarkNotificationRead();
   const markAllRead = useMarkAllNotificationsRead();
 
   const filters = useMemo(() => ({
-    limit: PAGE_SIZE,
-    offset: (page - 1) * PAGE_SIZE,
+    limit: pageSize,
+    offset: (page - 1) * pageSize,
     unreadOnly: tab === 'unread',
     severity: tab === 'critical' ? 'critical' as const : undefined,
     eventType: eventType === 'all' ? undefined : eventType,
-  }), [eventType, page, tab]);
+  }), [eventType, page, pageSize, tab]);
 
   const inboxQuery = useQuery({
     queryKey: QK.notificationsInbox(filters),
     queryFn: () => notificationsService.listInbox(filters),
   });
-
-  const totalPages = Math.max(1, Math.ceil((inboxQuery.data?.total ?? 0) / PAGE_SIZE));
 
   async function handleOpen(notification: any) {
     await markRead.mutateAsync(notification.id);
@@ -95,31 +94,17 @@ export function NotificationsPage() {
             {inboxQuery.data?.notifications.map((notification) => (
               <NotificationRow key={notification.id} notification={notification} onClick={handleOpen} />
             ))}
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    href="#"
-                    onClick={(event) => {
-                      event.preventDefault();
-                      setPage((current) => Math.max(1, current - 1));
-                    }}
-                    className={page === 1 ? 'pointer-events-none opacity-50' : ''}
-                  />
-                </PaginationItem>
-                <PaginationItem className="px-3 text-sm text-gray-500">{t('notifications.pageOf', { page, total: totalPages })}</PaginationItem>
-                <PaginationItem>
-                  <PaginationNext
-                    href="#"
-                    onClick={(event) => {
-                      event.preventDefault();
-                      setPage((current) => Math.min(totalPages, current + 1));
-                    }}
-                    className={page >= totalPages ? 'pointer-events-none opacity-50' : ''}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
+            <ListPaginationBar
+              page={page}
+              pageSize={pageSize}
+              total={inboxQuery.data?.total ?? 0}
+              itemLabel="notification"
+              onPageChange={setPage}
+              onPageSizeChange={(nextPageSize) => {
+                setPageSize(nextPageSize);
+                setPage(1);
+              }}
+            />
           </div>
         )}
       </div>

@@ -3,9 +3,10 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { RefreshCw, X, CheckCircle, AlertTriangle, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
+import { RefreshCw, X, CheckCircle, AlertTriangle, Clock } from 'lucide-react';
 import { FrameworkFilter } from '@/app/components/compliance/FrameworkFilter';
 import { PageFilterBar } from '@/app/components/filters/PageFilterBar';
+import { ListPaginationBar } from '@/app/components/pagination/ListPaginationBar';
 import { useUrlFilterState } from '@/app/hooks/useUrlFilterState';
 import { QK } from '@/lib/queryKeys';
 import { STALE } from '@/lib/queryClient';
@@ -87,6 +88,7 @@ export function TestsPage() {
   };
   const frameworkFilter = urlFilters.frameworks;
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(PAGE_SIZE);
   const [sortColumn, setSortColumn] = useState('dueDate');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [columns, setColumns] = useState<ColumnConfig[]>(DEFAULT_COLUMNS);
@@ -119,15 +121,15 @@ export function TestsPage() {
     dueTo:    effectiveFilter.dueTo    || undefined,
     frameworkSlugs: frameworkFilter.length > 0 ? frameworkFilter : undefined,
     page,
-    limit: PAGE_SIZE,
+    limit: pageSize,
   };
 
   // ── Tests list query ──
-  const { data: testsData, isLoading, isError, isFetching, refetch } = useQuery({
+  const { data: testsResponse, isLoading, isError, isFetching, refetch } = useQuery({
     queryKey: QK.tests(filterKey),
     queryFn: async () => {
       const res = await testsService.listTests(filterKey);
-      if (res.success && res.data) return res.data as TestRecord[];
+      if (res.success && res.data) return res;
       throw new Error('Failed to load tests');
     },
     staleTime: STALE.TESTS,
@@ -204,7 +206,7 @@ export function TestsPage() {
     },
   });
 
-  const testsRaw = useMemo(() => (testsData ?? []) as TestRecord[], [testsData]);
+  const testsRaw = useMemo(() => (testsResponse?.data ?? []) as TestRecord[], [testsResponse?.data]);
 
   // Client-side sort — cast through unknown to allow dynamic key access
   const sorted = [...testsRaw].sort((a, b) => {
@@ -654,30 +656,18 @@ export function TestsPage() {
                 </div>
               </div>
 
-              {/* Pagination */}
-              <div className="flex items-center justify-between px-4 py-2 bg-card rounded-xl border border-border shadow-sm">
-                <span className="text-sm text-muted-foreground">
-                  Page <span className="font-medium text-foreground">{page}</span>
-                  {' · '}
-                  Showing <span className="font-medium text-foreground">{sorted.length}</span> test{sorted.length !== 1 ? 's' : ''}
-                  {hasActiveFilters && ' (filtered)'}
-                </span>
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => setPage(p => Math.max(1, p - 1))}
-                    disabled={page === 1}
-                    className="p-1.5 rounded-md border border-border text-muted-foreground hover:bg-muted disabled:opacity-40 transition-colors"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => setPage(p => p + 1)}
-                    disabled={sorted.length < PAGE_SIZE}
-                    className="p-1.5 rounded-md border border-border text-muted-foreground hover:bg-muted disabled:opacity-40 transition-colors"
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
+              <div className="bg-card rounded-xl border border-border px-4 py-2 shadow-sm">
+                <ListPaginationBar
+                  page={testsResponse?.page ?? page}
+                  pageSize={pageSize}
+                  total={testsResponse?.total ?? sorted.length}
+                  itemLabel="test"
+                  onPageChange={setPage}
+                  onPageSizeChange={(nextPageSize) => {
+                    setPageSize(nextPageSize);
+                    setPage(1);
+                  }}
+                />
               </div>
             </>
           )}

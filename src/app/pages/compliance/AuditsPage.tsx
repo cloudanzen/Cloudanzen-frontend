@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { PageFilterBar } from '@/app/components/filters/PageFilterBar';
+import { ListPaginationBar } from '@/app/components/pagination/ListPaginationBar';
 import { useUrlFilterState } from '@/app/hooks/useUrlFilterState';
 import { Button } from '@/app/components/ui/button';
 import { Card } from '@/app/components/ui/card';
@@ -12,7 +13,6 @@ import { Progress } from '@/app/components/ui/progress';
 import { Plus, Shield } from 'lucide-react';
 import {
   auditsService,
-  AuditRecord,
   AuditType,
   AuditStatus,
 } from '@/services/api/audits';
@@ -37,26 +37,29 @@ const STATUS_FILTERS: { value: '' | AuditStatus; label: string }[] = [
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 
+const PAGE_SIZE = 50;
+
 export function AuditsPage() {
   const { t } = useTranslation('compliance');
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(PAGE_SIZE);
   const { filters, update, reset } = useUrlFilterState({
     defaults: { search: '', status: '', type: '' },
   });
   const search = filters.search;
   const statusFilter = filters.status as '' | AuditStatus;
   const typeFilter = filters.type as '' | AuditType;
-  const { data, isLoading, refetch } = useQuery<{
-    success: boolean;
-    data: AuditRecord[];
-  }>({
-    queryKey: ['audits', search.trim(), statusFilter, typeFilter],
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ['audits', search.trim(), statusFilter, typeFilter, page, pageSize],
     queryFn: () =>
       auditsService.list({
         search: search.trim() || undefined,
         status: statusFilter || undefined,
         type: typeFilter || undefined,
+        page,
+        limit: pageSize,
       }),
   });
   const { data: users = [] } = useQuery({
@@ -69,6 +72,12 @@ export function AuditsPage() {
   );
 
   const audits = data?.data ?? [];
+  const pagination = data?.pagination;
+
+  const updateFilters = (patch: Record<string, string>) => {
+    update(patch);
+    setPage(1);
+  };
 
   const activeFilters = [
     ...(search.trim()
@@ -76,7 +85,7 @@ export function AuditsPage() {
           {
             key: 'search',
             label: `Search: ${search.trim()}`,
-            onRemove: () => update({ search: '' }),
+            onRemove: () => updateFilters({ search: '' }),
           },
         ]
       : []),
@@ -85,7 +94,7 @@ export function AuditsPage() {
           {
             key: 'status',
             label: `Status: ${STATUS_FILTERS.find((item) => item.value === statusFilter)?.label ?? statusFilter}`,
-            onRemove: () => update({ status: '' }),
+            onRemove: () => updateFilters({ status: '' }),
           },
         ]
       : []),
@@ -94,7 +103,7 @@ export function AuditsPage() {
           {
             key: 'type',
             label: `Type: ${typeFilter.replace(/_/g, ' ')}`,
-            onRemove: () => update({ type: '' }),
+            onRemove: () => updateFilters({ type: '' }),
           },
         ]
       : []),
@@ -154,7 +163,7 @@ export function AuditsPage() {
       <div className="mb-4">
         <PageFilterBar
           searchValue={search}
-          onSearchChange={(value) => update({ search: value })}
+          onSearchChange={(value) => updateFilters({ search: value })}
           searchPlaceholder={t('audits.searchPlaceholder')}
           selects={[
             {
@@ -162,14 +171,14 @@ export function AuditsPage() {
               value: statusFilter,
               placeholder: 'Status',
               onChange: (value) =>
-                update({ status: value as '' | AuditStatus }),
+                updateFilters({ status: value as '' | AuditStatus }),
               options: STATUS_FILTERS,
             },
             {
               key: 'type',
               value: typeFilter,
               placeholder: 'Type',
-              onChange: (value) => update({ type: value as '' | AuditType }),
+              onChange: (value) => updateFilters({ type: value as '' | AuditType }),
               options: [
                 { value: '', label: 'All Types' },
                 { value: 'INTERNAL', label: 'Internal' },
@@ -179,10 +188,13 @@ export function AuditsPage() {
               ],
             },
           ]}
-          resultCount={audits.length}
+          resultCount={pagination?.total ?? audits.length}
           resultLabel="audits"
           activeFilters={activeFilters}
-          onClearAll={reset}
+          onClearAll={() => {
+            reset();
+            setPage(1);
+          }}
         />
       </div>
 
@@ -306,6 +318,22 @@ export function AuditsPage() {
           </div>
         )}
       </Card>
+
+      {pagination && (
+        <div className="mt-4">
+          <ListPaginationBar
+            page={pagination.page}
+            pageSize={pageSize}
+            total={pagination.total}
+            itemLabel="audit"
+            onPageChange={setPage}
+            onPageSizeChange={(nextPageSize) => {
+              setPageSize(nextPageSize);
+              setPage(1);
+            }}
+          />
+        </div>
+      )}
 
       {/* Modals */}
       {showModal && (

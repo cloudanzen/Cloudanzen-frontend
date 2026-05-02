@@ -26,7 +26,7 @@ export class ControlsService {
     search?: string;
     isoReference?: string;
     frameworkSlugs?: string[];
-  }): Promise<ApiResponse<Control[]>> {
+  }): Promise<ApiResponse<Control[]> & { pagination?: { page: number; limit: number; total: number; totalPages: number } }> {
     // Build clean params - omit undefined/empty values
     const cleanParams: Record<string, string> = {};
     if (params) {
