@@ -40,6 +40,7 @@ import { RenewPolicyDialog } from '@/app/components/compliance/RenewPolicyDialog
 import { ReassignOwnerDialog } from '@/app/components/compliance/ReassignOwnerDialog';
 import { PolicyCommentsTab } from '@/app/pages/compliance/policies/CommentsTab';
 import { PolicyAuditsTab } from '@/app/pages/compliance/policies/AuditsTab';
+import type { PolicyApprovalRecord } from '@/services/api/types';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 const STATUS_STYLES: Record<string, { label: string; cls: string }> = {
@@ -137,8 +138,8 @@ export function PolicyDetailPage() {
   });
 
   const respondApprovalMutation = useMutation({
-    mutationFn: ({ approvalId, status }: { approvalId: string; status: 'APPROVED' | 'REJECTED' }) =>
-      policiesService.respondToApproval(id!, approvalId, { status }),
+    mutationFn: ({ approvalId, status, comment }: { approvalId: string; status: 'APPROVED' | 'REJECTED'; comment?: string }) =>
+      policiesService.respondToApproval(id!, approvalId, { status, ...(comment ? { comment } : {}) }),
     onSuccess: async (_, variables) => {
       toast.success(variables.status === 'APPROVED' ? 'Approval recorded' : 'Rejection recorded');
       await invalidatePolicy();
@@ -207,29 +208,45 @@ export function PolicyDetailPage() {
 
       <PublishPolicyDialog
         open={publishOpen}
+        policyId={policy.id}
         nextVersion={policy.status === 'PUBLISHED' ? currentVersionNumber + 1 : currentVersionNumber}
         onClose={() => setPublishOpen(false)}
         onSubmit={async (data) => {
-          const resp = await policiesService.updatePolicy(policy.id, { status: 'PUBLISHED', ...data });
-          toast.success('Policy published');
+          try {
+            const resp = await policiesService.updatePolicy(policy.id, { status: 'PUBLISHED', ...data });
+            toast.success('Policy published');
 
-          // [T-91] Surface role-exempt users who were dropped from `acceptanceUserIds`
-          // (e.g. Auditors). The backend enforces the exemption even when an admin explicitly
-          // selects them — the toast tells the admin *why* certain users didn't receive a task.
-          const skipped = resp.skippedUsers ?? [];
-          if (skipped.length > 0) {
-            const names = skipped.slice(0, 3).map((u) => u.name ?? u.role).join(', ');
-            const suffix = skipped.length > 3 ? `, +${skipped.length - 3} more` : '';
-            toast.info(
-              `${skipped.length} user${skipped.length > 1 ? 's' : ''} excluded (role exempt): ${names}${suffix}`,
-              {
-                description: 'Adjust the per-role onboarding matrix in Settings → Access → Roles if this is unexpected.',
-                duration: 8000,
-              },
-            );
+            // [T-91] Surface role-exempt users (e.g. Auditors) who don't receive an acceptance task.
+            const skipped = resp.skippedUsers ?? [];
+            if (skipped.length > 0) {
+              const names = skipped.slice(0, 3).map((u) => u.name ?? u.role).join(', ');
+              const suffix = skipped.length > 3 ? `, +${skipped.length - 3} more` : '';
+              toast.info(
+                `${skipped.length} user${skipped.length > 1 ? 's' : ''} excluded (role exempt): ${names}${suffix}`,
+                {
+                  description: 'Adjust the per-role onboarding matrix in Settings → Access → Roles if this is unexpected.',
+                  duration: 8000,
+                },
+              );
+            }
+
+            await invalidatePolicy();
+          } catch (error: unknown) {
+            // R2 — surface the publish-gate 409 codes from the backend.
+            const message = error instanceof Error ? error.message : 'Failed to publish policy';
+            if (message.includes('PUBLISH_BLOCKED_BY_REJECTION')) {
+              toast.error('Publish blocked: an approver rejected the latest round.', {
+                description: 'Request a new approval round before publishing.',
+              });
+            } else if (message.includes('PUBLISH_BLOCKED_BY_PENDING')) {
+              toast.error('Publish blocked: approvals are still pending.', {
+                description: 'Publish unlocks once every approver in the latest round approves.',
+              });
+            } else {
+              toast.error(message);
+            }
+            throw error;
           }
-
-          await invalidatePolicy();
         }}
       />
 
@@ -484,31 +501,15 @@ export function PolicyDetailPage() {
                           {approvals.length === 0 ? (
                             <p className="text-sm text-muted-foreground">No approval requests yet.</p>
                           ) : approvals.map((approval) => (
-                            <div key={approval.id} className="rounded-xl border border-border p-3">
-                              <p className="text-sm font-medium text-foreground">{approval.approver?.name || approval.approver?.email}</p>
-                              <p className="mt-1 text-xs text-muted-foreground">Round {approval.approvalRound} · {approval.status}</p>
-                              {approval.comment ? <p className="mt-2 text-sm text-foreground">{approval.comment}</p> : null}
-                              {approval.status === 'PENDING' && approval.approverId === me?.id ? (
-                                <div className="mt-3 flex gap-2">
-                                  <button
-                                    type="button"
-                                    onClick={() => respondApprovalMutation.mutate({ approvalId: approval.id, status: 'APPROVED' })}
-                                    disabled={respondApprovalMutation.isPending}
-                                    className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700 disabled:opacity-50"
-                                  >
-                                    Approve
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => respondApprovalMutation.mutate({ approvalId: approval.id, status: 'REJECTED' })}
-                                    disabled={respondApprovalMutation.isPending}
-                                    className="rounded-lg border border-red-300 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-100 disabled:opacity-50"
-                                  >
-                                    Reject
-                                  </button>
-                                </div>
-                              ) : null}
-                            </div>
+                            <ApprovalRow
+                              key={approval.id}
+                              approval={approval}
+                              isMine={approval.approverId === me?.id}
+                              pending={respondApprovalMutation.isPending}
+                              onRespond={(status, comment) =>
+                                respondApprovalMutation.mutate({ approvalId: approval.id, status, comment })
+                              }
+                            />
                           ))}
                         </div>
                       </div>
@@ -591,5 +592,89 @@ export function PolicyDetailPage() {
         </div>
       </PageTemplate>
     </>
+  );
+}
+
+// R2 — Per-approval row. When the assigned approver clicks Reject, expand a
+// required comment textarea before submitting (backend rejects empty comments
+// on REJECTED with a 400).
+function ApprovalRow({
+  approval,
+  isMine,
+  pending,
+  onRespond,
+}: {
+  approval: PolicyApprovalRecord;
+  isMine: boolean;
+  pending: boolean;
+  onRespond: (status: 'APPROVED' | 'REJECTED', comment?: string) => void;
+}) {
+  const [rejecting, setRejecting] = useState(false);
+  const [comment, setComment] = useState('');
+
+  return (
+    <div className="rounded-xl border border-border p-3">
+      <p className="text-sm font-medium text-foreground">{approval.approver?.name || approval.approver?.email}</p>
+      <p className="mt-1 text-xs text-muted-foreground">Round {approval.approvalRound} · {approval.status}</p>
+      {approval.comment ? <p className="mt-2 text-sm text-foreground">{approval.comment}</p> : null}
+
+      {approval.status === 'PENDING' && isMine ? (
+        rejecting ? (
+          <div className="mt-3 space-y-2">
+            <textarea
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              placeholder="Reason for rejection (required)"
+              rows={2}
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  if (!comment.trim()) return;
+                  onRespond('REJECTED', comment.trim());
+                  setRejecting(false);
+                  setComment('');
+                }}
+                disabled={pending || !comment.trim()}
+                className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-50"
+              >
+                Confirm rejection
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setRejecting(false);
+                  setComment('');
+                }}
+                className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="mt-3 flex gap-2">
+            <button
+              type="button"
+              onClick={() => onRespond('APPROVED')}
+              disabled={pending}
+              className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700 disabled:opacity-50"
+            >
+              Approve
+            </button>
+            <button
+              type="button"
+              onClick={() => setRejecting(true)}
+              disabled={pending}
+              className="rounded-lg border border-red-300 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-100 disabled:opacity-50"
+            >
+              Reject
+            </button>
+          </div>
+        )
+      ) : null}
+    </div>
   );
 }

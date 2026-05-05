@@ -30,10 +30,11 @@ export interface CreatePolicyRequest {
 
 export type UpdatePolicyRequest = Partial<CreatePolicyRequest>;
 
+// R2: re-acceptance is mandatory and org-wide. The dialog only sends a changelog;
+// `sendForAcceptance` and `acceptanceUserIds` were removed when the "publish only"
+// and "specific users" modes were dropped.
 export interface PublishPolicyRequest extends UpdatePolicyRequest {
   changelog?: string;
-  sendForAcceptance?: boolean;
-  acceptanceUserIds?: string[];
 }
 
 /**
