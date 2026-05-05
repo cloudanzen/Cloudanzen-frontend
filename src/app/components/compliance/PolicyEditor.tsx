@@ -3,7 +3,25 @@ import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Typography from '@tiptap/extension-typography';
 import Underline from '@tiptap/extension-underline';
-import { Bold, Italic, List, ListOrdered, Loader2, Underline as UnderlineIcon } from 'lucide-react';
+import Link from '@tiptap/extension-link';
+import Table from '@tiptap/extension-table';
+import TableRow from '@tiptap/extension-table-row';
+import TableCell from '@tiptap/extension-table-cell';
+import TableHeader from '@tiptap/extension-table-header';
+import {
+  Bold,
+  Code,
+  Italic,
+  Link as LinkIcon,
+  List,
+  ListOrdered,
+  Loader2,
+  Minus,
+  Quote,
+  Strikethrough,
+  Table as TableIcon,
+  Underline as UnderlineIcon,
+} from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Policy } from '@/services/api/types';
@@ -78,7 +96,16 @@ export function PolicyEditor({
   const initialContent = policy.content || buildFallbackContent(policy);
   const editor = useEditor({
     immediatelyRender: false,
-    extensions: [StarterKit, Typography, Underline],
+    extensions: [
+      StarterKit,
+      Typography,
+      Underline,
+      Link.configure({ openOnClick: false, autolink: true }),
+      Table.configure({ resizable: false }),
+      TableRow,
+      TableCell,
+      TableHeader,
+    ],
     content: initialContent,
     editorProps: {
       attributes: {
@@ -143,6 +170,40 @@ export function PolicyEditor({
             </ToolbarButton>
             <ToolbarButton active={editor?.isActive('orderedList')} onClick={() => editor?.chain().focus().toggleOrderedList().run()}>
               <ListOrdered className="h-4 w-4" />
+            </ToolbarButton>
+            <ToolbarButton active={editor?.isActive('strike')} onClick={() => editor?.chain().focus().toggleStrike().run()}>
+              <Strikethrough className="h-4 w-4" />
+            </ToolbarButton>
+            <ToolbarButton active={editor?.isActive('blockquote')} onClick={() => editor?.chain().focus().toggleBlockquote().run()}>
+              <Quote className="h-4 w-4" />
+            </ToolbarButton>
+            <ToolbarButton active={editor?.isActive('code')} onClick={() => editor?.chain().focus().toggleCode().run()}>
+              <Code className="h-4 w-4" />
+            </ToolbarButton>
+            <ToolbarButton
+              active={editor?.isActive('link')}
+              onClick={() => {
+                const previous = editor?.getAttributes('link').href as string | undefined;
+                const next = window.prompt('URL', previous ?? 'https://');
+                if (next === null) return;
+                if (next === '') {
+                  editor?.chain().focus().extendMarkRange('link').unsetLink().run();
+                } else {
+                  editor?.chain().focus().extendMarkRange('link').setLink({ href: next }).run();
+                }
+              }}
+            >
+              <LinkIcon className="h-4 w-4" />
+            </ToolbarButton>
+            <ToolbarButton onClick={() => editor?.chain().focus().setHorizontalRule().run()}>
+              <Minus className="h-4 w-4" />
+            </ToolbarButton>
+            <ToolbarButton
+              onClick={() =>
+                editor?.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
+              }
+            >
+              <TableIcon className="h-4 w-4" />
             </ToolbarButton>
           </div>
 
