@@ -7,10 +7,14 @@ import { FileText, X, Upload, Loader2 } from 'lucide-react';
 
 export function UploadModal({
   policy,
+  locale = 'en',
+  title,
   onClose,
   onUploaded,
 }: {
   policy: Policy;
+  locale?: 'en' | 'ja';
+  title?: string;
   onClose: () => void;
   onUploaded: (updated: Policy) => void;
 }) {
@@ -31,7 +35,7 @@ export function UploadModal({
     setUploading(true);
     setError(null);
     try {
-      const res = await policiesService.uploadPolicyDocument(policy.id, file) as any;
+      const res = await policiesService.uploadPolicyDocument(policy.id, file, { locale }) as any;
       onUploaded(res.data.policy);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : t('policiesPage.uploadModal.uploadFailed'));
@@ -48,8 +52,12 @@ export function UploadModal({
       >
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h2 className="text-base font-semibold text-gray-900">{t('policiesPage.uploadModal.title')}</h2>
-            <p className="text-sm text-gray-500 mt-0.5 truncate max-w-xs">{policy.name}</p>
+            <h2 className="text-base font-semibold text-gray-900">
+              {title ?? t('policiesPage.uploadModal.title')}
+            </h2>
+            <p className="text-sm text-gray-500 mt-0.5 truncate max-w-xs">
+              {policy.name}{locale !== 'en' ? ` · ${locale.toUpperCase()}` : ''}
+            </p>
           </div>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400">
             <X className="w-4 h-4" />

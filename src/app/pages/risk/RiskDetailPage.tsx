@@ -53,6 +53,7 @@ import { scanFindingsService } from '@/services/api/scan-findings';
 import { usersService } from '@/services/api/users';
 import { controlsService } from '@/services/api/controls';
 import { frameworksService } from '@/services/api/frameworks';
+import { policiesService } from '@/services/api/policies';
 import { riskStatusVariant } from '@/services/api/riskFormatting';
 import { useIsAdmin, useCurrentUser } from '@/hooks/useCurrentUser';
 import { QK } from '@/lib/queryKeys';
@@ -437,6 +438,41 @@ export function RiskDetailPage() {
     onSuccess: () => qc.invalidateQueries({ queryKey: QK.riskMappings(riskId) }),
   });
 
+  // R3a — Risk ↔ Policy treatment linkage
+  const { data: treatmentPoliciesRes } = useQuery({
+    queryKey: QK.riskTreatmentPolicies(riskId),
+    queryFn: () => riskLibraryService.listTreatmentPolicies(riskId),
+    enabled: Boolean(riskId),
+  });
+  const treatmentPolicies = treatmentPoliciesRes?.data ?? [];
+
+  const { data: allPolicies } = useQuery({
+    queryKey: ['policies', 'all-for-picker'],
+    queryFn: async () => {
+      const res = await policiesService.getPolicies();
+      const arr = res.data;
+      return Array.isArray(arr) ? arr : [];
+    },
+    enabled: Boolean(data),
+  });
+
+  const [showPolicyPicker, setShowPolicyPicker] = useState(false);
+
+  const linkPolicyMut = useMutation({
+    mutationFn: (policyId: string) => riskLibraryService.linkTreatmentPolicy(riskId, policyId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: QK.riskTreatmentPolicies(riskId) });
+      setShowPolicyPicker(false);
+    },
+  });
+
+  const unlinkPolicyMut = useMutation({
+    mutationFn: (policyId: string) => riskLibraryService.unlinkTreatmentPolicy(riskId, policyId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: QK.riskTreatmentPolicies(riskId) }),
+  });
+
+  const linkedPolicyIds = new Set(treatmentPolicies.map((p) => p.policyId));
+
   // Compute which controls/frameworks are already linked (to exclude from pickers)
   const linkedControlIds = new Set(mappingsData?.controls?.map(c => c.controlId) ?? []);
   const linkedFrameworkIds = new Set(mappingsData?.frameworks?.map(f => f.frameworkId) ?? []);
@@ -716,6 +752,81 @@ export function RiskDetailPage() {
                       className="w-full resize-none rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder={t('detail.treatmentPlan.notesPlaceholder')}
                     />
+                  </div>
+
+                  {/* R3a — Treatment Policies */}
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                        Treatment Policies
+                      </p>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 text-xs"
+                        onClick={() => setShowPolicyPicker((p) => !p)}
+                      >
+                        <Plus className="mr-1 h-3 w-3" />
+                        Add
+                      </Button>
+                    </div>
+
+                    {showPolicyPicker && (
+                      <div className="mt-2 rounded-lg border border-border bg-card p-3">
+                        <select
+                          defaultValue=""
+                          onChange={(e) => {
+                            if (e.target.value) linkPolicyMut.mutate(e.target.value);
+                          }}
+                          disabled={linkPolicyMut.isPending}
+                          className="w-full rounded-md border border-border bg-card px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="">Select a policy…</option>
+                          {(allPolicies ?? [])
+                            .filter((p) => !linkedPolicyIds.has(p.id))
+                            .map((p) => (
+                              <option key={p.id} value={p.id}>
+                                {p.name} (v{p.versionNumber}) — {p.status}
+                              </option>
+                            ))}
+                        </select>
+                        {linkPolicyMut.isPending && (
+                          <p className="mt-1.5 text-xs text-muted-foreground">Linking…</p>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="mt-3 space-y-2">
+                      {treatmentPolicies.length > 0 ? (
+                        treatmentPolicies.map((link) => (
+                          <div
+                            key={link.id}
+                            className="flex items-center justify-between rounded-lg border border-border px-3 py-2"
+                          >
+                            <div className="min-w-0">
+                              <p className="text-sm font-medium text-foreground">
+                                {link.policy.name}
+                              </p>
+                              <p className="truncate text-xs text-muted-foreground">
+                                v{link.policy.versionNumber} · {link.policy.status}
+                                {link.policy.owner ? ` · ${link.policy.owner.name ?? link.policy.owner.email}` : ''}
+                              </p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => unlinkPolicyMut.mutate(link.policyId)}
+                              disabled={unlinkPolicyMut.isPending}
+                              className="ml-2 shrink-0 rounded p-1 text-muted-foreground hover:bg-red-50 hover:text-red-600"
+                              title="Remove policy"
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-sm text-muted-foreground">No treatment policies linked.</p>
+                      )}
+                    </div>
                   </div>
                 </div>
               </Card>

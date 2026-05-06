@@ -14,6 +14,7 @@ export const NotificationEventType = {
   AUDIT_CREATED: 'audit.created',
   AUDIT_COMMENT_ADDED: 'audit.comment_added',
   AUDIT_REMINDER: 'audit.reminder',
+  POLICY_ACCEPTANCE_ASSIGNED: 'policy.acceptance_assigned',
   FRAMEWORK_ACTIVATED: 'framework.activated',
   COVERAGE_DROP: 'framework.coverage_drop',
   GAP_OWNER_ASSIGNED: 'framework.gap_owner_assigned',
@@ -24,7 +25,7 @@ export const NotificationEventType = {
 
 export type NotificationEventType = typeof NotificationEventType[keyof typeof NotificationEventType];
 
-export type NotificationCategory = 'Tests' | 'Risks' | 'Controls' | 'Audits' | 'Frameworks' | 'Access' | 'Trust Center';
+export type NotificationCategory = 'Tests' | 'Risks' | 'Controls' | 'Audits' | 'Policies' | 'Frameworks' | 'Access' | 'Trust Center';
 
 export interface NotificationEventDefinition {
   eventType: NotificationEventType;
@@ -123,6 +124,12 @@ export const NOTIFICATION_EVENT_DEFINITIONS: NotificationEventDefinition[] = [
     category: 'Audits',
     label: 'Audit reminder',
     description: 'Reminds audit owners and contributors about upcoming deadlines.',
+  },
+  {
+    eventType: NotificationEventType.POLICY_ACCEPTANCE_ASSIGNED,
+    category: 'Policies',
+    label: 'Policy acceptance assigned',
+    description: 'Notifies users when a newly published policy version needs their acceptance.',
   },
   {
     eventType: NotificationEventType.FRAMEWORK_ACTIVATED,

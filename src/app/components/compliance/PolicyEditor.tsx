@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Typography from '@tiptap/extension-typography';
@@ -84,16 +84,23 @@ function ToolbarButton({
 export function PolicyEditor({
   open,
   policy,
+  locale = 'en',
+  initialContent,
   onClose,
   onSaved,
 }: {
   open: boolean;
   policy: Policy;
+  locale?: 'en' | 'ja';
+  initialContent?: object | null;
   onClose: () => void;
   onSaved: (policy: Policy) => void;
 }) {
   const [saving, setSaving] = useState(false);
-  const initialContent = policy.content || buildFallbackContent(policy);
+  const editorContent = useMemo<object>(
+    () => initialContent ?? policy.content ?? buildFallbackContent(policy),
+    [initialContent, policy],
+  );
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
@@ -106,7 +113,7 @@ export function PolicyEditor({
       TableCell,
       TableHeader,
     ],
-    content: initialContent,
+    content: editorContent,
     editorProps: {
       attributes: {
         class: 'min-h-[420px] rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-800 focus:outline-none',
@@ -116,15 +123,15 @@ export function PolicyEditor({
 
   useEffect(() => {
     if (open && editor) {
-      editor.commands.setContent(initialContent);
+      editor.commands.setContent(editorContent);
     }
-  }, [editor, initialContent, open]);
+  }, [editor, editorContent, open]);
 
   const handleSave = async () => {
     if (!editor) return;
     setSaving(true);
     try {
-      const result = await policiesService.savePolicyContent(policy.id, editor.getJSON());
+      const result = await policiesService.savePolicyContent(policy.id, editor.getJSON(), { locale });
       if (result.data) {
         onSaved(result.data);
         toast.success('Policy content saved');

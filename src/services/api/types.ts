@@ -328,6 +328,7 @@ export interface Policy {
   description?: string;
   version: string;
   versionNumber?: number;
+  frameworksCount?: number;
   status: string;
   documentUrl: string;
   pdfUrl?: string | null;
@@ -393,6 +394,16 @@ export interface PolicyVersion {
   publishedAt: string;
   changelog?: string;
   approvals?: PolicyApprovalRecord[];
+  locales?: PolicyVersionLocale[];
+}
+
+export interface PolicyVersionLocale {
+  id: string;
+  policyVersionId: string;
+  locale: 'en' | 'ja' | string;
+  content?: object | null;
+  documentUrl?: string | null;
+  pdfUrl?: string | null;
 }
 
 export interface PolicyAcceptanceRecord {

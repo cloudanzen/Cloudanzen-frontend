@@ -57,8 +57,10 @@ export interface PolicyComment {
   policyId: string;
   policyVersionId: string | null;
   authorId: string;
-  text: string;
+  body: string;
+  text?: string;
   createdAt: string;
+  updatedAt: string;
   author: {
     id: string;
     name: string | null;
@@ -170,8 +172,10 @@ export class PoliciesService {
   async savePolicyContent(
     id: string,
     content: object,
+    opts?: { locale?: 'en' | 'ja' },
   ): Promise<ApiResponse<Policy>> {
-    return apiClient.put(`/api/policies/${id}/content`, { content });
+    const suffix = opts?.locale ? `?locale=${encodeURIComponent(opts.locale)}` : '';
+    return apiClient.put(`/api/policies/${id}/content${suffix}`, { content });
   }
 
   // Delete policy
@@ -186,6 +190,7 @@ export class PoliciesService {
   async uploadPolicyDocument(
     policyId: string,
     file: File,
+    opts?: { locale?: 'en' | 'ja' },
   ): Promise<
     ApiResponse<{
       policy: Policy;
@@ -201,8 +206,9 @@ export class PoliciesService {
     formData.append('file', file);
 
     const token = getAuthToken();
+    const suffix = opts?.locale ? `?locale=${encodeURIComponent(opts.locale)}` : '';
     const response = await fetch(
-      `${API_BASE_URL}/api/policies/${policyId}/upload`,
+      `${API_BASE_URL}/api/policies/${policyId}/upload${suffix}`,
       {
         method: 'POST',
         credentials: 'include',
@@ -240,10 +246,15 @@ export class PoliciesService {
   async downloadPolicyDocument(
     policyId: string,
     fileName: string,
+    opts?: { versionId?: string; locale?: 'en' | 'ja' },
   ): Promise<void> {
     const token = getAuthToken();
+    const params = new URLSearchParams();
+    if (opts?.versionId) params.set('versionId', opts.versionId);
+    if (opts?.locale) params.set('locale', opts.locale);
+    const suffix = params.toString() ? `?${params.toString()}` : '';
     const response = await fetch(
-      `${API_BASE_URL}/api/policies/${policyId}/download`,
+      `${API_BASE_URL}/api/policies/${policyId}/download${suffix}`,
       {
         credentials: 'include',
         headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -270,14 +281,19 @@ export class PoliciesService {
    */
   async previewPolicyDocument(
     policyId: string,
+    opts?: { versionId?: string; locale?: 'en' | 'ja' },
   ): Promise<
     | { blobUrl: string; contentType: string }
     | { external: true; url: string }
     | { embedded: true; url: string }
   > {
     const token = getAuthToken();
+    const params = new URLSearchParams();
+    if (opts?.versionId) params.set('versionId', opts.versionId);
+    if (opts?.locale) params.set('locale', opts.locale);
+    const suffix = params.toString() ? `?${params.toString()}` : '';
     const response = await fetch(
-      `${API_BASE_URL}/api/policies/${policyId}/preview`,
+      `${API_BASE_URL}/api/policies/${policyId}/preview${suffix}`,
       {
         credentials: 'include',
         headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -316,12 +332,12 @@ export class PoliciesService {
     return apiClient.get(`/api/policies/${policyId}/comments`, params);
   }
 
-  async createComment(policyId: string, body: { text: string; policyVersionId?: string }): Promise<ApiResponse<PolicyComment>> {
+  async createComment(policyId: string, body: { body: string; policyVersionId?: string }): Promise<ApiResponse<PolicyComment>> {
     return apiClient.post(`/api/policies/${policyId}/comments`, body);
   }
 
-  async updateComment(policyId: string, commentId: string, text: string): Promise<ApiResponse<PolicyComment>> {
-    return apiClient.put(`/api/policies/${policyId}/comments/${commentId}`, { text });
+  async updateComment(policyId: string, commentId: string, body: string): Promise<ApiResponse<PolicyComment>> {
+    return apiClient.put(`/api/policies/${policyId}/comments/${commentId}`, { body });
   }
 
   async deleteComment(policyId: string, commentId: string): Promise<ApiResponse<void>> {
@@ -331,6 +347,45 @@ export class PoliciesService {
   async listAudits(policyId: string): Promise<ApiResponse<PolicyAuditRow[]>> {
     return apiClient.get(`/api/policies/${policyId}/audits`);
   }
+
+  // R3a — risks treated by this policy (reverse view of RiskTreatmentPolicy)
+  async listTreatmentRisks(policyId: string): Promise<ApiResponse<PolicyTreatmentRiskLink[]>> {
+    return apiClient.get(`/api/policies/${policyId}/risks`);
+  }
+
+  async linkControl(policyId: string, controlId: string): Promise<ApiResponse<PolicyControlLink>> {
+    return apiClient.post(`/api/policies/${policyId}/controls`, { controlId });
+  }
+
+  async unlinkControl(policyId: string, controlId: string): Promise<ApiResponse<void>> {
+    return apiClient.delete(`/api/policies/${policyId}/controls/${controlId}`);
+  }
+}
+
+export interface PolicyControlLink {
+  id: string;
+  controlId: string;
+  policyId: string;
+  control?: {
+    id: string;
+    isoReference?: string;
+    title: string;
+    status: string;
+  };
+}
+
+export interface PolicyTreatmentRiskLink {
+  id: string;
+  notes: string | null;
+  createdAt: string;
+  risk: {
+    id: string;
+    title: string;
+    status: string;
+    impact: string;
+    likelihood: string;
+    riskScore: number;
+  };
 }
 
 export const policiesService = new PoliciesService();

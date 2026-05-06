@@ -636,6 +636,7 @@ function FindingDetailPanel({
   onClose: () => void;
   onUpdated: (finding: FindingRecord) => void;
 }) {
+  const navigate = useNavigate();
   const currentUser = useCurrentUser();
   const canAudit = useCanAudit();
   const [dueAt, setDueAt] = useState(
@@ -713,6 +714,20 @@ function FindingDetailPanel({
             <div>
               <p className="text-xs text-gray-500">Risk</p>
               <p className="font-medium">{finding.risk?.title ?? '—'}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">Related policy</p>
+              {finding.policy ? (
+                <button
+                  type="button"
+                  onClick={() => navigate(`/compliance/policies/${finding.policy!.id}`)}
+                  className="font-medium text-blue-600 hover:text-blue-700 hover:underline"
+                >
+                  {finding.policy.name}
+                </button>
+              ) : (
+                <p className="font-medium">—</p>
+              )}
             </div>
             <div>
               <p className="text-xs text-gray-500">Created</p>
@@ -1219,6 +1234,7 @@ export function FindingsPage() {
                 <tr>
                   <th className="px-4 py-3">Finding</th>
                   <th className="px-4 py-3">Control</th>
+                  <th className="px-4 py-3">Related policy</th>
                   <th className="px-4 py-3">Asset</th>
                   <th className="px-4 py-3">{t('findings.columns.source')}</th>
                   <th className="px-4 py-3">Status</th>
@@ -1248,6 +1264,25 @@ export function FindingsPage() {
                     <td className="px-4 py-3 text-xs text-gray-600">
                       {finding.control?.isoReference ?? '—'}
                       <div className="text-gray-400">{finding.control?.title ?? 'Unmapped'}</div>
+                    </td>
+                    <td className="px-4 py-3 text-xs text-gray-600">
+                      {finding.policy ? (
+                        <button
+                          type="button"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            navigate(`/compliance/policies/${finding.policy!.id}`);
+                          }}
+                          className="text-left font-medium text-blue-600 hover:text-blue-700 hover:underline"
+                        >
+                          {finding.policy.name}
+                          <span className="block text-gray-400">
+                            v{finding.policy.versionNumber} · {finding.policy.status}
+                          </span>
+                        </button>
+                      ) : (
+                        '—'
+                      )}
                     </td>
                     <td className="px-4 py-3 text-xs text-gray-600">
                       {finding.asset?.name ?? '—'}
@@ -1282,7 +1317,7 @@ export function FindingsPage() {
                 ))}
                 {visible.length === 0 && (
                   <tr>
-                    <td colSpan={8} className="px-4 py-10 text-center text-sm text-gray-400">
+                    <td colSpan={9} className="px-4 py-10 text-center text-sm text-gray-400">
                       <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-gray-50">
                         <Clock className="h-5 w-5" />
                       </div>
