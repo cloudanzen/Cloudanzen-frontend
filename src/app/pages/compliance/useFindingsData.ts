@@ -95,6 +95,7 @@ export function useFindingsData(filters: FindingsFilters) {
           finding.description ?? '',
           finding.control?.isoReference ?? '',
           finding.control?.title ?? '',
+          finding.policy?.name ?? '',
           finding.asset?.name ?? '',
         ].some((value) => value.toLowerCase().includes(query));
       }),

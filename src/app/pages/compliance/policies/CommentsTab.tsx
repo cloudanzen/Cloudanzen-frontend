@@ -42,7 +42,7 @@ export function PolicyCommentsTab({
     setPosting(true);
     try {
       await policiesService.createComment(policyId, {
-        text: text.trim(),
+        body: text.trim(),
         ...(selectedVersionId ? { policyVersionId: selectedVersionId } : {}),
       });
       setText('');
@@ -125,7 +125,7 @@ export function PolicyCommentsTab({
                     </button>
                   )}
                 </div>
-                <p className="text-sm text-foreground whitespace-pre-wrap">{c.text}</p>
+                <p className="text-sm text-foreground whitespace-pre-wrap">{c.body ?? c.text}</p>
                 {c.policyVersionId && (
                   <p className="text-xs text-muted-foreground mt-0.5">
                     Re: v{versions.find((v) => v.id === c.policyVersionId)?.versionNumber ?? '?'}

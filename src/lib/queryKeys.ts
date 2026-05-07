@@ -33,6 +33,8 @@ export const QK = {
   riskSettings: () => ['risks', 'settings'] as const,
   riskDetail: (id: string) => ['risks', 'detail', id] as const,
   riskMappings: (id: string) => ['risks', 'mappings', id] as const,
+  riskTreatmentPolicies: (id: string) => ['risks', 'treatment-policies', id] as const,
+  policyTreatmentRisks: (id: string) => ['policies', 'treatment-risks', id] as const,
 
   // MDM / Computers
   mdmDevices: () => ['mdm', 'devices'] as const,
