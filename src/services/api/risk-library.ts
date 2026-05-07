@@ -199,4 +199,37 @@ export const riskLibraryService = {
       `/api/risk-library/register/${riskId}/frameworks/${frameworkId}`,
     );
   },
+
+  // R3a — Risk ↔ Policy treatment linkage (RiskTreatmentPolicy table).
+  // These hit the new /api/risks/:id/policies endpoints (risks module), separate
+  // from the /api/risk-library/* endpoints used for control/framework linking.
+  listTreatmentPolicies(riskId: string) {
+    return apiClient.get<ApiResponse<RiskTreatmentPolicyLink[]>>(`/api/risks/${riskId}/policies`);
+  },
+
+  linkTreatmentPolicy(riskId: string, policyId: string, notes?: string) {
+    return apiClient.post<ApiResponse<RiskTreatmentPolicyLink>>(`/api/risks/${riskId}/policies`, { policyId, notes });
+  },
+
+  unlinkTreatmentPolicy(riskId: string, policyId: string) {
+    return apiClient.delete<ApiResponse>(`/api/risks/${riskId}/policies/${policyId}`);
+  },
 };
+
+export interface RiskTreatmentPolicyLink {
+  id: string;
+  organizationId: string;
+  riskId: string;
+  policyId: string;
+  notes: string | null;
+  createdAt: string;
+  policy: {
+    id: string;
+    name: string;
+    version: string;
+    versionNumber: number;
+    status: string;
+    renewalDate: string | null;
+    owner: { id: string; name: string | null; email: string } | null;
+  };
+}

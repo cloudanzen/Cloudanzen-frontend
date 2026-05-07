@@ -22,6 +22,7 @@ const COMPLIANCE_EVENT_TYPES = [
   'control.assigned',
   'audit.created',
   'audit.reminder',
+  'policy.acceptance_assigned',
   'framework.activated',
   'framework.coverage_drop',
 ];
