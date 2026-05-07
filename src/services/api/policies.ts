@@ -50,6 +50,34 @@ export interface PolicyUpdateResponse extends ApiResponse<Policy> {
   skippedUsers?: SkippedAcceptanceUser[];
 }
 
+export interface PolicyComment {
+  id: string;
+  organizationId: string;
+  policyId: string;
+  policyVersionId: string | null;
+  authorId: string;
+  text: string;
+  createdAt: string;
+  author: {
+    id: string;
+    name: string | null;
+    email: string;
+    role: string;
+  };
+}
+
+export interface PolicyAuditRow {
+  id: string;
+  name: string;
+  type: string;
+  status: string;
+  startDate: string;
+  endDate: string | null;
+  assignedAuditorId: string | null;
+  externalAuditorEmail: string | null;
+  viaControlIds: string[];
+}
+
 export class PoliciesService {
   // Get all policies
   async getPolicies(params?: {
@@ -278,6 +306,29 @@ export class PoliciesService {
   }>>> {
     if (controlIds.length === 0) return { success: true, data: [] } as ApiResponse<[]>;
     return apiClient.get('/api/policies/by-controls', { controlIds: controlIds.join(',') });
+  }
+
+  // R1: comments + audits
+  async listComments(policyId: string, policyVersionId?: string): Promise<ApiResponse<PolicyComment[]>> {
+    const params: Record<string, string> = {};
+    if (policyVersionId) params.policyVersionId = policyVersionId;
+    return apiClient.get(`/api/policies/${policyId}/comments`, params);
+  }
+
+  async createComment(policyId: string, body: { text: string; policyVersionId?: string }): Promise<ApiResponse<PolicyComment>> {
+    return apiClient.post(`/api/policies/${policyId}/comments`, body);
+  }
+
+  async updateComment(policyId: string, commentId: string, text: string): Promise<ApiResponse<PolicyComment>> {
+    return apiClient.put(`/api/policies/${policyId}/comments/${commentId}`, { text });
+  }
+
+  async deleteComment(policyId: string, commentId: string): Promise<ApiResponse<void>> {
+    return apiClient.delete(`/api/policies/${policyId}/comments/${commentId}`);
+  }
+
+  async listAudits(policyId: string): Promise<ApiResponse<PolicyAuditRow[]>> {
+    return apiClient.get(`/api/policies/${policyId}/audits`);
   }
 }
 
