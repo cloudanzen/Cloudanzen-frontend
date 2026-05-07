@@ -14,6 +14,8 @@ interface Props {
   policyId: string;
   policyName: string;
   documentUrl: string;
+  versionId?: string;
+  locale?: 'en' | 'ja';
   onClose: () => void;
   /** Called when the user clicks the Download fallback */
   onDownload: () => void;
@@ -27,6 +29,8 @@ export function PolicyPreviewSheet({
   policyId,
   policyName,
   documentUrl,
+  versionId,
+  locale = 'en',
   onClose,
   onDownload,
 }: Props) {
@@ -35,7 +39,7 @@ export function PolicyPreviewSheet({
   const load = useCallback(async () => {
     setPreview({ status: 'loading' });
     try {
-      const result = await policiesService.previewPolicyDocument(policyId);
+      const result = await policiesService.previewPolicyDocument(policyId, { versionId, locale });
       if ('embedded' in result) {
         setPreview({ status: 'embedded', url: result.url });
       } else if ('external' in result) {
@@ -47,10 +51,13 @@ export function PolicyPreviewSheet({
           contentType: result.contentType,
         });
       }
-    } catch {
-      setPreview({ status: 'error', message: 'Failed to load preview.' });
+    } catch (error) {
+      setPreview({
+        status: 'error',
+        message: error instanceof Error && error.message ? error.message : 'Failed to load preview.',
+      });
     }
-  }, [policyId]);
+  }, [policyId, versionId, locale]);
 
   useEffect(() => {
     load();

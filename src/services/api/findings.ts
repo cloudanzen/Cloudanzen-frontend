@@ -26,6 +26,7 @@ export interface FindingRecord {
   status: FindingStatus;
   controlId: string | null;
   testRunId: string | null;
+  policyId: string | null;
   assetId: string | null;
   riskId: string | null;
   remediationOwner: string | null;
@@ -40,6 +41,7 @@ export interface FindingRecord {
   ageInDays?: number;
   slaBreached?: boolean;
   control?: { id: string; isoReference: string; title: string } | null;
+  policy?: { id: string; name: string; versionNumber: number; status: string } | null;
   asset?: { id: string; name: string; type: string } | null;
   risk?: { id: string; title: string; status: string } | null;
   testRun?: {

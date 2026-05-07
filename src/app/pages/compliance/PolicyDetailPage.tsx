@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router';
+import { Link, useNavigate, useParams } from 'react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ArrowLeft,
@@ -13,10 +13,13 @@ import {
   Layers,
   Loader2,
   MoreHorizontal,
+  Plus,
   RefreshCw,
   Trash2,
+  Upload,
   UserCog,
   Users,
+  X,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -32,15 +35,18 @@ import {
 } from '@/app/components/ui/dropdown-menu';
 import { QK } from '@/lib/queryKeys';
 import { policiesService } from '@/services/api/policies';
+import { controlsService } from '@/services/api/controls';
 import { usersService } from '@/services/api/users';
 import { PolicyEditor } from '@/app/components/compliance/PolicyEditor';
 import { PolicyPreviewSheet } from '@/app/components/compliance/PolicyPreviewSheet';
+import { PolicyVersionDiff } from '@/app/components/compliance/PolicyVersionDiff';
 import { PublishPolicyDialog } from '@/app/components/compliance/PublishPolicyDialog';
 import { RenewPolicyDialog } from '@/app/components/compliance/RenewPolicyDialog';
 import { ReassignOwnerDialog } from '@/app/components/compliance/ReassignOwnerDialog';
 import { PolicyCommentsTab } from '@/app/pages/compliance/policies/CommentsTab';
 import { PolicyAuditsTab } from '@/app/pages/compliance/policies/AuditsTab';
-import type { PolicyApprovalRecord } from '@/services/api/types';
+import { UploadModal } from '@/app/pages/compliance/policies/UploadModal';
+import type { Control, PolicyApprovalRecord, PolicyVersion } from '@/services/api/types';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 const STATUS_STYLES: Record<string, { label: string; cls: string }> = {
@@ -58,16 +64,29 @@ function renewCadenceLabel(months: number | null | undefined): string | null {
   return `Renew every ${months} months`;
 }
 
+function errorMessage(error: unknown, fallback: string): string {
+  return error instanceof Error && error.message ? error.message : fallback;
+}
+
 export function PolicyDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const qc = useQueryClient();
 
   const [editOpen, setEditOpen] = useState(false);
-  const [previewOpen, setPreviewOpen] = useState(false);
+  const [editLocale, setEditLocale] = useState<'en' | 'ja'>('en');
+  const [previewTarget, setPreviewTarget] = useState<{
+    versionId?: string;
+    locale: 'en' | 'ja';
+    documentUrl: string;
+    title: string;
+  } | null>(null);
+  const [uploadTarget, setUploadTarget] = useState<{ locale: 'en' | 'ja'; title: string } | null>(null);
+  const [diffVersion, setDiffVersion] = useState<PolicyVersion | null>(null);
   const [publishOpen, setPublishOpen] = useState(false);
   const [renewOpen, setRenewOpen] = useState(false);
   const [reassignOpen, setReassignOpen] = useState(false);
+  const [controlPickerOpen, setControlPickerOpen] = useState(false);
   const [selectedApproverIds, setSelectedApproverIds] = useState<string[]>([]);
   const [recurrenceMonths, setRecurrenceMonths] = useState('');
   const me = useCurrentUser();
@@ -115,6 +134,12 @@ export function PolicyDetailPage() {
     () => (policy?.controlMappings ?? []).map((mapping) => mapping.control).filter(Boolean),
     [policy?.controlMappings],
   );
+  const linkedControlIds = useMemo(
+    () => new Set((policy?.controlMappings ?? []).map((mapping) => mapping.controlId)),
+    [policy?.controlMappings],
+  );
+
+  const currentJapaneseLocale = currentVersion?.locales?.find((locale) => locale.locale === 'ja') ?? null;
 
   const invalidatePolicy = async () => {
     await Promise.all([
@@ -134,7 +159,7 @@ export function PolicyDetailPage() {
       setSelectedApproverIds([]);
       await invalidatePolicy();
     },
-    onError: () => toast.error('Failed to request approval'),
+    onError: (error) => toast.error(errorMessage(error, 'Failed to request approval')),
   });
 
   const respondApprovalMutation = useMutation({
@@ -144,7 +169,7 @@ export function PolicyDetailPage() {
       toast.success(variables.status === 'APPROVED' ? 'Approval recorded' : 'Rejection recorded');
       await invalidatePolicy();
     },
-    onError: () => toast.error('Failed to update approval'),
+    onError: (error) => toast.error(errorMessage(error, 'Failed to update approval')),
   });
 
   const recurrenceMutation = useMutation({
@@ -153,7 +178,7 @@ export function PolicyDetailPage() {
       toast.success('Review cadence updated');
       await invalidatePolicy();
     },
-    onError: () => toast.error('Failed to update review cadence'),
+    onError: (error) => toast.error(errorMessage(error, 'Failed to update review cadence')),
   });
 
   const reassignOwnerMutation = useMutation({
@@ -162,7 +187,26 @@ export function PolicyDetailPage() {
       toast.success('Owner updated');
       await invalidatePolicy();
     },
-    onError: () => toast.error('Failed to update owner'),
+    onError: (error) => toast.error(errorMessage(error, 'Failed to update owner')),
+  });
+
+  const linkControlMutation = useMutation({
+    mutationFn: (controlId: string) => policiesService.linkControl(id!, controlId),
+    onSuccess: async () => {
+      toast.success('Control linked');
+      setControlPickerOpen(false);
+      await invalidatePolicy();
+    },
+    onError: (error) => toast.error(errorMessage(error, 'Failed to link control')),
+  });
+
+  const unlinkControlMutation = useMutation({
+    mutationFn: (controlId: string) => policiesService.unlinkControl(id!, controlId),
+    onSuccess: async () => {
+      toast.success('Control removed');
+      await invalidatePolicy();
+    },
+    onError: (error) => toast.error(errorMessage(error, 'Failed to remove control')),
   });
 
   if (!id) return null;
@@ -179,13 +223,21 @@ export function PolicyDetailPage() {
 
   const status = STATUS_STYLES[policy.status] ?? STATUS_STYLES.DRAFT!;
   const cadenceLabel = renewCadenceLabel(policy.recurrenceMonths ?? null);
-  const frameworksCount = (policy as { frameworksCount?: number }).frameworksCount ?? 0;
+  const frameworksCount = policy.frameworksCount ?? 0;
+  const canEditLocalizedVersion = policy.status === 'PUBLISHED' && Boolean(currentVersion);
+  const localizedVersionHelp = canEditLocalizedVersion
+    ? null
+    : policy.status === 'PUBLISHED'
+      ? 'No published version snapshot is available yet.'
+      : 'Publish this policy before adding Japanese content.';
 
   return (
     <>
       <PolicyEditor
         open={editOpen}
         policy={policy}
+        locale={editLocale}
+        initialContent={editLocale === 'ja' ? currentJapaneseLocale?.content : undefined}
         onClose={() => setEditOpen(false)}
         onSaved={async () => {
           await invalidatePolicy();
@@ -193,18 +245,52 @@ export function PolicyDetailPage() {
         }}
       />
 
-      {previewOpen && policy.documentUrl ? (
+      {previewTarget ? (
         <PolicyPreviewSheet
           policyId={policy.id}
-          policyName={policy.name}
-          documentUrl={policy.documentUrl}
-          onClose={() => setPreviewOpen(false)}
+          policyName={previewTarget.title}
+          documentUrl={previewTarget.documentUrl}
+          versionId={previewTarget.versionId}
+          locale={previewTarget.locale}
+          onClose={() => setPreviewTarget(null)}
           onDownload={() => {
-            setPreviewOpen(false);
-            void policiesService.downloadPolicyDocument(policy.id, `${policy.name}.pdf`);
+            setPreviewTarget(null);
+            void policiesService.downloadPolicyDocument(policy.id, `${previewTarget.title}.pdf`, {
+              versionId: previewTarget.versionId,
+              locale: previewTarget.locale,
+            }).catch((error) => toast.error(errorMessage(error, 'Failed to download policy')));
           }}
         />
       ) : null}
+
+      {uploadTarget ? (
+        <UploadModal
+          policy={policy}
+          locale={uploadTarget.locale}
+          title={uploadTarget.title}
+          onClose={() => setUploadTarget(null)}
+          onUploaded={async () => {
+            await invalidatePolicy();
+            setUploadTarget(null);
+          }}
+        />
+      ) : null}
+
+      {diffVersion && currentVersion ? (
+        <PolicyVersionDiff
+          base={diffVersion}
+          compare={currentVersion}
+          onClose={() => setDiffVersion(null)}
+        />
+      ) : null}
+
+      <ControlPickerDialog
+        open={controlPickerOpen}
+        linkedControlIds={linkedControlIds}
+        pending={linkControlMutation.isPending}
+        onClose={() => setControlPickerOpen(false)}
+        onSelect={(controlId) => linkControlMutation.mutate(controlId)}
+      />
 
       <PublishPolicyDialog
         open={publishOpen}
@@ -309,7 +395,11 @@ export function PolicyDetailPage() {
                   Renew
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onClick={() => void policiesService.downloadPolicyDocument(policy.id, `${policy.name}.pdf`)}
+                  onClick={() =>
+                    void policiesService
+                      .downloadPolicyDocument(policy.id, `${policy.name}.pdf`)
+                      .catch((error) => toast.error(errorMessage(error, 'Failed to download policy')))
+                  }
                 >
                   <Download className="mr-2 h-4 w-4" />
                   Download
@@ -334,7 +424,10 @@ export function PolicyDetailPage() {
 
             <button
               type="button"
-              onClick={() => setEditOpen(true)}
+              onClick={() => {
+                setEditLocale('en');
+                setEditOpen(true);
+              }}
               className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
               <Edit3 className="h-4 w-4" />
@@ -454,12 +547,74 @@ export function PolicyDetailPage() {
                     </div>
                     <button
                       type="button"
-                      onClick={() => setPreviewOpen(true)}
-                      disabled={!policy.documentUrl}
+                      onClick={() =>
+                        setPreviewTarget({
+                          versionId: currentVersion?.id,
+                          locale: 'en',
+                          documentUrl: currentVersion?.documentUrl ?? currentVersion?.pdfUrl ?? policy.documentUrl ?? `${policy.name}-en`,
+                          title: `${policy.name} · English`,
+                        })
+                      }
+                      disabled={!policy.documentUrl && !policy.pdfUrl && !currentVersion?.documentUrl && !currentVersion?.pdfUrl && !currentVersion?.content}
                       className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
                     >
                       View
                     </button>
+                  </div>
+
+                  <div className="mt-2 flex items-center justify-between rounded-xl border border-border bg-muted/20 p-3">
+                    <div className="flex items-center gap-3">
+                      <FileText className="h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">Japanese</p>
+                        <p className="text-xs text-muted-foreground">
+                          {currentJapaneseLocale ? 'Localized version available' : 'No localized version yet'}
+                        </p>
+                        {localizedVersionHelp ? (
+                          <p className="mt-1 text-xs text-amber-700">{localizedVersionHelp}</p>
+                        ) : null}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {currentJapaneseLocale ? (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setPreviewTarget({
+                              versionId: currentVersion?.id,
+                              locale: 'ja',
+                              documentUrl: currentJapaneseLocale.documentUrl ?? currentJapaneseLocale.pdfUrl ?? `${policy.name}-ja`,
+                              title: `${policy.name} · Japanese`,
+                            })
+                          }
+                          className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                        >
+                          View
+                        </button>
+                      ) : null}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditLocale('ja');
+                          setEditOpen(true);
+                        }}
+                        disabled={!canEditLocalizedVersion}
+                        title={localizedVersionHelp ?? undefined}
+                        className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                      >
+                        {currentJapaneseLocale ? 'Edit' : 'Add Japanese'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setUploadTarget({ locale: 'ja', title: 'Upload Japanese version' })}
+                        disabled={!canEditLocalizedVersion}
+                        title={localizedVersionHelp ?? undefined}
+                        className="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                      >
+                        <Upload className="h-3.5 w-3.5" />
+                        Upload
+                      </button>
+                    </div>
                   </div>
 
                   {/* Show approval expand */}
@@ -555,6 +710,13 @@ export function PolicyDetailPage() {
                             Published {new Date(version.publishedAt).toLocaleDateString()} by {version.publishedBy}
                           </p>
                           {version.changelog ? <p className="mt-2 text-sm text-foreground">{version.changelog}</p> : null}
+                          <button
+                            type="button"
+                            onClick={() => setDiffVersion(version)}
+                            className="mt-3 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+                          >
+                            Compare to v{currentVersionNumber}
+                          </button>
                         </div>
                       ))}
                     </div>
@@ -563,19 +725,50 @@ export function PolicyDetailPage() {
               ) : null}
             </TabsContent>
 
-            <TabsContent value="controls" className="space-y-3">
-              {linkedControls.length === 0 ? (
-                <div className="rounded-2xl border border-border bg-card p-6 text-sm text-muted-foreground">No linked controls.</div>
-              ) : (
-                linkedControls.map((control) => (
-                  <div key={control!.id} className="flex items-center justify-between rounded-2xl border border-border bg-card p-4">
-                    <div>
-                      <p className="text-sm font-semibold text-foreground">{control!.isoReference || 'Control'} · {control!.title}</p>
-                    </div>
-                    <span className="text-xs font-medium text-muted-foreground">{control!.status}</span>
-                  </div>
-                ))
-              )}
+            <TabsContent value="controls" className="space-y-6">
+              <div>
+                <div className="mb-2 flex items-center justify-between gap-3">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Linked controls
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setControlPickerOpen(true)}
+                    className="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    Add Controls
+                  </button>
+                </div>
+                <div className="space-y-2">
+                  {linkedControls.length === 0 ? (
+                    <div className="rounded-2xl border border-border bg-card p-6 text-sm text-muted-foreground">No linked controls.</div>
+                  ) : (
+                    linkedControls.map((control) => (
+                      <div key={control!.id} className="flex items-center justify-between rounded-2xl border border-border bg-card p-4">
+                        <div>
+                          <p className="text-sm font-semibold text-foreground">{control!.isoReference || 'Control'} · {control!.title}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-medium text-muted-foreground">{control!.status}</span>
+                          <button
+                            type="button"
+                            onClick={() => unlinkControlMutation.mutate(control!.id)}
+                            disabled={unlinkControlMutation.isPending}
+                            className="rounded-md p-1 text-muted-foreground hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+                            title="Remove control"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* R3a — Risks treated by this policy */}
+              <PolicyTreatmentRisksSection policyId={policy.id} />
             </TabsContent>
 
             <TabsContent value="audits">
@@ -592,6 +785,130 @@ export function PolicyDetailPage() {
         </div>
       </PageTemplate>
     </>
+  );
+}
+
+// R3a — "Risks treated by this policy" section in the Controls tab.
+function PolicyTreatmentRisksSection({ policyId }: { policyId: string }) {
+  const { data } = useQuery({
+    queryKey: QK.policyTreatmentRisks(policyId),
+    queryFn: () => policiesService.listTreatmentRisks(policyId),
+  });
+  const links = data?.data ?? [];
+
+  return (
+    <div>
+      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        Risks treated by this policy
+      </p>
+      {links.length === 0 ? (
+        <div className="rounded-2xl border border-border bg-card p-6 text-sm text-muted-foreground">
+          No risks reference this policy yet.
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {links.map((link) => (
+            <Link
+              key={link.id}
+              to={`/risk/risks/${link.risk.id}`}
+              className="block rounded-2xl border border-border bg-card p-4 transition-colors hover:bg-muted/40"
+            >
+              <div>
+                <p className="text-sm font-semibold text-foreground">{link.risk.title}</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {link.risk.status} · impact {link.risk.impact} · likelihood {link.risk.likelihood} · score {link.risk.riskScore}
+                </p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ControlPickerDialog({
+  open,
+  linkedControlIds,
+  pending,
+  onClose,
+  onSelect,
+}: {
+  open: boolean;
+  linkedControlIds: Set<string>;
+  pending: boolean;
+  onClose: () => void;
+  onSelect: (controlId: string) => void;
+}) {
+  const [search, setSearch] = useState('');
+  const { data, isLoading } = useQuery({
+    queryKey: ['controls', 'policy-picker', search],
+    queryFn: () => controlsService.getControls({ search, limit: 50 }),
+    enabled: open,
+  });
+
+  if (!open) return null;
+
+  const visibleControls = data?.data ?? [];
+  const controls = visibleControls.filter((control: Control) => !linkedControlIds.has(control.id));
+  const emptyMessage = search.trim()
+    ? 'No matching unlinked controls.'
+    : visibleControls.length > 0
+      ? 'All visible controls are already linked.'
+      : 'No controls available.';
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} aria-hidden="true" />
+      <div className="relative flex max-h-[80vh] w-full max-w-2xl flex-col rounded-xl bg-white shadow-2xl">
+        <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+          <p className="text-sm font-semibold text-gray-900">Add Controls</p>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-md p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+            aria-label="Close"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <div className="border-b border-gray-100 p-4">
+          <input
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search controls"
+            className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div className="flex-1 overflow-y-auto p-4">
+          {isLoading ? (
+            <div className="flex h-24 items-center justify-center text-sm text-gray-400">
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Loading controls…
+            </div>
+          ) : controls.length === 0 ? (
+            <p className="py-8 text-center text-sm text-gray-400">{emptyMessage}</p>
+          ) : (
+            <div className="space-y-2">
+              {controls.map((control: Control) => (
+                <button
+                  key={control.id}
+                  type="button"
+                  onClick={() => onSelect(control.id)}
+                  disabled={pending}
+                  className="block w-full rounded-lg border border-gray-200 p-3 text-left hover:bg-gray-50 disabled:opacity-50"
+                >
+                  <p className="text-sm font-medium text-gray-900">
+                    {control.isoReference || 'Control'} · {control.title}
+                  </p>
+                  <p className="mt-1 text-xs text-gray-500">{control.status}</p>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
 
