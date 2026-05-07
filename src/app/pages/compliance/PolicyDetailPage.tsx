@@ -64,6 +64,10 @@ function renewCadenceLabel(months: number | null | undefined): string | null {
   return `Renew every ${months} months`;
 }
 
+function errorMessage(error: unknown, fallback: string): string {
+  return error instanceof Error && error.message ? error.message : fallback;
+}
+
 export function PolicyDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -155,7 +159,7 @@ export function PolicyDetailPage() {
       setSelectedApproverIds([]);
       await invalidatePolicy();
     },
-    onError: () => toast.error('Failed to request approval'),
+    onError: (error) => toast.error(errorMessage(error, 'Failed to request approval')),
   });
 
   const respondApprovalMutation = useMutation({
@@ -165,7 +169,7 @@ export function PolicyDetailPage() {
       toast.success(variables.status === 'APPROVED' ? 'Approval recorded' : 'Rejection recorded');
       await invalidatePolicy();
     },
-    onError: () => toast.error('Failed to update approval'),
+    onError: (error) => toast.error(errorMessage(error, 'Failed to update approval')),
   });
 
   const recurrenceMutation = useMutation({
@@ -174,7 +178,7 @@ export function PolicyDetailPage() {
       toast.success('Review cadence updated');
       await invalidatePolicy();
     },
-    onError: () => toast.error('Failed to update review cadence'),
+    onError: (error) => toast.error(errorMessage(error, 'Failed to update review cadence')),
   });
 
   const reassignOwnerMutation = useMutation({
@@ -183,7 +187,7 @@ export function PolicyDetailPage() {
       toast.success('Owner updated');
       await invalidatePolicy();
     },
-    onError: () => toast.error('Failed to update owner'),
+    onError: (error) => toast.error(errorMessage(error, 'Failed to update owner')),
   });
 
   const linkControlMutation = useMutation({
@@ -193,7 +197,7 @@ export function PolicyDetailPage() {
       setControlPickerOpen(false);
       await invalidatePolicy();
     },
-    onError: () => toast.error('Failed to link control'),
+    onError: (error) => toast.error(errorMessage(error, 'Failed to link control')),
   });
 
   const unlinkControlMutation = useMutation({
@@ -202,7 +206,7 @@ export function PolicyDetailPage() {
       toast.success('Control removed');
       await invalidatePolicy();
     },
-    onError: () => toast.error('Failed to remove control'),
+    onError: (error) => toast.error(errorMessage(error, 'Failed to remove control')),
   });
 
   if (!id) return null;
@@ -221,6 +225,11 @@ export function PolicyDetailPage() {
   const cadenceLabel = renewCadenceLabel(policy.recurrenceMonths ?? null);
   const frameworksCount = policy.frameworksCount ?? 0;
   const canEditLocalizedVersion = policy.status === 'PUBLISHED' && Boolean(currentVersion);
+  const localizedVersionHelp = canEditLocalizedVersion
+    ? null
+    : policy.status === 'PUBLISHED'
+      ? 'No published version snapshot is available yet.'
+      : 'Publish this policy before adding Japanese content.';
 
   return (
     <>
@@ -249,7 +258,7 @@ export function PolicyDetailPage() {
             void policiesService.downloadPolicyDocument(policy.id, `${previewTarget.title}.pdf`, {
               versionId: previewTarget.versionId,
               locale: previewTarget.locale,
-            });
+            }).catch((error) => toast.error(errorMessage(error, 'Failed to download policy')));
           }}
         />
       ) : null}
@@ -386,7 +395,11 @@ export function PolicyDetailPage() {
                   Renew
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onClick={() => void policiesService.downloadPolicyDocument(policy.id, `${policy.name}.pdf`)}
+                  onClick={() =>
+                    void policiesService
+                      .downloadPolicyDocument(policy.id, `${policy.name}.pdf`)
+                      .catch((error) => toast.error(errorMessage(error, 'Failed to download policy')))
+                  }
                 >
                   <Download className="mr-2 h-4 w-4" />
                   Download
@@ -557,6 +570,9 @@ export function PolicyDetailPage() {
                         <p className="text-xs text-muted-foreground">
                           {currentJapaneseLocale ? 'Localized version available' : 'No localized version yet'}
                         </p>
+                        {localizedVersionHelp ? (
+                          <p className="mt-1 text-xs text-amber-700">{localizedVersionHelp}</p>
+                        ) : null}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -583,6 +599,7 @@ export function PolicyDetailPage() {
                           setEditOpen(true);
                         }}
                         disabled={!canEditLocalizedVersion}
+                        title={localizedVersionHelp ?? undefined}
                         className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
                       >
                         {currentJapaneseLocale ? 'Edit' : 'Add Japanese'}
@@ -591,6 +608,7 @@ export function PolicyDetailPage() {
                         type="button"
                         onClick={() => setUploadTarget({ locale: 'ja', title: 'Upload Japanese version' })}
                         disabled={!canEditLocalizedVersion}
+                        title={localizedVersionHelp ?? undefined}
                         className="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
                       >
                         <Upload className="h-3.5 w-3.5" />
@@ -831,7 +849,13 @@ function ControlPickerDialog({
 
   if (!open) return null;
 
-  const controls = (data?.data ?? []).filter((control: Control) => !linkedControlIds.has(control.id));
+  const visibleControls = data?.data ?? [];
+  const controls = visibleControls.filter((control: Control) => !linkedControlIds.has(control.id));
+  const emptyMessage = search.trim()
+    ? 'No matching unlinked controls.'
+    : visibleControls.length > 0
+      ? 'All visible controls are already linked.'
+      : 'No controls available.';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -863,7 +887,7 @@ function ControlPickerDialog({
               Loading controls…
             </div>
           ) : controls.length === 0 ? (
-            <p className="py-8 text-center text-sm text-gray-400">No controls available.</p>
+            <p className="py-8 text-center text-sm text-gray-400">{emptyMessage}</p>
           ) : (
             <div className="space-y-2">
               {controls.map((control: Control) => (

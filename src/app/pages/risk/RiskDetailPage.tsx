@@ -41,6 +41,7 @@ import {
 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router';
+import { toast } from 'sonner';
 import {
   riskCenterService,
   type RiskStakeholder,
@@ -77,6 +78,10 @@ const SCORE_WEIGHTS: Record<string, number> = { LOW: 1, MEDIUM: 2, HIGH: 3, CRIT
 
 function calcScore(impact: string, likelihood: string): number {
   return (SCORE_WEIGHTS[impact] ?? 2) * (SCORE_WEIGHTS[likelihood] ?? 2);
+}
+
+function errorMessage(error: unknown, fallback: string): string {
+  return error instanceof Error && error.message ? error.message : fallback;
 }
 
 function scoreColor(score: number): string {
@@ -446,7 +451,7 @@ export function RiskDetailPage() {
   });
   const treatmentPolicies = treatmentPoliciesRes?.data ?? [];
 
-  const { data: allPolicies } = useQuery({
+  const { data: allPolicies, isLoading: policiesLoading } = useQuery({
     queryKey: ['policies', 'all-for-picker'],
     queryFn: async () => {
       const res = await policiesService.getPolicies();
@@ -460,18 +465,31 @@ export function RiskDetailPage() {
 
   const linkPolicyMut = useMutation({
     mutationFn: (policyId: string) => riskLibraryService.linkTreatmentPolicy(riskId, policyId),
-    onSuccess: () => {
+    onSuccess: (response) => {
+      const policy = response.data?.policy;
+      toast.success(`${policy?.name ?? 'Policy'} linked as a treatment`);
       qc.invalidateQueries({ queryKey: QK.riskTreatmentPolicies(riskId) });
+      if (response.data?.policyId) {
+        qc.invalidateQueries({ queryKey: QK.policyTreatmentRisks(response.data.policyId) });
+      }
       setShowPolicyPicker(false);
     },
+    onError: (error) => toast.error(errorMessage(error, 'Failed to link treatment policy')),
   });
 
   const unlinkPolicyMut = useMutation({
     mutationFn: (policyId: string) => riskLibraryService.unlinkTreatmentPolicy(riskId, policyId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: QK.riskTreatmentPolicies(riskId) }),
+    onSuccess: (_, policyId) => {
+      const removed = treatmentPolicies.find((link) => link.policyId === policyId);
+      toast.success(`${removed?.policy.name ?? 'Policy'} removed from treatments`);
+      qc.invalidateQueries({ queryKey: QK.riskTreatmentPolicies(riskId) });
+      qc.invalidateQueries({ queryKey: QK.policyTreatmentRisks(policyId) });
+    },
+    onError: (error) => toast.error(errorMessage(error, 'Failed to remove treatment policy')),
   });
 
   const linkedPolicyIds = new Set(treatmentPolicies.map((p) => p.policyId));
+  const availablePolicies = (allPolicies ?? []).filter((p) => !linkedPolicyIds.has(p.id));
 
   // Compute which controls/frameworks are already linked (to exclude from pickers)
   const linkedControlIds = new Set(mappingsData?.controls?.map(c => c.controlId) ?? []);
@@ -773,23 +791,34 @@ export function RiskDetailPage() {
 
                     {showPolicyPicker && (
                       <div className="mt-2 rounded-lg border border-border bg-card p-3">
-                        <select
-                          defaultValue=""
-                          onChange={(e) => {
-                            if (e.target.value) linkPolicyMut.mutate(e.target.value);
-                          }}
-                          disabled={linkPolicyMut.isPending}
-                          className="w-full rounded-md border border-border bg-card px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                          <option value="">Select a policy…</option>
-                          {(allPolicies ?? [])
-                            .filter((p) => !linkedPolicyIds.has(p.id))
-                            .map((p) => (
+                        {policiesLoading ? (
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            Loading policies…
+                          </div>
+                        ) : availablePolicies.length === 0 ? (
+                          <p className="text-sm text-muted-foreground">
+                            {(allPolicies ?? []).length > 0
+                              ? 'All policies are already linked.'
+                              : 'No policies available.'}
+                          </p>
+                        ) : (
+                          <select
+                            defaultValue=""
+                            onChange={(e) => {
+                              if (e.target.value) linkPolicyMut.mutate(e.target.value);
+                            }}
+                            disabled={linkPolicyMut.isPending}
+                            className="w-full rounded-md border border-border bg-card px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          >
+                            <option value="">Select a policy…</option>
+                            {availablePolicies.map((p) => (
                               <option key={p.id} value={p.id}>
                                 {p.name} (v{p.versionNumber}) — {p.status}
                               </option>
                             ))}
-                        </select>
+                          </select>
+                        )}
                         {linkPolicyMut.isPending && (
                           <p className="mt-1.5 text-xs text-muted-foreground">Linking…</p>
                         )}

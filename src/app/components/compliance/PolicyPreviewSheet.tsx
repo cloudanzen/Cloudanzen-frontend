@@ -51,8 +51,11 @@ export function PolicyPreviewSheet({
           contentType: result.contentType,
         });
       }
-    } catch {
-      setPreview({ status: 'error', message: 'Failed to load preview.' });
+    } catch (error) {
+      setPreview({
+        status: 'error',
+        message: error instanceof Error && error.message ? error.message : 'Failed to load preview.',
+      });
     }
   }, [policyId, versionId, locale]);
 

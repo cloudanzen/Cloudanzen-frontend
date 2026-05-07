@@ -7,6 +7,28 @@ import {
   PolicyAcceptanceRecord,
 } from './types';
 
+function messageFromPayload(payload: unknown, fallback: string): string {
+  if (payload && typeof payload === 'object') {
+    const shaped = payload as { message?: unknown; error?: unknown };
+    if (typeof shaped.message === 'string' && shaped.message.trim()) return shaped.message;
+    if (typeof shaped.error === 'string' && shaped.error.trim()) return shaped.error;
+  }
+  if (typeof payload === 'string' && payload.trim()) return payload;
+  return fallback;
+}
+
+async function readFetchErrorMessage(response: Response, fallback: string): Promise<string> {
+  const contentType = response.headers.get('content-type') ?? '';
+  try {
+    if (contentType.includes('application/json')) {
+      return messageFromPayload(await response.json(), fallback);
+    }
+    return messageFromPayload(await response.text(), fallback);
+  } catch {
+    return fallback;
+  }
+}
+
 export interface PolicyTemplate {
   id: string;
   name: string;
@@ -216,8 +238,8 @@ export class PoliciesService {
         body: formData,
       },
     );
-    const data = await response.json();
-    if (!response.ok) throw data;
+    const data = await response.json().catch(() => undefined);
+    if (!response.ok) throw new Error(messageFromPayload(data, 'Upload failed'));
     return data;
   }
 
@@ -260,7 +282,9 @@ export class PoliciesService {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       },
     );
-    if (!response.ok) throw new Error('Download failed');
+    if (!response.ok) {
+      throw new Error(await readFetchErrorMessage(response, 'Download failed'));
+    }
     const blob = await response.blob();
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -299,7 +323,9 @@ export class PoliciesService {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       },
     );
-    if (!response.ok) throw new Error('Preview failed');
+    if (!response.ok) {
+      throw new Error(await readFetchErrorMessage(response, 'Preview failed'));
+    }
 
     const ct = response.headers.get('content-type') ?? '';
     if (ct.includes('application/json')) {
