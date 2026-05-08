@@ -133,7 +133,13 @@
     "keyName": "Key Name",
     "created": "Created",
     "lastUsed": "Last Used",
-    "revoke": "Revoke",
+    "revoke": {
+      "title": "Revoke API Key",
+      "description": "This will immediately invalidate \"{{name}}\". Any external system using this key will stop being able to push scan results.",
+      "cancel": "Cancel",
+      "revoking": "Revoking...",
+      "confirm": "Yes, revoke key"
+    },
     "issueKey": {
       "title": "Issue Partner API Key",
       "description": "Generate a key for an external team to push scan results from their tool into ISMS.",
@@ -162,13 +168,6 @@
       "securityReminderText": "Store this key in a password manager or secret vault before sharing. Never send it over email or unencrypted channels.",
       "done": "Done - I've saved the key"
     },
-    "revoke": {
-      "title": "Revoke API Key",
-      "description": "This will immediately invalidate \"{{name}}\". Any external system using this key will stop being able to push scan results.",
-      "cancel": "Cancel",
-      "revoking": "Revoking...",
-      "confirm": "Yes, revoke key"
-    },
     "resultDetail": {
       "scanReport": "Scan Report",
       "pass": "Pass",
@@ -185,7 +184,7 @@
       "noMatch": "No tools match \"{{query}}\"",
       "tests_one": "{{count}} test",
       "tests_other": "{{count}} tests",
-      "suggestedIsoTests": "Suggested ISO Tests"
+      "suggestedIsoTests": "Suggested ISO Validations"
     }
   },
   "grid": {
@@ -237,7 +236,9 @@
       "onelogin": {
         "subtitle": "Identity & SSO · MFA, stale accounts & app hygiene"
       },
-      "jamf": { "subtitle": "Endpoint / MDM · Encryption, screen lock & EDR" },
+      "jamf": {
+        "subtitle": "Endpoint / MDM · Encryption, screen lock & EDR"
+      },
       "kandji": {
         "subtitle": "Endpoint / MDM · Encryption, blueprints & firewall"
       },
@@ -253,13 +254,21 @@
       "rippling": {
         "subtitle": "HRIS · Onboarding, offboarding & HR data retention"
       },
-      "hibob": { "subtitle": "HRIS · People ops lifecycle & PII controls" },
-      "gitlab": { "subtitle": "DevOps · Source control & CI/CD security" },
+      "hibob": {
+        "subtitle": "HRIS · People ops lifecycle & PII controls"
+      },
+      "gitlab": {
+        "subtitle": "DevOps · Source control & CI/CD security"
+      },
       "bitbucket": {
         "subtitle": "DevOps · Repository & pipeline access controls"
       },
-      "jira": { "subtitle": "Project Management · Workflow & access controls" },
-      "linear": { "subtitle": "Project Management · Issue tracking & access" },
+      "jira": {
+        "subtitle": "Project Management · Workflow & access controls"
+      },
+      "linear": {
+        "subtitle": "Project Management · Issue tracking & access"
+      },
       "asana": {
         "subtitle": "Project Management · Task & workspace governance"
       },
@@ -269,7 +278,9 @@
       "sharepoint": {
         "subtitle": "Content Management · Document & site permissions"
       },
-      "splunk": { "subtitle": "SIEM · Log management & security monitoring" },
+      "splunk": {
+        "subtitle": "SIEM · Log management & security monitoring"
+      },
       "sumologic": {
         "subtitle": "SIEM · Cloud-native log analytics & security"
       },
@@ -495,13 +506,21 @@
       "xero": {
         "subtitle": "Finance · Advisor access and payment approval governance"
       },
-      "sentinelone": { "subtitle": "Endpoint Security · AI-powered EDR & XDR" },
-      "grafana": { "subtitle": "Observability · Metrics, logs & alerting" },
-      "sentry": { "subtitle": "Observability · Error tracking & performance" },
+      "sentinelone": {
+        "subtitle": "Endpoint Security · AI-powered EDR & XDR"
+      },
+      "grafana": {
+        "subtitle": "Observability · Metrics, logs & alerting"
+      },
+      "sentry": {
+        "subtitle": "Observability · Error tracking & performance"
+      },
       "onepassword": {
         "subtitle": "Password Manager · Team credential security"
       },
-      "snowflake": { "subtitle": "Data Warehouse · Cloud data platform" }
+      "snowflake": {
+        "subtitle": "Data Warehouse · Cloud data platform"
+      }
     },
     "notion": {
       "subtitle": "Knowledge Base · Policies, procedures & wikis",
@@ -578,7 +597,7 @@
       "alertTypes": {
         "criticalRisks": "Critical Risks",
         "auditFindings": "Audit Findings",
-        "overdueTests": "Overdue Tests",
+        "overdueTests": "Overdue Validations",
         "auditEvents": "Audit Events"
       },
       "table": {
@@ -597,7 +616,7 @@
       "apiToken": "API Token (SSWS)",
       "requiredFields": "Domain and API Token are required",
       "connectFailed": "Failed to connect - check your domain and API token",
-      "scanStarted": "Okta scan started - results will appear in tests shortly",
+      "scanStarted": "Okta scan started - results will appear in validations shortly",
       "scanStartFailed": "Failed to start scan",
       "disconnectTitle": "Disconnect Okta",
       "disconnectDescription": "Disconnect Okta ({{target}})? Automated tests will stop running.",
@@ -614,7 +633,7 @@
       "apiToken": "API Token",
       "apiTokenRequired": "API Token is required",
       "connectFailed": "Failed to connect - check your API token",
-      "scanStarted": "JumpCloud scan started - results will appear in tests shortly",
+      "scanStarted": "JumpCloud scan started - results will appear in validations shortly",
       "scanStartFailed": "Failed to start scan",
       "disconnectTitle": "Disconnect JumpCloud",
       "disconnectDescription": "Disconnect JumpCloud ({{target}})? Automated tests will stop running.",
@@ -636,7 +655,7 @@
       "superAdminEmailHint": "(impersonated for API calls)",
       "requiredFields": "Service Account JSON and Admin Email are required",
       "connectFailed": "Failed to connect - check service account key, admin email, and domain-wide delegation scopes",
-      "scanStarted": "Google Workspace scan started - results will appear in tests shortly",
+      "scanStarted": "Google Workspace scan started - results will appear in validations shortly",
       "scanStartFailed": "Failed to start scan",
       "disconnectTitle": "Disconnect Google Workspace",
       "disconnectDescription": "Disconnect Google Workspace ({{target}})? Automated identity tests will stop running.",
@@ -659,7 +678,7 @@
       "clientSecret": "Client Secret",
       "requiredFields": "Tenant ID, Client ID, and Client Secret are required",
       "connectFailed": "Failed to connect - check your tenant ID, client ID, and secret",
-      "scanStarted": "Azure AD scan started - results will appear in tests shortly",
+      "scanStarted": "Azure AD scan started - results will appear in validations shortly",
       "scanStartFailed": "Failed to start scan",
       "disconnectTitle": "Disconnect Azure AD",
       "disconnectDescription": "Disconnect Azure AD ({{target}})? Automated tests will stop running.",
@@ -680,7 +699,7 @@
       "connectFailed": "Failed to connect - check your subdomain and API key",
       "syncStarted": "Employee sync started - roster will update shortly",
       "syncStartFailed": "Failed to start sync",
-      "scanStarted": "BambooHR compliance scan started - results will appear in tests shortly",
+      "scanStarted": "BambooHR compliance scan started - results will appear in validations shortly",
       "scanStartFailed": "Failed to start scan",
       "disconnectTitle": "Disconnect BambooHR",
       "disconnectDescription": "Disconnect BambooHR ({{target}})? Automated HR tests will stop running.",
@@ -700,7 +719,7 @@
       "readOnly": "read-only",
       "apiTokenRequired": "API Token is required",
       "connectFailed": "Failed to connect - check your API token and try again",
-      "scanStarted": "Cloudflare scan started - results will appear in tests shortly",
+      "scanStarted": "Cloudflare scan started - results will appear in validations shortly",
       "scanStartFailed": "Failed to start scan",
       "disconnectTitle": "Disconnect Cloudflare",
       "disconnectDescription": "Disconnect Cloudflare account {{target}}? Automated tests will stop running.",
@@ -723,7 +742,7 @@
       "readOnly": "read-only",
       "requiredFields": "Fleet URL and API Token are required",
       "connectFailed": "Failed to connect - check your Fleet URL and API token",
-      "scanStarted": "Fleet scan started - results will appear in tests shortly",
+      "scanStarted": "Fleet scan started - results will appear in validations shortly",
       "scanStartFailed": "Failed to start scan",
       "disconnectTitle": "Disconnect Fleet",
       "disconnectDescription": "Disconnect Fleet ({{target}})? Automated endpoint tests will stop running.",
@@ -735,7 +754,7 @@
     "intercom": {
       "subtitle": "Customer Support · Trust request & findings tracking",
       "connect": "Connect Intercom",
-      "scanStarted": "Intercom scan started - results will appear in tests shortly",
+      "scanStarted": "Intercom scan started - results will appear in validations shortly",
       "scanStartFailed": "Failed to start scan",
       "synced": "Synced {{count}} conversation(s)",
       "syncFailed": "Failed to sync conversations",
@@ -761,7 +780,7 @@
       "organizationId": "Snyk Organization ID",
       "apiToken": "API Token",
       "connectFailed": "Failed to connect to Snyk. Check the org ID and API token.",
-      "scanStarted": "Snyk scan started - results will appear in Tests shortly",
+      "scanStarted": "Snyk scan started - results will appear in Validations shortly",
       "scanStartFailed": "Failed to start scan",
       "disconnectTitle": "Disconnect Snyk",
       "disconnectDescription": "Disconnect Snyk ({{target}})? Automated code security tests will stop running.",
@@ -783,7 +802,7 @@
       "apiToken": "API Token",
       "requiredFields": "Base URL and API token are required",
       "connectFailed": "Failed to connect to BigID. Check the URL and API token.",
-      "scanStarted": "BigID scan started - results will appear in Tests shortly",
+      "scanStarted": "BigID scan started - results will appear in Validations shortly",
       "scanStartFailed": "Failed to start scan",
       "disconnectTitle": "Disconnect BigID",
       "disconnectDescription": "Disconnect BigID ({{target}})? Automated data-privacy tests will stop running.",
@@ -803,7 +822,7 @@
       "clientId": "Client ID",
       "clientSecret": "Client Secret",
       "connectFailed": "Failed to connect to Checkmarx. Check the instance URL and credentials.",
-      "scanStarted": "Checkmarx scan started - results will appear in Tests shortly",
+      "scanStarted": "Checkmarx scan started - results will appear in Validations shortly",
       "scanStartFailed": "Failed to start scan",
       "disconnectTitle": "Disconnect Checkmarx",
       "disconnectDescription": "Disconnect Checkmarx ({{target}})? Automated code security tests will stop running.",
@@ -825,7 +844,7 @@
       "slaHint": "acknowledgement target",
       "requiredFields": "API key and App key are required",
       "connectFailed": "Failed to connect to Datadog. Check credentials.",
-      "scanStarted": "Datadog scan started - results will appear in Tests shortly",
+      "scanStarted": "Datadog scan started - results will appear in Validations shortly",
       "scanStartFailed": "Failed to start scan",
       "disconnectTitle": "Disconnect Datadog",
       "disconnectDescription": "Disconnect Datadog ({{target}})? Automated incident tests will stop running.",
@@ -842,7 +861,7 @@
       "connect": "Connect Lacework",
       "connectDescription": "Enter your Lacework API credentials to enable compliance scanning.",
       "connectFailed": "Failed to connect to Lacework. Check the credentials.",
-      "scanStarted": "Lacework scan started - results will appear in Tests shortly",
+      "scanStarted": "Lacework scan started - results will appear in Validations shortly",
       "scanStartFailed": "Failed to start scan",
       "disconnectTitle": "Disconnect Lacework",
       "disconnectDescription": "Disconnect Lacework ({{target}})? Automated cloud security tests will stop running.",
@@ -863,7 +882,7 @@
       "slaHours": "SLA Hours",
       "slaHint": "acknowledgement target",
       "connectFailed": "Failed to connect to Opsgenie. Check the API key.",
-      "scanStarted": "Opsgenie scan started - results will appear in Tests shortly",
+      "scanStarted": "Opsgenie scan started - results will appear in Validations shortly",
       "scanStartFailed": "Failed to start scan",
       "disconnectTitle": "Disconnect Opsgenie",
       "disconnectDescription": "Disconnect Opsgenie ({{target}})? Automated incident tests will stop running.",
@@ -883,7 +902,7 @@
       "slaHours": "SLA Hours",
       "slaHint": "acknowledgement target",
       "connectFailed": "Failed to connect to PagerDuty. Check the API key.",
-      "scanStarted": "PagerDuty scan started - results will appear in Tests shortly",
+      "scanStarted": "PagerDuty scan started - results will appear in Validations shortly",
       "scanStartFailed": "Failed to start scan",
       "disconnectTitle": "Disconnect PagerDuty",
       "disconnectDescription": "Disconnect PagerDuty ({{target}})? Automated incident tests will stop running.",
@@ -908,7 +927,7 @@
       "adminUser": "admin user",
       "requiredFields": "Base URL and API Key are required",
       "connectFailed": "Failed to connect - check your base URL and API key",
-      "scanStarted": "Redash scan started - results will appear in tests shortly",
+      "scanStarted": "Redash scan started - results will appear in validations shortly",
       "scanStartFailed": "Failed to start scan",
       "disconnectTitle": "Disconnect Redash",
       "disconnectDescription": "Disconnect Redash ({{target}})? Automated tests will stop running.",
@@ -928,7 +947,7 @@
       "instanceUrl": "Instance URL",
       "userToken": "User Token",
       "connectFailed": "Failed to connect to SonarQube. Check the instance URL and token.",
-      "scanStarted": "SonarQube scan started - results will appear in Tests shortly",
+      "scanStarted": "SonarQube scan started - results will appear in Validations shortly",
       "scanStartFailed": "Failed to start scan",
       "disconnectTitle": "Disconnect SonarQube",
       "disconnectDescription": "Disconnect SonarQube ({{target}})? Automated code security tests will stop running.",
@@ -949,7 +968,7 @@
       "connectDescription": "Enter your Veracode API credentials to enable application security scanning.",
       "apiId": "API ID",
       "connectFailed": "Failed to connect to Veracode. Check the API ID and key.",
-      "scanStarted": "Veracode scan started - results will appear in Tests shortly",
+      "scanStarted": "Veracode scan started - results will appear in Validations shortly",
       "scanStartFailed": "Failed to start scan",
       "disconnectTitle": "Disconnect Veracode",
       "disconnectDescription": "Disconnect Veracode ({{target}})? Automated code security tests will stop running.",
@@ -973,7 +992,7 @@
       "namespace": "Namespace",
       "namespaceHint": "(optional - Vault Enterprise)",
       "connectFailed": "Failed to connect to Vault. Check the address and token.",
-      "scanStarted": "Vault scan started - results will appear in Tests shortly",
+      "scanStarted": "Vault scan started - results will appear in Validations shortly",
       "scanStartFailed": "Failed to start scan",
       "disconnectTitle": "Disconnect Vault",
       "disconnectDescription": "Disconnect Vault ({{target}})? Automated secrets tests will stop running.",
@@ -996,7 +1015,7 @@
       "clientSecret": "Client Secret",
       "apiEndpoint": "API Endpoint",
       "connectFailed": "Failed to connect to Wiz. Check the client credentials.",
-      "scanStarted": "Wiz scan started - results will appear in Tests shortly",
+      "scanStarted": "Wiz scan started - results will appear in Validations shortly",
       "scanStartFailed": "Failed to start scan",
       "disconnectTitle": "Disconnect Wiz",
       "disconnectDescription": "Disconnect Wiz ({{target}})? Automated cloud security tests will stop running.",
@@ -1034,7 +1053,7 @@
       "trustPolicyMissing": "Trust policy data missing - please go back and try again",
       "connectFailed": "Failed to connect - check your Role ARN and trust policy",
       "connectingValidating": "Connecting & validating...",
-      "scanStarted": "AWS scan started - results will appear in tests shortly",
+      "scanStarted": "AWS scan started - results will appear in validations shortly",
       "scanStartFailed": "Failed to start scan",
       "disconnectTitle": "Disconnect AWS",
       "disconnectDescription": "Disconnect AWS account {{target}}? Automated tests will stop running.",
@@ -1060,7 +1079,7 @@
       "secretAccessKey": "Secret Access Key",
       "instanceUrl": "Instance URL",
       "connectFailed": "Failed to connect Certificate Manager. Check the credentials.",
-      "scanStarted": "Certificate Manager scan started - results will appear in Tests shortly",
+      "scanStarted": "Certificate Manager scan started - results will appear in Validations shortly",
       "scanStartFailed": "Failed to start scan",
       "disconnectTitle": "Disconnect Certificate Manager",
       "disconnectDescription": "Disconnect Certificate Manager ({{target}})? Automated certificate tests will stop running.",
@@ -1090,7 +1109,7 @@
       "slaHours": "SLA Hours",
       "slaHint": "acknowledgement target",
       "connectFailed": "Failed to connect to ServiceNow. Check credentials.",
-      "scanStarted": "ServiceNow scan started - results will appear in Tests shortly",
+      "scanStarted": "ServiceNow scan started - results will appear in Validations shortly",
       "scanStartFailed": "Failed to start scan",
       "disconnectTitle": "Disconnect ServiceNow",
       "disconnectDescription": "Disconnect ServiceNow ({{target}})? Automated incident tests will stop running.",
@@ -1113,7 +1132,7 @@
       "accessKeyId": "Access Key ID",
       "secretAccessKey": "Secret Access Key",
       "connectFailed": "Failed to connect to AWS Secrets Manager. Check your region and credentials.",
-      "scanStarted": "AWS Secrets Manager scan started - results will appear in Tests shortly",
+      "scanStarted": "AWS Secrets Manager scan started - results will appear in Validations shortly",
       "scanStartFailed": "Failed to start scan",
       "disconnectTitle": "Disconnect AWS Secrets Manager",
       "disconnectDescription": "Disconnect AWS Secrets Manager ({{target}})? Automated secrets tests will stop running.",

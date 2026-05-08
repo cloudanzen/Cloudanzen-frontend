@@ -92,8 +92,8 @@
       "available": "Available"
     }
   },
-  "actionTracker": {
-    "title": "Action Tracker",
+  "remediations": {
+    "title": "Remediations",
     "description": "Remediation queue driven by risk severity, due dates, and workflow automation.",
     "stats": {
       "openActions": "Open actions",
@@ -170,7 +170,7 @@
     "loading": "Loading risk engine state...",
     "metrics": {
       "signals": "Signals",
-      "tests": "Tests",
+      "tests": "Validations",
       "evidence": "Evidence",
       "openRisks": "Open risks"
     },
@@ -192,11 +192,48 @@
       "risks": "Generated Risks",
       "events": "Events"
     },
-    "signalColumns": ["Signal Type", "Provider", "Resource", "Value", "Observed", "Integration"],
-    "testColumns": ["Test", "Signal", "Status", "Severity", "Reason", "Executed"],
-    "evidenceColumns": ["Kind", "Provider", "Resource", "Hash", "Captured", "Payload"],
-    "riskColumns": ["Title", "Category", "Severity", "Score", "Owner Team", "Status", "Resource", "Created"],
-    "eventColumns": ["Event", "Severity", "Provider", "Resource", "Message", "Timestamp"]
+    "signalColumns": [
+      "Signal Type",
+      "Provider",
+      "Resource",
+      "Value",
+      "Observed",
+      "Integration"
+    ],
+    "testColumns": [
+      "Test",
+      "Signal",
+      "Status",
+      "Severity",
+      "Reason",
+      "Executed"
+    ],
+    "evidenceColumns": [
+      "Kind",
+      "Provider",
+      "Resource",
+      "Hash",
+      "Captured",
+      "Payload"
+    ],
+    "riskColumns": [
+      "Title",
+      "Category",
+      "Severity",
+      "Score",
+      "Owner Team",
+      "Status",
+      "Resource",
+      "Created"
+    ],
+    "eventColumns": [
+      "Event",
+      "Severity",
+      "Provider",
+      "Resource",
+      "Message",
+      "Timestamp"
+    ]
   },
   "settings": {
     "title": "Risk Settings",
@@ -301,7 +338,8 @@
       "findings": "Findings",
       "evidence": "Evidence",
       "activity": "Activity",
-      "remediation": "Remediation"
+      "remediation": "Remediation",
+      "tests": "Validations"
     },
     "findings": {
       "title": "Scan findings",

@@ -16,7 +16,7 @@ export function getNotificationSeverityMeta(severity: NotificationSeverity) {
 }
 
 export function getNotificationTargetPath(notification: Pick<NotificationDto, 'resourceType' | 'resourceId'>) {
-  if (notification.resourceType === 'test' && notification.resourceId) return `/tests/${notification.resourceId}`;
+  if (notification.resourceType === 'test' && notification.resourceId) return `/validations/${notification.resourceId}`;
   if (notification.resourceType === 'risk' && notification.resourceId) return `/risk/risks/${notification.resourceId}`;
   if (notification.resourceType === 'framework') return '/compliance/frameworks';
   if (notification.resourceType === 'control') return '/compliance/controls';

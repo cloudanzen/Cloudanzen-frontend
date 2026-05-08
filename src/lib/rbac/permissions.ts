@@ -284,7 +284,7 @@ export const PERMISSION_MATRIX: PermissionMatrixRow[] = [
     ],
   },
   {
-    module: 'Tests',
+    module: 'Validations',
     permissions: [
       { label: 'Read',  permission: P.TESTS_READ,  roles: buildRoleMap(P.TESTS_READ) },
       { label: 'Write', permission: P.TESTS_WRITE, roles: buildRoleMap(P.TESTS_WRITE) },
@@ -315,7 +315,7 @@ export const PERMISSION_MATRIX: PermissionMatrixRow[] = [
     ],
   },
   {
-    module: 'Reports',
+    module: 'Progress',
     permissions: [
       { label: 'Read',   permission: P.REPORTS_READ,   roles: buildRoleMap(P.REPORTS_READ) },
       { label: 'Export', permission: P.REPORTS_EXPORT, roles: buildRoleMap(P.REPORTS_EXPORT) },

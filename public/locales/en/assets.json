@@ -124,7 +124,7 @@
     "parents": "Parent assets",
     "children": "Child assets",
     "linkedControls": "Linked controls",
-    "linkedTests": "Linked tests",
+    "linkedTests": "Linked validations",
     "openFindings": "Open findings",
     "noRelationships": "No relationships found",
     "noDuplicates": "No duplicate matches detected",

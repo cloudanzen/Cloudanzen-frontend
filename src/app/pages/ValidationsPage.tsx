@@ -17,12 +17,12 @@ import type { TestRecord, TestStatus, TestCategory, TestType, ListTestsParams } 
 import type { Control } from '@/services/api/types';
 import { clearAuthSession } from '@/services/authStorage';
 
-import { STATUS_CONFIG, CATEGORY_OPTIONS, STATUS_OPTIONS, TYPE_OPTIONS, CATEGORY_COLOR, DEFAULT_COLUMNS } from './testsPage/config';
-import type { ColumnConfig } from './testsPage/config';
+import { STATUS_CONFIG, CATEGORY_OPTIONS, STATUS_OPTIONS, TYPE_OPTIONS, CATEGORY_COLOR, DEFAULT_COLUMNS } from './validationsPage/config';
+import type { ColumnConfig } from './validationsPage/config';
 import { fmtDate } from '@/lib/format-date';
-import { StatusBadge, SortIcon } from './testsPage/StatusBadge';
-import { ColumnPicker } from './testsPage/ColumnPicker';
-import { LoadingState, ErrorState, EmptyState } from './testsPage/StateComponents';
+import { StatusBadge, SortIcon } from './validationsPage/StatusBadge';
+import { ColumnPicker } from './validationsPage/ColumnPicker';
+import { LoadingState, ErrorState, EmptyState } from './validationsPage/StateComponents';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/components/ui/select';
 
 const EMPTY_SELECT = '__empty__';
@@ -67,7 +67,7 @@ interface TestFilter {
 // ─── Main page ────────────────────────────────────────────────────────────────
 const PAGE_SIZE = 25;
 
-export function TestsPage() {
+export function ValidationsPage() {
   const { t } = useTranslation('tests');
   const navigate = useNavigate();
   const qc = useQueryClient();
@@ -318,21 +318,21 @@ export function TestsPage() {
         return (
           <div className="flex items-center gap-2">
             <button
-              onClick={() => navigate(`/tests/${test.id}`)}
+              onClick={() => navigate(`/validations/${test.id}`)}
               className="px-2.5 py-1 rounded-lg text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
             >
-              {t('testsPage.actions.view')}
+              {t('validationsPage.actions.view')}
             </button>
             {test.status !== 'OK' && (
               test.type === 'Document' ? (
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    navigate(`/tests/${test.id}`);
+                    navigate(`/validations/${test.id}`);
                   }}
                   className="px-2.5 py-1 rounded-lg text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
                 >
-                  {t('testsPage.actions.upload')}
+                  {t('validationsPage.actions.upload')}
                 </button>
               ) : (
                 <button
@@ -343,7 +343,7 @@ export function TestsPage() {
                   }}
                   className="px-2.5 py-1 rounded-lg text-xs font-medium bg-green-50 text-green-700 hover:bg-green-100 transition-colors"
                 >
-                  {t('testsPage.actions.complete')}
+                  {t('validationsPage.actions.complete')}
                 </button>
               )
             )}
@@ -361,14 +361,14 @@ export function TestsPage() {
       {/* ── App Bar ── */}
       <div className="bg-card border-b border-border px-6 py-4 flex items-center justify-between sticky top-0 z-10 shadow-sm">
         <div>
-          <h1 className="text-xl font-semibold text-foreground tracking-tight">{t('testsPage.title')}</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">{t('testsPage.description')}</p>
+          <h1 className="text-xl font-semibold text-foreground tracking-tight">{t('validationsPage.title')}</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">{t('validationsPage.description')}</p>
         </div>
         <div className="flex items-center gap-2">
           {hasActiveFilters && (
             <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
               <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-              {t('testsPage.filtersActive')}
+              {t('validationsPage.filtersActive')}
             </span>
           )}
           <button
@@ -387,28 +387,28 @@ export function TestsPage() {
         <PageFilterBar
           searchValue={filter.search}
           onSearchChange={(value) => { update({ search: value }); setPage(1); }}
-          searchPlaceholder={t('testsPage.searchPlaceholder')}
+          searchPlaceholder={t('validationsPage.searchPlaceholder')}
           selects={[
             {
               key: 'category',
               value: filter.category,
-              placeholder: t('testsPage.filters.category'),
+              placeholder: t('validationsPage.filters.category'),
               onChange: (value) => { update({ category: value }); setPage(1); },
-              options: [{ value: '', label: t('testsPage.filters.allCategories') }, ...CATEGORY_OPTIONS.map((item) => ({ value: item, label: item }))],
+              options: [{ value: '', label: t('validationsPage.filters.allCategories') }, ...CATEGORY_OPTIONS.map((item) => ({ value: item, label: item }))],
             },
             {
               key: 'status',
               value: effectiveFilter.status,
-              placeholder: t('testsPage.filters.status'),
+              placeholder: t('validationsPage.filters.status'),
               onChange: (value) => { setStatusFilterOverride(''); update({ status: value }); setPage(1); },
-              options: [{ value: '', label: t('testsPage.filters.allStatuses') }, ...STATUS_OPTIONS.map((item) => ({ value: item, label: STATUS_CONFIG[item].label }))],
+              options: [{ value: '', label: t('validationsPage.filters.allStatuses') }, ...STATUS_OPTIONS.map((item) => ({ value: item, label: STATUS_CONFIG[item].label }))],
             },
             {
               key: 'type',
               value: filter.type,
-              placeholder: t('testsPage.filters.type'),
+              placeholder: t('validationsPage.filters.type'),
               onChange: (value) => { update({ type: value }); setPage(1); },
-              options: [{ value: '', label: t('testsPage.filters.allTypes') }, ...TYPE_OPTIONS.map((item) => ({ value: item, label: item }))],
+              options: [{ value: '', label: t('validationsPage.filters.allTypes') }, ...TYPE_OPTIONS.map((item) => ({ value: item, label: item }))],
             },
           ]}
           auxiliary={(
@@ -416,29 +416,29 @@ export function TestsPage() {
               <FrameworkFilter selected={frameworkFilter} onChange={(value) => { update({ frameworks: value }); setPage(1); }} />
               <SelectFilter
                 value={filter.owner}
-                placeholder={t('testsPage.filters.owner')}
-                allLabel={t('testsPage.filters.allOwners')}
+                placeholder={t('validationsPage.filters.owner')}
+                allLabel={t('validationsPage.filters.allOwners')}
                 options={ownerOptions}
                 onChange={(value) => { update({ owner: value }); setPage(1); }}
               />
               <SelectFilter
                 value={filter.integration}
-                placeholder={t('testsPage.filters.integration')}
-                allLabel={t('testsPage.filters.allIntegrations')}
+                placeholder={t('validationsPage.filters.integration')}
+                allLabel={t('validationsPage.filters.allIntegrations')}
                 options={integrationOptions}
                 onChange={(value) => { update({ integration: value }); setPage(1); }}
               />
               <SelectFilter
                 value={filter.control}
-                placeholder={t('testsPage.filters.control')}
-                allLabel={t('testsPage.filters.allControls')}
+                placeholder={t('validationsPage.filters.control')}
+                allLabel={t('validationsPage.filters.allControls')}
                 options={controlOptions}
                 onChange={(value) => { update({ control: value }); setPage(1); }}
               />
             </div>
           )}
           resultCount={sorted.length}
-          resultLabel={hasActiveFilters ? t('testsPage.filteredTests') : t('testsPage.tests')}
+          resultLabel={hasActiveFilters ? t('validationsPage.filteredTests') : t('validationsPage.tests')}
           activeFilters={activeFilters}
           onClearAll={clearFilters}
         />
@@ -451,11 +451,11 @@ export function TestsPage() {
 
             {/* Pass % */}
             <div className="bg-card rounded-xl border border-border shadow-sm px-5 py-4">
-              <p className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider mb-3">{t('testsPage.passRate')}</p>
+              <p className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider mb-3">{t('validationsPage.passRate')}</p>
               <div className="flex items-end gap-4">
                 <div>
                   <p className="text-4xl font-bold text-foreground">{summary.passPercentage}%</p>
-                  <p className="text-sm text-muted-foreground mt-1">{t('testsPage.completedOfTotal', { completed: summary.completed, total: summary.total })}</p>
+                  <p className="text-sm text-muted-foreground mt-1">{t('validationsPage.completedOfTotal', { completed: summary.completed, total: summary.total })}</p>
                 </div>
                 <div className="flex-1 mb-2">
                   <div className="h-3 bg-muted rounded-full overflow-hidden">
@@ -470,7 +470,7 @@ export function TestsPage() {
 
             {/* Needs attention */}
             <div className="bg-card rounded-xl border border-border shadow-sm px-5 py-4">
-              <p className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider mb-3">{t('testsPage.needsAttention')}</p>
+              <p className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider mb-3">{t('validationsPage.needsAttention')}</p>
               <div className="flex gap-4">
                 <button
                   onClick={() => { setStatusFilterOverride('Overdue'); setPage(1); }}
@@ -483,7 +483,7 @@ export function TestsPage() {
                 >
                   <AlertTriangle className="w-5 h-5 text-red-500 mb-1" />
                   <span className="text-2xl font-bold text-red-700">{summary.overdue}</span>
-                  <span className="text-xs text-red-500 mt-0.5">{t('testsPage.overdue')}</span>
+                  <span className="text-xs text-red-500 mt-0.5">{t('validationsPage.overdue')}</span>
                 </button>
                 <button
                   onClick={() => { setStatusFilterOverride('Due_soon'); setPage(1); }}
@@ -496,12 +496,12 @@ export function TestsPage() {
                 >
                   <Clock className="w-5 h-5 text-amber-500 mb-1" />
                   <span className="text-2xl font-bold text-amber-700">{summary.dueSoon}</span>
-                  <span className="text-xs text-amber-500 mt-0.5">{t('testsPage.dueSoon')}</span>
+                  <span className="text-xs text-amber-500 mt-0.5">{t('validationsPage.dueSoon')}</span>
                 </button>
                 <div className="flex-1 flex flex-col items-center p-3 rounded-xl bg-green-50">
                   <CheckCircle className="w-5 h-5 text-green-500 mb-1" />
                   <span className="text-2xl font-bold text-green-700">{summary.total - summary.overdue - summary.dueSoon}</span>
-                  <span className="text-xs text-green-500 mt-0.5">{t('testsPage.onTrack')}</span>
+                  <span className="text-xs text-green-500 mt-0.5">{t('validationsPage.onTrack')}</span>
                 </div>
               </div>
               {statusFilterOverride && (
@@ -509,7 +509,7 @@ export function TestsPage() {
                   onClick={() => setStatusFilterOverride('')}
                   className="mt-2 text-xs text-blue-600 hover:underline flex items-center gap-1"
                 >
-                  <X className="w-3 h-3" /> {t('testsPage.clearStatusFilter')}
+                  <X className="w-3 h-3" /> {t('validationsPage.clearStatusFilter')}
                 </button>
               )}
             </div>
@@ -526,12 +526,12 @@ export function TestsPage() {
           {selectedCount > 0 && (
             <div className="bg-slate-900 text-white rounded-xl shadow-sm px-4 py-3 flex flex-col lg:flex-row lg:items-center gap-3">
               <div className="flex items-center gap-3">
-                <span className="text-sm font-semibold">{t('testsPage.bulk.selected', { count: selectedCount })}</span>
+                <span className="text-sm font-semibold">{t('validationsPage.bulk.selected', { count: selectedCount })}</span>
                 <button
                   onClick={() => setSelectedIds([])}
                   className="text-xs text-slate-300 hover:text-white transition-colors"
                 >
-                  {t('testsPage.bulk.clear')}
+                  {t('validationsPage.bulk.clear')}
                 </button>
               </div>
               <div className="flex flex-col sm:flex-row gap-2 lg:ml-auto">
@@ -540,7 +540,7 @@ export function TestsPage() {
                   disabled={bulkCompleteMutation.isPending}
                   className="px-3 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-sm font-medium disabled:opacity-50"
                 >
-                  {bulkCompleteMutation.isPending ? t('testsPage.bulk.completing') : t('testsPage.bulk.batchComplete')}
+                  {bulkCompleteMutation.isPending ? t('validationsPage.bulk.completing') : t('validationsPage.bulk.batchComplete')}
                 </button>
                 <div className="flex gap-2">
                   <select
@@ -548,7 +548,7 @@ export function TestsPage() {
                     onChange={(e) => setBulkOwnerId(e.target.value)}
                     className="px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm min-w-44"
                   >
-                    <option value="">{t('testsPage.bulk.assignOwner')}</option>
+                    <option value="">{t('validationsPage.bulk.assignOwner')}</option>
                     {usersData.map((user) => (
                       <option key={user.id} value={user.id}>{user.name ?? user.email}</option>
                     ))}
@@ -558,7 +558,7 @@ export function TestsPage() {
                     disabled={!bulkOwnerId || bulkAssignMutation.isPending}
                     className="px-3 py-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-sm font-medium disabled:opacity-50"
                   >
-                    {t('testsPage.bulk.assign')}
+                    {t('validationsPage.bulk.assign')}
                   </button>
                 </div>
                 <div className="flex gap-2">
@@ -567,7 +567,7 @@ export function TestsPage() {
                     onChange={(e) => setBulkControlId(e.target.value)}
                     className="px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm min-w-52"
                   >
-                    <option value="">{t('testsPage.bulk.linkControlPlaceholder')}</option>
+                    <option value="">{t('validationsPage.bulk.linkControlPlaceholder')}</option>
                     {controlsData.map((control) => (
                       <option key={control.id} value={control.id}>{control.isoReference} - {control.title}</option>
                     ))}
@@ -577,7 +577,7 @@ export function TestsPage() {
                     disabled={!bulkControlId || bulkLinkControlMutation.isPending}
                     className="px-3 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-sm font-medium text-slate-950 disabled:opacity-50"
                   >
-                    {t('testsPage.bulk.linkControl')}
+                    {t('validationsPage.bulk.linkControl')}
                   </button>
                 </div>
               </div>
@@ -628,7 +628,7 @@ export function TestsPage() {
                         <tr
                           key={test.id}
                           className="hover:bg-blue-50/40 transition-colors cursor-pointer"
-                          onClick={() => navigate(`/tests/${test.id}`)}
+                          onClick={() => navigate(`/validations/${test.id}`)}
                         >
                           <td className="px-4 py-3 align-middle" onClick={(e) => e.stopPropagation()}>
                             <input

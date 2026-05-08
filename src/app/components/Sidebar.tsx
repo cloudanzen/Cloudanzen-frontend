@@ -192,9 +192,8 @@ export function Sidebar({ collapsed = false }: { collapsed?: boolean }) {
 
   const navigation = useMemo<NavItem[]>(() => [
     { id: 'home', title: t('nav.home'), href: '/', icon: Home },
-    { id: 'myTasks', title: t('nav.myTasks'), href: '/my-tasks', icon: Briefcase },
-    { id: 'tests', title: t('nav.tests'), href: '/tests', icon: FileCheck },
-    { id: 'reports', title: t('nav.reports'), href: '/reports', icon: BarChart3 },
+    { id: 'todo', title: t('nav.todo'), href: '/todo', icon: Briefcase },
+    { id: 'validations', title: t('nav.validations'), href: '/validations', icon: FileCheck },
     {
       id: 'myAudit',
       title: t('nav.myAudit'),
@@ -232,7 +231,8 @@ export function Sidebar({ collapsed = false }: { collapsed?: boolean }) {
         { id: 'risk-overview', title: t('nav.overview'), href: '/risk/overview' },
         { id: 'risks', title: t('nav.risks'), href: '/risk/risks' },
         { id: 'riskLibrary', title: t('nav.riskLibrary'), href: '/risk/library' },
-        { id: 'actionTracker', title: t('nav.actionTracker'), href: '/risk/action-tracker' },
+        { id: 'remediations', title: t('nav.remediations'), href: '/risk/remediations' },
+        { id: 'findings', title: t('nav.findings'), href: '/assets/findings' },
         { id: 'snapshot', title: t('nav.snapshot'), href: '/risk/snapshot' },
         { id: 'riskEngine', title: t('nav.riskEngine'), href: '/risk/engine', roles: [...ADMIN_ROLES] },
         { id: 'risk-settings', title: t('nav.settings'), href: '/settings/risk', roles: [...ADMIN_ROLES] },
@@ -256,7 +256,6 @@ export function Sidebar({ collapsed = false }: { collapsed?: boolean }) {
         { id: 'inventory', title: t('nav.inventory'), href: '/assets/inventory' },
         { id: 'mergeReview', title: t('nav.mergeReview'), href: '/assets/merge-review' },
         { id: 'codeChanges', title: t('nav.codeChanges'), href: '/assets/code-changes' },
-        { id: 'findings', title: t('nav.findings'), href: '/assets/findings' },
         { id: 'securityAlerts', title: t('nav.securityAlerts'), href: '/assets/security-alerts' },
         { id: 'assets-settings', title: t('nav.settings'), href: '/settings/assets', roles: [...ADMIN_ROLES] },
       ],
@@ -271,6 +270,7 @@ export function Sidebar({ collapsed = false }: { collapsed?: boolean }) {
         { id: 'personnel-settings', title: t('nav.settings'), href: '/settings/personnel', roles: [...ADMIN_ROLES] },
       ],
     },
+    { id: 'progress', title: t('nav.progress'), href: '/progress', icon: BarChart3 },
     { id: 'notifications', title: t('nav.notifications'), href: '/notifications', icon: Bell },
     {
       id: 'integrations',
@@ -281,7 +281,7 @@ export function Sidebar({ collapsed = false }: { collapsed?: boolean }) {
         { id: 'partnerApi', title: t('nav.partnerApi'), href: '/integrations/partner-api', roles: [...ADMIN_ROLES] },
       ],
     },
-    { id: 'mySecurityTasks', title: t('nav.mySecurityTasks'), href: '/my-security-tasks', icon: CheckSquare },
+    { id: 'onboardingTasks', title: t('nav.onboardingTasks'), href: '/onboarding-tasks', icon: CheckSquare },
     {
       id: 'aiAssistant',
       title: t('nav.aiAssistant'),

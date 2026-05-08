@@ -22,14 +22,14 @@
     }
   },
   "testTemplates": {
-    "title": "テストテンプレート",
-    "description": "自動テストテンプレートライブラリを管理する",
+    "title": "検証テンプレート",
+    "description": "自動検証テンプレートライブラリを管理する",
     "newTemplate": "新規テンプレート",
-    "searchPlaceholder": "テストテンプレートを検索...",
+    "searchPlaceholder": "検証テンプレートを検索...",
     "noTemplates": "テンプレートが見つかりません",
-    "libraryDescription": "フレームワーク有効化時に組織へ複製される事前定義テストです。",
+    "libraryDescription": "フレームワーク有効化時に組織へ複製される事前定義検証です。",
     "stats": {
-      "totalTests": "テスト総数",
+      "totalTests": "検証総数",
       "categories": "カテゴリ",
       "automated": "自動",
       "document": "ドキュメント"

@@ -16,7 +16,7 @@ function priorityVariant(priority: string): 'destructive' | 'secondary' | 'outli
   return 'outline';
 }
 
-export function ActionTrackerPage() {
+export function RemediationsPage() {
   const { t } = useTranslation('risk');
   const navigate = useNavigate();
   const { data = [], isLoading } = useQuery({
@@ -26,22 +26,22 @@ export function ActionTrackerPage() {
   });
 
   return (
-    <PageTemplate title={t('actionTracker.title')} description={t('actionTracker.description')}>
+    <PageTemplate title={t('remediations.title')} description={t('remediations.description')}>
       {isLoading ? (
         <div className="flex h-48 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-gray-400" /></div>
       ) : (
         <div className="space-y-6">
           <div className="grid gap-4 md:grid-cols-3">
             <Card className="p-5">
-              <p className="text-sm text-gray-500">{t('actionTracker.stats.openActions')}</p>
+              <p className="text-sm text-gray-500">{t('remediations.stats.openActions')}</p>
               <p className="mt-2 text-3xl font-semibold text-gray-900">{data.length}</p>
             </Card>
             <Card className="p-5">
-              <p className="text-sm text-gray-500">{t('actionTracker.stats.automatedRouting')}</p>
+              <p className="text-sm text-gray-500">{t('remediations.stats.automatedRouting')}</p>
               <p className="mt-2 text-3xl font-semibold text-gray-900">{data.filter((item) => item.automation !== 'Manual').length}</p>
             </Card>
             <Card className="p-5">
-              <p className="text-sm text-gray-500">{t('actionTracker.stats.dueThisWeek')}</p>
+              <p className="text-sm text-gray-500">{t('remediations.stats.dueThisWeek')}</p>
               <p className="mt-2 text-3xl font-semibold text-gray-900">{data.filter((item) => new Date(item.dueDate).getTime() < Date.now() + 7 * 86400000).length}</p>
             </Card>
           </div>
@@ -51,7 +51,7 @@ export function ActionTrackerPage() {
               <table className="w-full min-w-[980px]">
                 <thead className="border-b bg-gray-50">
                   <tr>
-                    {[t('actionTracker.columns.action'), t('actionTracker.columns.owner'), t('actionTracker.columns.priority'), t('actionTracker.columns.workflow'), t('actionTracker.columns.frameworkImpact'), t('actionTracker.columns.dueDate'), t('actionTracker.columns.status')].map((header) => (
+                    {[t('remediations.columns.action'), t('remediations.columns.owner'), t('remediations.columns.priority'), t('remediations.columns.workflow'), t('remediations.columns.frameworkImpact'), t('remediations.columns.dueDate'), t('remediations.columns.status')].map((header) => (
                       <th key={header} className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">{header}</th>
                     ))}
                   </tr>
@@ -61,7 +61,7 @@ export function ActionTrackerPage() {
                     <tr key={item.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 text-sm">
                         <button type="button" onClick={() => navigate(`/risk/risks/${item.riskId}`)} className="text-left font-medium text-gray-900 hover:text-blue-700">{item.title}</button>
-                        <p className="mt-1 text-xs text-gray-500">{t('actionTracker.playbook', { name: item.playbook })}</p>
+                        <p className="mt-1 text-xs text-gray-500">{t('remediations.playbook', { name: item.playbook })}</p>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600">
                         <p>{item.owner.name}</p>

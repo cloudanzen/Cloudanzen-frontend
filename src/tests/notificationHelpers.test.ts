@@ -46,7 +46,7 @@ type NotifResource = Pick<NotificationDto, 'resourceType' | 'resourceId'>;
 describe('getNotificationTargetPath', () => {
   it('returns test detail path for test resourceType with id', () => {
     const n: NotifResource = { resourceType: 'test', resourceId: 'test-123' };
-    expect(getNotificationTargetPath(n)).toBe('/tests/test-123');
+    expect(getNotificationTargetPath(n)).toBe('/validations/test-123');
   });
 
   it('returns /notifications for test without resourceId', () => {
@@ -89,7 +89,7 @@ describe('getNotificationTargetPath', () => {
 
 describe('getNotificationEventLabel', () => {
   it('returns label for known event types', () => {
-    expect(getNotificationEventLabel('test.failed')).toBe('Test failed');
+    expect(getNotificationEventLabel('test.failed')).toBe('Validation failed');
     expect(getNotificationEventLabel('risk.critical')).toBe('Critical risk');
     expect(getNotificationEventLabel('framework.activated')).toBe('Framework activated');
   });
@@ -125,7 +125,7 @@ describe('groupPreferences', () => {
       makePreference('risk.critical'),
     ];
     const groups = groupPreferences(prefs);
-    expect(groups['Tests']).toHaveLength(2);
+    expect(groups['Validations']).toHaveLength(2);
     expect(groups['Risks']).toHaveLength(1);
   });
 

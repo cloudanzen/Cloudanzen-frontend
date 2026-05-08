@@ -162,7 +162,7 @@ export function VendorsPage() {
     staleTime: 30_000,
   });
 
-  // Org users feed the owner picker. listUsers() pattern matches TestsPage and
+  // Org users feed the owner picker. listUsers() pattern matches ValidationsPage and
   // TestDetailPanel; not enough repeated use yet to justify a shared component.
   const { data: orgUsers = [] } = useQuery({
     queryKey: QK.users(),

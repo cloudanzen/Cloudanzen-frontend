@@ -71,7 +71,7 @@
       "ORG_ADMIN": "Full control of tenant. Manages users, roles, and all compliance modules.",
       "SECURITY_OWNER": "Owns the compliance program. Can manage all GRC content and approve policies.",
       "AUDITOR": "Read-only audit access. Can conduct audits and log findings.",
-      "CONTRIBUTOR": "Can update evidence, tests, and risks. Cannot manage users or approve policies.",
+      "CONTRIBUTOR": "Can update evidence, validations, and risks. Cannot manage users or approve policies.",
       "VIEWER": "Read-only access to all compliance content."
     },
     "modules": {
@@ -79,11 +79,11 @@
       "controls": "Controls",
       "evidence": "Evidence",
       "policies": "Policies",
-      "tests": "Tests",
+      "tests": "Validations",
       "users": "Users",
       "integrations": "Integrations",
       "audits": "Audits",
-      "reports": "Reports",
+      "reports": "Progress",
       "accessrequests": "Access Requests",
       "orgsettings": "Org Settings"
     },

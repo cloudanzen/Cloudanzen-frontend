@@ -5,7 +5,7 @@
  *   - Main navigation items are visible after login
  *   - Compliance section is accessible
  *   - Risk center is accessible
- *   - Tests page is accessible
+ *   - Validations page is accessible
  *   - Notification bell is visible
  */
 import { test, expect, type Page, type BrowserContext } from '@playwright/test';
@@ -44,10 +44,10 @@ test.describe('Post-login navigation', () => {
     ).toBeVisible();
   });
 
-  test('can navigate to the Tests page', async ({ page }) => {
-    await page.goto('/tests');
+  test('can navigate to the Validations page', async ({ page }) => {
+    await page.goto('/validations');
     await page.waitForLoadState('networkidle');
-    await expect(page).toHaveURL(/\/tests/);
+    await expect(page).toHaveURL(/\/validations/);
     // Page should render some content (not blank or error)
     const body = page.locator('body');
     await expect(body).not.toBeEmpty();
@@ -69,7 +69,7 @@ test.describe('Post-login navigation', () => {
     const errors: string[] = [];
     page.on('pageerror', (err) => errors.push(err.message));
 
-    await page.goto('/tests');
+    await page.goto('/validations');
     await page.waitForLoadState('networkidle');
     await page.goto('/risk/risks');
     await page.waitForLoadState('networkidle');

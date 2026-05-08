@@ -165,7 +165,7 @@ export function ComplianceLaunchpad({
     {
       key: 'startTests',
       icon: FlaskConical,
-      path: '/tests',
+      path: '/validations',
       status: testStatus,
     },
   ];

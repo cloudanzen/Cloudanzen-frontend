@@ -3,7 +3,7 @@
   "description": "Welcome back! Here's an overview of your security posture.",
   "quickActions": "Quick Actions",
   "newPolicy": "New Policy",
-  "runTest": "Run Test",
+  "runTest": "Run Validation",
   "reportRisk": "Report Risk",
   "addVendor": "Add Vendor",
   "stats": {
@@ -19,8 +19,8 @@
   "browseFrameworks": "Browse Frameworks",
   "loadingFrameworks": "Loading frameworks…",
   "tests": {
-    "title": "Tests",
-    "noTests": "No tests yet",
+    "title": "Validations",
+    "noTests": "No validations yet",
     "done": "Done",
     "overdue": "Overdue",
     "dueSoon": "Due soon",
@@ -95,9 +95,9 @@
         "cta": "Open risk review"
       },
       "startTests": {
-        "title": "Start tests and collect evidence",
+        "title": "Start validations and collect evidence",
         "description": "Begin recurring checks and evidence collection so your program becomes measurable.",
-        "cta": "View tests"
+        "cta": "View validations"
       }
     },
     "frameworks": {
@@ -112,17 +112,17 @@
       }
     }
   },
-  "myTasks": {
-    "title": "My Tasks",
-    "description": "Your assigned tests and pending security tasks.",
+  "todo": {
+    "title": "ToDo",
+    "description": "Your assigned validations and pending onboarding tasks.",
     "totalPending": "Total Pending",
-    "overdueTests": "Overdue Tests",
+    "overdueTests": "Overdue Validations",
     "dueSoon": "Due Soon",
     "onboardingTasks": "Onboarding Tasks",
-    "assignedTests": "Assigned Tests",
+    "assignedTests": "Assigned Validations",
     "securityOnboarding": "Security Onboarding",
     "pending": "pending",
-    "noPendingTests": "No pending tests assigned to you.",
+    "noPendingTests": "No pending validations assigned to you.",
     "couldNotLoadOnboarding": "Could not load onboarding status.",
     "acceptPolicies": "Accept security policies",
     "acceptPoliciesDesc": "Read and accept all published org policies",

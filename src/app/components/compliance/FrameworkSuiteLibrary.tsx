@@ -32,7 +32,7 @@ export function FrameworkSuiteLibrary({
       qc.invalidateQueries({ queryKey: ['tests', 'library'] });
       qc.invalidateQueries({ queryKey: ['tests', 'summary'] });
       toast.success(count > 0 ? `${template.framework} suite created with ${count} tests.` : `${template.framework} suite created.`);
-      navigate('/tests');
+      navigate('/validations');
     },
     onError: (error: any, template) => {
       toast.error(error?.message ?? `Failed to create ${template.framework} suite.`);

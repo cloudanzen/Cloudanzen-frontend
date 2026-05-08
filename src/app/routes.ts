@@ -14,23 +14,27 @@ import { AuthCallbackPage } from '@/app/pages/auth/AuthCallbackPage';
 const HomePage = lazy(() =>
   import('@/app/pages/HomePage').then((m) => ({ default: m.HomePage })),
 );
-const MyWorkPage = lazy(() =>
-  import('@/app/pages/MyWorkPage').then((m) => ({ default: m.MyWorkPage })),
+const TodoPage = lazy(() =>
+  import('@/app/pages/TodoPage').then((m) => ({ default: m.TodoPage })),
 );
-const TestsPage = lazy(() =>
-  import('@/app/pages/TestsPage').then((m) => ({ default: m.TestsPage })),
-);
-const TestDetailPage = lazy(() =>
-  import('@/app/pages/tests/TestDetailPage').then((m) => ({
-    default: m.TestDetailPage,
+const ValidationsPage = lazy(() =>
+  import('@/app/pages/ValidationsPage').then((m) => ({
+    default: m.ValidationsPage,
   })),
 );
-const ReportsPage = lazy(() =>
-  import('@/app/pages/ReportsPage').then((m) => ({ default: m.ReportsPage })),
+const ValidationDetailPage = lazy(() =>
+  import('@/app/pages/validations/ValidationDetailPage').then((m) => ({
+    default: m.ValidationDetailPage,
+  })),
 );
-const ReportViewerPage = lazy(() =>
-  import('@/app/pages/reports/ReportViewerPage').then((m) => ({
-    default: m.ReportViewerPage,
+const ProgressPage = lazy(() =>
+  import('@/app/pages/ProgressPage').then((m) => ({
+    default: m.ProgressPage,
+  })),
+);
+const ProgressViewerPage = lazy(() =>
+  import('@/app/pages/progress/ProgressViewerPage').then((m) => ({
+    default: m.ProgressViewerPage,
   })),
 );
 const NotificationsPage = lazy(() =>
@@ -161,9 +165,9 @@ const RiskLibraryPage = lazy(() =>
     default: m.RiskLibraryPage,
   })),
 );
-const ActionTrackerPage = lazy(() =>
-  import('@/app/pages/risk/ActionTrackerPage').then((m) => ({
-    default: m.ActionTrackerPage,
+const RemediationsPage = lazy(() =>
+  import('@/app/pages/risk/RemediationsPage').then((m) => ({
+    default: m.RemediationsPage,
   })),
 );
 const SnapshotPage = lazy(() =>
@@ -286,9 +290,9 @@ const PartnerApiPage = lazy(() =>
     default: m.PartnerApiPage,
   })),
 );
-const MySecurityTasksPage = lazy(() =>
-  import('@/app/pages/MySecurityTasksPage').then((m) => ({
-    default: m.MySecurityTasksPage,
+const OnboardingTasksPage = lazy(() =>
+  import('@/app/pages/OnboardingTasksPage').then((m) => ({
+    default: m.OnboardingTasksPage,
   })),
 );
 
@@ -380,16 +384,27 @@ export const router = createBrowserRouter([
     ErrorBoundary: RouteErrorBoundary,
     children: [
       { index: true, Component: HomePage },
-      { path: 'my-tasks', Component: MyWorkPage },
-      { path: 'tests', Component: TestsPage },
-      { path: 'tests/:testId', Component: TestDetailPage },
+      { path: 'todo', Component: TodoPage },
+      { path: 'my-tasks', loader: () => redirect('/todo') },
+      { path: 'validations', Component: ValidationsPage },
+      { path: 'validations/:testId', Component: ValidationDetailPage },
+      { path: 'tests', loader: () => redirect('/validations') },
+      {
+        path: 'tests/:testId',
+        loader: ({ params }) => redirect(`/validations/${params.testId}`),
+      },
       {
         path: 'tests/library',
         loader: async () => redirect('/compliance/frameworks'),
       },
-      { path: 'reports', Component: ReportsPage },
+      { path: 'progress', Component: ProgressPage },
+      { path: 'reports', loader: () => redirect('/progress') },
       { path: 'notifications', Component: NotificationsPage },
-      { path: 'reports/viewer/:reportId', Component: ReportViewerPage },
+      { path: 'progress/viewer/:reportId', Component: ProgressViewerPage },
+      {
+        path: 'reports/viewer/:reportId',
+        loader: ({ params }) => redirect(`/progress/viewer/${params.reportId}`),
+      },
 
       // Auditor
       { path: 'auditor/dashboard', Component: AuditorDashboardPage },
@@ -428,7 +443,8 @@ export const router = createBrowserRouter([
       { path: 'risk/risks', Component: RisksPage },
       { path: 'risk/risks/:riskId', Component: RiskDetailPage },
       { path: 'risk/library', Component: RiskLibraryPage },
-      { path: 'risk/action-tracker', Component: ActionTrackerPage },
+      { path: 'risk/remediations', Component: RemediationsPage },
+      { path: 'risk/action-tracker', loader: () => redirect('/risk/remediations') },
       { path: 'risk/snapshot', Component: SnapshotPage },
       { path: 'risk/engine', Component: RiskEnginePage },
       { path: 'risk/settings', loader: () => redirect('/settings/risk') },
@@ -490,7 +506,8 @@ export const router = createBrowserRouter([
         loader: partnerAdminLoader,
         Component: PartnerApiPage,
       },
-      { path: 'my-security-tasks', Component: MySecurityTasksPage },
+      { path: 'onboarding-tasks', Component: OnboardingTasksPage },
+      { path: 'my-security-tasks', loader: () => redirect('/onboarding-tasks') },
 
       // Settings shell
       {

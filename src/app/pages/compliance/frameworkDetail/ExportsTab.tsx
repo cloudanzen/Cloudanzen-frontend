@@ -92,7 +92,7 @@ export function ExportsTab({ slug }: { slug: string }) {
         <div class="card"><strong>Open gaps</strong><br/>${coverage?.openGaps ?? 0}</div>
       </div>
       <h2>Mappings summary</h2>
-      <p>Controls: ${mappings?.controls.length ?? 0} · Tests: ${mappings?.tests.length ?? 0} · Policies: ${mappings?.policies.length ?? 0}</p>
+      <p>Controls: ${mappings?.controls.length ?? 0} · Validations: ${mappings?.tests.length ?? 0} · Policies: ${mappings?.policies.length ?? 0}</p>
       <h2>Requirements</h2>
       <table>
         <thead><tr><th>Code</th><th>Title</th><th>Applicability</th><th>Justification</th><th>Review</th><th>Owner</th><th>Due</th></tr></thead>
