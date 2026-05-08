@@ -61,7 +61,7 @@ export function TemplatesModal({
     setCreating(template.name);
     setCardError(null);
     try {
-      const res = await policiesService.createPolicyFromTemplate({ templateName: template.name }) as any;
+      const res = await policiesService.createPolicyFromTemplate({ templateId: template.id }) as any;
       const policy: Policy = res.data;
       setDone(prev => new Set([...prev, template.name]));
       onCreated(policy);

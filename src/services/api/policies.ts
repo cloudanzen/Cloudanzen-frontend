@@ -29,6 +29,10 @@ async function readFetchErrorMessage(response: Response, fallback: string): Prom
   }
 }
 
+function isMissingLocaleVersion(message: string): boolean {
+  return /^No\s+[A-Z]{2}\s+version exists for this policy version$/i.test(message.trim());
+}
+
 export interface PolicyTemplate {
   id: string;
   name: string;
@@ -257,7 +261,9 @@ export class PoliciesService {
    * The backend generates the editable Word document and stores it immediately.
    */
   async createPolicyFromTemplate(data: {
-    templateName: string;
+    templateId?: string;
+    templateSlug?: string;
+    templateName?: string;
     version?: string;
     status?: string;
     approvedBy?: string;
@@ -268,23 +274,49 @@ export class PoliciesService {
   async downloadPolicyDocument(
     policyId: string,
     fileName: string,
-    opts?: { versionId?: string; locale?: 'en' | 'ja' },
+    opts?: {
+      versionId?: string;
+      locale?: 'en' | 'ja';
+      onLocaleFallback?: () => void;
+    },
   ): Promise<void> {
     const token = getAuthToken();
-    const params = new URLSearchParams();
-    if (opts?.versionId) params.set('versionId', opts.versionId);
-    if (opts?.locale) params.set('locale', opts.locale);
-    const suffix = params.toString() ? `?${params.toString()}` : '';
-    const response = await fetch(
-      `${API_BASE_URL}/api/policies/${policyId}/download${suffix}`,
-      {
-        credentials: 'include',
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      },
-    );
-    if (!response.ok) {
-      throw new Error(await readFetchErrorMessage(response, 'Download failed'));
+
+    const fetchDocument = async (requestOpts?: { versionId?: string; locale?: 'en' | 'ja' }) => {
+      const params = new URLSearchParams();
+      if (requestOpts?.versionId) params.set('versionId', requestOpts.versionId);
+      if (requestOpts?.locale) params.set('locale', requestOpts.locale);
+      const suffix = params.toString() ? `?${params.toString()}` : '';
+      const response = await fetch(
+        `${API_BASE_URL}/api/policies/${policyId}/download${suffix}`,
+        {
+          credentials: 'include',
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        },
+      );
+      if (!response.ok) {
+        throw new Error(await readFetchErrorMessage(response, 'Download failed'));
+      }
+      return response;
+    };
+
+    let response: Response;
+    try {
+      response = await fetchDocument(opts);
+    } catch (error) {
+      if (
+        opts?.locale &&
+        opts.locale !== 'en' &&
+        error instanceof Error &&
+        isMissingLocaleVersion(error.message)
+      ) {
+        opts.onLocaleFallback?.();
+        response = await fetchDocument({ versionId: opts.versionId, locale: 'en' });
+      } else {
+        throw error;
+      }
     }
+
     const blob = await response.blob();
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');

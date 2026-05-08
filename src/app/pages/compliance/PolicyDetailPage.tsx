@@ -90,6 +90,7 @@ export function PolicyDetailPage() {
   const [selectedApproverIds, setSelectedApproverIds] = useState<string[]>([]);
   const [recurrenceMonths, setRecurrenceMonths] = useState('');
   const me = useCurrentUser();
+  const preferredLocale = me?.preferredLocale === 'ja' ? 'ja' : 'en';
 
   const { data: policyRes, isLoading } = useQuery({
     queryKey: QK.policyDetail(id ?? ''),
@@ -397,7 +398,10 @@ export function PolicyDetailPage() {
                 <DropdownMenuItem
                   onClick={() =>
                     void policiesService
-                      .downloadPolicyDocument(policy.id, `${policy.name}.pdf`)
+                      .downloadPolicyDocument(policy.id, `${policy.name}.pdf`, {
+                        locale: preferredLocale,
+                        onLocaleFallback: () => toast.info('Japanese version not available - showing English'),
+                      })
                       .catch((error) => toast.error(errorMessage(error, 'Failed to download policy')))
                   }
                 >
