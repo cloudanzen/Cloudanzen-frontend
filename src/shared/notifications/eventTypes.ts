@@ -25,7 +25,7 @@ export const NotificationEventType = {
 
 export type NotificationEventType = typeof NotificationEventType[keyof typeof NotificationEventType];
 
-export type NotificationCategory = 'Tests' | 'Risks' | 'Controls' | 'Audits' | 'Policies' | 'Frameworks' | 'Access' | 'Trust Center';
+export type NotificationCategory = 'Validations' | 'Risks' | 'Controls' | 'Audits' | 'Policies' | 'Frameworks' | 'Access' | 'Trust Center';
 
 export interface NotificationEventDefinition {
   eventType: NotificationEventType;
@@ -37,31 +37,31 @@ export interface NotificationEventDefinition {
 export const NOTIFICATION_EVENT_DEFINITIONS: NotificationEventDefinition[] = [
   {
     eventType: NotificationEventType.TEST_FAILED,
-    category: 'Tests',
-    label: 'Test failed',
-    description: 'Alerts when an automated or pipeline-backed compliance test fails.',
+    category: 'Validations',
+    label: 'Validation failed',
+    description: 'Alerts when an automated or pipeline-backed compliance validation fails.',
   },
   {
     eventType: NotificationEventType.TEST_OVERDUE,
-    category: 'Tests',
-    label: 'Test overdue',
-    description: 'Reminds owners when evidence collection or test completion is overdue.',
+    category: 'Validations',
+    label: 'Validation overdue',
+    description: 'Reminds owners when evidence collection or validation completion is overdue.',
   },
   {
     eventType: NotificationEventType.TEST_ASSIGNED,
-    category: 'Tests',
-    label: 'Test assigned',
-    description: 'Notifies you when ownership of a test is assigned to you.',
+    category: 'Validations',
+    label: 'Validation assigned',
+    description: 'Notifies you when ownership of a validation is assigned to you.',
   },
   {
     eventType: NotificationEventType.ATTESTATION_REQUESTED,
-    category: 'Tests',
+    category: 'Validations',
     label: 'Attestation requested',
-    description: 'Prompts reviewers to attest evidence for a test.',
+    description: 'Prompts reviewers to attest evidence for a validation.',
   },
   {
     eventType: NotificationEventType.ATTESTATION_SIGNED,
-    category: 'Tests',
+    category: 'Validations',
     label: 'Attestation signed',
     description: 'Confirms that a requested attestation has been completed.',
   },

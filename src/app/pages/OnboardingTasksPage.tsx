@@ -43,18 +43,18 @@ function StatusPill({
     return (
       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-50 text-green-700 border border-green-200">
         <CheckCircle2 className="w-3 h-3" />{' '}
-        {t('securityTasks.status.completed')}
+        {t('onboardingTasks.status.completed')}
       </span>
     );
   if (inProgress)
     return (
       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-        <Clock className="w-3 h-3" /> {t('securityTasks.status.inProgress')}
+        <Clock className="w-3 h-3" /> {t('onboardingTasks.status.inProgress')}
       </span>
     );
   return (
     <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-muted text-muted-foreground border border-border">
-      <Circle className="w-3 h-3" /> {t('securityTasks.status.notStarted')}
+      <Circle className="w-3 h-3" /> {t('onboardingTasks.status.notStarted')}
     </span>
   );
 }
@@ -102,7 +102,7 @@ function TaskCard({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-xs font-mono text-muted-foreground/70">
-              {t('securityTasks.taskNumber', { number })}
+              {t('onboardingTasks.taskNumber', { number })}
             </span>
             <span className="text-sm font-semibold text-foreground">
               {title}
@@ -161,7 +161,7 @@ function Task1Policies({
             })),
           );
       })
-      .catch(() => setError(t('securityTasks.policies.loadFailed')))
+      .catch(() => setError(t('onboardingTasks.policies.loadFailed')))
       .finally(() => setLoading(false));
   }, [t]);
 
@@ -181,13 +181,13 @@ function Task1Policies({
       <div className="space-y-3">
         <div className="flex items-center gap-2 text-sm text-green-700 font-medium">
           <CheckCircle2 className="w-4 h-4" />
-          {t('securityTasks.policies.acceptedOn', {
+          {t('onboardingTasks.policies.acceptedOn', {
             date: fmtDateTime(status.policyAcceptedAt),
           })}
         </div>
         {ids.length > 0 && (
           <p className="text-xs text-muted-foreground">
-            {t('securityTasks.policies.acknowledgedCount', {
+            {t('onboardingTasks.policies.acknowledgedCount', {
               count: ids.length,
             })}
           </p>
@@ -201,28 +201,28 @@ function Task1Policies({
       {hasPending && status.policyAcceptedAt ? (
         <div className="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-700">
           <strong>
-            {t('securityTasks.policies.newPoliciesPublished', {
+            {t('onboardingTasks.policies.newPoliciesPublished', {
               count: pendingSet.size,
             })}
           </strong>{' '}
-          {t('securityTasks.policies.newPoliciesDescription', {
+          {t('onboardingTasks.policies.newPoliciesDescription', {
             date: fmtDateTime(status.policyAcceptedAt),
           })}
         </div>
       ) : (
         <p className="text-sm text-muted-foreground">
-          {t('securityTasks.policies.instructions')}
+          {t('onboardingTasks.policies.instructions')}
         </p>
       )}
 
       {loading ? (
         <div className="flex items-center gap-2 text-sm text-muted-foreground/70">
           <Loader2 className="w-4 h-4 animate-spin" />{' '}
-          {t('securityTasks.policies.loading')}
+          {t('onboardingTasks.policies.loading')}
         </div>
       ) : publishedPolicies.length === 0 ? (
         <div className="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-700">
-          {t('securityTasks.policies.noPublishedPolicies')}
+          {t('onboardingTasks.policies.noPublishedPolicies')}
         </div>
       ) : (
         <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
@@ -257,7 +257,7 @@ function Task1Policies({
                     </p>
                     {isNew && (
                       <span className="inline-flex px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-700 border border-amber-200">
-                        {t('securityTasks.policies.newBadge')}
+                        {t('onboardingTasks.policies.newBadge')}
                       </span>
                     )}
                   </div>
@@ -281,7 +281,7 @@ function Task1Policies({
           }}
           className="text-xs text-blue-600 hover:underline"
         >
-          {t('securityTasks.policies.selectAll')}
+          {t('onboardingTasks.policies.selectAll')}
         </button>
         <button
           disabled={
@@ -318,7 +318,7 @@ function Task1Policies({
           )}
           {saving
             ? t('actions.saving')
-            : t('securityTasks.policies.acceptPolicies', {
+            : t('onboardingTasks.policies.acceptPolicies', {
                 count: checked.size,
               })}
         </button>
@@ -337,13 +337,13 @@ function Task2Mdm({ status }: { status: OnboardingStatus }) {
       <div className="space-y-2">
         <div className="flex items-center gap-2 text-sm text-green-700 font-medium">
           <CheckCircle2 className="w-4 h-4" />
-          {t('securityTasks.mdm.enrolledOn', {
+          {t('onboardingTasks.mdm.enrolledOn', {
             date: fmtDateTime(status.mdmEnrolledAt),
           })}
         </div>
         {status.deviceId && (
           <p className="text-xs text-muted-foreground">
-            {t('securityTasks.mdm.deviceId')}:{' '}
+            {t('onboardingTasks.mdm.deviceId')}:{' '}
             <code className="font-mono">{status.deviceId}</code>
           </p>
         )}
@@ -354,22 +354,22 @@ function Task2Mdm({ status }: { status: OnboardingStatus }) {
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        {t('securityTasks.mdm.instructions')}
+        {t('onboardingTasks.mdm.instructions')}
       </p>
       <div className="rounded-lg bg-blue-50 border border-blue-200 px-4 py-4 space-y-3">
         <p className="text-sm font-semibold text-blue-900">
-          {t('securityTasks.mdm.installationSteps')}
+          {t('onboardingTasks.mdm.installationSteps')}
         </p>
         <ol className="list-decimal list-inside space-y-1.5 text-sm text-blue-800">
-          <li>{t('securityTasks.mdm.steps.generateToken')}</li>
-          <li>{t('securityTasks.mdm.steps.downloadAgent')}</li>
-          <li>{t('securityTasks.mdm.steps.runInstaller')}</li>
-          <li>{t('securityTasks.mdm.steps.autoCheckIn')}</li>
+          <li>{t('onboardingTasks.mdm.steps.generateToken')}</li>
+          <li>{t('onboardingTasks.mdm.steps.downloadAgent')}</li>
+          <li>{t('onboardingTasks.mdm.steps.runInstaller')}</li>
+          <li>{t('onboardingTasks.mdm.steps.autoCheckIn')}</li>
         </ol>
       </div>
       <div className="flex items-center gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
         <Clock className="w-3.5 h-3.5 flex-shrink-0" />
-        {t('securityTasks.mdm.autoCompleteNote')}
+        {t('onboardingTasks.mdm.autoCompleteNote')}
       </div>
     </div>
   );
@@ -392,7 +392,7 @@ function Task3Training({
     return (
       <div className="flex items-center gap-2 text-sm text-green-700 font-medium">
         <CheckCircle2 className="w-4 h-4" />
-        {t('securityTasks.training.completedOn', {
+        {t('onboardingTasks.training.completedOn', {
           date: fmtDateTime(status.trainingCompletedAt),
         })}
       </div>
@@ -417,7 +417,7 @@ function Task3Training({
     } catch (e: unknown) {
       setError(
         (e as { message?: string })?.message ??
-          t('securityTasks.training.saveFailed'),
+          t('onboardingTasks.training.saveFailed'),
       );
     } finally {
       setSaving(false);
@@ -429,7 +429,7 @@ function Task3Training({
       {status.trainingStarted && !status.trainingCompleted && (
         <div className="flex items-center gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
           <Clock className="w-3.5 h-3.5" />
-          {t('securityTasks.training.inProgress', {
+          {t('onboardingTasks.training.inProgress', {
             date: fmtDateTime(status.trainingStartedAt),
           })}
         </div>
@@ -443,7 +443,7 @@ function Task3Training({
       {saving && (
         <div className="flex items-center gap-2 text-sm text-blue-600">
           <Loader2 className="w-4 h-4 animate-spin" />{' '}
-          {t('securityTasks.training.savingCompletion')}
+          {t('onboardingTasks.training.savingCompletion')}
         </div>
       )}
       {error && <p className="text-xs text-red-600">{error}</p>}
@@ -479,10 +479,10 @@ function ProgressBanner({ status }: { status: OnboardingStatus }) {
         </div>
         <div>
           <p className="text-base font-semibold text-green-900">
-            {t('securityTasks.progress.allTasksCompleteTitle')}
+            {t('onboardingTasks.progress.allTasksCompleteTitle')}
           </p>
           <p className="text-sm text-green-700 mt-0.5">
-            {t('securityTasks.progress.allTasksCompleteDescription')}
+            {t('onboardingTasks.progress.allTasksCompleteDescription')}
           </p>
         </div>
       </div>
@@ -493,10 +493,10 @@ function ProgressBanner({ status }: { status: OnboardingStatus }) {
     <div className="rounded-2xl bg-card border border-border px-6 py-4 shadow-sm">
       <div className="flex items-center justify-between mb-2">
         <p className="text-sm font-semibold text-foreground">
-          {t('securityTasks.progress.title')}
+          {t('onboardingTasks.progress.title')}
         </p>
         <span className="text-sm font-semibold text-blue-700">
-          {t('securityTasks.progress.tasksComplete', { done, total, defaultValue: '{{done}}/{{total}} tasks complete' })}
+          {t('onboardingTasks.progress.tasksComplete', { done, total, defaultValue: '{{done}}/{{total}} tasks complete' })}
         </span>
       </div>
       <div className="h-2.5 bg-muted rounded-full overflow-hidden">
@@ -506,7 +506,7 @@ function ProgressBanner({ status }: { status: OnboardingStatus }) {
         />
       </div>
       <p className="text-xs text-muted-foreground/70 mt-2">
-        {t('securityTasks.progress.description')}
+        {t('onboardingTasks.progress.description')}
       </p>
     </div>
   );
@@ -574,7 +574,7 @@ function RemediationTasksSection() {
     } catch (e: unknown) {
       setErr(
         (e as { message?: string })?.message ??
-          t('securityTasks.remediation.actionFailed'),
+          t('onboardingTasks.remediation.actionFailed'),
       );
     } finally {
       setTransitioning(null);
@@ -585,7 +585,7 @@ function RemediationTasksSection() {
     return (
       <div className="flex items-center gap-2 py-4 text-sm text-muted-foreground/70">
         <Loader2 className="w-4 h-4 animate-spin" />{' '}
-        {t('securityTasks.remediation.loading')}
+        {t('onboardingTasks.remediation.loading')}
       </div>
     );
 
@@ -596,14 +596,14 @@ function RemediationTasksSection() {
       <div className="flex items-center gap-2">
         <AlertTriangle className="w-5 h-5 text-amber-500" />
         <h2 className="text-base font-semibold text-foreground">
-          {t('securityTasks.remediation.title')}
+          {t('onboardingTasks.remediation.title')}
         </h2>
         <span className="ml-1 inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-100 text-amber-700 text-xs font-bold">
           {tasks.length}
         </span>
       </div>
       <p className="text-sm text-muted-foreground">
-        {t('securityTasks.remediation.description')}
+        {t('onboardingTasks.remediation.description')}
       </p>
 
       {err && (
@@ -631,13 +631,13 @@ function RemediationTasksSection() {
                       className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[f.status]}`}
                     >
                       {t(
-                        `securityTasks.remediation.statusLabels.${STATUS_LABEL_KEYS[f.status]}`,
+                        `onboardingTasks.remediation.statusLabels.${STATUS_LABEL_KEYS[f.status]}`,
                       )}
                     </span>
                     {isOverdue(f) && (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
                         <AlertTriangle className="w-3 h-3" />{' '}
-                        {t('securityTasks.remediation.overdue')}
+                        {t('onboardingTasks.remediation.overdue')}
                       </span>
                     )}
                   </div>
@@ -650,7 +650,7 @@ function RemediationTasksSection() {
                       className={`flex items-center gap-1 text-xs mt-1 ${isOverdue(f) ? 'text-red-600 font-semibold' : 'text-muted-foreground/70'}`}
                     >
                       <Calendar className="w-3 h-3" />{' '}
-                      {t('securityTasks.remediation.due', {
+                      {t('onboardingTasks.remediation.due', {
                         date: fmtShort(f.dueAt),
                       })}
                     </p>
@@ -671,7 +671,7 @@ function RemediationTasksSection() {
                     ) : (
                       <ArrowRight className="w-3.5 h-3.5" />
                     )}
-                    {t('securityTasks.remediation.startRemediation')}
+                    {t('onboardingTasks.remediation.startRemediation')}
                   </button>
                 )}
                 {f.status === 'IN_REMEDIATION' && (
@@ -685,13 +685,13 @@ function RemediationTasksSection() {
                     ) : (
                       <ArrowRight className="w-3.5 h-3.5" />
                     )}
-                    {t('securityTasks.remediation.submitForReview')}
+                    {t('onboardingTasks.remediation.submitForReview')}
                   </button>
                 )}
                 {f.status === 'READY_FOR_REVIEW' && (
                   <span className="flex items-center gap-1 text-xs text-blue-600 font-medium px-3 py-1.5 rounded-lg bg-blue-50 border border-blue-200">
                     <Clock className="w-3.5 h-3.5" />{' '}
-                    {t('securityTasks.remediation.awaitingAuditorReview')}
+                    {t('onboardingTasks.remediation.awaitingAuditorReview')}
                   </span>
                 )}
               </div>
@@ -705,7 +705,7 @@ function RemediationTasksSection() {
 
 // ── Main page ──────────────────────────────────────────────────────────────────
 
-export function MySecurityTasksPage() {
+export function OnboardingTasksPage() {
   const { t } = useTranslation('common');
   const [status, setStatus] = useState<OnboardingStatus | null>(null);
   const [loading, setLoading] = useState(true);
@@ -715,7 +715,7 @@ export function MySecurityTasksPage() {
     onboardingService
       .getMyStatus()
       .then((res) => setStatus(res.data))
-      .catch((e) => setError(e?.message ?? t('securityTasks.loadFailed')))
+      .catch((e) => setError(e?.message ?? t('onboardingTasks.loadFailed')))
       .finally(() => setLoading(false));
   }, [t]);
 
@@ -724,17 +724,17 @@ export function MySecurityTasksPage() {
       <div className="flex flex-col h-full bg-muted">
         <div className="bg-card border-b border-border px-6 py-4 shadow-sm">
           <h1 className="text-xl font-semibold text-foreground">
-            {t('securityTasks.title')}
+            {t('onboardingTasks.title')}
           </h1>
           <p className="text-sm text-muted-foreground mt-0.5">
-            {t('securityTasks.description')}
+            {t('onboardingTasks.description')}
           </p>
         </div>
         <div className="flex-1 flex items-center justify-center">
           <div className="flex flex-col items-center gap-3">
             <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
             <p className="text-sm text-muted-foreground">
-              {t('securityTasks.loading')}
+              {t('onboardingTasks.loading')}
             </p>
           </div>
         </div>
@@ -747,20 +747,20 @@ export function MySecurityTasksPage() {
       <div className="flex flex-col h-full bg-muted">
         <div className="bg-card border-b border-border px-6 py-4 shadow-sm">
           <h1 className="text-xl font-semibold text-foreground">
-            {t('securityTasks.title')}
+            {t('onboardingTasks.title')}
           </h1>
         </div>
         <div className="flex-1 flex items-center justify-center">
           <div className="flex flex-col items-center gap-3">
             <AlertCircle className="w-10 h-10 text-red-400" />
             <p className="text-sm text-red-600">
-              {error ?? t('securityTasks.unknownError')}
+              {error ?? t('onboardingTasks.unknownError')}
             </p>
             <button
               onClick={() => window.location.reload()}
               className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700"
             >
-              {t('securityTasks.retry')}
+              {t('onboardingTasks.retry')}
             </button>
           </div>
         </div>
@@ -773,10 +773,10 @@ export function MySecurityTasksPage() {
       {/* Top bar */}
       <div className="bg-card border-b border-border px-6 py-4 shadow-sm sticky top-0 z-10">
         <h1 className="text-xl font-semibold text-foreground">
-          {t('securityTasks.title')}
+          {t('onboardingTasks.title')}
         </h1>
         <p className="text-sm text-muted-foreground mt-0.5">
-          {t('securityTasks.description')}
+          {t('onboardingTasks.description')}
         </p>
       </div>
 
@@ -801,8 +801,8 @@ export function MySecurityTasksPage() {
                 key="policy"
                 number={n}
                 icon={FileText}
-                title={t('securityTasks.cards.policies.title')}
-                description={t('securityTasks.cards.policies.description')}
+                title={t('onboardingTasks.cards.policies.title')}
+                description={t('onboardingTasks.cards.policies.description')}
                 done={status.policyAccepted}
                 inProgress={
                   !status.policyAccepted &&
@@ -821,8 +821,8 @@ export function MySecurityTasksPage() {
                 key="mdm"
                 number={n}
                 icon={Laptop}
-                title={t('securityTasks.cards.mdm.title')}
-                description={t('securityTasks.cards.mdm.description')}
+                title={t('onboardingTasks.cards.mdm.title')}
+                description={t('onboardingTasks.cards.mdm.description')}
                 done={status.mdmEnrolled}
               >
                 <Task2Mdm status={status} />
@@ -836,8 +836,8 @@ export function MySecurityTasksPage() {
                 key="training"
                 number={n}
                 icon={BookOpen}
-                title={t('securityTasks.cards.training.title')}
-                description={t('securityTasks.cards.training.description')}
+                title={t('onboardingTasks.cards.training.title')}
+                description={t('onboardingTasks.cards.training.description')}
                 done={status.trainingCompleted}
                 inProgress={status.trainingStarted && !status.trainingCompleted}
               >
@@ -851,12 +851,12 @@ export function MySecurityTasksPage() {
               <div className="rounded-2xl bg-card border border-border px-6 py-8 flex flex-col items-center gap-3 text-center">
                 <ShieldCheck className="w-10 h-10 text-muted-foreground" />
                 <p className="text-sm font-semibold text-foreground">
-                  {t('securityTasks.noTasksApplicable', {
+                  {t('onboardingTasks.noTasksApplicable', {
                     defaultValue: 'No onboarding tasks apply to your role.',
                   })}
                 </p>
                 <p className="text-xs text-muted-foreground/70 max-w-sm">
-                  {t('securityTasks.noTasksApplicableDescription', {
+                  {t('onboardingTasks.noTasksApplicableDescription', {
                     defaultValue:
                       'Your role is exempt from policy acceptance, MDM enrollment, and security training. Reach out to an administrator if this looks wrong.',
                   })}

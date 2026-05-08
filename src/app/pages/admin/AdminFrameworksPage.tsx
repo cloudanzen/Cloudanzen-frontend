@@ -177,7 +177,7 @@ export function AdminFrameworksPage() {
                     <th className="text-left px-4 py-3 font-medium">Title</th>
                     <th className="text-left px-4 py-3 font-medium">Domain</th>
                     <th className="text-center px-4 py-3 font-medium">Controls</th>
-                    <th className="text-center px-4 py-3 font-medium">Tests</th>
+                    <th className="text-center px-4 py-3 font-medium">Validations</th>
                     <th className="text-center px-4 py-3 font-medium">Policies</th>
                   </tr>
                 </thead>

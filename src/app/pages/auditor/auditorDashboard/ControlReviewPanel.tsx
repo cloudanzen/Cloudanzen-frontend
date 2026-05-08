@@ -598,7 +598,7 @@ export function ControlReviewPanel({
                 )}
                 <span>
                   {hasFlaggedEvidence && 'Some evidence has been flagged and needs attention. '}
-                  {hasFailingTests && 'Failing tests — this control is not ready for audit. '}
+                  {hasFailingTests && 'Failing validations — this control is not ready for audit. '}
                   {!hasFlaggedEvidence && !hasFailingTests && allEvidenceApproved && 'All evidence approved. Control ready for audit.'}
                 </span>
               </div>
@@ -777,11 +777,11 @@ export function ControlReviewPanel({
               </div>
             )}
 
-            {/* Related Tests */}
+            {/* Related Validations */}
             <div className="p-5">
               <SectionHead
                 icon={<FlaskConical className="w-3.5 h-3.5" />}
-                title={`Tests (${tests.length})`}
+                title={`Validations (${tests.length})`}
               />
               {tests.length === 0 ? (
                 <p className="text-xs text-gray-400">

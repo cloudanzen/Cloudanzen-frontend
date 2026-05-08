@@ -33,7 +33,7 @@ function StatusBadge({ status }: { status: TestStatus }) {
   const cfg = STATUS_CFG[status] ?? { key: status, label: status, cls: 'bg-gray-50 text-gray-600 border-gray-200' };
   return (
     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${cfg.cls}`}>
-      {t(`myTasks.statusLabels.${cfg.key}`, cfg.label)}
+      {t(`todo.statusLabels.${cfg.key}`, cfg.label)}
     </span>
   );
 }
@@ -64,7 +64,7 @@ function OnboardingTaskRow({
       </div>
       <div className="flex-1 min-w-0">
         <p className={`text-sm font-medium ${done ? 'text-muted-foreground/70 line-through' : 'text-foreground'}`}>{label}</p>
-        <p className="text-xs text-muted-foreground/70 mt-0.5">{done ? t('myTasks.completedAt', { date: fmtDate(doneAt) }) : description}</p>
+        <p className="text-xs text-muted-foreground/70 mt-0.5">{done ? t('todo.completedAt', { date: fmtDate(doneAt) }) : description}</p>
       </div>
       {!done && (
         <a
@@ -80,7 +80,7 @@ function OnboardingTaskRow({
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 
-export function MyWorkPage() {
+export function TodoPage() {
   const { t } = useTranslation('dashboard');
   const me = authService.getCachedUser();
   const [selectedTestId, setSelectedTestId] = useState<string | null>(null);
@@ -122,24 +122,24 @@ export function MyWorkPage() {
     ? [
         {
           key: 'policy' as const,
-          label: t('myTasks.acceptPolicies'),
-          description: t('myTasks.acceptPoliciesDesc'),
+          label: t('todo.acceptPolicies'),
+          description: t('todo.acceptPoliciesDesc'),
           done: onboarding.policyAccepted,
           doneAt: onboarding.policyAcceptedAt,
           enabled: onboarding.required?.policyAcceptance !== false,
         },
         {
           key: 'mdm' as const,
-          label: t('myTasks.enrollMdm'),
-          description: t('myTasks.enrollMdmDesc'),
+          label: t('todo.enrollMdm'),
+          description: t('todo.enrollMdmDesc'),
           done: onboarding.mdmEnrolled,
           doneAt: onboarding.mdmEnrolledAt,
           enabled: onboarding.required?.mdmEnrollment !== false,
         },
         {
           key: 'training' as const,
-          label: t('myTasks.securityTraining'),
-          description: t('myTasks.securityTrainingDesc'),
+          label: t('todo.securityTraining'),
+          description: t('todo.securityTrainingDesc'),
           done: onboarding.trainingCompleted,
           doneAt: onboarding.trainingCompletedAt,
           enabled: onboarding.required?.securityTraining !== false,
@@ -155,40 +155,40 @@ export function MyWorkPage() {
 
   return (
     <PageTemplate
-      title={t('myTasks.title')}
-      description={t('myTasks.description')}
+      title={t('todo.title')}
+      description={t('todo.description')}
     >
       {/* ── Summary strip ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         {[
           {
             key: 'totalPending',
-            label: t('myTasks.totalPending'),
+            label: t('todo.totalPending'),
             value: testsLoading || onboardingLoading ? '…' : totalPending,
             icon: <ClipboardList className="w-4 h-4" />,
             cls: 'text-foreground bg-card',
           },
           {
             key: 'overdueTests',
-            label: t('myTasks.overdueTests'),
+            label: t('todo.overdueTests'),
             value: testsLoading ? '…' : overdue.length,
             icon: <AlertTriangle className="w-4 h-4" />,
             cls: overdue.length > 0 ? 'text-red-700 bg-red-50' : 'text-foreground bg-card',
           },
           {
             key: 'dueSoon',
-            label: t('myTasks.dueSoon'),
+            label: t('todo.dueSoon'),
             value: testsLoading ? '…' : dueSoon.length,
             icon: <Clock className="w-4 h-4" />,
             cls: 'text-amber-700 bg-amber-50',
           },
           {
             key: 'onboardingTasks',
-            label: t('myTasks.onboardingTasks'),
+            label: t('todo.onboardingTasks'),
             value: onboardingLoading
               ? '…'
               : onboardingTotalCount === 0
-                ? t('myTasks.notApplicable', { defaultValue: 'N/A' })
+                ? t('todo.notApplicable', { defaultValue: 'N/A' })
                 : `${onboardingDoneCount}/${onboardingTotalCount}`,
             icon: <ShieldCheck className="w-4 h-4" />,
             cls: onboardingTotalCount === 0
@@ -218,7 +218,7 @@ export function MyWorkPage() {
             <Card className="overflow-hidden">
               <div className="px-4 py-3 bg-red-50 border-b border-red-100 flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4 text-red-500" />
-                <h2 className="text-sm font-semibold text-red-700">{t('myTasks.overdueTests')}</h2>
+                <h2 className="text-sm font-semibold text-red-700">{t('todo.overdueTests')}</h2>
                 {!testsLoading && <span className="ml-auto text-xs text-red-500">{overdue.length}</span>}
               </div>
               {testsLoading ? (
@@ -239,8 +239,8 @@ export function MyWorkPage() {
           <Card className="overflow-hidden">
             <div className="px-4 py-3 bg-muted border-b border-border flex items-center gap-2">
               <ClipboardList className="w-4 h-4 text-muted-foreground" />
-              <h2 className="text-sm font-semibold text-foreground">{t('myTasks.assignedTests')}</h2>
-              {!testsLoading && <span className="ml-auto text-xs text-muted-foreground/70">{pendingTests.length} {t('myTasks.pending')}</span>}
+              <h2 className="text-sm font-semibold text-foreground">{t('todo.assignedTests')}</h2>
+              {!testsLoading && <span className="ml-auto text-xs text-muted-foreground/70">{pendingTests.length} {t('todo.pending')}</span>}
             </div>
             {testsLoading ? (
               <div className="p-4 space-y-2">
@@ -249,7 +249,7 @@ export function MyWorkPage() {
             ) : pendingTests.length === 0 ? (
               <div className="p-8 text-center text-sm text-muted-foreground/70">
                 <CheckCircle className="w-8 h-8 text-green-400 mx-auto mb-2" />
-                {t('myTasks.noPendingTests')}
+                {t('todo.noPendingTests')}
               </div>
             ) : (
               <div className="divide-y divide-border">
@@ -268,12 +268,12 @@ export function MyWorkPage() {
             <Card className="overflow-hidden">
               <div className="px-4 py-3 bg-muted border-b border-border flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-muted-foreground" />
-                <h2 className="text-sm font-semibold text-foreground">{t('myTasks.securityOnboarding')}</h2>
+                <h2 className="text-sm font-semibold text-foreground">{t('todo.securityOnboarding')}</h2>
                 {onboarding && onboardingTotalCount > 0 && (
                   <span className={`ml-auto text-xs font-medium ${onboarding.allComplete ? 'text-green-600' : 'text-amber-600'}`}>
                     {onboarding.allComplete
-                      ? t('myTasks.complete')
-                      : t('myTasks.nDone', { count: onboardingDoneCount })}
+                      ? t('todo.complete')
+                      : t('todo.nDone', { count: onboardingDoneCount })}
                   </span>
                 )}
               </div>
@@ -304,12 +304,12 @@ export function MyWorkPage() {
                       done={task.done}
                       doneAt={task.doneAt}
                       description={task.description}
-                      linkTo="/my-security-tasks"
+                      linkTo="/onboarding-tasks"
                     />
                   ))}
                 </div>
               ) : (
-                <p className="p-4 text-sm text-muted-foreground/70">{t('myTasks.couldNotLoadOnboarding')}</p>
+                <p className="p-4 text-sm text-muted-foreground/70">{t('todo.couldNotLoadOnboarding')}</p>
               )}
             </Card>
           </div>

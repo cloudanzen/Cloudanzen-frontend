@@ -29,7 +29,7 @@
     "noTemplates": "No templates found",
     "libraryDescription": "Pre-built test definitions cloned into organizations on framework activation.",
     "stats": {
-      "totalTests": "Total Tests",
+      "totalTests": "Total Validations",
       "categories": "Categories",
       "automated": "Automated",
       "document": "Document"

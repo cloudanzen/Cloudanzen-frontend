@@ -1,5 +1,5 @@
 // F2: Recharts is imported lazily so the vendor-charts chunk is only fetched
-// when the ReportViewerPage is actually visited. Since this page is already
+// when the ProgressViewerPage is actually visited. Since this page is already
 // a lazy-loaded route, the Recharts chunk is deferred until first navigation.
 import React, { useState, useMemo } from 'react';
 
@@ -375,7 +375,7 @@ function TestCompletionView({
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <KpiCard label="Total Tests" value={data.summary.total} />
+        <KpiCard label="Total Validations" value={data.summary.total} />
         <KpiCard
           label="Completed"
           value={data.summary.completed}
@@ -923,7 +923,7 @@ const VIEWER_META: Record<
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 
-export function ReportViewerPage() {
+export function ProgressViewerPage() {
   const { reportId } = useParams<{ reportId: string }>();
   const navigate = useNavigate();
 
@@ -978,12 +978,12 @@ export function ReportViewerPage() {
     return (
       <div className="p-6">
         <button
-          onClick={() => navigate('/reports')}
+          onClick={() => navigate('/progress')}
           className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 mb-4"
         >
-          <ArrowLeft className="w-4 h-4" /> Back to Reports
+          <ArrowLeft className="w-4 h-4" /> Back to Progress
         </button>
-        <p className="text-gray-500">Unknown report type.</p>
+        <p className="text-gray-500">Unknown progress report type.</p>
       </div>
     );
   }
@@ -993,7 +993,7 @@ export function ReportViewerPage() {
       {/* Header */}
       <div className="flex items-center gap-3">
         <button
-          onClick={() => navigate('/reports')}
+          onClick={() => navigate('/progress')}
           className="p-1.5 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />

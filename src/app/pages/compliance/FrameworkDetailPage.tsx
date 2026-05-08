@@ -494,7 +494,7 @@ function RequirementRow({
                   <div
                     key={test.testId}
                     className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-gray-50/70 hover:bg-gray-100 cursor-pointer text-sm"
-                    onClick={() => navigate(`/tests/${test.testId}`)}
+                    onClick={() => navigate(`/validations/${test.testId}`)}
                   >
                     <span className="text-gray-700 flex-1 truncate text-xs">
                       {test.testName}
@@ -688,7 +688,7 @@ function ExportButton({
         'Owner',
         'Due Date',
         'Controls',
-        'Tests',
+        'Validations',
         'Policies',
         'Risks',
       ],

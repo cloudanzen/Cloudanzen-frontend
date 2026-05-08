@@ -1,9 +1,9 @@
 {
   "nav": {
     "home": "Home",
-    "myTasks": "My Tasks",
-    "tests": "Tests",
-    "reports": "Reports",
+    "todo": "ToDo",
+    "validations": "Validations",
+    "progress": "Progress",
     "myAudit": "My Audit",
     "compliance": "Compliance",
     "frameworks": "Frameworks",
@@ -19,7 +19,7 @@
     "overview": "Overview",
     "risks": "Risks",
     "riskLibrary": "Risk Library",
-    "actionTracker": "Action Tracker",
+    "remediations": "Remediations",
     "snapshot": "Snapshot",
     "riskEngine": "Risk Engine",
     "vendors": "Vendors",
@@ -42,7 +42,7 @@
     "integrations": "Integrations",
     "connectedApps": "Connected Apps",
     "partnerApi": "Partner API",
-    "mySecurityTasks": "My Security Tasks",
+    "onboardingTasks": "Onboarding Tasks",
     "aiAssistant": "AI Assistant",
     "aiChat": "AI Chat",
     "questionnaireAi": "Questionnaire AI",
@@ -136,9 +136,9 @@
     "complete": "Complete",
     "failed": "Failed"
   },
-  "testsPage": {
-    "title": "Tests",
-    "description": "Compliance and security test management",
+  "validationsPage": {
+    "title": "Validations",
+    "description": "Compliance and security validation management",
     "passRate": "Pass Rate",
     "needsAttention": "Needs Attention",
     "overdue": "Overdue",
@@ -146,8 +146,8 @@
     "onTrack": "On Track",
     "filtersActive": "Filters active",
     "clearStatusFilter": "Clear status filter",
-    "testsSelected_one": "{{count}} test selected",
-    "testsSelected_other": "{{count}} tests selected",
+    "testsSelected_one": "{{count}} validation selected",
+    "testsSelected_other": "{{count}} validations selected",
     "clear": "Clear",
     "batchComplete": "Batch complete",
     "completing": "Completing...",
@@ -226,8 +226,8 @@
     "owner": "Owner",
     "organization": "Organization"
   },
-  "securityTasks": {
-    "title": "My Security Tasks",
+  "onboardingTasks": {
+    "title": "Onboarding Tasks",
     "description": "Complete your mandatory security onboarding",
     "loading": "Loading tasks...",
     "loadFailed": "Failed to load tasks",
@@ -313,12 +313,12 @@
       }
     }
   },
-  "reports": {
-    "title": "Reports",
-    "description": "Generate and view compliance, risk, and security posture reports.",
-    "viewReport": "View Report",
+  "progress": {
+    "title": "Progress",
+    "description": "Generate and view compliance, risk, and security posture progress reports.",
+    "viewReport": "View report",
     "stats": {
-      "availableReports": "Available Reports",
+      "availableReports": "Available reports",
       "riskAndAudit": "Risk & Audit"
     },
     "categories": {
@@ -326,7 +326,7 @@
       "overview": "Overview",
       "compliance": "Compliance",
       "risk": "Risk",
-      "tests": "Tests",
+      "tests": "Validations",
       "audit": "Audit",
       "personnel": "Personnel"
     },
@@ -351,8 +351,8 @@
         "period": "Last 90 days"
       },
       "testEffectiveness": {
-        "name": "Test Effectiveness Report",
-        "description": "Test performance and remediation efficiency with on-time versus late completions, pass rate, and overdue breakdown."
+        "name": "Validation Effectiveness Report",
+        "description": "Validation performance and remediation efficiency with on-time versus late completions, pass rate, and overdue breakdown."
       },
       "auditStatus": {
         "name": "Audit Status Report",
@@ -473,8 +473,8 @@
       "setupCompleted": "System setup completed successfully!",
       "frameworksActivated_one": "Activated {{count}} framework during setup.",
       "frameworksActivated_other": "Activated {{count}} frameworks during setup.",
-      "starterTestsCreated_one": "Created {{count}} starter test during setup.",
-      "starterTestsCreated_other": "Created {{count}} starter tests during setup.",
+      "starterTestsCreated_one": "Created {{count}} starter validation during setup.",
+      "starterTestsCreated_other": "Created {{count}} starter validations during setup.",
       "setupFailed": "Setup failed",
       "setupError": "An error occurred during setup"
     }

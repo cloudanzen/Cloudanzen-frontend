@@ -83,7 +83,7 @@ test.describe('Invalid login', () => {
 // ── Protected route redirect ───────────────────────────────────────────────────
 
 test.describe('Protected routes', () => {
-  test('visiting /tests redirects unauthenticated user to login', async ({ page }) => {
+  test('visiting /validations redirects unauthenticated user to login', async ({ page }) => {
     // Clear any stored auth
     await page.goto('/');
     await page.evaluate(() => {
@@ -92,7 +92,7 @@ test.describe('Protected routes', () => {
       localStorage.removeItem('isms_token');
       localStorage.removeItem('isms_user');
     });
-    await page.goto('/tests');
+    await page.goto('/validations');
     await page.waitForURL(/\/login/, { timeout: 5000 });
     await expect(page).toHaveURL(/\/login/);
   });

@@ -17,9 +17,9 @@ interface SearchResult {
 const searchablePages: SearchResult[] = [
   // Main pages
   { title: "Dashboard", path: "/", category: "Main" },
-  { title: "My Tasks", path: "/my-tasks", category: "Main" },
-  { title: "Tests", path: "/tests", category: "Main" },
-  { title: "Reports", path: "/reports", category: "Main" },
+  { title: "ToDo", path: "/todo", category: "Main" },
+  { title: "Validations", path: "/validations", category: "Main" },
+  { title: "Progress", path: "/progress", category: "Main" },
   
   // Compliance
   { title: "Frameworks", path: "/compliance/frameworks", category: "Compliance" },
@@ -33,7 +33,8 @@ const searchablePages: SearchResult[] = [
   { title: "Risk Overview", path: "/risk/overview", category: "Risk" },
   { title: "Risks", path: "/risk/risks", category: "Risk" },
   { title: "Risk Library", path: "/risk/library", category: "Risk" },
-  { title: "Action Tracker", path: "/risk/action-tracker", category: "Risk" },
+  { title: "Remediations", path: "/risk/remediations", category: "Risk" },
+  { title: "Findings", path: "/assets/findings", category: "Risk" },
   { title: "Risk Snapshot", path: "/risk/snapshot", category: "Risk" },
   { title: "Risk Engine", path: "/risk/engine", category: "Risk" },
   

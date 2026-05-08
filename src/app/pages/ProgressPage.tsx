@@ -37,7 +37,7 @@ const REPORTS: ReportDef[] = [
     icon: <Calendar className="w-5 h-5" />,
     iconBg: 'bg-blue-100 text-blue-600',
     categoryKey: 'overview',
-    viewPath: '/reports/viewer/monthly-overview',
+    viewPath: '/progress/viewer/monthly-overview',
   },
   {
     id: 'quarterly-overview',
@@ -47,7 +47,7 @@ const REPORTS: ReportDef[] = [
     icon: <TrendingUp className="w-5 h-5" />,
     iconBg: 'bg-indigo-100 text-indigo-600',
     categoryKey: 'overview',
-    viewPath: '/reports/viewer/quarterly-overview',
+    viewPath: '/progress/viewer/quarterly-overview',
   },
   {
     id: 'framework-progress',
@@ -56,7 +56,7 @@ const REPORTS: ReportDef[] = [
     icon: <BarChart2 className="w-5 h-5" />,
     iconBg: 'bg-violet-100 text-violet-600',
     categoryKey: 'compliance',
-    viewPath: '/reports/viewer/framework-progress',
+    viewPath: '/progress/viewer/framework-progress',
   },
   {
     id: 'risk-register',
@@ -66,7 +66,7 @@ const REPORTS: ReportDef[] = [
     icon: <Shield className="w-5 h-5" />,
     iconBg: 'bg-red-100 text-red-600',
     categoryKey: 'risk',
-    viewPath: '/reports/viewer/risk-register',
+    viewPath: '/progress/viewer/risk-register',
   },
   {
     id: 'test-effectiveness',
@@ -75,7 +75,7 @@ const REPORTS: ReportDef[] = [
     icon: <ClipboardList className="w-5 h-5" />,
     iconBg: 'bg-amber-100 text-amber-600',
     categoryKey: 'tests',
-    viewPath: '/reports/viewer/test-effectiveness',
+    viewPath: '/progress/viewer/test-effectiveness',
   },
   {
     id: 'audit-status',
@@ -84,7 +84,7 @@ const REPORTS: ReportDef[] = [
     icon: <BookOpen className="w-5 h-5" />,
     iconBg: 'bg-cyan-100 text-cyan-600',
     categoryKey: 'audit',
-    viewPath: '/reports/viewer/audit-status',
+    viewPath: '/progress/viewer/audit-status',
   },
   {
     id: 'evidence-coverage',
@@ -93,7 +93,7 @@ const REPORTS: ReportDef[] = [
     icon: <FileCheck className="w-5 h-5" />,
     iconBg: 'bg-green-100 text-green-600',
     categoryKey: 'compliance',
-    viewPath: '/reports/viewer/evidence-coverage',
+    viewPath: '/progress/viewer/evidence-coverage',
   },
   {
     id: 'personnel-compliance',
@@ -102,7 +102,7 @@ const REPORTS: ReportDef[] = [
     icon: <Users className="w-5 h-5" />,
     iconBg: 'bg-pink-100 text-pink-600',
     categoryKey: 'personnel',
-    viewPath: '/reports/viewer/personnel-compliance',
+    viewPath: '/progress/viewer/personnel-compliance',
   },
 ];
 
@@ -137,19 +137,19 @@ function ReportCard({ report }: { report: ReportDef }) {
         <span
           className={`text-xs font-medium px-2 py-0.5 rounded-full ${CATEGORY_BADGE[report.categoryKey] ?? 'bg-gray-50 text-gray-600'}`}
         >
-          {t(`reports.categories.${report.categoryKey}`)}
+          {t(`progress.categories.${report.categoryKey}`)}
         </span>
       </div>
       <h3 className="text-sm font-semibold text-gray-900 mb-1 leading-snug">
-        {t(`reports.${report.nameKey}`)}
+        {t(`progress.${report.nameKey}`)}
       </h3>
       <p className="text-xs text-gray-500 leading-relaxed flex-1">
-        {t(`reports.${report.descriptionKey}`)}
+        {t(`progress.${report.descriptionKey}`)}
       </p>
       {report.periodKey && (
         <div className="mt-3 flex items-center gap-1.5 text-xs text-gray-400">
           <Calendar className="w-3.5 h-3.5" />
-          {t(`reports.${report.periodKey}`)}
+          {t(`progress.${report.periodKey}`)}
         </div>
       )}
       <div className="mt-4">
@@ -157,7 +157,7 @@ function ReportCard({ report }: { report: ReportDef }) {
           onClick={() => navigate(report.viewPath)}
           className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-gray-900 hover:bg-gray-700 text-white text-xs font-medium transition-colors"
         >
-          {t('reports.viewReport')} <ChevronRight className="w-3.5 h-3.5" />
+          {t('progress.viewReport')} <ChevronRight className="w-3.5 h-3.5" />
         </button>
       </div>
     </Card>
@@ -166,7 +166,7 @@ function ReportCard({ report }: { report: ReportDef }) {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export function ReportsPage() {
+export function ProgressPage() {
   const { t } = useTranslation('common');
   const [activeCategory, setActiveCategory] = useState('all');
 
@@ -177,8 +177,8 @@ export function ReportsPage() {
 
   return (
     <PageTemplate
-      title={t('reports.title')}
-      description={t('reports.description')}
+      title={t('progress.title')}
+      description={t('progress.description')}
     >
       {/* Stat strip */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
@@ -214,7 +214,7 @@ export function ReportsPage() {
               {stat.value}
             </div>
             <div className="text-xs text-gray-500 mt-0.5">
-              {t(`reports.${stat.labelKey}`)}
+              {t(`progress.${stat.labelKey}`)}
             </div>
           </Card>
         ))}
@@ -232,7 +232,7 @@ export function ReportsPage() {
                 : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
             }`}
           >
-            {t(`reports.categories.${categoryKey}`)}
+            {t(`progress.categories.${categoryKey}`)}
           </button>
         ))}
       </div>

@@ -366,7 +366,7 @@ export function DocumentDetailPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => navigate(`/tests/${doc.testId}`)}
+                onClick={() => navigate(`/validations/${doc.testId}`)}
               >
                 <ExternalLink className="w-3.5 h-3.5 mr-1" />
                 {t('documentDetail.goToTest')}

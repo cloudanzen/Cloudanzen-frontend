@@ -376,7 +376,7 @@ test.describe('In-app notification workflows', () => {
     await page.goto('/settings/notifications');
     await page.waitForLoadState('networkidle');
 
-    await expect(page.getByRole('heading', { name: 'Tests' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Validations' })).toBeVisible();
     await expect(page.getByText('Test failed')).toBeVisible();
 
     await page.getByRole('switch', { name: 'In-app' }).first().click();

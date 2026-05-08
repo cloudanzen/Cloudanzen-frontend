@@ -1,8 +1,8 @@
 import { useParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { TestDetailPanel } from './TestDetailPanel';
+import { TestDetailPanel } from '@/app/pages/tests/TestDetailPanel';
 
-export function TestDetailPage() {
+export function ValidationDetailPage() {
   const { testId } = useParams<{ testId: string }>();
   const { t } = useTranslation('tests');
 

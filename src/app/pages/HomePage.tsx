@@ -208,7 +208,7 @@ export function HomePage() {
       icon: Clock,
       color: 'text-orange-600',
       bg: 'bg-orange-50 dark:bg-orange-950/40',
-      path: '/my-security-tasks',
+      path: '/onboarding-tasks',
     },
   ];
 
@@ -231,7 +231,7 @@ export function HomePage() {
                 <FileText className="w-4 h-4 mr-2" />
                 {t('newPolicy')}
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => navigate('/tests')}>
+              <DropdownMenuItem onSelect={() => navigate('/validations')}>
                 <Shield className="w-4 h-4 mr-2" />
                 {t('runTest')}
               </DropdownMenuItem>
@@ -312,7 +312,7 @@ export function HomePage() {
                 {/* Tests */}
                 <Card
                   className="cursor-pointer p-5 transition-shadow duration-200 hover:shadow-md"
-                  onClick={() => navigate('/tests')}
+                  onClick={() => navigate('/validations')}
                 >
                   <div className="mb-3 flex items-center justify-between">
                     <div className="flex items-center gap-2.5">

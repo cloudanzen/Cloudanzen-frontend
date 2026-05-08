@@ -332,7 +332,7 @@ function RequiredDocumentsTab() {
                     doc={doc}
                     onClick={() => {
                       if (doc.testId) {
-                        navigate(`/tests/${doc.testId}`);
+                        navigate(`/validations/${doc.testId}`);
                       } else {
                         navigate(`/compliance/documents/${doc.id}`);
                       }
