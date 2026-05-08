@@ -57,6 +57,23 @@ export interface TestEvidenceLink {
   };
 }
 
+export interface PolicyLinkedTestPolicySummary {
+  id: string;
+  name: string;
+  status: string;
+  version: string;
+  versionNumber?: number | null;
+  documentUrl?: string | null;
+  pdfUrl?: string | null;
+  approvedBy?: string | null;
+  approvedAt?: string | null;
+  renewalDate?: string | null;
+  lastRenewedAt?: string | null;
+  recurrenceMonths?: number | null;
+  ownerId?: string | null;
+  owner?: { id: string; name: string | null; email: string } | null;
+}
+
 // ─── Integration test run record ─────────────────────────────────────────────
 export interface TestRunRecord {
   id: string;
@@ -92,6 +109,9 @@ export interface TestRecord {
   createdAt: string;
   updatedAt: string;
   riskEngineTestId: string | null;
+  policyId?: string | null;
+  testKey?: string | null;
+  policy?: PolicyLinkedTestPolicySummary | null;
   templateId?: string | null;
   attestationStatus?: TestAttestationStatus;
   reviewerId?: string | null;
@@ -327,7 +347,9 @@ export interface WorkflowIntegrationConfigStatus {
 
 // ─── Service ─────────────────────────────────────────────────────────────────
 export class TestsService {
-  async listTests(params?: ListTestsParams): Promise<TestListResponse<TestRecord[]>>;
+  async listTests(
+    params?: ListTestsParams,
+  ): Promise<TestListResponse<TestRecord[]>>;
   async listTests(
     params: ListTestsParams & { view: 'card' },
   ): Promise<TestListResponse<TestCardRecord[]> & { view: 'card' }>;
