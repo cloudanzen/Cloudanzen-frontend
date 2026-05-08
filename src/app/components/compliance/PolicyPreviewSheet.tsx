@@ -22,8 +22,11 @@ interface Props {
   onRetryWithEnglishFallback?: () => void;
 }
 
-function isPdf(contentType: string) {
-  return contentType.includes('application/pdf');
+function isEmbeddable(contentType: string) {
+  return (
+    contentType.includes('application/pdf') ||
+    contentType.includes('text/html')
+  );
 }
 
 export function PolicyPreviewSheet({
@@ -178,14 +181,15 @@ export function PolicyPreviewSheet({
               className="h-full w-full border-0"
               allow="autoplay"
             />
-          ) : isPdf(preview.contentType) ? (
+          ) : isEmbeddable(preview.contentType) ? (
             <iframe
               src={preview.blobUrl}
               title={`Preview: ${policyName}`}
               className="h-full w-full border-0"
+              sandbox="allow-same-origin"
             />
           ) : (
-            /* Non-PDF blob (Word, Excel, etc.) — can't embed, offer download */
+            /* Non-embeddable blob (Word, Excel, etc.) — can't embed, offer download */
             <div className="flex h-full items-center justify-center">
               <div className="flex flex-col items-center gap-4 text-center px-8">
                 <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-50 border border-gray-200">
