@@ -19,6 +19,7 @@ interface Props {
   onClose: () => void;
   /** Called when the user clicks the Download fallback */
   onDownload: () => void;
+  onRetryWithEnglishFallback?: () => void;
 }
 
 function isPdf(contentType: string) {
@@ -33,6 +34,7 @@ export function PolicyPreviewSheet({
   locale = 'en',
   onClose,
   onDownload,
+  onRetryWithEnglishFallback,
 }: Props) {
   const [preview, setPreview] = useState<PreviewState>({ status: 'idle' });
 
@@ -52,12 +54,22 @@ export function PolicyPreviewSheet({
         });
       }
     } catch (error) {
+      if (
+        locale !== 'en' &&
+        error instanceof Error &&
+        /^No\s+[A-Z]{2}\s+version exists for this policy version$/i.test(error.message.trim()) &&
+        onRetryWithEnglishFallback
+      ) {
+        onRetryWithEnglishFallback();
+        return;
+      }
+
       setPreview({
         status: 'error',
         message: error instanceof Error && error.message ? error.message : 'Failed to load preview.',
       });
     }
-  }, [policyId, versionId, locale]);
+  }, [policyId, versionId, locale, onRetryWithEnglishFallback]);
 
   useEffect(() => {
     load();

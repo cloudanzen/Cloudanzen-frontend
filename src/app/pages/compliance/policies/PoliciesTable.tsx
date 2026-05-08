@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { policiesService } from '@/services/api/policies';
 import { Policy } from '@/services/api/types';
 import { SortKey, getStatusCfg } from './types';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import {
   FileText, CheckCircle2, ChevronUp, ChevronDown, ChevronsUpDown,
   Upload, Download, Eye, Loader2, User,
@@ -30,6 +32,8 @@ export function PoliciesTable({
   onSelect?: (p: Policy) => void;
 }) {
   const { t } = useTranslation('compliance');
+  const me = useCurrentUser();
+  const preferredLocale = me?.preferredLocale === 'ja' ? 'ja' : 'en';
   const [downloading, setDownloading] = useState<string | null>(null);
 
   const handleDownload = async (policy: Policy) => {
@@ -38,9 +42,12 @@ export function PoliciesTable({
       const name = policy.documentUrl
         ? policy.documentUrl.split('/').pop() ?? `${policy.name}.pdf`
         : `${policy.name}.pdf`;
-      await policiesService.downloadPolicyDocument(policy.id, name);
-    } catch {
-      // silently fail — file may not exist yet
+      await policiesService.downloadPolicyDocument(policy.id, name, {
+        locale: preferredLocale,
+        onLocaleFallback: () => toast.info('Japanese version not available - showing English'),
+      });
+    } catch (error) {
+      toast.error(error instanceof Error && error.message ? error.message : 'Failed to download policy');
     } finally {
       setDownloading(null);
     }

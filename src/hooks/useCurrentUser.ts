@@ -20,6 +20,7 @@ export interface CurrentUser {
   name: string | null;
   role: AppRole;
   organizationId: string;
+  preferredLocale: 'en' | 'ja';
 }
 
 export function useCurrentUser(): CurrentUser | null {
@@ -31,6 +32,7 @@ export function useCurrentUser(): CurrentUser | null {
     name: raw.name ?? null,
     role: raw.role as AppRole,
     organizationId: raw.organizationId,
+    preferredLocale: raw.preferredLocale === 'ja' ? 'ja' : 'en',
   };
 }
 
