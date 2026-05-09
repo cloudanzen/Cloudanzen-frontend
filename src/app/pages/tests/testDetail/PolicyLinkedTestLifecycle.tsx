@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import {
   AlertTriangle,
+  CalendarDays,
   CheckCircle2,
   Clock,
   ExternalLink,
@@ -30,8 +31,8 @@ interface Props {
   onOpenPolicy?: () => void;
   /** Re-run callback for cloudanzen-internal automated tests (e.g. the
    *  policy-acceptance-complete check). When provided, the lifecycle view
-   *  shows a "Re-run check" button at the top so users do not have to wait
-   *  for the daily 08:00 UTC sweep after accepting a policy. */
+   *  shows a compact "Re-run check" action so users do not have to wait for
+   *  the daily 08:00 UTC sweep after accepting a policy. */
   onRunCheck?: () => void;
   isRunning?: boolean;
 }
@@ -211,20 +212,6 @@ export function PolicyLinkedTestLifecycle({
         <SectionError message={t('testDetail.policyLifecycle.refreshFailed')} />
       ) : null}
 
-      {onRunCheck ? (
-        <div className="flex items-center justify-end">
-          <button
-            type="button"
-            onClick={onRunCheck}
-            disabled={isRunning}
-            className="inline-flex items-center gap-2 rounded-lg border border-violet-300 bg-violet-50 px-3 py-2 text-sm font-medium text-violet-700 hover:bg-violet-100 disabled:opacity-50"
-          >
-            <RefreshCw className={`h-4 w-4 ${isRunning ? 'animate-spin' : ''}`} />
-            {isRunning ? t('testDetail.overview.running') : t('testDetail.policyLifecycle.rerunCheck', { defaultValue: 'Re-run check' })}
-          </button>
-        </div>
-      ) : null}
-
       <div className="flex flex-wrap items-center gap-2">
         {policy ? (
           <span
@@ -247,7 +234,7 @@ export function PolicyLinkedTestLifecycle({
           {t(`testDetail.policyLifecycle.approvalStates.${approval.key}`)}
         </span>
         <span className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-700">
-          <RefreshCw className="h-3.5 w-3.5" />
+          <CalendarDays className="h-3.5 w-3.5" />
           {policy?.recurrenceMonths
             ? t('testDetail.policyLifecycle.cadenceMonths', {
                 count: policy.recurrenceMonths,
@@ -262,6 +249,17 @@ export function PolicyLinkedTestLifecycle({
           })}
         </span>
         <StatusBadge status={test.status} />
+        {onRunCheck ? (
+          <button
+            type="button"
+            onClick={onRunCheck}
+            disabled={isRunning}
+            className="inline-flex items-center gap-1.5 rounded-full border border-violet-300 bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700 hover:bg-violet-100 disabled:opacity-50"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${isRunning ? 'animate-spin' : ''}`} />
+            {isRunning ? t('testDetail.overview.running') : t('testDetail.policyLifecycle.rerunCheck', { defaultValue: 'Re-run check' })}
+          </button>
+        ) : null}
       </div>
 
       <div className="grid gap-3 md:grid-cols-2">
