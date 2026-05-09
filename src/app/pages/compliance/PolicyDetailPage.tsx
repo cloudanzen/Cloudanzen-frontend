@@ -541,13 +541,13 @@ export function PolicyDetailPage() {
                   </div>
                   <ChevronDown className="h-4 w-4 text-muted-foreground" />
                 </CollapsibleTrigger>
-                <CollapsibleContent className="rounded-b-2xl border border-t-0 border-border bg-card px-4 pb-4 pt-0">
+                <CollapsibleContent className="rounded-b-2xl border border-t-0 border-border bg-card px-4 pb-4 pt-3">
                   {/* Single locale row chosen from the user's preferredLocale
                       setting (Settings → Profile → Language). The row title
                       uses the policy file name; the per-locale qualifiers
                       "English (default)" / "Japanese" are dropped. */}
                   {preferredLocale === 'ja' ? (
-                    <div className="mt-4 flex items-center justify-between rounded-xl border border-border bg-muted/20 p-3">
+                    <div className="mt-6 flex items-center justify-between rounded-xl border border-border bg-muted/20 p-3">
                       <div className="flex items-center gap-3">
                         <FileText className="h-4 w-4 text-muted-foreground" />
                         <div>
@@ -604,7 +604,7 @@ export function PolicyDetailPage() {
                       </div>
                     </div>
                   ) : (
-                    <div className="mt-4 flex items-center justify-between rounded-xl border border-border bg-muted/20 p-3">
+                    <div className="mt-6 flex items-center justify-between rounded-xl border border-border bg-muted/20 p-3">
                       <div className="flex items-center gap-3">
                         <FileText className="h-4 w-4 text-muted-foreground" />
                         <div>

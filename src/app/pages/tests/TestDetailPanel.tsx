@@ -648,6 +648,12 @@ export function TestDetailPanel({
                   policyId={test.policyId}
                   initialPolicy={test.policy}
                   onOpenPolicy={handleOpenPolicy}
+                  onRunCheck={
+                    isInternalAutomatedTest
+                      ? () => runMutation.mutate()
+                      : undefined
+                  }
+                  isRunning={runMutation.isPending}
                 />
               ) : (
                 <>
