@@ -1,9 +1,12 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { ClipboardList, ShieldCheck, AlertTriangle, CheckCircle, Clock, ChevronRight } from 'lucide-react';
+import { ClipboardList, ShieldCheck, AlertTriangle, CheckCircle, Clock, ChevronRight, Search, X } from 'lucide-react';
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { Card } from '@/app/components/ui/card';
+import { Button } from '@/app/components/ui/button';
+import { Input } from '@/app/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/components/ui/select';
 import { testsService } from '@/services/api/tests';
 import { onboardingService } from '@/services/api/onboarding';
 import { authService } from '@/services/api/auth';
@@ -14,6 +17,8 @@ import { TestDetailPanel } from '@/app/pages/tests/TestDetailPanel';
 import { fmtDate } from '@/lib/format-date';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
+
+const ALL_FILTER_VALUE = 'all';
 
 function isOverdue(dueDate: string): boolean {
   return new Date(dueDate) < new Date();
@@ -84,6 +89,10 @@ export function TodoPage() {
   const { t } = useTranslation('dashboard');
   const me = authService.getCachedUser();
   const [selectedTestId, setSelectedTestId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState(ALL_FILTER_VALUE);
+  const [statusFilter, setStatusFilter] = useState(ALL_FILTER_VALUE);
+  const [typeFilter, setTypeFilter] = useState(ALL_FILTER_VALUE);
 
   // Fetch tests assigned to me that are not complete
   const { data: testsData, isLoading: testsLoading, refetch: refetchTests } = useQuery({
@@ -111,9 +120,47 @@ export function TodoPage() {
     staleTime: STALE.USERS,
   });
 
-  const pendingTests = testsData ?? [];
+  const pendingTests = useMemo(() => testsData ?? [], [testsData]);
+  const assignedFilterOptions = useMemo(() => ({
+    categories: Array.from(new Set(pendingTests.map((test) => test.category))).sort((a, b) => a.localeCompare(b)),
+    statuses: Array.from(new Set(pendingTests.map((test) => test.status))).sort((a, b) => a.localeCompare(b)),
+    types: Array.from(new Set(pendingTests.map((test) => test.type))).sort((a, b) => a.localeCompare(b)),
+  }), [pendingTests]);
+  const normalizedSearchQuery = searchQuery.trim().toLowerCase();
+  const filteredPendingTests = useMemo(() => pendingTests.filter((test) => {
+    if (categoryFilter !== ALL_FILTER_VALUE && test.category !== categoryFilter) return false;
+    if (statusFilter !== ALL_FILTER_VALUE && test.status !== statusFilter) return false;
+    if (typeFilter !== ALL_FILTER_VALUE && test.type !== typeFilter) return false;
+    if (!normalizedSearchQuery) return true;
+
+    return [
+      test.name,
+      test.description,
+      test.category,
+      test.status,
+      test.type,
+      test.owner?.name,
+      test.owner?.email,
+    ].some((value) => value?.toLowerCase().includes(normalizedSearchQuery));
+  }), [categoryFilter, normalizedSearchQuery, pendingTests, statusFilter, typeFilter]);
+  const hasAssignedFilters = normalizedSearchQuery !== ''
+    || categoryFilter !== ALL_FILTER_VALUE
+    || statusFilter !== ALL_FILTER_VALUE
+    || typeFilter !== ALL_FILTER_VALUE;
   const overdue = pendingTests.filter(t => isOverdue(t.dueDate) && t.status !== 'OK');
   const dueSoon = pendingTests.filter(t => !isOverdue(t.dueDate));
+
+  const clearAssignedFilters = () => {
+    setSearchQuery('');
+    setCategoryFilter(ALL_FILTER_VALUE);
+    setStatusFilter(ALL_FILTER_VALUE);
+    setTypeFilter(ALL_FILTER_VALUE);
+  };
+
+  const getStatusLabel = (status: TestStatus) => {
+    const cfg = STATUS_CFG[status] ?? { key: status, label: status };
+    return t(`todo.statusLabels.${cfg.key}`, cfg.label);
+  };
 
   const onboarding = onboardingData;
   // [T-91] Build the active task list from the server's `required` block so we only count tasks
@@ -237,10 +284,81 @@ export function TodoPage() {
 
           {/* Due Soon / In Progress */}
           <Card className="overflow-hidden">
-            <div className="px-4 py-3 bg-muted border-b border-border flex items-center gap-2">
-              <ClipboardList className="w-4 h-4 text-muted-foreground" />
-              <h2 className="text-sm font-semibold text-foreground">{t('todo.assignedTests')}</h2>
-              {!testsLoading && <span className="ml-auto text-xs text-muted-foreground/70">{pendingTests.length} {t('todo.pending')}</span>}
+            <div className="px-4 py-3 bg-muted border-b border-border space-y-3">
+              <div className="flex items-center gap-2">
+                <ClipboardList className="w-4 h-4 text-muted-foreground" />
+                <h2 className="text-sm font-semibold text-foreground">{t('todo.assignedTests')}</h2>
+                {!testsLoading && (
+                  <span className="ml-auto text-xs text-muted-foreground/70">
+                    {hasAssignedFilters
+                      ? t('todo.filteredPending', { count: filteredPendingTests.length, total: pendingTests.length })
+                      : `${pendingTests.length} ${t('todo.pending')}`}
+                  </span>
+                )}
+              </div>
+
+              {!testsLoading && pendingTests.length > 0 && (
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-[minmax(0,1.6fr)_minmax(8rem,1fr)_minmax(8rem,1fr)_minmax(8rem,1fr)_auto]">
+                  <div className="relative min-w-0 sm:col-span-2 xl:col-span-1">
+                    <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/70" />
+                    <Input
+                      value={searchQuery}
+                      onChange={(event) => setSearchQuery(event.target.value)}
+                      placeholder={t('todo.searchAssignedTests')}
+                      className="h-9 bg-background pl-9"
+                    />
+                  </div>
+
+                  <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                    <SelectTrigger className="h-9 bg-background">
+                      <SelectValue placeholder={t('todo.categoryFilter')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={ALL_FILTER_VALUE}>{t('todo.allCategories')}</SelectItem>
+                      {assignedFilterOptions.categories.map((category) => (
+                        <SelectItem key={category} value={category}>{category}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="h-9 bg-background">
+                      <SelectValue placeholder={t('todo.statusFilter')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={ALL_FILTER_VALUE}>{t('todo.allStatuses')}</SelectItem>
+                      {assignedFilterOptions.statuses.map((status) => (
+                        <SelectItem key={status} value={status}>{getStatusLabel(status)}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <Select value={typeFilter} onValueChange={setTypeFilter}>
+                    <SelectTrigger className="h-9 bg-background">
+                      <SelectValue placeholder={t('todo.typeFilter')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={ALL_FILTER_VALUE}>{t('todo.allTypes')}</SelectItem>
+                      {assignedFilterOptions.types.map((type) => (
+                        <SelectItem key={type} value={type}>{type}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {hasAssignedFilters && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={clearAssignedFilters}
+                      className="h-9 justify-center px-3"
+                    >
+                      <X className="h-4 w-4" />
+                      <span>{t('todo.clearFilters')}</span>
+                    </Button>
+                  )}
+                </div>
+              )}
             </div>
             {testsLoading ? (
               <div className="p-4 space-y-2">
@@ -251,9 +369,14 @@ export function TodoPage() {
                 <CheckCircle className="w-8 h-8 text-green-400 mx-auto mb-2" />
                 {t('todo.noPendingTests')}
               </div>
+            ) : filteredPendingTests.length === 0 ? (
+              <div className="p-8 text-center text-sm text-muted-foreground/70">
+                <Search className="w-8 h-8 text-muted-foreground/50 mx-auto mb-2" />
+                {t('todo.noMatchingTests')}
+              </div>
             ) : (
               <div className="divide-y divide-border">
-                {pendingTests.map(test => (
+                {filteredPendingTests.map(test => (
                   <TestRow key={test.id} test={test} onView={() => setSelectedTestId(test.id)} />
                 ))}
               </div>
