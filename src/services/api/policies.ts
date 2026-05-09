@@ -318,10 +318,25 @@ export class PoliciesService {
     }
 
     const blob = await response.blob();
+    // Backend serves text/html when it falls through to the content-render
+    // path (no stored documentUrl/pdfUrl). Callers supply a .pdf name by
+    // default; rewrite the extension to match the actual response type so
+    // the OS opens the file in the right application instead of showing
+    // "no application is able to open the file".
+    const contentType = (response.headers.get('Content-Type') ?? blob.type ?? '').toLowerCase();
+    const targetExt = contentType.includes('text/html')
+      ? 'html'
+      : contentType.includes('application/pdf')
+        ? 'pdf'
+        : null;
+    const resolvedFileName = targetExt
+      ? fileName.replace(/\.[a-z0-9]+$/i, '') + '.' + targetExt
+      : fileName;
+
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = fileName;
+    a.download = resolvedFileName;
     a.click();
     URL.revokeObjectURL(url);
   }
