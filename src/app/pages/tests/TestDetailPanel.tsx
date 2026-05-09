@@ -310,8 +310,21 @@ export function TestDetailPanel({
     },
   });
 
+  // Cloudanzen-internal automated tests (currently the policy-acceptance
+  // catalog test) are evaluated server-side, not via an external provider
+  // scan. Route those through the dedicated /api/tests/:id/run endpoint
+  // instead of dispatchScan, which has no provider mapping for them.
+  const isInternalAutomatedTest =
+    test?.type === 'Automated' &&
+    !!test?.testKey &&
+    test.testKey.endsWith('cloudanzen.policy-acceptance-complete');
+
   const runMutation = useMutation({
-    mutationFn: () => {
+    mutationFn: async () => {
+      if (isInternalAutomatedTest) {
+        await testsService.runTest(testId);
+        return;
+      }
       const provider = test?.integration?.provider ?? '';
       const meta = (test?.integration?.metadata ?? {}) as Record<
         string,
@@ -321,9 +334,10 @@ export function TestDetailPanel({
     },
     onSuccess: () => {
       setRunMsg(t('testDetail.overview.scanTriggered'));
+      qc.invalidateQueries({ queryKey: QK.testDetail(testId) });
+      qc.invalidateQueries({ queryKey: QK.testRuns(testId) });
+      qc.invalidateQueries({ queryKey: ['tests'] });
       setTimeout(() => {
-        qc.invalidateQueries({ queryKey: ['tests'] });
-        qc.invalidateQueries({ queryKey: QK.testRuns(testId) });
         setRunMsg(null);
       }, 4000);
     },

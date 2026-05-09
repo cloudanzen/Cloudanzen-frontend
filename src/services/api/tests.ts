@@ -468,6 +468,15 @@ export class TestsService {
     return apiClient.post(`/api/tests/${id}/complete`, {});
   }
 
+  /**
+   * Manually re-evaluate an automated test (currently scoped to the
+   * policy-acceptance-complete catalog test). Backend records a TestRun
+   * with executionSource='manual' and refreshes the lastResult / status.
+   */
+  async runTest(id: string): Promise<ApiResponse<TestRecord>> {
+    return apiClient.post(`/api/tests/${id}/run`, {});
+  }
+
   async bulkComplete(
     data: BulkCompleteRequest,
   ): Promise<ApiResponse<TestRecord[]>> {
