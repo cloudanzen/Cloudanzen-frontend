@@ -131,6 +131,10 @@ export function PolicyDetailPage() {
   const currentVersion = versions.find((v) => v.versionNumber === currentVersionNumber);
   const olderVersions = versions.filter((v) => v.versionNumber !== currentVersionNumber);
 
+  // Display the policy name in the user's preferred locale when the backend
+  // has provided a translation; fall back to canonical name otherwise.
+  const displayName = policy?.localizedName?.[preferredLocale] ?? policy?.name ?? '';
+
   const linkedControls = useMemo(
     () => (policy?.controlMappings ?? []).map((mapping) => mapping.control).filter(Boolean),
     [policy?.controlMappings],
@@ -357,7 +361,7 @@ export function PolicyDetailPage() {
       />
 
       <PageTemplate
-        title={policy.name}
+        title={displayName}
         description={policy.description ?? 'Policy lifecycle, approvals, versions, and acceptance tracking'}
         actions={
           <div className="flex flex-wrap items-center gap-2">
@@ -398,7 +402,7 @@ export function PolicyDetailPage() {
                 <DropdownMenuItem
                   onClick={() =>
                     void policiesService
-                      .downloadPolicyDocument(policy.id, `${policy.name}.pdf`, {
+                      .downloadPolicyDocument(policy.id, `${displayName}.pdf`, {
                         locale: preferredLocale,
                         onLocaleFallback: () => toast.info('Japanese version not available - showing English'),
                       })
@@ -547,7 +551,7 @@ export function PolicyDetailPage() {
                       <div className="flex items-center gap-3">
                         <FileText className="h-4 w-4 text-muted-foreground" />
                         <div>
-                          <p className="text-sm font-medium text-foreground">{policy.name}</p>
+                          <p className="text-sm font-medium text-foreground">{displayName}</p>
                           <p className="text-xs text-muted-foreground">
                             {currentJapaneseLocale
                               ? `Last edited by ${policy.owner?.name ?? policy.owner?.email ?? '—'}`
@@ -567,7 +571,7 @@ export function PolicyDetailPage() {
                                 versionId: currentVersion?.id,
                                 locale: 'ja',
                                 documentUrl: currentJapaneseLocale.documentUrl ?? currentJapaneseLocale.pdfUrl ?? `${policy.name}-ja`,
-                                title: policy.name,
+                                title: displayName,
                               })
                             }
                             className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
@@ -604,7 +608,7 @@ export function PolicyDetailPage() {
                       <div className="flex items-center gap-3">
                         <FileText className="h-4 w-4 text-muted-foreground" />
                         <div>
-                          <p className="text-sm font-medium text-foreground">{policy.name}</p>
+                          <p className="text-sm font-medium text-foreground">{displayName}</p>
                           <p className="text-xs text-muted-foreground">
                             Last edited by {policy.owner?.name ?? policy.owner?.email ?? '—'}
                           </p>
@@ -617,7 +621,7 @@ export function PolicyDetailPage() {
                             versionId: currentVersion?.id,
                             locale: 'en',
                             documentUrl: currentVersion?.documentUrl ?? currentVersion?.pdfUrl ?? policy.documentUrl ?? `${policy.name}-en`,
-                            title: policy.name,
+                            title: displayName,
                           })
                         }
                         disabled={!policy.documentUrl && !policy.pdfUrl && !currentVersion?.documentUrl && !currentVersion?.pdfUrl && !currentVersion?.content}
