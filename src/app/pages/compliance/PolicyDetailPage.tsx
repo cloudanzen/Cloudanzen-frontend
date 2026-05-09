@@ -538,88 +538,95 @@ export function PolicyDetailPage() {
                   <ChevronDown className="h-4 w-4 text-muted-foreground" />
                 </CollapsibleTrigger>
                 <CollapsibleContent className="rounded-b-2xl border border-t-0 border-border bg-card px-4 pb-4 pt-0">
-                  {/* English (default) locale row — non-interactive placeholder until R5 */}
-                  <div className="mt-3 flex items-center justify-between rounded-xl border border-border bg-muted/20 p-3">
-                    <div className="flex items-center gap-3">
-                      <FileText className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm font-medium text-foreground">English (default)</p>
-                        <p className="text-xs text-muted-foreground">
-                          Last edited by {policy.owner?.name ?? policy.owner?.email ?? '—'}
-                        </p>
+                  {/* Single locale row chosen from the user's preferredLocale
+                      setting (Settings → Profile → Language). The row title
+                      uses the policy file name; the per-locale qualifiers
+                      "English (default)" / "Japanese" are dropped. */}
+                  {preferredLocale === 'ja' ? (
+                    <div className="mt-3 flex items-center justify-between rounded-xl border border-border bg-muted/20 p-3">
+                      <div className="flex items-center gap-3">
+                        <FileText className="h-4 w-4 text-muted-foreground" />
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{policy.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {currentJapaneseLocale
+                              ? `Last edited by ${policy.owner?.name ?? policy.owner?.email ?? '—'}`
+                              : 'No Japanese version yet'}
+                          </p>
+                          {localizedVersionHelp ? (
+                            <p className="mt-1 text-xs text-amber-700">{localizedVersionHelp}</p>
+                          ) : null}
+                        </div>
                       </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setPreviewTarget({
-                          versionId: currentVersion?.id,
-                          locale: 'en',
-                          documentUrl: currentVersion?.documentUrl ?? currentVersion?.pdfUrl ?? policy.documentUrl ?? `${policy.name}-en`,
-                          title: `${policy.name} · English`,
-                        })
-                      }
-                      disabled={!policy.documentUrl && !policy.pdfUrl && !currentVersion?.documentUrl && !currentVersion?.pdfUrl && !currentVersion?.content}
-                      className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-                    >
-                      View
-                    </button>
-                  </div>
-
-                  <div className="mt-2 flex items-center justify-between rounded-xl border border-border bg-muted/20 p-3">
-                    <div className="flex items-center gap-3">
-                      <FileText className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm font-medium text-foreground">Japanese</p>
-                        <p className="text-xs text-muted-foreground">
-                          {currentJapaneseLocale ? 'Localized version available' : 'No localized version yet'}
-                        </p>
-                        {localizedVersionHelp ? (
-                          <p className="mt-1 text-xs text-amber-700">{localizedVersionHelp}</p>
+                      <div className="flex items-center gap-2">
+                        {currentJapaneseLocale ? (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setPreviewTarget({
+                                versionId: currentVersion?.id,
+                                locale: 'ja',
+                                documentUrl: currentJapaneseLocale.documentUrl ?? currentJapaneseLocale.pdfUrl ?? `${policy.name}-ja`,
+                                title: policy.name,
+                              })
+                            }
+                            className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                          >
+                            View
+                          </button>
                         ) : null}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {currentJapaneseLocale ? (
                         <button
                           type="button"
-                          onClick={() =>
-                            setPreviewTarget({
-                              versionId: currentVersion?.id,
-                              locale: 'ja',
-                              documentUrl: currentJapaneseLocale.documentUrl ?? currentJapaneseLocale.pdfUrl ?? `${policy.name}-ja`,
-                              title: `${policy.name} · Japanese`,
-                            })
-                          }
-                          className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                          onClick={() => {
+                            setEditLocale('ja');
+                            setEditOpen(true);
+                          }}
+                          disabled={!canEditLocalizedVersion}
+                          title={localizedVersionHelp ?? undefined}
+                          className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
                         >
-                          View
+                          {currentJapaneseLocale ? 'Edit' : 'Add Japanese'}
                         </button>
-                      ) : null}
+                        <button
+                          type="button"
+                          onClick={() => setUploadTarget({ locale: 'ja', title: 'Upload Japanese version' })}
+                          disabled={!canEditLocalizedVersion}
+                          title={localizedVersionHelp ?? undefined}
+                          className="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                        >
+                          <Upload className="h-3.5 w-3.5" />
+                          Upload
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="mt-3 flex items-center justify-between rounded-xl border border-border bg-muted/20 p-3">
+                      <div className="flex items-center gap-3">
+                        <FileText className="h-4 w-4 text-muted-foreground" />
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{policy.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            Last edited by {policy.owner?.name ?? policy.owner?.email ?? '—'}
+                          </p>
+                        </div>
+                      </div>
                       <button
                         type="button"
-                        onClick={() => {
-                          setEditLocale('ja');
-                          setEditOpen(true);
-                        }}
-                        disabled={!canEditLocalizedVersion}
-                        title={localizedVersionHelp ?? undefined}
+                        onClick={() =>
+                          setPreviewTarget({
+                            versionId: currentVersion?.id,
+                            locale: 'en',
+                            documentUrl: currentVersion?.documentUrl ?? currentVersion?.pdfUrl ?? policy.documentUrl ?? `${policy.name}-en`,
+                            title: policy.name,
+                          })
+                        }
+                        disabled={!policy.documentUrl && !policy.pdfUrl && !currentVersion?.documentUrl && !currentVersion?.pdfUrl && !currentVersion?.content}
                         className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
                       >
-                        {currentJapaneseLocale ? 'Edit' : 'Add Japanese'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setUploadTarget({ locale: 'ja', title: 'Upload Japanese version' })}
-                        disabled={!canEditLocalizedVersion}
-                        title={localizedVersionHelp ?? undefined}
-                        className="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-                      >
-                        <Upload className="h-3.5 w-3.5" />
-                        Upload
+                        View
                       </button>
                     </div>
-                  </div>
+                  )}
 
                   {/* Show approval expand */}
                   <Collapsible className="mt-3">
