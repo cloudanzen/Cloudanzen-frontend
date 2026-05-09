@@ -215,15 +215,6 @@ export function Sidebar({ collapsed = false }: { collapsed?: boolean }) {
       ],
     },
     {
-      id: 'customerTrust',
-      title: t('nav.customerTrust'),
-      icon: Users,
-      children: [
-        { id: 'trustCenter', title: t('nav.trustCenter'), href: '/customer-trust/trust-center' },
-        { id: 'customerTrust-settings', title: t('nav.settings'), href: '/settings/customer-trust', roles: [...ADMIN_ROLES] },
-      ],
-    },
-    {
       id: 'risk',
       title: t('nav.risk'),
       icon: TrendingUp,
@@ -270,18 +261,6 @@ export function Sidebar({ collapsed = false }: { collapsed?: boolean }) {
         { id: 'personnel-settings', title: t('nav.settings'), href: '/settings/personnel', roles: [...ADMIN_ROLES] },
       ],
     },
-    { id: 'progress', title: t('nav.progress'), href: '/progress', icon: BarChart3 },
-    { id: 'notifications', title: t('nav.notifications'), href: '/notifications', icon: Bell },
-    {
-      id: 'integrations',
-      title: t('nav.integrations'),
-      icon: Settings,
-      children: [
-        { id: 'connectedApps', title: t('nav.connectedApps'), href: '/integrations' },
-        { id: 'partnerApi', title: t('nav.partnerApi'), href: '/integrations/partner-api', roles: [...ADMIN_ROLES] },
-      ],
-    },
-    { id: 'onboardingTasks', title: t('nav.onboardingTasks'), href: '/onboarding-tasks', icon: CheckSquare },
     {
       id: 'aiAssistant',
       title: t('nav.aiAssistant'),
@@ -294,6 +273,27 @@ export function Sidebar({ collapsed = false }: { collapsed?: boolean }) {
         { id: 'aiSettings', title: t('nav.aiSettings'), href: '/settings/ai', roles: [...ADMIN_ROLES] },
       ],
     },
+    {
+      id: 'customerTrust',
+      title: t('nav.customerTrust'),
+      icon: Users,
+      children: [
+        { id: 'trustCenter', title: t('nav.trustCenter'), href: '/customer-trust/trust-center' },
+        { id: 'customerTrust-settings', title: t('nav.settings'), href: '/settings/customer-trust', roles: [...ADMIN_ROLES] },
+      ],
+    },
+    { id: 'progress', title: t('nav.progress'), href: '/progress', icon: BarChart3 },
+    { id: 'notifications', title: t('nav.notifications'), href: '/notifications', icon: Bell },
+    {
+      id: 'integrations',
+      title: t('nav.integrations'),
+      icon: Settings,
+      children: [
+        { id: 'connectedApps', title: t('nav.connectedApps'), href: '/integrations' },
+        { id: 'partnerApi', title: t('nav.partnerApi'), href: '/integrations/partner-api', roles: [...ADMIN_ROLES] },
+      ],
+    },
+    { id: 'onboardingTasks', title: t('nav.onboardingTasks'), href: '/onboarding-tasks', icon: CheckSquare },
     {
       id: 'platformAdmin',
       title: t('nav.platformAdmin'),
