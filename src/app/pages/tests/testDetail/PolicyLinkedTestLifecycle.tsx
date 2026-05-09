@@ -28,6 +28,12 @@ interface Props {
   policyId: string;
   initialPolicy?: PolicyLinkedTestPolicySummary | null;
   onOpenPolicy?: () => void;
+  /** Re-run callback for cloudanzen-internal automated tests (e.g. the
+   *  policy-acceptance-complete check). When provided, the lifecycle view
+   *  shows a "Re-run check" button at the top so users do not have to wait
+   *  for the daily 08:00 UTC sweep after accepting a policy. */
+  onRunCheck?: () => void;
+  isRunning?: boolean;
 }
 
 function pillClass(tone: 'success' | 'warning' | 'danger' | 'neutral') {
@@ -109,6 +115,8 @@ export function PolicyLinkedTestLifecycle({
   policyId,
   initialPolicy,
   onOpenPolicy,
+  onRunCheck,
+  isRunning,
 }: Props) {
   const { t } = useTranslation('tests');
 
@@ -201,6 +209,20 @@ export function PolicyLinkedTestLifecycle({
     <div className="space-y-4">
       {policyQuery.isError && initialPolicy ? (
         <SectionError message={t('testDetail.policyLifecycle.refreshFailed')} />
+      ) : null}
+
+      {onRunCheck ? (
+        <div className="flex items-center justify-end">
+          <button
+            type="button"
+            onClick={onRunCheck}
+            disabled={isRunning}
+            className="inline-flex items-center gap-2 rounded-lg border border-violet-300 bg-violet-50 px-3 py-2 text-sm font-medium text-violet-700 hover:bg-violet-100 disabled:opacity-50"
+          >
+            <RefreshCw className={`h-4 w-4 ${isRunning ? 'animate-spin' : ''}`} />
+            {isRunning ? t('testDetail.overview.running') : t('testDetail.policyLifecycle.rerunCheck', { defaultValue: 'Re-run check' })}
+          </button>
+        </div>
       ) : null}
 
       <div className="flex flex-wrap items-center gap-2">
