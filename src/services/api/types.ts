@@ -329,6 +329,10 @@ export interface Policy {
   version: string;
   versionNumber?: number;
   frameworksCount?: number;
+  /** Optional map of locale → translated policy name (e.g. ja). Backend
+   *  joins policy_template_translations by name match. Empty/undefined
+   *  means no translation; consumers should fall back to `name`. */
+  localizedName?: Partial<Record<'en' | 'ja', string>>;
   status: string;
   documentUrl: string;
   pdfUrl?: string | null;
