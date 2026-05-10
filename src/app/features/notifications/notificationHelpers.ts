@@ -15,7 +15,16 @@ export function getNotificationSeverityMeta(severity: NotificationSeverity) {
   }
 }
 
-export function getNotificationTargetPath(notification: Pick<NotificationDto, 'resourceType' | 'resourceId'>) {
+export function getNotificationTargetPath(notification: Pick<NotificationDto, 'resourceType' | 'resourceId' | 'metadata'>) {
+  // Backend can ship a deep-link override on `metadata.deepLink` (used by
+  // framework access approve/reject so users land on the Available tab
+  // instead of the default Active tab). Honour it ahead of resourceType
+  // routing.
+  const metadataDeepLink = (notification.metadata as { deepLink?: unknown } | null | undefined)?.deepLink;
+  if (typeof metadataDeepLink === 'string' && metadataDeepLink.startsWith('/')) {
+    return metadataDeepLink;
+  }
+
   if (notification.resourceType === 'test' && notification.resourceId) return `/validations/${notification.resourceId}`;
   if (notification.resourceType === 'risk' && notification.resourceId) return `/risk/risks/${notification.resourceId}`;
   if (notification.resourceType === 'framework') return '/compliance/frameworks';

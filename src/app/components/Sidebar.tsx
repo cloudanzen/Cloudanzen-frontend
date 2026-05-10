@@ -304,6 +304,7 @@ export function Sidebar({ collapsed = false }: { collapsed?: boolean }) {
         { id: 'testTemplates', title: t('nav.testTemplates'), href: '/admin/test-templates', roles: ['SUPER_ADMIN'] },
         { id: 'policyTemplates', title: t('nav.policyTemplates'), href: '/admin/policy-templates', roles: ['SUPER_ADMIN'] },
         { id: 'admin-frameworks', title: t('nav.frameworks'), href: '/admin/frameworks', roles: ['SUPER_ADMIN'] },
+        { id: 'admin-framework-requests', title: t('nav.frameworkRequests'), href: '/admin/framework-requests', roles: ['SUPER_ADMIN'] },
         { id: 'organizations', title: t('nav.organizations'), href: '/admin/organizations', roles: ['SUPER_ADMIN'] },
       ],
     },

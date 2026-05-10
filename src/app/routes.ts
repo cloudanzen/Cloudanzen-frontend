@@ -363,6 +363,11 @@ const AdminFrameworksPage = lazy(() =>
     default: m.AdminFrameworksPage,
   })),
 );
+const FrameworkAccessRequestsPage = lazy(() =>
+  import('@/app/pages/admin/FrameworkAccessRequestsPage').then((m) => ({
+    default: m.FrameworkAccessRequestsPage,
+  })),
+);
 
 // ── Auth guard ────────────────────────────────────────────────────────────────
 // ── Router ────────────────────────────────────────────────────────────────────
@@ -497,6 +502,7 @@ export const router = createBrowserRouter([
       { path: 'admin/test-templates', Component: AdminTestTemplatesPage },
       { path: 'admin/policy-templates', Component: AdminPolicyTemplatesPage },
       { path: 'admin/frameworks', Component: AdminFrameworksPage },
+      { path: 'admin/framework-requests', Component: FrameworkAccessRequestsPage },
       { path: 'admin/organizations', Component: AdminOrganizationsPage },
 
       // Other

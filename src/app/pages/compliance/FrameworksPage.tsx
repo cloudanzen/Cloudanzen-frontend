@@ -60,20 +60,26 @@ type CatalogCardData = {
   coveragePct: number | null;
   openGaps: number | null;
   overlapPct: number | null;
-  entitled: boolean;
+  /** Six-state catalog flag computed by the backend; falls back to NOT_PURCHASED. */
+  accessState: NonNullable<FrameworkDto['accessState']>;
+  pendingRequestId: string | null;
   domains: string[];
 };
 
 function FrameworkCatalogCard({
   card,
   canManageScope,
+  isOrgAdmin,
   onActivate,
   onUpgrade,
+  onRequestAccess,
 }: {
   card: CatalogCardData;
   canManageScope: boolean;
+  isOrgAdmin: boolean;
   onActivate: (fw: FrameworkDto) => void;
   onUpgrade: (fw: FrameworkDto) => void;
+  onRequestAccess: (fw: FrameworkDto) => void;
 }) {
   const navigate = useNavigate();
   const { t } = useTranslation('compliance');
@@ -115,28 +121,59 @@ function FrameworkCatalogCard({
         </div>
         <p className="line-clamp-3 text-sm leading-6 text-muted-foreground">{card.fw.description ?? catalogMeta?.overview}</p>
         <div className="flex flex-wrap gap-2">
-          {!card.isActive ? (
-            <Button variant="outline" onClick={() => navigate(`/compliance/frameworks/${card.fw.slug}/explore`)}>
-              {t('frameworks.exploreFramework')}
-            </Button>
-          ) : null}
           {card.isActive ? (
             <Button onClick={() => navigate(`/compliance/frameworks/${card.fw.slug}`)}>
               {t('frameworks.manageFramework')} <ArrowRight className="ml-1 h-4 w-4" />
             </Button>
-          ) : !canManageScope ? (
-            <Button variant="outline" disabled>
-              <Eye className="mr-1 h-4 w-4" /> {t('frameworks.contactAdmin')}
-            </Button>
-          ) : card.entitled ? (
-            <Button onClick={() => onActivate(card.fw)}>
-              <Plus className="mr-1 h-4 w-4" /> {t('frameworks.activateFramework', { name: card.fw.name })}
-            </Button>
           ) : (
-            <Button variant="outline" onClick={() => onUpgrade(card.fw)}>
-              <Lock className="mr-1 h-4 w-4" /> {t('frameworks.upgradeRequired')}
+            <Button variant="outline" onClick={() => navigate(`/compliance/frameworks/${card.fw.slug}/explore`)}>
+              {t('frameworks.exploreFramework')}
             </Button>
           )}
+          {/* CTA driven by accessState — see FrameworkDto.accessState. */}
+          {!card.isActive && (() => {
+            switch (card.accessState) {
+              case 'PURCHASED_NOT_ACTIVE':
+                if (!canManageScope) {
+                  return (
+                    <Button variant="outline" disabled>
+                      <Eye className="mr-1 h-4 w-4" /> {t('frameworks.contactAdmin')}
+                    </Button>
+                  );
+                }
+                return (
+                  <Button onClick={() => onActivate(card.fw)}>
+                    <Plus className="mr-1 h-4 w-4" /> {t('frameworks.activateFramework', { name: card.fw.name })}
+                  </Button>
+                );
+              case 'PENDING_REQUEST':
+                return (
+                  <Button variant="outline" disabled>
+                    <Lock className="mr-1 h-4 w-4" /> {t('frameworks.requestPending', { defaultValue: 'Request pending' })}
+                  </Button>
+                );
+              case 'PARTIAL_GRANT':
+                return (
+                  <Button variant="outline" disabled title={t('frameworks.partialGrantTitle', { defaultValue: 'Grant incomplete — contact support' })}>
+                    <Lock className="mr-1 h-4 w-4" /> {t('frameworks.partialGrant', { defaultValue: 'Grant incomplete' })}
+                  </Button>
+                );
+              case 'NOT_PURCHASED':
+              default:
+                if (isOrgAdmin) {
+                  return (
+                    <Button variant="outline" onClick={() => onRequestAccess(card.fw)}>
+                      <Lock className="mr-1 h-4 w-4" /> {t('frameworks.requestAccess', { defaultValue: 'Request access' })}
+                    </Button>
+                  );
+                }
+                return (
+                  <Button variant="outline" disabled onClick={() => onUpgrade(card.fw)}>
+                    <Lock className="mr-1 h-4 w-4" /> {t('frameworks.upgradeRequired')}
+                  </Button>
+                );
+            }
+          })()}
         </div>
       </CardContent>
     </Card>
@@ -196,7 +233,16 @@ export function FrameworksPage() {
   const navigate = useNavigate();
   const cachedUser = authService.getCachedUser();
   const canManageScope = cachedUser?.role === 'ORG_ADMIN' || cachedUser?.role === 'SUPER_ADMIN';
-  const [activeTab, setActiveTab] = useState<'active' | 'available' | 'updates'>('active');
+  const isOrgAdmin = cachedUser?.role === 'ORG_ADMIN';
+  // Read ?tab= from the URL so notifications and other deep-links can land
+  // directly on the Available tab (e.g. when a request is approved).
+  const initialTab = (() => {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab');
+    if (tab === 'available' || tab === 'updates' || tab === 'active') return tab;
+    return 'active';
+  })();
+  const [activeTab, setActiveTab] = useState<'active' | 'available' | 'updates'>(initialTab);
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('ALL');
   const [release, setRelease] = useState('ALL');
@@ -233,15 +279,26 @@ export function FrameworksPage() {
   );
 
   const allFrameworkCards = useMemo<CatalogCardData[]>(() => (
-    catalog.map((fw) => ({
-      fw,
-      isActive: activeMap.has(fw.slug),
-      coveragePct: activeMap.get(fw.slug)?.controlCoveragePct ?? null,
-      openGaps: activeMap.get(fw.slug)?.openGaps ?? null,
-      overlapPct: recMap.get(fw.slug)?.overlapPct ?? null,
-      entitled: entitlementSet.has(fw.slug),
-      domains: FRAMEWORK_CATALOG[fw.slug]?.domains ?? [],
-    }))
+    catalog.map((fw) => {
+      // Backend annotates each catalog row with accessState. When it is missing
+      // (legacy/SUPER_ADMIN response), fall back to the existing client-side
+      // signals so the card still renders sensibly.
+      const fallbackState: CatalogCardData['accessState'] = activeMap.has(fw.slug)
+        ? 'ACTIVE'
+        : entitlementSet.has(fw.slug)
+          ? 'PURCHASED_NOT_ACTIVE'
+          : 'NOT_PURCHASED';
+      return {
+        fw,
+        isActive: activeMap.has(fw.slug) || fw.accessState === 'ACTIVE',
+        coveragePct: activeMap.get(fw.slug)?.controlCoveragePct ?? null,
+        openGaps: activeMap.get(fw.slug)?.openGaps ?? null,
+        overlapPct: recMap.get(fw.slug)?.overlapPct ?? null,
+        accessState: fw.accessState ?? fallbackState,
+        pendingRequestId: fw.pendingRequestId ?? null,
+        domains: FRAMEWORK_CATALOG[fw.slug]?.domains ?? [],
+      };
+    })
   ), [catalog, activeMap, recMap, entitlementSet]);
 
   const recommendations = allFrameworkCards.filter((card) => !card.isActive).slice(0, 2);
@@ -261,6 +318,13 @@ export function FrameworksPage() {
     },
     onError: (err: any, fw) => {
       if (err?.error === 'FRAMEWORK_NOT_ENTITLED' || err?.statusCode === 403) setUpgradeTarget(fw);
+    },
+  });
+
+  const requestAccessMutation = useMutation({
+    mutationFn: (fw: FrameworkDto) => frameworksService.requestFrameworkAccess(fw.slug),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: QK.frameworkCatalog() });
     },
   });
 
@@ -365,7 +429,7 @@ export function FrameworksPage() {
                 </div>
                 <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                   {visibleRecommendations.map((card) => (
-                    <FrameworkCatalogCard key={`rec-${card.fw.slug}`} card={card} canManageScope={canManageScope} onActivate={(fw) => activateMutation.mutate(fw)} onUpgrade={setUpgradeTarget} />
+                    <FrameworkCatalogCard key={`rec-${card.fw.slug}`} card={card} canManageScope={canManageScope} isOrgAdmin={isOrgAdmin} onActivate={(fw) => activateMutation.mutate(fw)} onUpgrade={setUpgradeTarget} onRequestAccess={(fw) => requestAccessMutation.mutate(fw)} />
                   ))}
                 </div>
               </section>
@@ -378,7 +442,7 @@ export function FrameworksPage() {
               {filteredCards.length ? (
                 <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
                   {filteredCards.map((card) => (
-                    <FrameworkCatalogCard key={card.fw.slug} card={card} canManageScope={canManageScope} onActivate={(fw) => activateMutation.mutate(fw)} onUpgrade={setUpgradeTarget} />
+                    <FrameworkCatalogCard key={card.fw.slug} card={card} canManageScope={canManageScope} isOrgAdmin={isOrgAdmin} onActivate={(fw) => activateMutation.mutate(fw)} onUpgrade={setUpgradeTarget} onRequestAccess={(fw) => requestAccessMutation.mutate(fw)} />
                   ))}
                 </div>
               ) : (

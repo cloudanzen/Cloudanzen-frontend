@@ -52,6 +52,7 @@
     "controlTemplates": "管理策テンプレート",
     "testTemplates": "テストテンプレート",
     "policyTemplates": "ポリシーテンプレート",
+    "frameworkRequests": "フレームワーク申請",
     "organizations": "組織"
   },
   "header": {

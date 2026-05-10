@@ -52,6 +52,7 @@
     "controlTemplates": "Control Templates",
     "testTemplates": "Test Templates",
     "policyTemplates": "Policy Templates",
+    "frameworkRequests": "Framework Requests",
     "organizations": "Organizations"
   },
   "header": {
