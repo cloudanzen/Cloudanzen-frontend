@@ -23,7 +23,6 @@ import {
   ThumbsUp,
   ThumbsDown,
   Loader2,
-  UserRound,
 } from 'lucide-react';
 import { QK } from '@/lib/queryKeys';
 import { STALE } from '@/lib/queryClient';
@@ -70,6 +69,7 @@ import { PolicyLinkedTestLifecycle } from './testDetail/PolicyLinkedTestLifecycl
 import { aiService } from '@/services/api/ai';
 import { CitationViewer } from '@/app/components/CitationViewer';
 import { ReassignValidationOwnerDialog } from '@/app/pages/validationsPage/ReassignValidationOwnerDialog';
+import { ValidationOwnerChip } from '@/app/pages/validationsPage/ValidationOwnerChip';
 
 // ─── Evidence Synthesis Panel (AI-2) ─────────────────────────────────────────
 // Inline panel for the evidence tab — allows triggering AI control-mapping
@@ -412,6 +412,9 @@ export function TestDetailPanel({
     : null;
   const isOwner = currentUser?.id != null && currentUser.id === test?.ownerId;
   const canEditTest = isAdmin || isOwner;
+  const canReassignOwner = Boolean(
+    test && canEditTest && usersData && usersData.length > 0,
+  );
   const isPolicyLinked = Boolean(test?.policyId);
   const policyTitle = test?.policy?.name ?? test?.name;
   const handleOpenPolicy = () => {
@@ -434,6 +437,20 @@ export function TestDetailPanel({
       setShowPassedPrompt(true);
     }
   };
+  const renderOwnerChip = (maxWidthClassName = 'max-w-[180px]') =>
+    test ? (
+      <ValidationOwnerChip
+        name={test.owner?.name}
+        email={test.owner?.email}
+        fallback={test.ownerId}
+        interactive={canReassignOwner}
+        ariaLabel={t('validationsPage.actions.reassign')}
+        onClick={() => setShowOwnerDialog(true)}
+        maxWidthClassName={maxWidthClassName}
+      />
+    ) : (
+      '—'
+    );
 
   // ── Shared header + body content ──
   const header = (
@@ -507,15 +524,6 @@ export function TestDetailPanel({
         </div>
       ) : null}
       <div className="ml-4 flex flex-shrink-0 items-center gap-2">
-        {test && canEditTest && usersData && usersData.length > 0 ? (
-          <button
-            onClick={() => setShowOwnerDialog(true)}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50"
-          >
-            <UserRound className="h-4 w-4" />
-            {t('validationsPage.actions.reassign')}
-          </button>
-        ) : null}
         {!pageMode && (
           <button
             onClick={handleClose}
@@ -556,15 +564,7 @@ export function TestDetailPanel({
             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
               <DetailStatCard
                 label={t('testDetail.owner')}
-                value={
-                  isPolicyLinked
-                    ? (test.policy?.owner?.name ??
-                      test.policy?.owner?.email ??
-                      test.owner?.name ??
-                      test.owner?.email ??
-                      test.ownerId)
-                    : (test.owner?.name ?? test.owner?.email ?? test.ownerId)
-                }
+                value={renderOwnerChip('max-w-[150px]')}
               />
               <DetailStatCard
                 label={t('testDetail.dueDate')}
@@ -732,28 +732,9 @@ export function TestDetailPanel({
                         <dt className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">
                           {t('testDetail.owner')}
                         </dt>
-                        {canEditTest && usersData && usersData.length > 0 ? (
-                          <select
-                            value={test.ownerId}
-                            onChange={(e) =>
-                              reassignOwner.mutate(e.target.value)
-                            }
-                            disabled={reassignOwner.isPending}
-                            className="w-full text-sm border border-gray-300 rounded-md px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
-                          >
-                            {usersData.map((u) => (
-                              <option key={u.id} value={u.id}>
-                                {u.name ?? u.email}
-                              </option>
-                            ))}
-                          </select>
-                        ) : (
-                          <dd className="font-medium text-gray-800">
-                            {test.owner?.name ??
-                              test.owner?.email ??
-                              test.ownerId}
-                          </dd>
-                        )}
+                        <dd className="font-medium text-gray-800">
+                          {renderOwnerChip('max-w-[220px]')}
+                        </dd>
                       </div>
                     </dl>
 
