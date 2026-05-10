@@ -1,6 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- legacy: to be typed progressively */
 import { apiClient } from './client';
 
+export type FrameworkAccessState =
+  | 'ACTIVE'
+  | 'SETUP_IN_PROGRESS'
+  | 'PURCHASED_NOT_ACTIVE'
+  | 'PENDING_REQUEST'
+  | 'PARTIAL_GRANT'
+  | 'NOT_PURCHASED';
+
 export interface FrameworkDto {
   id: string;
   slug: string;
@@ -9,6 +17,37 @@ export interface FrameworkDto {
   description: string | null;
   status: string;
   createdAt: string;
+  /** Annotation fields populated by GET /api/frameworks for org-admin
+   *  callers; absent for SUPER_ADMIN catalog view. */
+  accessState?: FrameworkAccessState;
+  pendingRequestId?: string | null;
+  orgFrameworkStatus?: string | null;
+}
+
+export interface FrameworkAccessRequestDto {
+  id: string;
+  organizationId: string;
+  organizationName?: string | null;
+  frameworkSlug: string;
+  frameworkName?: string | null;
+  requestedById: string;
+  requestedBy?: { name: string | null; email: string } | null;
+  note: string | null;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
+  decidedById?: string | null;
+  decidedBy?: { name: string | null; email: string } | null;
+  decidedAt?: string | null;
+  decisionNote?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FrameworkGrantInconsistencyDto {
+  organizationId: string;
+  organizationName: string | null;
+  frameworkSlug: string;
+  frameworkName: string;
+  missing: 'allowlist' | 'entitlement';
 }
 
 export interface FrameworkRequirementDto {
@@ -349,6 +388,74 @@ class FrameworksService {
     body: RemoveFrameworkRequest = {},
   ): Promise<{ success: boolean; data: OrgFrameworkDto }> {
     return apiClient.patch(`/api/org/frameworks/${frameworkSlug}/remove`, body);
+  }
+
+  /** POST /api/frameworks/:slug/request-access — ORG_ADMIN-only request flow.
+   *  Returns the pending request row. Idempotent on duplicate. */
+  async requestFrameworkAccess(
+    frameworkSlug: string,
+    note?: string,
+  ): Promise<{ success: boolean; data: FrameworkAccessRequestDto }> {
+    return apiClient.post(`/api/frameworks/${frameworkSlug}/request-access`, {
+      note,
+    });
+  }
+
+  /** GET /api/admin/framework-access-requests — SUPER_ADMIN list. */
+  async listFrameworkAccessRequests(params?: {
+    status?: 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED' | 'ALL';
+    organizationId?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<{ success: boolean; data: FrameworkAccessRequestDto[] }> {
+    const cleaned: Record<string, string> = {};
+    if (params?.status) cleaned.status = params.status;
+    if (params?.organizationId) cleaned.organizationId = params.organizationId;
+    if (params?.limit != null) cleaned.limit = String(params.limit);
+    if (params?.offset != null) cleaned.offset = String(params.offset);
+    return apiClient.get(
+      '/api/admin/framework-access-requests',
+      Object.keys(cleaned).length ? cleaned : undefined,
+    );
+  }
+
+  /** POST /api/admin/framework-access-requests/:id/approve */
+  async approveFrameworkAccessRequest(
+    id: string,
+    note?: string,
+  ): Promise<{ success: boolean; data: { id: string; status: string } }> {
+    return apiClient.post(`/api/admin/framework-access-requests/${id}/approve`, {
+      note,
+    });
+  }
+
+  /** POST /api/admin/framework-access-requests/:id/reject */
+  async rejectFrameworkAccessRequest(
+    id: string,
+    note?: string,
+  ): Promise<{ success: boolean; data: { id: string; status: string } }> {
+    return apiClient.post(`/api/admin/framework-access-requests/${id}/reject`, {
+      note,
+    });
+  }
+
+  /** GET /api/admin/framework-grant-inconsistencies */
+  async listFrameworkGrantInconsistencies(): Promise<{
+    success: boolean;
+    data: FrameworkGrantInconsistencyDto[];
+  }> {
+    return apiClient.get('/api/admin/framework-grant-inconsistencies');
+  }
+
+  /** POST /api/admin/framework-grant-inconsistencies/repair */
+  async repairFrameworkGrant(input: {
+    organizationId: string;
+    frameworkSlug: string;
+  }): Promise<{ success: boolean }> {
+    return apiClient.post(
+      '/api/admin/framework-grant-inconsistencies/repair',
+      input,
+    );
   }
 
   /** GET /api/org/frameworks/:slug/entitlement */

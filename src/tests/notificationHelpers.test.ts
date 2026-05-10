@@ -41,46 +41,46 @@ describe('getNotificationSeverityMeta', () => {
 
 // ── getNotificationTargetPath ─────────────────────────────────────────────────
 
-type NotifResource = Pick<NotificationDto, 'resourceType' | 'resourceId'>;
+type NotifResource = Pick<NotificationDto, 'resourceType' | 'resourceId' | 'metadata'>;
 
 describe('getNotificationTargetPath', () => {
   it('returns test detail path for test resourceType with id', () => {
-    const n: NotifResource = { resourceType: 'test', resourceId: 'test-123' };
+    const n: NotifResource = { resourceType: 'test', resourceId: 'test-123', metadata: {} };
     expect(getNotificationTargetPath(n)).toBe('/validations/test-123');
   });
 
   it('returns /notifications for test without resourceId', () => {
-    const n: NotifResource = { resourceType: 'test', resourceId: null };
+    const n: NotifResource = { resourceType: 'test', resourceId: null, metadata: {} };
     expect(getNotificationTargetPath(n)).toBe('/notifications');
   });
 
   it('returns risk detail path for risk resourceType with id', () => {
-    const n: NotifResource = { resourceType: 'risk', resourceId: 'risk-456' };
+    const n: NotifResource = { resourceType: 'risk', resourceId: 'risk-456', metadata: {} };
     expect(getNotificationTargetPath(n)).toBe('/risk/risks/risk-456');
   });
 
   it('returns /notifications for risk without resourceId', () => {
-    const n: NotifResource = { resourceType: 'risk', resourceId: null };
+    const n: NotifResource = { resourceType: 'risk', resourceId: null, metadata: {} };
     expect(getNotificationTargetPath(n)).toBe('/notifications');
   });
 
   it('returns framework list path for framework resourceType', () => {
-    const n: NotifResource = { resourceType: 'framework', resourceId: null };
+    const n: NotifResource = { resourceType: 'framework', resourceId: null, metadata: {} };
     expect(getNotificationTargetPath(n)).toBe('/compliance/frameworks');
   });
 
   it('returns control list path for control resourceType', () => {
-    const n: NotifResource = { resourceType: 'control', resourceId: null };
+    const n: NotifResource = { resourceType: 'control', resourceId: null, metadata: {} };
     expect(getNotificationTargetPath(n)).toBe('/compliance/controls');
   });
 
   it('returns audit list path for audit resourceType', () => {
-    const n: NotifResource = { resourceType: 'audit', resourceId: null };
+    const n: NotifResource = { resourceType: 'audit', resourceId: null, metadata: {} };
     expect(getNotificationTargetPath(n)).toBe('/compliance/audits');
   });
 
   it('returns /notifications for unknown resourceType', () => {
-    const n: NotifResource = { resourceType: 'unknown-type', resourceId: null };
+    const n: NotifResource = { resourceType: 'unknown-type', resourceId: null, metadata: {} };
     expect(getNotificationTargetPath(n)).toBe('/notifications');
   });
 });

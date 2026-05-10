@@ -18,6 +18,8 @@ export const NotificationEventType = {
   FRAMEWORK_ACTIVATED: 'framework.activated',
   COVERAGE_DROP: 'framework.coverage_drop',
   GAP_OWNER_ASSIGNED: 'framework.gap_owner_assigned',
+  FRAMEWORK_ACCESS_APPROVED: 'framework.access_approved',
+  FRAMEWORK_ACCESS_REJECTED: 'framework.access_rejected',
   ACCESS_REVIEW_DUE: 'access.review_due',
   USER_INVITED: 'access.user_invited',
   TRUST_CENTER_REQUEST: 'trust_center.request',
@@ -148,6 +150,18 @@ export const NOTIFICATION_EVENT_DEFINITIONS: NotificationEventDefinition[] = [
     category: 'Frameworks',
     label: 'Gap owner assigned',
     description: 'Notifies you when you are assigned ownership of a framework gap or requirement.',
+  },
+  {
+    eventType: NotificationEventType.FRAMEWORK_ACCESS_APPROVED,
+    category: 'Frameworks',
+    label: 'Framework access approved',
+    description: 'Tells you when a framework access request you submitted has been approved.',
+  },
+  {
+    eventType: NotificationEventType.FRAMEWORK_ACCESS_REJECTED,
+    category: 'Frameworks',
+    label: 'Framework access rejected',
+    description: 'Tells you when a framework access request you submitted has been rejected.',
   },
   {
     eventType: NotificationEventType.ACCESS_REVIEW_DUE,
