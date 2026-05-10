@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { RefreshCw, X, CheckCircle, AlertTriangle, Clock, UserRound } from 'lucide-react';
+import { RefreshCw, X, CheckCircle, AlertTriangle, Clock } from 'lucide-react';
 import { FrameworkFilter } from '@/app/components/compliance/FrameworkFilter';
 import { PageFilterBar } from '@/app/components/filters/PageFilterBar';
 import { ListPaginationBar } from '@/app/components/pagination/ListPaginationBar';
@@ -25,6 +25,7 @@ import { StatusBadge, SortIcon } from './validationsPage/StatusBadge';
 import { ColumnPicker } from './validationsPage/ColumnPicker';
 import { LoadingState, ErrorState, EmptyState } from './validationsPage/StateComponents';
 import { ReassignValidationOwnerDialog } from './validationsPage/ReassignValidationOwnerDialog';
+import { ValidationOwnerChip } from './validationsPage/ValidationOwnerChip';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/components/ui/select';
 
 const EMPTY_SELECT = '__empty__';
@@ -329,9 +330,14 @@ export function ValidationsPage() {
         );
       case 'owner':
         return (
-          <span className="text-sm text-muted-foreground">
-            {test.owner?.name ?? test.ownerId}
-          </span>
+          <ValidationOwnerChip
+            name={test.owner?.name}
+            email={test.owner?.email}
+            fallback={test.ownerId}
+            interactive={canReassignValidation(test) && usersData.length > 0}
+            ariaLabel={t('validationsPage.actions.reassign')}
+            onClick={() => setReassignTarget(test)}
+          />
         );
       case 'status':
         return <StatusBadge status={test.status} />;
@@ -346,18 +352,6 @@ export function ValidationsPage() {
             >
               {t('validationsPage.actions.view')}
             </button>
-            {canReassignValidation(test) && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setReassignTarget(test);
-                }}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-50 text-slate-700 hover:bg-slate-100 transition-colors"
-              >
-                <UserRound className="h-3.5 w-3.5" />
-                {t('validationsPage.actions.reassign')}
-              </button>
-            )}
             {test.status !== 'OK' && (
               test.type === 'Document' ? (
                 <button
