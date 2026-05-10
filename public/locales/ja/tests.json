@@ -452,7 +452,8 @@
     "actions": {
       "view": "表示",
       "upload": "アップロード",
-      "complete": "完了"
+      "complete": "完了",
+      "reassign": "再割り当て"
     },
     "bulk": {
       "selected_one": "{{count}}件の検証を選択中",
@@ -464,6 +465,17 @@
       "assign": "割り当て",
       "linkControlPlaceholder": "管理策をリンク...",
       "linkControl": "管理策をリンク"
+    },
+    "reassignDialog": {
+      "title": "検証を再割り当て",
+      "description": "{{name}} の新しいオーナーを選択してください。",
+      "descriptionFallback": "検証の新しいオーナーを選択してください。",
+      "ownerLabel": "新しいオーナー",
+      "ownerPlaceholder": "オーナーを選択",
+      "cancel": "キャンセル",
+      "save": "再割り当て",
+      "success": "検証を再割り当てしました",
+      "error": "検証の再割り当てに失敗しました"
     }
   }
 }

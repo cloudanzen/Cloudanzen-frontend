@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import {
   X,
   CheckCircle,
@@ -22,6 +23,7 @@ import {
   ThumbsUp,
   ThumbsDown,
   Loader2,
+  UserRound,
 } from 'lucide-react';
 import { QK } from '@/lib/queryKeys';
 import { STALE } from '@/lib/queryClient';
@@ -67,6 +69,7 @@ import { RemediationGuide } from './testDetail/RemediationGuide';
 import { PolicyLinkedTestLifecycle } from './testDetail/PolicyLinkedTestLifecycle';
 import { aiService } from '@/services/api/ai';
 import { CitationViewer } from '@/app/components/CitationViewer';
+import { ReassignValidationOwnerDialog } from '@/app/pages/validationsPage/ReassignValidationOwnerDialog';
 
 // ─── Evidence Synthesis Panel (AI-2) ─────────────────────────────────────────
 // Inline panel for the evidence tab — allows triggering AI control-mapping
@@ -243,6 +246,7 @@ export function TestDetailPanel({
   const [showNotionModal, setShowNotionModal] = useState(false);
   const [notionTaskUrl, setNotionTaskUrl] = useState<string | null>(null);
   const [showDocumentUpload, setShowDocumentUpload] = useState(false);
+  const [showOwnerDialog, setShowOwnerDialog] = useState(false);
 
   function handleClose() {
     if (onClose) {
@@ -263,7 +267,7 @@ export function TestDetailPanel({
       return usersService.listUsers();
     },
     staleTime: STALE.USERS,
-    enabled: isAdmin,
+    enabled: Boolean(currentUser?.id),
   });
 
   const {
@@ -353,7 +357,12 @@ export function TestDetailPanel({
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: QK.testDetail(testId) });
       qc.invalidateQueries({ queryKey: ['tests'] });
+      toast.success(t('validationsPage.reassignDialog.success'));
+      setShowOwnerDialog(false);
       onMutated?.();
+    },
+    onError: () => {
+      toast.error(t('validationsPage.reassignDialog.error'));
     },
   });
 
@@ -497,15 +506,26 @@ export function TestDetailPanel({
           </div>
         </div>
       ) : null}
-      {!pageMode && (
-        <button
-          onClick={handleClose}
-          className="ml-4 p-1.5 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors flex-shrink-0"
-          aria-label={t('testDetail.closePanel')}
-        >
-          <X className="w-5 h-5" />
-        </button>
-      )}
+      <div className="ml-4 flex flex-shrink-0 items-center gap-2">
+        {test && canEditTest && usersData && usersData.length > 0 ? (
+          <button
+            onClick={() => setShowOwnerDialog(true)}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50"
+          >
+            <UserRound className="h-4 w-4" />
+            {t('validationsPage.actions.reassign')}
+          </button>
+        ) : null}
+        {!pageMode && (
+          <button
+            onClick={handleClose}
+            className="p-1.5 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+            aria-label={t('testDetail.closePanel')}
+          >
+            <X className="w-5 h-5" />
+          </button>
+        )}
+      </div>
     </div>
   );
 
@@ -1304,6 +1324,18 @@ export function TestDetailPanel({
     />
   );
 
+  const ownerDialog = test && usersData ? (
+    <ReassignValidationOwnerDialog
+      open={showOwnerDialog}
+      validationName={test.name}
+      currentOwnerId={test.ownerId}
+      users={usersData}
+      saving={reassignOwner.isPending}
+      onClose={() => setShowOwnerDialog(false)}
+      onSubmit={(ownerId) => reassignOwner.mutate(ownerId)}
+    />
+  ) : null;
+
   // ── Page mode: full-page layout ──
   if (pageMode) {
     return (
@@ -1312,6 +1344,7 @@ export function TestDetailPanel({
         <div className="max-w-4xl mx-auto">{body}</div>
         {notionModal}
         {documentUploadModal}
+        {ownerDialog}
       </div>
     );
   }
@@ -1328,6 +1361,7 @@ export function TestDetailPanel({
       </div>
       {notionModal}
       {documentUploadModal}
+      {ownerDialog}
     </div>
   );
 }

@@ -452,7 +452,8 @@
     "actions": {
       "view": "View",
       "upload": "Upload",
-      "complete": "Complete"
+      "complete": "Complete",
+      "reassign": "Reassign"
     },
     "bulk": {
       "selected_one": "{{count}} validation selected",
@@ -464,6 +465,17 @@
       "assign": "Assign",
       "linkControlPlaceholder": "Link control...",
       "linkControl": "Link control"
+    },
+    "reassignDialog": {
+      "title": "Reassign validation",
+      "description": "Choose a new owner for {{name}}.",
+      "descriptionFallback": "Choose a new validation owner.",
+      "ownerLabel": "New owner",
+      "ownerPlaceholder": "Select owner",
+      "cancel": "Cancel",
+      "save": "Reassign",
+      "success": "Validation reassigned",
+      "error": "Failed to reassign validation"
     }
   }
 }
