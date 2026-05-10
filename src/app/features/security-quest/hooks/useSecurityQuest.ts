@@ -2,40 +2,30 @@ import { useReducer, useCallback, useEffect, useRef } from 'react';
 import { questReducer, createInitialState } from '../lib/reducer';
 import type { QuestState, FeedbackData, UserAnswer } from '../lib/types';
 import { MODULE_IDS, getModuleById } from '../content/modules';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 
-const STORAGE_KEY = 'manzen-security-quest-state';
+const STORAGE_KEY_PREFIX = 'manzen-security-quest-state';
 const TICK_INTERVAL = 1000;
 
-function loadSavedState(): QuestState | null {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as QuestState;
-    // Don't restore completed quests
-    if (parsed.completionReady) return null;
-    return parsed;
-  } catch {
-    return null;
-  }
-}
-
-function saveState(state: QuestState) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch {
-    // localStorage full or unavailable — non-fatal
-  }
-}
-
-export function clearSavedState() {
-  try {
-    localStorage.removeItem(STORAGE_KEY);
-  } catch {
-    // non-fatal
-  }
-}
-
 export function useSecurityQuest() {
+  const currentUser = useCurrentUser();
+  const storageKey = currentUser ? `${STORAGE_KEY_PREFIX}:${currentUser.id}` : null;
+
+  // Only called once at mount via useRef — no need for useCallback
+  function loadSavedState(): QuestState | null {
+    if (!storageKey) return null;
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as QuestState;
+      // Don't restore completed quests
+      if (parsed.completionReady) return null;
+      return parsed;
+    } catch {
+      return null;
+    }
+  }
+
   const saved = useRef(loadSavedState());
 
   const [state, dispatch] = useReducer(
@@ -44,12 +34,33 @@ export function useSecurityQuest() {
     (ids) => saved.current ?? createInitialState(ids),
   );
 
+  const saveState = useCallback(
+    (s: QuestState) => {
+      if (!storageKey) return;
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(s));
+      } catch {
+        // localStorage full or unavailable — non-fatal
+      }
+    },
+    [storageKey],
+  );
+
+  const clearSavedState = useCallback(() => {
+    if (!storageKey) return;
+    try {
+      localStorage.removeItem(storageKey);
+    } catch {
+      // non-fatal
+    }
+  }, [storageKey]);
+
   // Persist state on every change (except summary)
   useEffect(() => {
     if (state.phase !== 'summary') {
       saveState(state);
     }
-  }, [state]);
+  }, [state, saveState]);
 
   // Time tracking ticker
   useEffect(() => {
@@ -104,12 +115,12 @@ export function useSecurityQuest() {
   const completeQuest = useCallback(() => {
     dispatch({ type: 'COMPLETE_QUEST', completedAt: new Date().toISOString() });
     clearSavedState();
-  }, []);
+  }, [clearSavedState]);
 
   const resetQuest = useCallback(() => {
     clearSavedState();
     dispatch({ type: 'RESET_QUEST' });
-  }, []);
+  }, [clearSavedState]);
 
   // ── Derived values ───────────────────────────────────────────────────────
 

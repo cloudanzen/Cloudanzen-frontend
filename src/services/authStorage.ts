@@ -81,7 +81,19 @@ export function clearCachedUser(): void {
   clearFromAllStorage(USER_KEY);
 }
 
+function clearSecurityQuestStorage(): void {
+  if (typeof window === 'undefined' || !window.localStorage) return;
+  const prefix = 'manzen-security-quest-state';
+  const keys: string[] = [];
+  for (let i = 0; i < window.localStorage.length; i++) {
+    const key = window.localStorage.key(i);
+    if (key?.startsWith(prefix)) keys.push(key);
+  }
+  keys.forEach((key) => window.localStorage.removeItem(key));
+}
+
 export function clearAuthSession(): void {
   clearAuthToken();
   clearCachedUser();
+  clearSecurityQuestStorage();
 }
