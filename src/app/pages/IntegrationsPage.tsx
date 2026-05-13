@@ -70,99 +70,88 @@ export function IntegrationsPage() {
   useEffect(() => {
     const connected = searchParams.get('connected');
     const error = searchParams.get('error');
-    if (connected === 'github')
-      showToast('success', t('page.githubConnected'));
+    if (connected === 'github') showToast('success', t('page.githubConnected'));
     if (connected === 'google_drive')
-      showToast(
-        'success',
-        t('page.googleDriveConnected'),
-      );
-    if (connected === 'slack')
-      showToast('success', t('page.slackConnected'));
+      showToast('success', t('page.googleDriveConnected'));
+    if (connected === 'slack') showToast('success', t('page.slackConnected'));
     const intercomConnected = searchParams.get('intercom');
     if (intercomConnected === 'connected')
-      showToast(
-        'success',
-        t('page.intercomConnected'),
-      );
+      showToast('success', t('page.intercomConnected'));
     if (error) showToast('error', decodeURIComponent(error));
     loadStatus();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- legacy mount-only integration status loader
 
   // Memoize derived connection flags to compute the tab counts
-  const baseConnectedCount = useMemo(
-    () => {
-      const {
-        githubIntegration,
-        driveIntegration,
-        slackIntegration,
-        nrConnected,
-        notionConnected,
-        mdmOverview,
-        awsAccounts,
-        cloudflareAccounts,
-        bamboohrAccounts,
-        redashAccounts,
-        workspaceAccounts,
-        fleetAccounts,
-        intercomAccounts,
-        bigIdAccounts,
-        pagerdutyAccounts,
-        opsgenieAccounts,
-        servicenowAccounts,
-        datadogAccounts,
-        gcpAccounts,
-        azureAccounts,
-        wizAccounts,
-        laceworkAccounts,
-        snykAccounts,
-        sonarqubeAccounts,
-        veracodeAccounts,
-        checkmarxAccounts,
-        vaultAccounts,
-        secretsManagerAccounts,
-        certManagerAccounts,
-        oktaAccounts,
-        azureAdAccounts,
-        jumpCloudAccounts,
-      } = integrationsData;
-      return [
-        !!githubIntegration,
-        !!driveIntegration,
-        !!slackIntegration,
-        nrConnected,
-        notionConnected,
-        (mdmOverview?.total ?? 0) > 0,
-        awsAccounts.length > 0,
-        cloudflareAccounts.length > 0,
-        bamboohrAccounts.length > 0,
-        redashAccounts.length > 0,
-        workspaceAccounts.length > 0,
-        fleetAccounts.length > 0,
-        intercomAccounts.length > 0,
-        bigIdAccounts.length > 0,
-        pagerdutyAccounts.length > 0,
-        opsgenieAccounts.length > 0,
-        servicenowAccounts.length > 0,
-        datadogAccounts.length > 0,
-        gcpAccounts.length > 0,
-        azureAccounts.length > 0,
-        wizAccounts.length > 0,
-        laceworkAccounts.length > 0,
-        snykAccounts.length > 0,
-        sonarqubeAccounts.length > 0,
-        veracodeAccounts.length > 0,
-        checkmarxAccounts.length > 0,
-        vaultAccounts.length > 0,
-        secretsManagerAccounts.length > 0,
-        certManagerAccounts.length > 0,
-        oktaAccounts.length > 0,
-        azureAdAccounts.length > 0,
-        jumpCloudAccounts.length > 0,
-      ].filter(Boolean).length;
-    },
-    [integrationsData],
-  );
+  const baseConnectedCount = useMemo(() => {
+    const {
+      githubIntegration,
+      driveIntegration,
+      slackIntegration,
+      nrConnected,
+      notionConnected,
+      mdmOverview,
+      awsAccounts,
+      cloudflareAccounts,
+      bamboohrAccounts,
+      redashAccounts,
+      workspaceAccounts,
+      fleetAccounts,
+      intercomAccounts,
+      bigIdAccounts,
+      pagerdutyAccounts,
+      opsgenieAccounts,
+      servicenowAccounts,
+      datadogAccounts,
+      gcpAccounts,
+      azureAccounts,
+      wizAccounts,
+      laceworkAccounts,
+      snykAccounts,
+      sonarqubeAccounts,
+      veracodeAccounts,
+      checkmarxAccounts,
+      vaultAccounts,
+      secretsManagerAccounts,
+      certManagerAccounts,
+      oktaAccounts,
+      azureAdAccounts,
+      jumpCloudAccounts,
+    } = integrationsData;
+    return [
+      !!githubIntegration,
+      !!driveIntegration,
+      !!slackIntegration,
+      nrConnected,
+      notionConnected,
+      (mdmOverview?.total ?? 0) > 0,
+      awsAccounts.length > 0,
+      cloudflareAccounts.length > 0,
+      bamboohrAccounts.length > 0,
+      redashAccounts.length > 0,
+      workspaceAccounts.length > 0,
+      fleetAccounts.length > 0,
+      intercomAccounts.length > 0,
+      bigIdAccounts.length > 0,
+      pagerdutyAccounts.length > 0,
+      opsgenieAccounts.length > 0,
+      servicenowAccounts.length > 0,
+      datadogAccounts.length > 0,
+      gcpAccounts.length > 0,
+      azureAccounts.length > 0,
+      wizAccounts.length > 0,
+      laceworkAccounts.length > 0,
+      snykAccounts.length > 0,
+      sonarqubeAccounts.length > 0,
+      veracodeAccounts.length > 0,
+      checkmarxAccounts.length > 0,
+      vaultAccounts.length > 0,
+      secretsManagerAccounts.length > 0,
+      certManagerAccounts.length > 0,
+      oktaAccounts.length > 0,
+      azureAdAccounts.length > 0,
+      jumpCloudAccounts.length > 0,
+    ].filter(Boolean).length;
+  }, [integrationsData]);
 
   const engineerAConnectedCount = useMemo(
     () =>

@@ -100,7 +100,7 @@ export function EngineerAIntegrationCard({
 
   useEffect(() => {
     load();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- legacy mount-only connection loader
 
   async function handleConnect(e: React.FormEvent) {
     e.preventDefault();
