@@ -1,4 +1,5 @@
 import js from '@eslint/js';
+import eslintComments from 'eslint-plugin-eslint-comments';
 import tseslint from 'typescript-eslint';
 import reactHooks from 'eslint-plugin-react-hooks';
 import prettier from 'eslint-config-prettier';
@@ -12,6 +13,7 @@ export default tseslint.config(
   {
     files: ['**/*.{ts,tsx}'],
     plugins: {
+      'eslint-comments': eslintComments,
       'react-hooks': reactHooks,
     },
     languageOptions: {
@@ -42,6 +44,7 @@ export default tseslint.config(
       // Upgrade exhaustive-deps from the plugin default (warn) to error
       // so missing hook dependencies are caught before they reach review
       'react-hooks/exhaustive-deps': 'error',
+      'eslint-comments/require-description': 'error',
       'no-case-declarations': 'off',
       'no-undef': 'off',
     },

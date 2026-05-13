@@ -11,7 +11,12 @@
     "dev": "vite",
     "format": "prettier --write .",
     "lint": "eslint 'src/**/*.ts' 'src/**/*.tsx' --max-warnings 0",
+    "lint-staged": "lint-staged",
     "preview": "vite preview",
+    "prepare": "husky",
+    "quality:baseline": "node scripts/baseline-eslint-disable.js && node scripts/baseline-suppressions.js",
+    "quality:check": "node scripts/check-eslint-disable.js && node scripts/check-suppressed-any.js",
+    "quality:check-staged": "node scripts/check-staged-quality.js",
     "typecheck": "tsc -p tsconfig.ci.json --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -19,6 +24,18 @@
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:report": "playwright show-report"
+  },
+  "lint-staged": {
+    "src/**/*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "e2e/**/*.{ts,tsx}": [
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -100,9 +117,12 @@
     "@vitest/coverage-v8": "^4.1.2",
     "eslint": "^9.38.0",
     "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-eslint-comments": "^3.2.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "happy-dom": "^20.8.9",
+    "husky": "^9.1.7",
     "jsdom": "^29.0.1",
+    "lint-staged": "^17.0.4",
     "prettier": "^3.6.2",
     "tailwindcss": "^4.2.1",
     "tsx": "^4.21.0",

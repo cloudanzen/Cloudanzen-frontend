@@ -38,13 +38,12 @@ export default defineConfig({
     },
   ],
 
-  // Start the frontend dev server when running tests locally
-  webServer: process.env.CI
-    ? undefined
-    : {
-        command: 'npm run dev',
-        url: 'http://localhost:5173',
-        reuseExistingServer: true,
-        timeout: 60000,
-      },
+  webServer: {
+    command: process.env.CI
+      ? 'npm run preview -- --host 127.0.0.1 --port 4173'
+      : 'npm run dev',
+    url: process.env.BASE_URL || 'http://localhost:5173',
+    reuseExistingServer: !process.env.CI,
+    timeout: 60000,
+  },
 });
