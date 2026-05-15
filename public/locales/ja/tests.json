@@ -304,6 +304,16 @@
     "alertFailing": "このテストは失敗しており、修復が必要です",
     "alertOverdue": "このテストは期限超過で、対応が必要です",
     "alertDescription": "以下の手順に従って問題を解決し、このテストを再び準拠状態に戻してください。",
+    "playbook": {
+      "whyItMatters": "重要性",
+      "fixPath": "推奨される修正手順",
+      "evidence": "添付すべき証跡",
+      "verify": "検証方法",
+      "pitfalls": "よくある落とし穴",
+      "copy": "コピー",
+      "copied": "コピーしました",
+      "copyCode": "コードをコピー"
+    },
     "steps": {
       "investigateFailure": {
         "title": "失敗したスキャン結果を調査する",
