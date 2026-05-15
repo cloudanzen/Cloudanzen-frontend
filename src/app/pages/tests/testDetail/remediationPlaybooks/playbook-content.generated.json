@@ -2319,7 +2319,9 @@
         "Apply the fix in the JumpCloud admin console.",
         "Codify the change via the JumpCloud Directory API."
       ],
-      "disallowedFixPaths": ["Do not disable MFA policies to clear a finding."],
+      "disallowedFixPaths": [
+        "Do not disable MFA policies to clear a finding."
+      ],
       "evidenceExpectations": [
         "Provider output (CSV/JSON/screenshot) confirming the previously failing item is no longer flagged."
       ],
@@ -2341,7 +2343,9 @@
         "Apply the fix in the JumpCloud admin console.",
         "Codify the change via the JumpCloud Directory API."
       ],
-      "disallowedFixPaths": ["Do not disable MFA policies to clear a finding."],
+      "disallowedFixPaths": [
+        "Do not disable MFA policies to clear a finding."
+      ],
       "evidenceExpectations": [
         "Provider output (CSV/JSON/screenshot) confirming the previously failing item is no longer flagged."
       ],
@@ -2363,7 +2367,9 @@
         "Apply the fix in the JumpCloud admin console.",
         "Codify the change via the JumpCloud Directory API."
       ],
-      "disallowedFixPaths": ["Do not disable MFA policies to clear a finding."],
+      "disallowedFixPaths": [
+        "Do not disable MFA policies to clear a finding."
+      ],
       "evidenceExpectations": [
         "Provider output (CSV/JSON/screenshot) confirming the previously failing item is no longer flagged."
       ],
@@ -2385,7 +2391,9 @@
         "Apply the fix in the JumpCloud admin console.",
         "Codify the change via the JumpCloud Directory API."
       ],
-      "disallowedFixPaths": ["Do not disable MFA policies to clear a finding."],
+      "disallowedFixPaths": [
+        "Do not disable MFA policies to clear a finding."
+      ],
       "evidenceExpectations": [
         "Provider output (CSV/JSON/screenshot) confirming the previously failing item is no longer flagged."
       ],
@@ -2407,7 +2415,9 @@
         "Apply the fix in the JumpCloud admin console.",
         "Codify the change via the JumpCloud Directory API."
       ],
-      "disallowedFixPaths": ["Do not disable MFA policies to clear a finding."],
+      "disallowedFixPaths": [
+        "Do not disable MFA policies to clear a finding."
+      ],
       "evidenceExpectations": [
         "Provider output (CSV/JSON/screenshot) confirming the previously failing item is no longer flagged."
       ],
