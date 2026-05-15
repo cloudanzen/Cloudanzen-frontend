@@ -314,6 +314,28 @@
       "copied": "Copied",
       "copyCode": "Copy code snippet"
     },
+    "ai": {
+      "title": "Tailored remediation (AI)",
+      "description": "Generate a guide tailored to this org using your configured AI key. The static playbook below stays the source of truth.",
+      "generate": "Generate tailored guide",
+      "regenerate": "Regenerate",
+      "regenerateConfirm": "This consumes more tokens from your AI key.",
+      "regenerateConfirmYes": "Regenerate",
+      "regenerateConfirmNo": "Cancel",
+      "generating": "Generating tailored guide…",
+      "tailoredHeader": "Tailored to your environment",
+      "cachedBadge": "Cached",
+      "tokens": "tokens",
+      "errors": {
+        "byokRequired": "Configure your AI key to enable tailored guides.",
+        "byokRequiredCta": "Open AI settings",
+        "noPlaybook": "No tailored guide is available for this validation yet.",
+        "providerUnavailable": "Your AI provider could not be reached. Check your key and try again.",
+        "rateLimited": "Rate limit reached for this org. Try again in a few minutes.",
+        "forbidden": "You do not have permission to generate AI guides for this test.",
+        "generic": "Could not generate the AI guide. Try again later."
+      }
+    },
     "steps": {
       "investigateFailure": {
         "title": "Investigate the failing scan result",

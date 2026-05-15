@@ -19,6 +19,7 @@ import { fmtDate } from '@/lib/format-date';
 import { getProviderLabel } from './scanRegistry';
 import { resolvePlaybook } from './remediationPlaybooks/resolver';
 import { PlaybookPanel } from './remediationPlaybooks/PlaybookPanel';
+import { AiRemediationPanel } from './remediationPlaybooks/AiRemediationPanel';
 
 // ── Live remediation panel (shown when autoRemediationSupported=true) ──────────
 
@@ -445,6 +446,7 @@ export function RemediationGuide({ test }: { test: TestRecord }) {
   return (
     <div className="space-y-6">
       {autoRemediationVisible && <AutoRemediationSection testId={test.id} />}
+      <AiRemediationPanel testId={test.id} />
       {playbook && <PlaybookPanel playbook={playbook} />}
       {!playbook && <GenericRemediationSteps test={test} />}
     </div>

@@ -314,6 +314,28 @@
       "copied": "コピーしました",
       "copyCode": "コードをコピー"
     },
+    "ai": {
+      "title": "AIによるカスタマイズされた修復ガイド",
+      "description": "設定済みのAIキーを使用して、このテストに合わせた修復ガイドを生成します。下記の静的プレイブックが基準として残ります。",
+      "generate": "カスタマイズされたガイドを生成",
+      "regenerate": "再生成",
+      "regenerateConfirm": "AIキーのトークンを追加で消費します。",
+      "regenerateConfirmYes": "再生成する",
+      "regenerateConfirmNo": "キャンセル",
+      "generating": "ガイドを生成中…",
+      "tailoredHeader": "この環境に合わせて生成",
+      "cachedBadge": "キャッシュ済み",
+      "tokens": "トークン",
+      "errors": {
+        "byokRequired": "AIキーを設定するとカスタマイズガイドが有効になります。",
+        "byokRequiredCta": "AI設定を開く",
+        "noPlaybook": "このバリデーション向けのカスタマイズガイドは現在ありません。",
+        "providerUnavailable": "AIプロバイダに接続できませんでした。キーを確認して再試行してください。",
+        "rateLimited": "この組織のレート制限に達しました。数分後に再試行してください。",
+        "forbidden": "このテストのAIガイドを生成する権限がありません。",
+        "generic": "AIガイドを生成できませんでした。後ほど再試行してください。"
+      }
+    },
     "steps": {
       "investigateFailure": {
         "title": "失敗したスキャン結果を調査する",
