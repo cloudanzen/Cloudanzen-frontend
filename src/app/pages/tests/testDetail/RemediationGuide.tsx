@@ -17,6 +17,9 @@ import {
 import { STATUS_CONFIG } from './constants';
 import { fmtDate } from '@/lib/format-date';
 import { getProviderLabel } from './scanRegistry';
+import { resolvePlaybook } from './remediationPlaybooks/resolver';
+import { PlaybookPanel } from './remediationPlaybooks/PlaybookPanel';
+import { AiRemediationPanel } from './remediationPlaybooks/AiRemediationPanel';
 
 // ── Live remediation panel (shown when autoRemediationSupported=true) ──────────
 
@@ -209,15 +212,10 @@ function AutoRemediationSection({ testId }: { testId: string }) {
   );
 }
 
-// ── Main component ─────────────────────────────────────────────────────────────
+// ── Generic fallback steps (used when no Tier 1 playbook resolves) ────────────
 
-export function RemediationGuide({ test }: { test: TestRecord }) {
+function GenericRemediationSteps({ test }: { test: TestRecord }) {
   const { t } = useTranslation('tests');
-  // When autoRemediationSupported=true, show live engine status instead of static steps
-  if (test.autoRemediationSupported && test.type !== 'Document') {
-    return <AutoRemediationSection testId={test.id} />;
-  }
-
   const isAutomated = test.type !== 'Document';
   const isFailing =
     test.lastResult === 'Fail' || test.status === 'Needs_remediation';
@@ -415,6 +413,42 @@ export function RemediationGuide({ test }: { test: TestRecord }) {
           </li>
         ))}
       </ol>
+    </div>
+  );
+}
+
+// ── Main component ─────────────────────────────────────────────────────────────
+
+/**
+ * Render order:
+ *   1. Auto-remediation live status (always shown when supported, including
+ *      Document tests — the previous early-return on autoRemediationSupported
+ *      hid the manual guidance and is intentionally removed)
+ *   2. Tier 1 static playbook (always shown when resolved)
+ *   3. Generic fallback steps (only when no playbook resolves, so custom and
+ *      future-unknown validations still get usable guidance)
+ *
+ * Tier 2 AI-tailored guide slots in between #1 and #2 in PR6.
+ */
+export function RemediationGuide({ test }: { test: TestRecord }) {
+  const autoRemediationVisible =
+    test.autoRemediationSupported && test.type !== 'Document';
+
+  const outcome = resolvePlaybook({
+    templateId: test.templateId,
+    testKey: test.testKey,
+    name: test.name,
+    provider: test.integration?.provider ?? null,
+  });
+
+  const playbook = outcome.playbook;
+
+  return (
+    <div className="space-y-6">
+      {autoRemediationVisible && <AutoRemediationSection testId={test.id} />}
+      <AiRemediationPanel testId={test.id} />
+      {playbook && <PlaybookPanel playbook={playbook} />}
+      {!playbook && <GenericRemediationSteps test={test} />}
     </div>
   );
 }
