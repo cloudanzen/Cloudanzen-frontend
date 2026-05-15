@@ -4,7 +4,7 @@ import { resolvePlaybook } from '../resolver';
 describe('resolvePlaybook', () => {
   it('resolves AWS access-key-age by templateId', () => {
     const outcome = resolvePlaybook({
-      templateId: 'c2000000-0000-0000-0000-000000000001',
+      templateId: 'c2000000-0000-0000-0000-000000000003',
     });
     expect(outcome.resolvedBy).toBe('templateId');
     expect(outcome.playbook?.playbookId).toBe('aws.no-stale-iam-access-keys');
@@ -20,7 +20,7 @@ describe('resolvePlaybook', () => {
 
   it('AWS playbook contains CLI and Terraform sections', () => {
     const outcome = resolvePlaybook({
-      templateId: 'c2000000-0000-0000-0000-000000000001',
+      templateId: 'c2000000-0000-0000-0000-000000000003',
     });
     expect(outcome.playbook).not.toBeNull();
     const headings = outcome.playbook!.toolSpecificSteps.map((s) => s.heading);
@@ -31,7 +31,7 @@ describe('resolvePlaybook', () => {
 
   it('Fleet disk-encryption resolves by templateId and forbids AWS/Terraform content', () => {
     const outcome = resolvePlaybook({
-      templateId: 'c5000000-0000-0000-0000-000000000004',
+      templateId: 'c5000000-0000-0000-0000-000000000001',
     });
     expect(outcome.resolvedBy).toBe('templateId');
     expect(outcome.playbook?.playbookId).toBe('fleet.disk-encryption-enabled');
@@ -75,7 +75,7 @@ describe('resolvePlaybook', () => {
 
   it('templateId match wins over a competing testKey + name match', () => {
     const outcome = resolvePlaybook({
-      templateId: 'c5000000-0000-0000-0000-000000000004',
+      templateId: 'c5000000-0000-0000-0000-000000000001',
       testKey: 'integration:aws:int-1:aws.no-stale-iam-access-keys',
       name: 'Access Control Policy review',
     });

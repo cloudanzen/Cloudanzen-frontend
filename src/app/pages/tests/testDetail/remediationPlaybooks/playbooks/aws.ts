@@ -4,7 +4,7 @@ export const AWS_PLAYBOOKS: Playbook[] = [
   {
     playbookId: 'aws.no-stale-iam-access-keys',
     playbookVersion: 1,
-    templateId: 'c2000000-0000-0000-0000-000000000001',
+    templateId: 'c2000000-0000-0000-0000-000000000003',
     catalogKey: 'aws.no-stale-iam-access-keys',
     title: 'Rotate stale IAM access keys',
     whatFailed:

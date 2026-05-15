@@ -4,7 +4,7 @@ export const FLEET_PLAYBOOKS: Playbook[] = [
   {
     playbookId: 'fleet.disk-encryption-enabled',
     playbookVersion: 1,
-    templateId: 'c5000000-0000-0000-0000-000000000004',
+    templateId: 'c5000000-0000-0000-0000-000000000001',
     catalogKey: 'fleet.disk-encryption-enabled',
     title: 'Enforce disk encryption on managed endpoints',
     whatFailed:
