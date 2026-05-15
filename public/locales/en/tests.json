@@ -304,6 +304,16 @@
     "alertFailing": "This test is failing and requires remediation",
     "alertOverdue": "This test is overdue and needs attention",
     "alertDescription": "Follow the steps below to resolve the issue and bring this test back into compliance.",
+    "playbook": {
+      "whyItMatters": "Why it matters",
+      "fixPath": "Recommended fix path",
+      "evidence": "Evidence to attach",
+      "verify": "Verification",
+      "pitfalls": "Common pitfalls",
+      "copy": "Copy",
+      "copied": "Copied",
+      "copyCode": "Copy code snippet"
+    },
     "steps": {
       "investigateFailure": {
         "title": "Investigate the failing scan result",
