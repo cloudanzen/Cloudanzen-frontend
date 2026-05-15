@@ -1,0 +1,6 @@
+# Generated artifacts — must remain byte-identical to the backend
+# exporter output (synced via scripts/sync-playbook-ids.js) so the
+# parity tests stay green. Prettier compresses single-element JSON
+# arrays to one line; the exporter does not. Excluding here.
+src/app/pages/tests/testDetail/remediationPlaybooks/playbook-ids.generated.json
+src/app/pages/tests/testDetail/remediationPlaybooks/playbook-content.generated.json
