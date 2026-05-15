@@ -1,0 +1,21 @@
+{
+  "count": 4,
+  "playbooks": [
+    {
+      "playbookId": "aws.no-stale-iam-access-keys",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "cloudanzen.policy-acceptance-complete",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "document.access-control-policy-review",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "fleet.disk-encryption-enabled",
+      "playbookVersion": 1
+    }
+  ]
+}
