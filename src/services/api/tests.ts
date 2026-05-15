@@ -91,6 +91,19 @@ export interface TestRunRecord {
   durationMs: number | null;
 }
 
+// ─── Tier 2 AI-tailored remediation guide ─────────────────────────────────────
+export interface AiRemediationGuide {
+  generationId: string;
+  cached: boolean;
+  playbookId: string;
+  playbookVersion: number;
+  model: string;
+  provider: 'openai' | 'anthropic';
+  outputText: string;
+  inputTokens: number | null;
+  outputTokens: number | null;
+}
+
 // ─── Core test record ─────────────────────────────────────────────────────────
 export interface TestRecord {
   id: string;
@@ -517,6 +530,15 @@ export class TestsService {
 
   async autoRemediate(testId: string): Promise<ApiResponse<TestRecord>> {
     return apiClient.post(`/api/tests/${testId}/auto-remediate`, {});
+  }
+
+  async generateAiRemediation(
+    testId: string,
+    opts: { forceRegenerate?: boolean } = {},
+  ): Promise<ApiResponse<AiRemediationGuide>> {
+    return apiClient.post(`/api/tests/${testId}/ai-remediation`, {
+      forceRegenerate: !!opts.forceRegenerate,
+    });
   }
 
   async exportTests(
