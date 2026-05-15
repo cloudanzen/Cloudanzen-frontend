@@ -1,8 +1,196 @@
 {
-  "count": 4,
+  "count": 247,
   "playbooks": [
     {
+      "playbookId": "aws_secrets.all-secrets-in-approved-manager",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "aws_secrets.no-expired-tls-certificates",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "aws_secrets.no-plaintext-secrets-in-code",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "aws_secrets.no-secrets-exceeded-rotation",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "aws_secrets.secrets-manager-audit-logging-enabled",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "aws.all-iam-users-have-mfa",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "aws.cloudtrail-covers-all-regions",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "aws.cloudtrail-enabled",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "aws.ec2-instances-minimise-public-exposure",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "aws.kms-key-rotation-enabled",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "aws.no-public-s3-buckets",
+      "playbookVersion": 1
+    },
+    {
       "playbookId": "aws.no-stale-iam-access-keys",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "aws.no-unrestricted-inbound-sg-rules",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "aws.rds-automated-backups",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "aws.rds-not-publicly-accessible",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "aws.root-account-mfa-enabled",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "aws.s3-buckets-encrypted-at-rest",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "azure_ad.all-applications-covered-by-sso",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "azure_ad.mfa-enforced-for-all-users",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "azure_ad.no-stale-inactive-user-accounts",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "azure_ad.privileged-access-least-privilege",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "azure_ad.user-access-reviews-on-schedule",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "azure.cloud-audit-logging-enabled",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "azure.cloud-iam-configured",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "azure.cloud-network-exposure-minimised",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "azure.cloud-no-critical-misconfigurations",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "azure.cloud-storage-encrypted-at-rest",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "bamboohr.all-employees-completed-policy-acceptance",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "bamboohr.all-employees-completed-security-training",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "bamboohr.all-employees-have-manager-assigned",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "bamboohr.background-checks-completed-for-all-employees",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "bamboohr.no-employee-missing-mdm-enrollment",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "bamboohr.terminated-employees-deprovisioned-within-sla",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "bigid.critical-data-sources-scanned-within-sla",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "bigid.data-inventory-map-maintained",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "bigid.data-sources-have-assigned-owners",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "bigid.pii-discovery-active",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "bigid.sensitive-data-tracked-classified",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "cert_manager.all-secrets-in-approved-manager",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "cert_manager.no-expired-tls-certificates",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "cert_manager.no-plaintext-secrets-in-code",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "cert_manager.no-secrets-exceeded-rotation",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "cert_manager.secrets-manager-audit-logging-enabled",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "checkmarx.no-critical-high-code-vulnerabilities",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "checkmarx.no-known-exploits-in-dependencies",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "checkmarx.security-hotspots-reviewed",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "checkmarx.static-code-analysis-passes-gate",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "checkmarx.vulnerability-remediation-sla-met",
       "playbookVersion": 1
     },
     {
@@ -10,11 +198,795 @@
       "playbookVersion": 1
     },
     {
+      "playbookId": "cloudflare.audit-logging-enabled",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "cloudflare.bot-protection-enabled",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "cloudflare.dnssec-enabled",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "cloudflare.email-spoofing-protection",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "cloudflare.hsts-configured",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "cloudflare.https-always-enforced",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "cloudflare.minimum-tls-1-2",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "cloudflare.rate-limiting-configured",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "cloudflare.strong-tls-enforcement",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "cloudflare.waf-protection-enabled",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "datadog.critical-incidents-responded-within-sla",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "datadog.incident-tracking-configured-active",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "datadog.on-call-schedule-escalation-policy-exists",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "datadog.open-incidents-actively-managed",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "datadog.post-incident-rca-coverage",
+      "playbookVersion": 1
+    },
+    {
       "playbookId": "document.access-control-policy-review",
       "playbookVersion": 1
     },
     {
+      "playbookId": "fleet.all-endpoints-enrolled-in-mdm",
+      "playbookVersion": 1
+    },
+    {
       "playbookId": "fleet.disk-encryption-enabled",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "fleet.endpoint-inventory-complete",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "fleet.no-critical-policy-failures",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "fleet.no-stale-endpoints",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "fleet.os-version-compliance",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "gcp.cloud-audit-logging-enabled",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "gcp.cloud-iam-configured",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "gcp.cloud-network-exposure-minimised",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "gcp.cloud-no-critical-misconfigurations",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "gcp.cloud-storage-encrypted-at-rest",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "github.accounts-associated-with-users",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "github.accounts-deprovisioned-on-termination",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "github.application-changes-reviewed",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "github.code-changes-approved-or-justified",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "github.critical-package-vulnerabilities-addressed",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "github.high-package-vulnerabilities-addressed",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "github.low-package-vulnerabilities-addressed",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "github.medium-package-vulnerabilities-addressed",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "github.members-map-to-isms-users",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "github.mfa-on-github",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "github.pr-author-not-reviewer",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "github.repository-visibility-private",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "github.version-control-system-present",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "intercom.audit-findings-acknowledged-within-24h",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "intercom.security-requests-responded-within-sla",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "intercom.trust-centre-requests-triaged-within-48h",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "jumpcloud.all-applications-covered-by-sso",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "jumpcloud.mfa-enforced-for-all-users",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "jumpcloud.no-stale-inactive-user-accounts",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "jumpcloud.privileged-access-least-privilege",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "jumpcloud.user-access-reviews-on-schedule",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "lacework.cloud-audit-logging-enabled",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "lacework.cloud-iam-configured",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "lacework.cloud-network-exposure-minimised",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "lacework.cloud-no-critical-misconfigurations",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "lacework.cloud-storage-encrypted-at-rest",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "newrelic.critical-alerts-configured",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "newrelic.incidents-tracked",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "newrelic.logs-retained-for-required-period",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "newrelic.monitoring-system-implemented",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "newrelic.system-uptime-above-99",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "notion.access-review-tasks-completed-quarterly",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "notion.all-compliance-tasks-have-owners",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "notion.critical-remediation-tasks-completed-within-sla",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "notion.no-overdue-compliance-tasks",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "okta.all-applications-covered-by-sso",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "okta.mfa-enforced-for-all-users",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "okta.no-stale-inactive-user-accounts",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "okta.privileged-access-least-privilege",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "okta.user-access-reviews-on-schedule",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "opsgenie.critical-incidents-responded-within-sla",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "opsgenie.incident-tracking-configured-active",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "opsgenie.on-call-schedule-escalation-policy-exists",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "opsgenie.open-incidents-actively-managed",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "opsgenie.post-incident-rca-coverage",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "pagerduty.critical-incidents-responded-within-sla",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "pagerduty.incident-tracking-configured-active",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "pagerduty.on-call-schedule-escalation-policy-exists",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "pagerduty.open-incidents-actively-managed",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "pagerduty.post-incident-rca-coverage",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "redash.admin-access-limited",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "redash.all-queries-have-assigned-owner",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "redash.data-sources-use-approved-connection-types",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "redash.no-inactive-users-beyond-90-days",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "redash.no-public-dashboards-exposing-sensitive-data",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "redash.no-terminated-employees-with-access",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "redash.production-database-access-restricted",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "servicenow.critical-incidents-responded-within-sla",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "servicenow.incident-tracking-configured-active",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "servicenow.on-call-schedule-escalation-policy-exists",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "servicenow.open-incidents-actively-managed",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "servicenow.post-incident-rca-coverage",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "snyk.no-critical-high-code-vulnerabilities",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "snyk.no-known-exploits-in-dependencies",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "snyk.security-hotspots-reviewed",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "snyk.static-code-analysis-passes-gate",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "snyk.vulnerability-remediation-sla-met",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "sonarqube.no-critical-high-code-vulnerabilities",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "sonarqube.no-known-exploits-in-dependencies",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "sonarqube.security-hotspots-reviewed",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "sonarqube.static-code-analysis-passes-gate",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "sonarqube.vulnerability-remediation-sla-met",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000002",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000003",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000004",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000005",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000006",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000007",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000008",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000009",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000010",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000011",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000012",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000013",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000014",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000016",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000017",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000018",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000019",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000021",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000022",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000023",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000024",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000025",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000026",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000027",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000028",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000029",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000030",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000031",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000032",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000033",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000034",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000035",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000037",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000038",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000039",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000040",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000041",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000042",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000043",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000044",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000045",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000046",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000047",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000048",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000049",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000050",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000051",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000052",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000053",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000054",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000055",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000056",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000057",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000058",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000059",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000060",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000061",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000062",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000063",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000064",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000065",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000066",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000067",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000068",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000069",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000070",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000071",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000072",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000073",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000074",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000075",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000076",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000077",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000078",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000079",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000080",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000081",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "template.c0000000-0000-0000-0000-000000000082",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "vault.all-secrets-in-approved-manager",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "vault.no-expired-tls-certificates",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "vault.no-plaintext-secrets-in-code",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "vault.no-secrets-exceeded-rotation",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "vault.secrets-manager-audit-logging-enabled",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "veracode.no-critical-high-code-vulnerabilities",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "veracode.no-known-exploits-in-dependencies",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "veracode.security-hotspots-reviewed",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "veracode.static-code-analysis-passes-gate",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "veracode.vulnerability-remediation-sla-met",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "wiz.cloud-audit-logging-enabled",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "wiz.cloud-iam-configured",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "wiz.cloud-network-exposure-minimised",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "wiz.cloud-no-critical-misconfigurations",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "wiz.cloud-storage-encrypted-at-rest",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "workspace.all-users-belong-to-org-unit",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "workspace.mfa-enforced-for-all-users",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "workspace.no-inactive-users-beyond-90-days",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "workspace.no-terminated-employees-with-active-accounts",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "workspace.super-admin-count-within-limits",
+      "playbookVersion": 1
+    },
+    {
+      "playbookId": "workspace.suspended-users-no-recent-login",
       "playbookVersion": 1
     }
   ]
