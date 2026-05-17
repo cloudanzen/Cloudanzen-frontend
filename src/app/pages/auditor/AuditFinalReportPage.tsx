@@ -336,7 +336,7 @@ export function AuditFinalReportPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => navigate('/auditor/dashboard')}
+            onClick={() => navigate(`/auditor/dashboard?auditId=${audit.id}`)}
           >
             <LayoutDashboard className="w-4 h-4 mr-1" />{' '}
             {t('finalReport.dashboard')}
