@@ -29,12 +29,18 @@ export const QK = {
   riskSnapshot: () => ['risks', 'snapshot'] as const,
   riskSnapshots: () => ['risks', 'snapshots', 'list'] as const,
   riskSnapshotDetail: (id: string) => ['risks', 'snapshots', id] as const,
+  auditorRiskSnapshots: (auditId: string) =>
+    ['auditor', 'audits', auditId, 'risk-snapshots'] as const,
+  auditorRiskSnapshotDetail: (auditId: string, snapshotId: string) =>
+    ['auditor', 'audits', auditId, 'risk-snapshots', snapshotId] as const,
   riskLibrary: () => ['risks', 'library'] as const,
   riskSettings: () => ['risks', 'settings'] as const,
   riskDetail: (id: string) => ['risks', 'detail', id] as const,
   riskMappings: (id: string) => ['risks', 'mappings', id] as const,
-  riskTreatmentPolicies: (id: string) => ['risks', 'treatment-policies', id] as const,
-  policyTreatmentRisks: (id: string) => ['policies', 'treatment-risks', id] as const,
+  riskTreatmentPolicies: (id: string) =>
+    ['risks', 'treatment-policies', id] as const,
+  policyTreatmentRisks: (id: string) =>
+    ['policies', 'treatment-risks', id] as const,
 
   // MDM / Computers
   mdmDevices: () => ['mdm', 'devices'] as const,
@@ -44,7 +50,8 @@ export const QK = {
   users: () => ['users', 'list'] as const,
 
   // Assets
-  assets: (filters?: Record<string, unknown>) => ['assets', 'list', filters] as const,
+  assets: (filters?: Record<string, unknown>) =>
+    ['assets', 'list', filters] as const,
   assetDetail: (id: string) => ['assets', 'detail', id] as const,
   assetCoverage: () => ['assets', 'coverage'] as const,
   assetChangelog: (id: string) => ['assets', 'changelog', id] as const,
@@ -52,7 +59,8 @@ export const QK = {
   assetReviewQueues: () => ['assets', 'review-queues'] as const,
   assetSavedViews: () => ['assets', 'saved-views'] as const,
   assetDistribution: () => ['assets', 'distribution'] as const,
-  assetMergeGroups: (reviewStatus?: string) => ['assets', 'merge-groups', reviewStatus] as const,
+  assetMergeGroups: (reviewStatus?: string) =>
+    ['assets', 'merge-groups', reviewStatus] as const,
 
   // Access Management
   accessRequests: (filter?: object) => ['access', 'requests', filter] as const,
@@ -109,9 +117,23 @@ export const QK = {
   vendorQuestionnaireAnswers: (vendorId: string, reviewId: string) =>
     ['vendors', 'reviews', vendorId, 'questionnaire', reviewId] as const,
   vendorQuestionnaireSuggestions: (vendorId: string, reviewId: string) =>
-    ['vendors', 'reviews', vendorId, 'questionnaire', reviewId, 'suggestions'] as const,
+    [
+      'vendors',
+      'reviews',
+      vendorId,
+      'questionnaire',
+      reviewId,
+      'suggestions',
+    ] as const,
   vendorQuestionnaireStatus: (vendorId: string, reviewId: string) =>
-    ['vendors', 'reviews', vendorId, 'questionnaire', reviewId, 'status'] as const,
+    [
+      'vendors',
+      'reviews',
+      vendorId,
+      'questionnaire',
+      reviewId,
+      'status',
+    ] as const,
   vendorContacts: (vendorId: string) =>
     ['vendors', 'contacts', vendorId] as const,
   vendorFindings: (vendorId: string) =>

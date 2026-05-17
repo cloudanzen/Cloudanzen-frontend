@@ -34,6 +34,20 @@
       "findings": "Findings",
       "action": "Action",
       "review": "Review"
+    },
+    "riskSnapshots": {
+      "title": "Risk Snapshots",
+      "description": "Point-in-time risk register snapshots the organization shared with you for this audit's observation window.",
+      "loading": "Loading risk snapshots...",
+      "empty": "No risk snapshots have been shared for this audit window.",
+      "loadFailed": "Failed to load risk snapshots.",
+      "columns": {
+        "name": "Name",
+        "createdAt": "Captured",
+        "riskCount": "Risks",
+        "action": "Action"
+      },
+      "view": "View"
     }
   },
   "reviewStatus": {

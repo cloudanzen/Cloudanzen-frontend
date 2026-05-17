@@ -59,6 +59,11 @@ const AuditFinalReportPage = lazy(() =>
     default: m.AuditFinalReportPage,
   })),
 );
+const AuditorRiskSnapshotPage = lazy(() =>
+  import('@/app/pages/auditor/AuditorRiskSnapshotPage').then((m) => ({
+    default: m.AuditorRiskSnapshotPage,
+  })),
+);
 const AuditorInvitationPage = lazy(() =>
   import('@/app/pages/auth/AuditorInvitationPage').then((m) => ({
     default: m.AuditorInvitationPage,
@@ -417,6 +422,10 @@ export const router = createBrowserRouter([
         path: 'auditor/audits/:auditId/final-report',
         Component: AuditFinalReportPage,
       },
+      {
+        path: 'auditor/audits/:auditId/risk-snapshots/:snapshotId',
+        Component: AuditorRiskSnapshotPage,
+      },
 
       // Compliance
       { path: 'compliance/frameworks', Component: FrameworksPage },
@@ -433,15 +442,27 @@ export const router = createBrowserRouter([
       { path: 'compliance/policies', Component: PoliciesPage },
       { path: 'compliance/policies/:id', Component: PolicyDetailPage },
       { path: 'compliance/documents', Component: DocumentsPage },
-      { path: 'compliance/documents/:documentId', Component: DocumentDetailPage },
+      {
+        path: 'compliance/documents/:documentId',
+        Component: DocumentDetailPage,
+      },
       { path: 'compliance/audits', Component: AuditsPage },
       { path: 'compliance/audits/:auditId', Component: AuditDetailPage },
-      { path: 'compliance/findings', loader: () => redirect('/assets/findings') },
-      { path: 'compliance/settings', loader: () => redirect('/settings/compliance') },
+      {
+        path: 'compliance/findings',
+        loader: () => redirect('/assets/findings'),
+      },
+      {
+        path: 'compliance/settings',
+        loader: () => redirect('/settings/compliance'),
+      },
 
       // Customer Trust
       { path: 'customer-trust/trust-center', Component: TrustCenterPage },
-      { path: 'customer-trust/settings', loader: () => redirect('/settings/customer-trust') },
+      {
+        path: 'customer-trust/settings',
+        loader: () => redirect('/settings/customer-trust'),
+      },
 
       // Risk
       { path: 'risk/overview', Component: RiskOverviewPage },
@@ -449,7 +470,10 @@ export const router = createBrowserRouter([
       { path: 'risk/risks/:riskId', Component: RiskDetailPage },
       { path: 'risk/library', Component: RiskLibraryPage },
       { path: 'risk/remediations', Component: RemediationsPage },
-      { path: 'risk/action-tracker', loader: () => redirect('/risk/remediations') },
+      {
+        path: 'risk/action-tracker',
+        loader: () => redirect('/risk/remediations'),
+      },
       { path: 'risk/snapshot', Component: SnapshotPage },
       { path: 'risk/engine', Component: RiskEnginePage },
       { path: 'risk/settings', loader: () => redirect('/settings/risk') },
@@ -458,12 +482,18 @@ export const router = createBrowserRouter([
       { path: 'vendors', Component: VendorsPage },
       {
         path: 'vendors/discovery',
-        loader: requireRoles(['SUPER_ADMIN', 'ORG_ADMIN', 'SECURITY_OWNER'], '/vendors'),
+        loader: requireRoles(
+          ['SUPER_ADMIN', 'ORG_ADMIN', 'SECURITY_OWNER'],
+          '/vendors',
+        ),
         Component: VendorDiscoveryPage,
       },
       {
         path: 'vendors/intake-requests',
-        loader: requireRoles(['SUPER_ADMIN', 'ORG_ADMIN', 'SECURITY_OWNER'], '/vendors'),
+        loader: requireRoles(
+          ['SUPER_ADMIN', 'ORG_ADMIN', 'SECURITY_OWNER'],
+          '/vendors',
+        ),
         Component: VendorIntakeRequestsPage,
       },
       { path: 'vendors/:vendorId', Component: VendorDetailPage },
@@ -474,14 +504,20 @@ export const router = createBrowserRouter([
       { path: 'assets/merge-review', Component: MergeReviewPage },
       { path: 'assets/code-changes', Component: CodeChangesPage },
       { path: 'assets/findings', Component: AssetsFindingsPage },
-      { path: 'assets/vulnerabilities', loader: () => redirect('/assets/findings') },
+      {
+        path: 'assets/vulnerabilities',
+        loader: () => redirect('/assets/findings'),
+      },
       { path: 'assets/security-alerts', Component: SecurityAlertsPage },
       { path: 'assets/settings', loader: () => redirect('/settings/assets') },
 
       // Personnel
       { path: 'personnel/computers', Component: ComputersPage },
       { path: 'personnel/access', Component: AccessManagementPage },
-      { path: 'personnel/settings', loader: () => redirect('/settings/personnel') },
+      {
+        path: 'personnel/settings',
+        loader: () => redirect('/settings/personnel'),
+      },
 
       // AI
       {
@@ -502,7 +538,10 @@ export const router = createBrowserRouter([
       { path: 'admin/test-templates', Component: AdminTestTemplatesPage },
       { path: 'admin/policy-templates', Component: AdminPolicyTemplatesPage },
       { path: 'admin/frameworks', Component: AdminFrameworksPage },
-      { path: 'admin/framework-requests', Component: FrameworkAccessRequestsPage },
+      {
+        path: 'admin/framework-requests',
+        Component: FrameworkAccessRequestsPage,
+      },
       { path: 'admin/organizations', Component: AdminOrganizationsPage },
 
       // Other
@@ -513,7 +552,10 @@ export const router = createBrowserRouter([
         Component: PartnerApiPage,
       },
       { path: 'onboarding-tasks', Component: OnboardingTasksPage },
-      { path: 'my-security-tasks', loader: () => redirect('/onboarding-tasks') },
+      {
+        path: 'my-security-tasks',
+        loader: () => redirect('/onboarding-tasks'),
+      },
 
       // Settings shell
       {

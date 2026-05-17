@@ -34,6 +34,20 @@
       "findings": "指摘事項",
       "action": "操作",
       "review": "レビュー"
+    },
+    "riskSnapshots": {
+      "title": "リスクスナップショット",
+      "description": "この監査の観察期間内に組織から共有されたリスク登録簿のスナップショット。",
+      "loading": "リスクスナップショットを読み込み中...",
+      "empty": "この監査期間に共有されたリスクスナップショットはありません。",
+      "loadFailed": "リスクスナップショットの読み込みに失敗しました。",
+      "columns": {
+        "name": "名前",
+        "createdAt": "取得日",
+        "riskCount": "リスク数",
+        "action": "操作"
+      },
+      "view": "表示"
     }
   },
   "reviewStatus": {
