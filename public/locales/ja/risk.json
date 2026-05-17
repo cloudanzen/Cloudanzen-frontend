@@ -146,12 +146,18 @@
       "none": "なし",
       "columns": {
         "risk": "リスク",
+        "source": "ソース",
         "asset": "資産",
         "impact": "影響度",
         "likelihood": "発生可能性",
         "score": "スコア",
         "status": "ステータス",
         "treatments": "対処方法"
+      },
+      "sources": {
+        "prisma": "リスク",
+        "register": "ライブラリ",
+        "legacy": "レガシー"
       }
     },
     "list": {

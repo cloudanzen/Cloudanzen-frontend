@@ -11,7 +11,17 @@ import {
 
 // ── Risk Snapshot types ───────────────────────────────────────────────────────
 
+export type RiskSnapshotItemSource = 'prisma' | 'register';
+
 export interface RiskSnapshotItem {
+  /**
+   * Which system-of-record this row came from when the snapshot was
+   * captured. Optional because snapshots created before the dual-source
+   * capture landed don't carry it — render those as "legacy".
+   */
+  source?: RiskSnapshotItemSource;
+  /** The row's id in the source system. Optional for the same reason. */
+  sourceId?: string;
   id: string;
   title: string;
   description: string;

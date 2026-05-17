@@ -146,12 +146,18 @@
       "none": "None",
       "columns": {
         "risk": "Risk",
+        "source": "Source",
         "asset": "Asset",
         "impact": "Impact",
         "likelihood": "Likelihood",
         "score": "Score",
         "status": "Status",
         "treatments": "Treatments"
+      },
+      "sources": {
+        "prisma": "Risks",
+        "register": "Library",
+        "legacy": "Legacy"
       }
     },
     "list": {
