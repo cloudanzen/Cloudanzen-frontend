@@ -7,6 +7,7 @@
     "locked": "Locked",
     "viewFinalReport": "View Final Report",
     "finalReport": "Final Report",
+    "exitPreview": "Exit preview",
     "kpis": {
       "controlsInScope": "Controls in Scope",
       "controlsReviewed": "Controls Reviewed",

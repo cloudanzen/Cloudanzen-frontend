@@ -7,6 +7,7 @@
     "locked": "ロック済み",
     "viewFinalReport": "最終進捗を表示",
     "finalReport": "最終進捗",
+    "exitPreview": "プレビューを終了",
     "kpis": {
       "controlsInScope": "対象管理策",
       "controlsReviewed": "レビュー済み管理策",

@@ -8,7 +8,7 @@
  */
 
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link, useNavigate, useSearchParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -21,6 +21,7 @@ import {
   Link as LinkIcon,
   FlaskConical,
   Lock,
+  LogOut,
 } from 'lucide-react';
 import {
   auditsService,
@@ -34,6 +35,7 @@ import { STALE } from '@/lib/queryClient';
 import { Card } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
 import { PageTemplate } from '@/app/components/PageTemplate';
+import { useIsAdmin } from '@/hooks/useCurrentUser';
 
 import { fmt, daysRemaining, ReviewBadge } from './auditorDashboard/helpers';
 import { KpiCard } from './auditorDashboard/KpiCard';
@@ -131,6 +133,13 @@ function AuditorRiskSnapshotsSection({ auditId }: { auditId: string }) {
 export function AuditorDashboardPage() {
   const { t } = useTranslation('auditor');
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isAdmin = useIsAdmin();
+  // Preview-mode signal — when admin clicks "Preview as auditor" we append
+  // ?auditId=<id> so the dashboard shows that specific audit instead of
+  // the auto-pick, and we surface an "Exit preview" button back to the
+  // admin audit-detail page.
+  const previewAuditId = searchParams.get('auditId');
   const [selectedControl, setSelectedControl] =
     useState<AuditControlRecord | null>(null);
   const [statusFilter, setStatusFilter] = useState<'' | AuditControlStatus>('');
@@ -145,11 +154,13 @@ export function AuditorDashboardPage() {
   });
 
   const audits = auditsData?.data ?? [];
-  // Pick the most recent IN_PROGRESS audit, fall back to PLANNED, then first
+  // 1. If `?auditId=<id>` is present (admin preview), find that audit.
+  // 2. Otherwise: most recent IN_PROGRESS → PLANNED → first audit.
   const audit =
-    audits.find((a) => a.status === 'IN_PROGRESS') ??
-    audits.find((a) => a.status === 'PLANNED') ??
-    audits[0] ??
+    (previewAuditId && audits.find((a) => a.id === previewAuditId)) ||
+    audits.find((a) => a.status === 'IN_PROGRESS') ||
+    audits.find((a) => a.status === 'PLANNED') ||
+    audits[0] ||
     null;
 
   // Fetch controls for the active audit
@@ -206,7 +217,22 @@ export function AuditorDashboardPage() {
   }
 
   return (
-    <PageTemplate title={t('dashboard.title')} description={audit.name}>
+    <PageTemplate
+      title={t('dashboard.title')}
+      description={audit.name}
+      actions={
+        isAdmin && previewAuditId ? (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate(`/compliance/audits/${previewAuditId}`)}
+          >
+            <LogOut className="w-4 h-4 mr-1" />
+            {t('dashboard.exitPreview')}
+          </Button>
+        ) : undefined
+      }
+    >
       {/* Audit meta banner */}
       <div className="flex flex-wrap items-center gap-3 mb-5 p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm text-gray-600">
         <span className="font-medium text-gray-900">{audit.name}</span>

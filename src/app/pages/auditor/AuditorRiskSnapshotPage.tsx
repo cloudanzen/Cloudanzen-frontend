@@ -110,7 +110,7 @@ export function AuditorRiskSnapshotPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => navigate('/auditor/dashboard')}
+            onClick={() => navigate(`/auditor/dashboard?auditId=${auditId}`)}
           >
             <LayoutDashboard className="w-4 h-4 mr-1" />
             {t('snapshot.detail.dashboard')}
