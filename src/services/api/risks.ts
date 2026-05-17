@@ -198,8 +198,21 @@ export class RisksService {
     return apiClient.get('/api/risks/snapshots');
   }
 
-  createSnapshot(name: string): Promise<ApiResponse<RiskSnapshotRecord>> {
-    return apiClient.post('/api/risks/snapshots', { name });
+  /**
+   * Create a snapshot. `statuses` is optional — when omitted, every risk
+   * is captured. When provided, only risks whose status is in the array
+   * are captured. The "Decided only" UI option sends
+   * `['MITIGATED', 'ACCEPTED', 'TRANSFERRED']` (every status except
+   * `OPEN`).
+   */
+  createSnapshot(
+    name: string,
+    statuses?: RiskStatus[],
+  ): Promise<ApiResponse<RiskSnapshotRecord>> {
+    return apiClient.post('/api/risks/snapshots', {
+      name,
+      ...(statuses ? { statuses } : {}),
+    });
   }
 
   getSnapshotDetail(id: string): Promise<ApiResponse<RiskSnapshotRecord>> {

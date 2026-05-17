@@ -30,6 +30,7 @@ import {
   RiskSnapshotRecord,
   RiskSnapshotItem,
 } from '@/services/api/risks';
+import { RiskStatus } from '@/services/api/types';
 import { RequirePermission } from '@/app/components/rbac/RequirePermission';
 import { PERMISSIONS } from '@/lib/rbac/permissions';
 
@@ -59,6 +60,18 @@ function fmt(dateStr: string) {
 
 // ── Create Snapshot Dialog ─────────────────────────────────────────────────────
 
+// Status set that maps to Vanta's "Include only approved scenarios" toggle.
+// Our `RiskStatus` enum is `OPEN | MITIGATED | ACCEPTED | TRANSFERRED`, so
+// "decided" = everything except `OPEN`. The UI label is "Decided only"
+// because we have no `APPROVED` value in the enum.
+const DECIDED_STATUSES: RiskStatus[] = [
+  RiskStatus.MITIGATED,
+  RiskStatus.ACCEPTED,
+  RiskStatus.TRANSFERRED,
+];
+
+type CreateScope = 'all' | 'decided';
+
 function CreateSnapshotDialog({
   open,
   onClose,
@@ -70,14 +83,20 @@ function CreateSnapshotDialog({
 }) {
   const { t } = useTranslation('risk');
   const [name, setName] = useState('');
+  const [scope, setScope] = useState<CreateScope>('all');
 
   const mutation = useMutation({
-    mutationFn: () => risksService.createSnapshot(name.trim()),
+    mutationFn: () =>
+      risksService.createSnapshot(
+        name.trim(),
+        scope === 'decided' ? DECIDED_STATUSES : undefined,
+      ),
     onSuccess: (res) => {
       if (res.data) {
         toast.success(t('snapshot.createDialog.success'));
         onCreated(res.data.id);
         setName('');
+        setScope('all');
       }
     },
     onError: () => toast.error(t('snapshot.createDialog.error')),
@@ -89,6 +108,7 @@ function CreateSnapshotDialog({
       onOpenChange={(v) => {
         if (!v) {
           setName('');
+          setScope('all');
           onClose();
         }
       }}
@@ -108,6 +128,49 @@ function CreateSnapshotDialog({
             if (e.key === 'Enter' && name.trim()) mutation.mutate();
           }}
         />
+
+        <fieldset className="space-y-2">
+          <legend className="text-sm font-medium text-foreground">
+            {t('snapshot.createDialog.scopeLabel')}
+          </legend>
+          <label className="flex cursor-pointer items-start gap-2 rounded-md border border-slate-200 p-3 hover:bg-slate-50">
+            <input
+              type="radio"
+              name="scope"
+              value="all"
+              checked={scope === 'all'}
+              onChange={() => setScope('all')}
+              className="mt-1"
+            />
+            <div className="text-sm">
+              <div className="font-medium">
+                {t('snapshot.createDialog.scopeAllLabel')}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {t('snapshot.createDialog.scopeAllDesc')}
+              </div>
+            </div>
+          </label>
+          <label className="flex cursor-pointer items-start gap-2 rounded-md border border-slate-200 p-3 hover:bg-slate-50">
+            <input
+              type="radio"
+              name="scope"
+              value="decided"
+              checked={scope === 'decided'}
+              onChange={() => setScope('decided')}
+              className="mt-1"
+            />
+            <div className="text-sm">
+              <div className="font-medium">
+                {t('snapshot.createDialog.scopeDecidedLabel')}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {t('snapshot.createDialog.scopeDecidedDesc')}
+              </div>
+            </div>
+          </label>
+        </fieldset>
+
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             {t('snapshot.createDialog.cancel')}
