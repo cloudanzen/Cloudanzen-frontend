@@ -5,14 +5,27 @@ import { useParams, useNavigate } from 'react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { PageTemplate } from '@/app/components/PageTemplate';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/app/components/ui/tabs';
 import { Card } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
 import { Badge } from '@/app/components/ui/badge';
 import { Progress } from '@/app/components/ui/progress';
 import { Input } from '@/app/components/ui/input';
 import { Label } from '@/app/components/ui/label';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/app/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/app/components/ui/dialog';
+import { Link } from 'react-router';
 import {
   ArrowLeft,
   ChevronDown,
@@ -26,7 +39,11 @@ import {
   AlertCircle,
   Clock,
   Building2,
+  Camera,
 } from 'lucide-react';
+import type { RiskSnapshotRecord } from '@/services/api/risks';
+import { QK } from '@/lib/queryKeys';
+import { STALE } from '@/lib/queryClient';
 import {
   auditsService,
   AuditRecord,
@@ -42,7 +59,11 @@ import {
 } from '@/services/api/audits';
 import { usersService } from '@/services/api/users';
 import { vendorsService, VendorRecord } from '@/services/api/vendors';
-import { useCanAudit, useCurrentUser, useIsAdmin } from '@/hooks/useCurrentUser';
+import {
+  useCanAudit,
+  useCurrentUser,
+  useIsAdmin,
+} from '@/hooks/useCurrentUser';
 import { useConfirmDialog } from '@/app/hooks/useConfirmDialog';
 import { ControlReviewPanel } from '@/app/pages/auditor/auditorDashboard/ControlReviewPanel';
 import { AddFindingModal } from '@/app/pages/auditor/auditorDashboard/AddFindingModal';
@@ -112,15 +133,28 @@ function OverviewTab({
 
   const total = controls.length;
   const reviewed = controls.filter((c) => c.reviewStatus !== 'PENDING').length;
-  const compliant = controls.filter((c) => c.reviewStatus === 'COMPLIANT').length;
-  const nonCompliant = controls.filter((c) => c.reviewStatus === 'NON_COMPLIANT').length;
-  const notApplicable = controls.filter((c) => c.reviewStatus === 'NOT_APPLICABLE').length;
+  const compliant = controls.filter(
+    (c) => c.reviewStatus === 'COMPLIANT',
+  ).length;
+  const nonCompliant = controls.filter(
+    (c) => c.reviewStatus === 'NON_COMPLIANT',
+  ).length;
+  const notApplicable = controls.filter(
+    (c) => c.reviewStatus === 'NOT_APPLICABLE',
+  ).length;
   const pending = controls.filter((c) => c.reviewStatus === 'PENDING').length;
 
   const reviewedPct = total > 0 ? Math.round((reviewed / total) * 100) : 0;
-  const closedFindings = findings.filter((f) => (f as any).status === 'CLOSED').length;
-  const findingPct = findings.length > 0 ? Math.round((closedFindings / findings.length) * 100) : 0;
-  const compliancePct = snap?.compliancePct ?? (total > 0 ? Math.round((compliant / total) * 100) : 0);
+  const closedFindings = findings.filter(
+    (f) => (f as any).status === 'CLOSED',
+  ).length;
+  const findingPct =
+    findings.length > 0
+      ? Math.round((closedFindings / findings.length) * 100)
+      : 0;
+  const compliancePct =
+    snap?.compliancePct ??
+    (total > 0 ? Math.round((compliant / total) * 100) : 0);
 
   const majorCount = findings.filter((f) => f.severity === 'MAJOR').length;
   const minorCount = findings.filter((f) => f.severity === 'MINOR').length;
@@ -131,17 +165,43 @@ function OverviewTab({
     <div className="space-y-4">
       {/* Readiness bars */}
       <Card className="p-5">
-        <h3 className="text-sm font-semibold text-foreground mb-4">{t('auditDetail.overview.readiness')}</h3>
+        <h3 className="text-sm font-semibold text-foreground mb-4">
+          {t('auditDetail.overview.readiness')}
+        </h3>
         <div className="space-y-4">
           {[
-            { label: t('auditDetail.overview.controlsReviewed'), value: reviewedPct, sub: t('auditDetail.overview.reviewedOf', { reviewed, total }) },
-            { label: t('auditDetail.overview.complianceRate'), value: compliancePct, sub: t('auditDetail.overview.compliantCount', { count: compliant }) },
-            { label: t('auditDetail.overview.findingsResolved'), value: findingPct, sub: findings.length > 0 ? t('auditDetail.overview.closedOf', { closed: closedFindings, total: findings.length }) : t('auditDetail.overview.noFindings') },
+            {
+              label: t('auditDetail.overview.controlsReviewed'),
+              value: reviewedPct,
+              sub: t('auditDetail.overview.reviewedOf', { reviewed, total }),
+            },
+            {
+              label: t('auditDetail.overview.complianceRate'),
+              value: compliancePct,
+              sub: t('auditDetail.overview.compliantCount', {
+                count: compliant,
+              }),
+            },
+            {
+              label: t('auditDetail.overview.findingsResolved'),
+              value: findingPct,
+              sub:
+                findings.length > 0
+                  ? t('auditDetail.overview.closedOf', {
+                      closed: closedFindings,
+                      total: findings.length,
+                    })
+                  : t('auditDetail.overview.noFindings'),
+            },
           ].map((bar) => (
             <div key={bar.label}>
               <div className="flex items-center justify-between mb-1.5">
-                <span className="text-xs font-medium text-foreground">{bar.label}</span>
-                <span className="text-xs text-muted-foreground">{bar.sub} · {bar.value}%</span>
+                <span className="text-xs font-medium text-foreground">
+                  {bar.label}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {bar.sub} · {bar.value}%
+                </span>
               </div>
               <Progress value={bar.value} className="h-2" />
             </div>
@@ -152,13 +212,31 @@ function OverviewTab({
       {/* Control status breakdown */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: t('auditDetail.overview.compliant'), value: compliant, color: 'text-green-700' },
-          { label: t('auditDetail.overview.nonCompliant'), value: nonCompliant, color: 'text-red-700' },
-          { label: t('auditDetail.overview.na'), value: notApplicable, color: 'text-slate-500' },
-          { label: t('auditDetail.overview.pending'), value: pending, color: 'text-muted-foreground' },
+          {
+            label: t('auditDetail.overview.compliant'),
+            value: compliant,
+            color: 'text-green-700',
+          },
+          {
+            label: t('auditDetail.overview.nonCompliant'),
+            value: nonCompliant,
+            color: 'text-red-700',
+          },
+          {
+            label: t('auditDetail.overview.na'),
+            value: notApplicable,
+            color: 'text-slate-500',
+          },
+          {
+            label: t('auditDetail.overview.pending'),
+            value: pending,
+            color: 'text-muted-foreground',
+          },
         ].map((s) => (
           <Card key={s.label} className="p-4">
-            <p className="text-xs font-medium text-muted-foreground/70 uppercase tracking-wide">{s.label}</p>
+            <p className="text-xs font-medium text-muted-foreground/70 uppercase tracking-wide">
+              {s.label}
+            </p>
             <p className={`text-2xl font-bold mt-0.5 ${s.color}`}>{s.value}</p>
           </Card>
         ))}
@@ -167,17 +245,37 @@ function OverviewTab({
       {/* Finding severity breakdown */}
       {findings.length > 0 && (
         <Card className="p-5">
-          <h3 className="text-sm font-semibold text-foreground mb-3">{t('auditDetail.overview.findings')}</h3>
+          <h3 className="text-sm font-semibold text-foreground mb-3">
+            {t('auditDetail.overview.findings')}
+          </h3>
           <div className="grid grid-cols-4 gap-3">
             {[
-              { label: t('auditDetail.overview.major'), value: majorCount, color: 'text-red-700' },
-              { label: t('auditDetail.overview.minor'), value: minorCount, color: 'text-amber-700' },
-              { label: t('auditDetail.overview.observation'), value: obsCount, color: 'text-blue-700' },
-              { label: t('auditDetail.overview.ofi'), value: ofiCount, color: 'text-slate-500' },
+              {
+                label: t('auditDetail.overview.major'),
+                value: majorCount,
+                color: 'text-red-700',
+              },
+              {
+                label: t('auditDetail.overview.minor'),
+                value: minorCount,
+                color: 'text-amber-700',
+              },
+              {
+                label: t('auditDetail.overview.observation'),
+                value: obsCount,
+                color: 'text-blue-700',
+              },
+              {
+                label: t('auditDetail.overview.ofi'),
+                value: ofiCount,
+                color: 'text-slate-500',
+              },
             ].map((s) => (
               <div key={s.label} className="text-center">
                 <p className={`text-xl font-bold ${s.color}`}>{s.value}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{s.label}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {s.label}
+                </p>
               </div>
             ))}
           </div>
@@ -186,32 +284,50 @@ function OverviewTab({
 
       {/* Timeline */}
       <Card className="p-5">
-        <h3 className="text-sm font-semibold text-foreground mb-3">{t('auditDetail.overview.timeline')}</h3>
+        <h3 className="text-sm font-semibold text-foreground mb-3">
+          {t('auditDetail.overview.timeline')}
+        </h3>
         <div className="flex flex-wrap gap-6 text-sm">
           <div>
-            <p className="text-xs text-muted-foreground">{t('auditDetail.overview.startDate')}</p>
+            <p className="text-xs text-muted-foreground">
+              {t('auditDetail.overview.startDate')}
+            </p>
             <p className="font-medium">{fmt(audit.startDate)}</p>
           </div>
           {audit.periodStart && (
             <div>
-              <p className="text-xs text-muted-foreground">{t('auditDetail.overview.auditPeriod')}</p>
-              <p className="font-medium">{fmt(audit.periodStart)} → {fmt(audit.periodEnd)}</p>
+              <p className="text-xs text-muted-foreground">
+                {t('auditDetail.overview.auditPeriod')}
+              </p>
+              <p className="font-medium">
+                {fmt(audit.periodStart)} → {fmt(audit.periodEnd)}
+              </p>
             </div>
           )}
           {audit.endDate && (
             <div>
-              <p className="text-xs text-muted-foreground">{t('auditDetail.overview.endDate')}</p>
+              <p className="text-xs text-muted-foreground">
+                {t('auditDetail.overview.endDate')}
+              </p>
               <p className="font-medium">{fmt(audit.endDate)}</p>
             </div>
           )}
           <div>
-            <p className="text-xs text-muted-foreground">{t('auditPanel.auditor')}</p>
-            <p className="font-medium">{resolveAuditorLabel(audit, usersById)}</p>
+            <p className="text-xs text-muted-foreground">
+              {t('auditPanel.auditor')}
+            </p>
+            <p className="font-medium">
+              {resolveAuditorLabel(audit, usersById)}
+            </p>
           </div>
           {audit.closedAt && (
             <div>
-              <p className="text-xs text-muted-foreground">{t('auditDetail.overview.closed')}</p>
-              <p className="font-medium text-green-700">{fmt(audit.closedAt)}</p>
+              <p className="text-xs text-muted-foreground">
+                {t('auditDetail.overview.closed')}
+              </p>
+              <p className="font-medium text-green-700">
+                {fmt(audit.closedAt)}
+              </p>
             </div>
           )}
         </div>
@@ -222,7 +338,9 @@ function OverviewTab({
 
 function RequestStatusBadge({ status }: { status: AuditRequestStatus }) {
   return (
-    <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${REQUEST_STATUS_COLORS[status]}`}>
+    <span
+      className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${REQUEST_STATUS_COLORS[status]}`}
+    >
       {status.replaceAll('_', ' ')}
     </span>
   );
@@ -239,10 +357,16 @@ function EvidenceTab({
 }) {
   const { t } = useTranslation('compliance');
   const canAudit = useCanAudit();
-  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
-  const [reviewingControl, setReviewingControl] = useState<AuditControlRecord | null>(null);
+  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(
+    new Set(),
+  );
+  const [reviewingControl, setReviewingControl] =
+    useState<AuditControlRecord | null>(null);
 
-  const { data, refetch } = useQuery<{ success: boolean; data: AuditControlRecord[] }>({
+  const { data, refetch } = useQuery<{
+    success: boolean;
+    data: AuditControlRecord[];
+  }>({
     queryKey: ['audit-controls', auditId],
     queryFn: () => auditsService.listControls(auditId),
   });
@@ -256,7 +380,9 @@ function EvidenceTab({
     if (!folders.has(prefix)) folders.set(prefix, []);
     folders.get(prefix)!.push(ctrl);
   }
-  const sortedFolders = [...folders.entries()].sort(([a], [b]) => a.localeCompare(b));
+  const sortedFolders = [...folders.entries()].sort(([a], [b]) =>
+    a.localeCompare(b),
+  );
 
   function toggleFolder(prefix: string) {
     setExpandedFolders((prev) => {
@@ -268,7 +394,12 @@ function EvidenceTab({
   }
 
   function folderColor(ctrls: AuditControlRecord[]): string {
-    if (ctrls.every((c) => c.reviewStatus === 'COMPLIANT' || c.reviewStatus === 'NOT_APPLICABLE'))
+    if (
+      ctrls.every(
+        (c) =>
+          c.reviewStatus === 'COMPLIANT' || c.reviewStatus === 'NOT_APPLICABLE',
+      )
+    )
       return 'text-green-700';
     if (ctrls.some((c) => c.reviewStatus === 'NON_COMPLIANT'))
       return 'text-red-700';
@@ -281,7 +412,9 @@ function EvidenceTab({
     return (
       <Card className="p-12 text-center">
         <FileText className="w-10 h-10 mx-auto mb-3 text-muted-foreground/50" />
-        <p className="text-sm text-muted-foreground">{t('auditDetail.evidence.noControls')}</p>
+        <p className="text-sm text-muted-foreground">
+          {t('auditDetail.evidence.noControls')}
+        </p>
       </Card>
     );
   }
@@ -291,7 +424,9 @@ function EvidenceTab({
       <Card className="divide-y divide-border overflow-hidden">
         {sortedFolders.map(([prefix, ctrls]) => {
           const isOpen = expandedFolders.has(prefix);
-          const reviewed = ctrls.filter((c) => c.reviewStatus !== 'PENDING').length;
+          const reviewed = ctrls.filter(
+            (c) => c.reviewStatus !== 'PENDING',
+          ).length;
           return (
             <div key={prefix}>
               <button
@@ -303,12 +438,19 @@ function EvidenceTab({
                 ) : (
                   <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                 )}
-                <span className={`text-xs font-bold font-mono ${folderColor(ctrls)}`}>{prefix}</span>
+                <span
+                  className={`text-xs font-bold font-mono ${folderColor(ctrls)}`}
+                >
+                  {prefix}
+                </span>
                 <span className="text-sm font-medium text-foreground flex-1">
                   {ctrls[0]?.control.title.split(' ').slice(0, 4).join(' ')}…
                 </span>
                 <span className="text-xs text-muted-foreground ml-auto">
-                  {t('auditDetail.evidence.reviewedOf', { reviewed, total: ctrls.length })}
+                  {t('auditDetail.evidence.reviewedOf', {
+                    reviewed,
+                    total: ctrls.length,
+                  })}
                 </span>
               </button>
               {isOpen && (
@@ -332,15 +474,39 @@ function EvidenceTab({
                       {/* Evidence readiness badge */}
                       {(() => {
                         const aes = auditCtrl.control.auditEvidences ?? [];
-                        const hasFlagged = aes.some((ae) => ae.status === 'FLAGGED');
-                        const allApproved = aes.length > 0 && aes.every((ae) => ae.status === 'APPROVED');
-                        const hasTests = (auditCtrl.control.testMappings ?? []).length > 0;
-                        const hasFailingTests = (auditCtrl.control.testMappings ?? []).some(
-                          (tm) => tm.test.status === 'Overdue' || tm.test.status === 'Needs_remediation',
+                        const hasFlagged = aes.some(
+                          (ae) => ae.status === 'FLAGGED',
                         );
-                        if (hasFlagged) return <span className="text-xs px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 flex-shrink-0">⚑ {t('auditDetail.evidence.flagged')}</span>;
-                        if (hasTests && hasFailingTests) return <span className="text-xs px-1.5 py-0.5 rounded bg-red-50 text-red-700 flex-shrink-0">✕ {t('auditDetail.evidence.failing')}</span>;
-                        if (allApproved) return <span className="text-xs px-1.5 py-0.5 rounded bg-green-50 text-green-700 flex-shrink-0">✓ {t('auditDetail.evidence.ready')}</span>;
+                        const allApproved =
+                          aes.length > 0 &&
+                          aes.every((ae) => ae.status === 'APPROVED');
+                        const hasTests =
+                          (auditCtrl.control.testMappings ?? []).length > 0;
+                        const hasFailingTests = (
+                          auditCtrl.control.testMappings ?? []
+                        ).some(
+                          (tm) =>
+                            tm.test.status === 'Overdue' ||
+                            tm.test.status === 'Needs_remediation',
+                        );
+                        if (hasFlagged)
+                          return (
+                            <span className="text-xs px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 flex-shrink-0">
+                              ⚑ {t('auditDetail.evidence.flagged')}
+                            </span>
+                          );
+                        if (hasTests && hasFailingTests)
+                          return (
+                            <span className="text-xs px-1.5 py-0.5 rounded bg-red-50 text-red-700 flex-shrink-0">
+                              ✕ {t('auditDetail.evidence.failing')}
+                            </span>
+                          );
+                        if (allApproved)
+                          return (
+                            <span className="text-xs px-1.5 py-0.5 rounded bg-green-50 text-green-700 flex-shrink-0">
+                              ✓ {t('auditDetail.evidence.ready')}
+                            </span>
+                          );
                         return null;
                       })()}
                       {canAudit && !isLocked && (
@@ -379,7 +545,12 @@ function EvidenceTab({
 
 // ── Findings Tab ──────────────────────────────────────────────────────────────
 
-type FindingFilter = 'ALL' | 'OPEN' | 'IN_REMEDIATION' | 'READY_FOR_REVIEW' | 'CLOSED';
+type FindingFilter =
+  | 'ALL'
+  | 'OPEN'
+  | 'IN_REMEDIATION'
+  | 'READY_FOR_REVIEW'
+  | 'CLOSED';
 
 function FindingsTab({
   audit,
@@ -431,8 +602,14 @@ function FindingsTab({
   const filters: { value: FindingFilter; label: string }[] = [
     { value: 'ALL', label: t('auditDetail.findingsTab.all') },
     { value: 'OPEN', label: t('auditDetail.findingsTab.open') },
-    { value: 'IN_REMEDIATION', label: t('auditDetail.findingsTab.inRemediation') },
-    { value: 'READY_FOR_REVIEW', label: t('auditDetail.findingsTab.readyForReview') },
+    {
+      value: 'IN_REMEDIATION',
+      label: t('auditDetail.findingsTab.inRemediation'),
+    },
+    {
+      value: 'READY_FOR_REVIEW',
+      label: t('auditDetail.findingsTab.readyForReview'),
+    },
     { value: 'CLOSED', label: t('auditDetail.findingsTab.closed') },
   ];
 
@@ -469,14 +646,23 @@ function FindingsTab({
         {sorted.length === 0 ? (
           <div className="p-8 text-center">
             <AlertCircle className="w-8 h-8 mx-auto mb-2 text-muted-foreground/50" />
-            <p className="text-sm text-muted-foreground">{t('auditDetail.findingsTab.noMatch')}</p>
+            <p className="text-sm text-muted-foreground">
+              {t('auditDetail.findingsTab.noMatch')}
+            </p>
           </div>
         ) : (
           <table className="w-full text-sm">
             <thead className="bg-muted border-b border-border">
               <tr>
-                {(t('auditDetail.findingsTab.columns', { returnObjects: true }) as string[]).map((h) => (
-                  <th key={h} className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                {(
+                  t('auditDetail.findingsTab.columns', {
+                    returnObjects: true,
+                  }) as string[]
+                ).map((h) => (
+                  <th
+                    key={h}
+                    className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wide"
+                  >
                     {h}
                   </th>
                 ))}
@@ -489,7 +675,9 @@ function FindingsTab({
                     {f.control?.isoReference ?? '—'}
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${FINDING_SEVERITY_COLORS[f.severity] ?? 'bg-gray-100 text-gray-600'}`}>
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-xs font-medium ${FINDING_SEVERITY_COLORS[f.severity] ?? 'bg-gray-100 text-gray-600'}`}
+                    >
                       {f.severity}
                     </span>
                   </td>
@@ -497,7 +685,9 @@ function FindingsTab({
                     {f.description}
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`px-2 py-0.5 rounded text-xs font-medium ${FINDING_STATUS_COLORS[(f as any).status] ?? 'bg-gray-100 text-gray-600'}`}>
+                    <span
+                      className={`px-2 py-0.5 rounded text-xs font-medium ${FINDING_STATUS_COLORS[(f as any).status] ?? 'bg-gray-100 text-gray-600'}`}
+                    >
                       {(f as any).status ?? 'OPEN'}
                     </span>
                   </td>
@@ -558,7 +748,10 @@ function RequestsTab({
     dueDate: '',
   });
 
-  const { data: requestsData } = useQuery<{ success: boolean; data: AuditRequestRecord[] }>({
+  const { data: requestsData } = useQuery<{
+    success: boolean;
+    data: AuditRequestRecord[];
+  }>({
     queryKey: ['audit-requests', audit.id],
     queryFn: () => auditsService.listRequests(audit.id),
   });
@@ -573,12 +766,16 @@ function RequestsTab({
 
   function refreshTracker() {
     queryClient.invalidateQueries({ queryKey: ['audit-requests', audit.id] });
-    queryClient.invalidateQueries({ queryKey: ['audit-evidence-summary', audit.id] });
+    queryClient.invalidateQueries({
+      queryKey: ['audit-evidence-summary', audit.id],
+    });
   }
 
   function controlLabel(controlId: string | null | undefined) {
     if (!controlId) return t('auditDetail.requests.auditLevel');
-    const control = controls.find((item) => item.control.id === controlId)?.control;
+    const control = controls.find(
+      (item) => item.control.id === controlId,
+    )?.control;
     return control ? `${control.isoReference} · ${control.title}` : controlId;
   }
 
@@ -602,7 +799,10 @@ function RequestsTab({
     }
   }
 
-  async function handleStatusChange(requestId: string, status: AuditRequestStatus) {
+  async function handleStatusChange(
+    requestId: string,
+    status: AuditRequestStatus,
+  ) {
     setUpdatingId(requestId);
     try {
       await auditsService.updateRequest(audit.id, requestId, { status });
@@ -618,16 +818,28 @@ function RequestsTab({
     <div className="space-y-4">
       <div className="grid gap-3 md:grid-cols-3">
         <Card className="p-4">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t('auditDetail.requests.totalRequests')}</p>
-          <p className="mt-1 text-2xl font-bold text-foreground">{requests.length}</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            {t('auditDetail.requests.totalRequests')}
+          </p>
+          <p className="mt-1 text-2xl font-bold text-foreground">
+            {requests.length}
+          </p>
         </Card>
         <Card className="p-4">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t('auditDetail.requests.evidenceItems')}</p>
-          <p className="mt-1 text-2xl font-bold text-foreground">{summary?.totals.total ?? 0}</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            {t('auditDetail.requests.evidenceItems')}
+          </p>
+          <p className="mt-1 text-2xl font-bold text-foreground">
+            {summary?.totals.total ?? 0}
+          </p>
         </Card>
         <Card className="p-4">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t('auditDetail.requests.flagged')}</p>
-          <p className="mt-1 text-2xl font-bold text-amber-700">{summary?.totals.byStatus.FLAGGED ?? 0}</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            {t('auditDetail.requests.flagged')}
+          </p>
+          <p className="mt-1 text-2xl font-bold text-amber-700">
+            {summary?.totals.byStatus.FLAGGED ?? 0}
+          </p>
         </Card>
       </div>
 
@@ -636,13 +848,17 @@ function RequestsTab({
           <div className="grid gap-3 md:grid-cols-[1.5fr_1fr_1fr_0.8fr_auto]">
             <input
               value={form.title}
-              onChange={(event) => setForm((prev) => ({ ...prev, title: event.target.value }))}
+              onChange={(event) =>
+                setForm((prev) => ({ ...prev, title: event.target.value }))
+              }
               placeholder={t('auditDetail.requests.titlePlaceholder')}
               className="rounded-md border border-border bg-background px-3 py-2 text-sm"
             />
             <select
               value={form.controlId}
-              onChange={(event) => setForm((prev) => ({ ...prev, controlId: event.target.value }))}
+              onChange={(event) =>
+                setForm((prev) => ({ ...prev, controlId: event.target.value }))
+              }
               className="rounded-md border border-border bg-background px-3 py-2 text-sm"
             >
               <option value="">{t('auditDetail.requests.auditLevel')}</option>
@@ -654,7 +870,9 @@ function RequestsTab({
             </select>
             <select
               value={form.assignedTo}
-              onChange={(event) => setForm((prev) => ({ ...prev, assignedTo: event.target.value }))}
+              onChange={(event) =>
+                setForm((prev) => ({ ...prev, assignedTo: event.target.value }))
+              }
               className="rounded-md border border-border bg-background px-3 py-2 text-sm"
             >
               <option value="">{t('auditDetail.requests.unassigned')}</option>
@@ -667,13 +885,20 @@ function RequestsTab({
             <input
               type="date"
               value={form.dueDate}
-              onChange={(event) => setForm((prev) => ({ ...prev, dueDate: event.target.value }))}
+              onChange={(event) =>
+                setForm((prev) => ({ ...prev, dueDate: event.target.value }))
+              }
               className="rounded-md border border-border bg-background px-3 py-2 text-sm"
               aria-label={t('auditDetail.requests.dueDate')}
             />
-            <Button onClick={handleCreateRequest} disabled={!form.title.trim() || creating}>
+            <Button
+              onClick={handleCreateRequest}
+              disabled={!form.title.trim() || creating}
+            >
               <Plus className="mr-1 h-4 w-4" />
-              {creating ? t('auditDetail.requests.creating') : t('auditDetail.requests.create')}
+              {creating
+                ? t('auditDetail.requests.creating')
+                : t('auditDetail.requests.create')}
             </Button>
           </div>
         </Card>
@@ -682,31 +907,54 @@ function RequestsTab({
       <div className="grid gap-4 lg:grid-cols-[1fr_1.2fr]">
         <Card className="overflow-hidden">
           <div className="border-b border-border p-4">
-            <h3 className="text-sm font-semibold text-foreground">{t('auditDetail.requests.requestsTitle')}</h3>
+            <h3 className="text-sm font-semibold text-foreground">
+              {t('auditDetail.requests.requestsTitle')}
+            </h3>
           </div>
           <div className="divide-y divide-border">
             {requests.length === 0 ? (
-              <p className="p-6 text-center text-sm text-muted-foreground">{t('auditDetail.requests.noRequests')}</p>
+              <p className="p-6 text-center text-sm text-muted-foreground">
+                {t('auditDetail.requests.noRequests')}
+              </p>
             ) : (
               requests.map((item) => (
                 <div key={item.id} className="space-y-3 p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-medium text-foreground">{item.title}</p>
-                      <p className="mt-0.5 truncate text-xs text-muted-foreground">{controlLabel(item.controlId)}</p>
+                      <p className="truncate text-sm font-medium text-foreground">
+                        {item.title}
+                      </p>
+                      <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                        {controlLabel(item.controlId)}
+                      </p>
                     </div>
                     <RequestStatusBadge status={item.status} />
                   </div>
                   <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                    <span>{item.assignee?.name ?? item.assignee?.email ?? t('auditDetail.requests.unassigned')}</span>
-                    <span>{t('auditDetail.requests.due')}: {fmt(item.dueDate)}</span>
-                    <span>{t('auditDetail.requests.linkedEvidence', { count: item.evidenceLinks?.length ?? 0 })}</span>
+                    <span>
+                      {item.assignee?.name ??
+                        item.assignee?.email ??
+                        t('auditDetail.requests.unassigned')}
+                    </span>
+                    <span>
+                      {t('auditDetail.requests.due')}: {fmt(item.dueDate)}
+                    </span>
+                    <span>
+                      {t('auditDetail.requests.linkedEvidence', {
+                        count: item.evidenceLinks?.length ?? 0,
+                      })}
+                    </span>
                   </div>
                   {!audit.isLocked && (
                     <select
                       value={item.status}
                       disabled={updatingId === item.id}
-                      onChange={(event) => handleStatusChange(item.id, event.target.value as AuditRequestStatus)}
+                      onChange={(event) =>
+                        handleStatusChange(
+                          item.id,
+                          event.target.value as AuditRequestStatus,
+                        )
+                      }
                       className="rounded-md border border-border bg-background px-2 py-1 text-xs"
                     >
                       {REQUEST_STATUS_OPTIONS.map((status) => (
@@ -724,14 +972,21 @@ function RequestsTab({
 
         <Card className="overflow-hidden">
           <div className="border-b border-border p-4">
-            <h3 className="text-sm font-semibold text-foreground">{t('auditDetail.requests.evidenceTracker')}</h3>
+            <h3 className="text-sm font-semibold text-foreground">
+              {t('auditDetail.requests.evidenceTracker')}
+            </h3>
           </div>
           <div className="divide-y divide-border">
             {(summary?.items ?? []).length === 0 ? (
-              <p className="p-6 text-center text-sm text-muted-foreground">{t('auditDetail.requests.noEvidence')}</p>
+              <p className="p-6 text-center text-sm text-muted-foreground">
+                {t('auditDetail.requests.noEvidence')}
+              </p>
             ) : (
               (summary?.items ?? []).map((item) => (
-                <div key={item.id} className="flex items-start justify-between gap-3 p-4">
+                <div
+                  key={item.id}
+                  className="flex items-start justify-between gap-3 p-4"
+                >
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium text-foreground">
                       {item.evidence.fileName ?? item.evidence.type}
@@ -740,7 +995,13 @@ function RequestsTab({
                       {item.control.isoReference} · {item.control.title}
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {t('auditDetail.requests.requestLinks', { count: item.requests.length })} · {t('auditDetail.requests.comments', { count: item.commentCount })}
+                      {t('auditDetail.requests.requestLinks', {
+                        count: item.requests.length,
+                      })}{' '}
+                      ·{' '}
+                      {t('auditDetail.requests.comments', {
+                        count: item.commentCount,
+                      })}
                     </p>
                   </div>
                   <RequestStatusBadge status={item.trackerStatus} />
@@ -756,7 +1017,13 @@ function RequestsTab({
 
 // ── Comments Tab ──────────────────────────────────────────────────────────────
 
-function CommentsTab({ auditId, controls }: { auditId: string; controls: AuditControlRecord[] }) {
+function CommentsTab({
+  auditId,
+  controls,
+}: {
+  auditId: string;
+  controls: AuditControlRecord[];
+}) {
   const { t } = useTranslation('compliance');
   const me = useCurrentUser();
   const canAudit = useCanAudit();
@@ -765,9 +1032,16 @@ function CommentsTab({ auditId, controls }: { auditId: string; controls: AuditCo
   const [text, setText] = useState('');
   const [posting, setPosting] = useState(false);
 
-  const { data, refetch } = useQuery<{ success: boolean; data: AuditComment[] }>({
+  const { data, refetch } = useQuery<{
+    success: boolean;
+    data: AuditComment[];
+  }>({
     queryKey: ['audit-comments', auditId, selectedControlId || null],
-    queryFn: () => auditsService.listComments(auditId, selectedControlId ? { controlId: selectedControlId } : undefined),
+    queryFn: () =>
+      auditsService.listComments(
+        auditId,
+        selectedControlId ? { controlId: selectedControlId } : undefined,
+      ),
   });
 
   const comments = data?.data ?? [];
@@ -806,7 +1080,13 @@ function CommentsTab({ auditId, controls }: { auditId: string; controls: AuditCo
   }
 
   function initials(name: string | null | undefined, email: string): string {
-    if (name) return name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
+    if (name)
+      return name
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase();
     return email.slice(0, 2).toUpperCase();
   }
 
@@ -814,7 +1094,9 @@ function CommentsTab({ auditId, controls }: { auditId: string; controls: AuditCo
     <div className="space-y-4">
       {/* Control filter */}
       <div className="flex items-center gap-2">
-        <label className="text-xs font-medium text-muted-foreground">{t('auditDetail.comments.filterByControl')}</label>
+        <label className="text-xs font-medium text-muted-foreground">
+          {t('auditDetail.comments.filterByControl')}
+        </label>
         <select
           value={selectedControlId}
           onChange={(e) => setSelectedControlId(e.target.value)}
@@ -832,7 +1114,9 @@ function CommentsTab({ auditId, controls }: { auditId: string; controls: AuditCo
       {/* Comment list */}
       <Card className="p-4 space-y-4 min-h-[200px]">
         {comments.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-8">{t('auditDetail.comments.noComments')}</p>
+          <p className="text-sm text-muted-foreground text-center py-8">
+            {t('auditDetail.comments.noComments')}
+          </p>
         ) : (
           comments.map((c) => (
             <div key={c.id} className="flex gap-3">
@@ -845,10 +1129,16 @@ function CommentsTab({ auditId, controls }: { auditId: string; controls: AuditCo
                     {c.author?.name ?? c.author?.email}
                   </span>
                   {c.author?.role === 'AUDITOR' && (
-                    <span className="text-xs px-1.5 py-0.5 rounded bg-violet-50 text-violet-700 font-medium">{t('auditDetail.comments.auditor')}</span>
+                    <span className="text-xs px-1.5 py-0.5 rounded bg-violet-50 text-violet-700 font-medium">
+                      {t('auditDetail.comments.auditor')}
+                    </span>
                   )}
                   <span className="text-xs text-muted-foreground">
-                    {new Date(c.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    {new Date(c.createdAt).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                    })}
                   </span>
                   {me?.id === c.authorId && (
                     <button
@@ -862,7 +1152,9 @@ function CommentsTab({ auditId, controls }: { auditId: string; controls: AuditCo
                 <p className="text-sm text-foreground">{c.text}</p>
                 {c.controlId && (
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Re: {controls.find((ctrl) => ctrl.control.id === c.controlId)?.control.isoReference ?? c.controlId}
+                    Re:{' '}
+                    {controls.find((ctrl) => ctrl.control.id === c.controlId)
+                      ?.control.isoReference ?? c.controlId}
                   </p>
                 )}
               </div>
@@ -897,7 +1189,13 @@ function CommentsTab({ auditId, controls }: { auditId: string; controls: AuditCo
 
 // ── Report Tab ────────────────────────────────────────────────────────────────
 
-function ReportTab({ audit, onRefresh }: { audit: AuditRecord; onRefresh: () => void }) {
+function ReportTab({
+  audit,
+  onRefresh,
+}: {
+  audit: AuditRecord;
+  onRefresh: () => void;
+}) {
   const { t } = useTranslation('compliance');
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -950,7 +1248,10 @@ function ReportTab({ audit, onRefresh }: { audit: AuditRecord; onRefresh: () => 
         await new Promise((resolve) => setTimeout(resolve, 2000));
         const refreshed = await auditsService.get(audit.id);
         queryClient.setQueryData(['audit', audit.id], refreshed);
-        if (refreshed.data.signedPdfUrl && refreshed.data.signedPdfUrl !== audit.signedPdfUrl) {
+        if (
+          refreshed.data.signedPdfUrl &&
+          refreshed.data.signedPdfUrl !== audit.signedPdfUrl
+        ) {
           toast.success(t('auditDetail.report.pdfReady'));
           return;
         }
@@ -979,10 +1280,20 @@ function ReportTab({ audit, onRefresh }: { audit: AuditRecord; onRefresh: () => 
           )}
           <div>
             <p className="text-sm font-semibold text-foreground">
-              {audit.isLocked ? t('auditDetail.report.completedLocked') : audit.status === 'IN_PROGRESS' ? t('auditDetail.report.inProgress') : t('auditDetail.report.statusPrefix', { status: audit.status })}
+              {audit.isLocked
+                ? t('auditDetail.report.completedLocked')
+                : audit.status === 'IN_PROGRESS'
+                  ? t('auditDetail.report.inProgress')
+                  : t('auditDetail.report.statusPrefix', {
+                      status: audit.status,
+                    })}
             </p>
             {audit.signedAt && (
-              <p className="text-xs text-muted-foreground">{t('auditDetail.report.signedOn', { date: fmt(audit.signedAt) })}</p>
+              <p className="text-xs text-muted-foreground">
+                {t('auditDetail.report.signedOn', {
+                  date: fmt(audit.signedAt),
+                })}
+              </p>
             )}
           </div>
         </div>
@@ -990,26 +1301,41 @@ function ReportTab({ audit, onRefresh }: { audit: AuditRecord; onRefresh: () => 
         {snap && (
           <div className="grid grid-cols-3 gap-4 mb-4 text-center border-t border-border pt-4">
             <div>
-              <p className="text-2xl font-bold text-foreground">{snap.compliancePct}%</p>
-              <p className="text-xs text-muted-foreground">{t('auditDetail.report.compliance')}</p>
+              <p className="text-2xl font-bold text-foreground">
+                {snap.compliancePct}%
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {t('auditDetail.report.compliance')}
+              </p>
             </div>
             <div>
-              <p className="text-2xl font-bold text-red-600">{snap.majorFindings}</p>
-              <p className="text-xs text-muted-foreground">{t('auditDetail.report.majorFindings')}</p>
+              <p className="text-2xl font-bold text-red-600">
+                {snap.majorFindings}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {t('auditDetail.report.majorFindings')}
+              </p>
             </div>
             <div>
-              <p className="text-2xl font-bold text-foreground">{snap.totalControls}</p>
-              <p className="text-xs text-muted-foreground">{t('auditDetail.report.controls')}</p>
+              <p className="text-2xl font-bold text-foreground">
+                {snap.totalControls}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {t('auditDetail.report.controls')}
+              </p>
             </div>
           </div>
         )}
 
         <div className="flex flex-wrap gap-2">
-          {(audit.status === 'UPCOMING' || audit.status === 'PLANNED') && canAudit && (
-            <Button onClick={handleStart} disabled={acting}>
-              {acting ? t('auditDetail.report.starting') : t('auditDetail.report.startAudit')}
-            </Button>
-          )}
+          {(audit.status === 'UPCOMING' || audit.status === 'PLANNED') &&
+            canAudit && (
+              <Button onClick={handleStart} disabled={acting}>
+                {acting
+                  ? t('auditDetail.report.starting')
+                  : t('auditDetail.report.startAudit')}
+              </Button>
+            )}
           {audit.status === 'IN_PROGRESS' && canAudit && (
             <>
               <Button
@@ -1017,35 +1343,48 @@ function ReportTab({ audit, onRefresh }: { audit: AuditRecord; onRefresh: () => 
                 disabled={acting}
                 className="bg-purple-700 hover:bg-purple-600"
               >
-                {acting ? t('auditDetail.report.movingToAwaitingReport') : t('auditDetail.report.moveToAwaitingReport')}
+                {acting
+                  ? t('auditDetail.report.movingToAwaitingReport')
+                  : t('auditDetail.report.moveToAwaitingReport')}
               </Button>
               <Button
                 variant="outline"
-                onClick={() => navigate(`/auditor/audits/${audit.id}/final-report`)}
+                onClick={() =>
+                  navigate(`/auditor/audits/${audit.id}/final-report`)
+                }
               >
                 <ClipboardList className="w-4 h-4 mr-1.5" />
                 {t('auditDetail.report.finalReport')}
               </Button>
             </>
           )}
-          {(audit.status === 'AWAITING_REPORT' || audit.status === 'COMPLETED') && (
+          {(audit.status === 'AWAITING_REPORT' ||
+            audit.status === 'COMPLETED') && (
             <>
               {canAudit && (
                 <Button onClick={handleGeneratePdf} disabled={generatingPdf}>
                   <FileText className="w-4 h-4 mr-1.5" />
-                  {generatingPdf ? t('auditDetail.report.generatingPdf') : t('auditDetail.report.generatePdf')}
+                  {generatingPdf
+                    ? t('auditDetail.report.generatingPdf')
+                    : t('auditDetail.report.generatePdf')}
                 </Button>
               )}
               <Button
                 variant="outline"
-                onClick={() => navigate(`/auditor/audits/${audit.id}/final-report`)}
+                onClick={() =>
+                  navigate(`/auditor/audits/${audit.id}/final-report`)
+                }
               >
                 <ClipboardList className="w-4 h-4 mr-1.5" />
                 {t('auditDetail.report.viewFinalReport')}
               </Button>
               {audit.signedPdfUrl && (
                 <Button variant="outline" asChild>
-                  <a href={audit.signedPdfUrl} target="_blank" rel="noopener noreferrer">
+                  <a
+                    href={audit.signedPdfUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     <FileText className="w-4 h-4 mr-1.5" />
                     {t('auditDetail.report.downloadPdf')}
                   </a>
@@ -1061,14 +1400,22 @@ function ReportTab({ audit, onRefresh }: { audit: AuditRecord; onRefresh: () => 
         <Card className="p-5 space-y-4">
           {audit.executiveSummary && (
             <div>
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">{t('auditDetail.report.executiveSummary')}</p>
-              <p className="text-sm text-foreground whitespace-pre-wrap">{audit.executiveSummary}</p>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
+                {t('auditDetail.report.executiveSummary')}
+              </p>
+              <p className="text-sm text-foreground whitespace-pre-wrap">
+                {audit.executiveSummary}
+              </p>
             </div>
           )}
           {audit.auditConclusion && (
             <div>
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">{t('auditDetail.report.auditConclusion')}</p>
-              <p className="text-sm text-foreground whitespace-pre-wrap">{audit.auditConclusion}</p>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
+                {t('auditDetail.report.auditConclusion')}
+              </p>
+              <p className="text-sm text-foreground whitespace-pre-wrap">
+                {audit.auditConclusion}
+              </p>
             </div>
           )}
         </Card>
@@ -1078,11 +1425,19 @@ function ReportTab({ audit, onRefresh }: { audit: AuditRecord; onRefresh: () => 
         <Card className="p-5 space-y-3">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-semibold text-foreground">{t('auditDetail.report.pdfPreview')}</p>
-              <p className="text-xs text-muted-foreground">{t('auditDetail.report.pdfPreviewDesc')}</p>
+              <p className="text-sm font-semibold text-foreground">
+                {t('auditDetail.report.pdfPreview')}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {t('auditDetail.report.pdfPreviewDesc')}
+              </p>
             </div>
             <Button variant="outline" size="sm" asChild>
-              <a href={audit.signedPdfUrl} target="_blank" rel="noopener noreferrer">
+              <a
+                href={audit.signedPdfUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 {t('auditDetail.report.openPdf')}
               </a>
             </Button>
@@ -1105,7 +1460,10 @@ function BreakdownChips({ data }: { data?: Record<string, number> }) {
   return (
     <div className="flex flex-wrap gap-2">
       {Object.entries(data).map(([key, value]) => (
-        <span key={key} className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
+        <span
+          key={key}
+          className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground"
+        >
           {key.replaceAll('_', ' ')}: {value}
         </span>
       ))}
@@ -1115,7 +1473,10 @@ function BreakdownChips({ data }: { data?: Record<string, number> }) {
 
 function FrameworkTab({ auditId }: { auditId: string }) {
   const { t } = useTranslation('compliance');
-  const { data, isLoading } = useQuery<{ success: boolean; data: AuditFrameworkResponse }>({
+  const { data, isLoading } = useQuery<{
+    success: boolean;
+    data: AuditFrameworkResponse;
+  }>({
     queryKey: ['audit-framework', auditId],
     queryFn: () => auditsService.getFramework(auditId),
   });
@@ -1123,35 +1484,73 @@ function FrameworkTab({ auditId }: { auditId: string }) {
   const framework = data?.data.framework;
   const requirements = data?.data.requirements ?? [];
 
-  if (isLoading) return <Card className="p-6 text-sm text-muted-foreground">{t('auditDetail.dataTabs.loading')}</Card>;
-  if (!framework) return <Card className="p-6 text-sm text-muted-foreground">{t('auditDetail.dataTabs.noFramework')}</Card>;
+  if (isLoading)
+    return (
+      <Card className="p-6 text-sm text-muted-foreground">
+        {t('auditDetail.dataTabs.loading')}
+      </Card>
+    );
+  if (!framework)
+    return (
+      <Card className="p-6 text-sm text-muted-foreground">
+        {t('auditDetail.dataTabs.noFramework')}
+      </Card>
+    );
 
   return (
     <div className="space-y-4">
       <Card className="p-5">
-        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t('auditDetail.tabs.framework')}</p>
-        <h3 className="mt-1 text-lg font-semibold text-foreground">{framework.name}</h3>
+        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          {t('auditDetail.tabs.framework')}
+        </p>
+        <h3 className="mt-1 text-lg font-semibold text-foreground">
+          {framework.name}
+        </h3>
         <p className="text-sm text-muted-foreground">{framework.version}</p>
       </Card>
       <Card className="overflow-hidden">
         <div className="divide-y divide-border">
           {requirements.map((req) => {
-            const active = req.auditControlCount - req.notApplicableControlCount;
-            const pct = active > 0 ? Math.round((req.compliantControlCount / active) * 100) : 0;
+            const active =
+              req.auditControlCount - req.notApplicableControlCount;
+            const pct =
+              active > 0
+                ? Math.round((req.compliantControlCount / active) * 100)
+                : 0;
             return (
               <div key={req.frameworkRequirementId} className="p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold text-foreground">{req.code} · {req.title}</p>
-                    {req.domain && <p className="mt-0.5 text-xs text-muted-foreground">{req.domain}</p>}
+                    <p className="text-sm font-semibold text-foreground">
+                      {req.code} · {req.title}
+                    </p>
+                    {req.domain && (
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        {req.domain}
+                      </p>
+                    )}
                   </div>
-                  <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">{pct}%</span>
+                  <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
+                    {pct}%
+                  </span>
                 </div>
                 <div className="mt-3 grid grid-cols-4 gap-2 text-center text-xs">
-                  <span>{t('auditDetail.overview.compliant')}: {req.compliantControlCount}</span>
-                  <span>{t('auditDetail.overview.nonCompliant')}: {req.nonCompliantControlCount}</span>
-                  <span>{t('auditDetail.overview.pending')}: {req.pendingControlCount}</span>
-                  <span>{t('auditDetail.overview.na')}: {req.notApplicableControlCount}</span>
+                  <span>
+                    {t('auditDetail.overview.compliant')}:{' '}
+                    {req.compliantControlCount}
+                  </span>
+                  <span>
+                    {t('auditDetail.overview.nonCompliant')}:{' '}
+                    {req.nonCompliantControlCount}
+                  </span>
+                  <span>
+                    {t('auditDetail.overview.pending')}:{' '}
+                    {req.pendingControlCount}
+                  </span>
+                  <span>
+                    {t('auditDetail.overview.na')}:{' '}
+                    {req.notApplicableControlCount}
+                  </span>
                 </div>
               </div>
             );
@@ -1172,7 +1571,9 @@ function SnapshotSummaryCard({ auditId }: { auditId: string }) {
   const { data: snapshotData } = useQuery({
     queryKey: ['audit-snapshot', auditId, selected],
     queryFn: () => auditsService.getSnapshot(auditId, selected),
-    enabled: (snapshotsData?.data ?? []).some((snapshot) => snapshot.snapshotType === selected),
+    enabled: (snapshotsData?.data ?? []).some(
+      (snapshot) => snapshot.snapshotType === selected,
+    ),
   });
 
   const snapshots = snapshotsData?.data ?? [];
@@ -1180,13 +1581,19 @@ function SnapshotSummaryCard({ auditId }: { auditId: string }) {
     <Card className="p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-foreground">{t('auditDetail.dataTabs.snapshots')}</p>
-          <p className="text-xs text-muted-foreground">{t('auditDetail.dataTabs.snapshotsDesc')}</p>
+          <p className="text-sm font-semibold text-foreground">
+            {t('auditDetail.dataTabs.snapshots')}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {t('auditDetail.dataTabs.snapshotsDesc')}
+          </p>
         </div>
         <select
           aria-label={t('auditDetail.dataTabs.snapshotSelector')}
           value={selected}
-          onChange={(event) => setSelected(event.target.value as AuditDataSnapshotType)}
+          onChange={(event) =>
+            setSelected(event.target.value as AuditDataSnapshotType)
+          }
           className="rounded-md border border-border bg-background px-2 py-1 text-xs"
         >
           <option value="START">START</option>
@@ -1194,16 +1601,106 @@ function SnapshotSummaryCard({ auditId }: { auditId: string }) {
         </select>
       </div>
       {snapshots.length === 0 ? (
-        <p className="mt-3 text-sm text-muted-foreground">{t('auditDetail.dataTabs.noSnapshots')}</p>
+        <p className="mt-3 text-sm text-muted-foreground">
+          {t('auditDetail.dataTabs.noSnapshots')}
+        </p>
       ) : snapshotData?.data ? (
         <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-4">
-          <span>{t('auditDetail.tabs.risk')}: {((snapshotData.data.riskRegister as any)?.total ?? 0)}</span>
-          <span>{t('auditDetail.tabs.assets')}: {((snapshotData.data.assetInventory as any)?.total ?? 0)}</span>
-          <span>{t('auditDetail.tabs.personnel')}: {((snapshotData.data.personnel as any)?.total ?? 0)}</span>
-          <span>{t('auditDetail.tabs.integrations')}: {((snapshotData.data.integrations as any)?.total ?? 0)}</span>
+          <span>
+            {t('auditDetail.tabs.risk')}:{' '}
+            {(snapshotData.data.riskRegister as any)?.total ?? 0}
+          </span>
+          <span>
+            {t('auditDetail.tabs.assets')}:{' '}
+            {(snapshotData.data.assetInventory as any)?.total ?? 0}
+          </span>
+          <span>
+            {t('auditDetail.tabs.personnel')}:{' '}
+            {(snapshotData.data.personnel as any)?.total ?? 0}
+          </span>
+          <span>
+            {t('auditDetail.tabs.integrations')}:{' '}
+            {(snapshotData.data.integrations as any)?.total ?? 0}
+          </span>
         </div>
       ) : (
-        <p className="mt-3 text-sm text-muted-foreground">{t('auditDetail.dataTabs.snapshotMissing')}</p>
+        <p className="mt-3 text-sm text-muted-foreground">
+          {t('auditDetail.dataTabs.snapshotMissing')}
+        </p>
+      )}
+    </Card>
+  );
+}
+
+// Shared risk snapshots (RiskSnapshot, NOT AuditDataSnapshot). Lists the
+// snapshots the org has explicitly shared AND that fall inside this audit's
+// observation window. Mirrors what the assigned AUDITOR sees on /auditor/dashboard
+// so org admins can verify share state without role-switching. Hits the same
+// GET /api/audits/:id/risk-snapshots endpoint.
+function SharedRiskSnapshotsCard({ auditId }: { auditId: string }) {
+  const { t } = useTranslation('compliance');
+  const { data, isLoading, isError } = useQuery<{
+    success: boolean;
+    data: RiskSnapshotRecord[];
+  }>({
+    queryKey: QK.auditorRiskSnapshots(auditId),
+    queryFn: () => auditsService.listRiskSnapshots(auditId),
+    staleTime: STALE.RISKS,
+  });
+
+  const snapshots = data?.data ?? [];
+
+  return (
+    <Card className="overflow-hidden">
+      <div className="border-b px-5 py-3 flex items-center gap-2">
+        <Camera className="w-4 h-4 text-muted-foreground" />
+        <span className="text-sm font-medium">
+          {t('auditDetail.riskTab.sharedSnapshots.title')}
+        </span>
+        <Badge variant="secondary" className="ml-auto">
+          {snapshots.length}
+        </Badge>
+      </div>
+      <p className="px-5 pt-3 text-xs text-muted-foreground">
+        {t('auditDetail.riskTab.sharedSnapshots.description')}
+      </p>
+      {isLoading ? (
+        <p className="p-6 text-center text-sm text-muted-foreground">
+          {t('auditDetail.riskTab.sharedSnapshots.loading')}
+        </p>
+      ) : isError ? (
+        <p className="p-6 text-center text-sm text-red-500">
+          {t('auditDetail.riskTab.sharedSnapshots.loadFailed')}
+        </p>
+      ) : snapshots.length === 0 ? (
+        <p className="p-6 text-center text-sm text-muted-foreground">
+          {t('auditDetail.riskTab.sharedSnapshots.empty')}
+        </p>
+      ) : (
+        <div className="divide-y divide-border">
+          {snapshots.map((s) => (
+            <div
+              key={s.id}
+              className="flex items-center justify-between gap-3 px-5 py-3 text-sm"
+            >
+              <div className="min-w-0">
+                <p className="truncate font-medium">{s.name}</p>
+                <p className="truncate text-xs text-muted-foreground">
+                  {new Date(s.createdAt).toLocaleString()} ·{' '}
+                  {t('auditDetail.riskTab.sharedSnapshots.riskCount', {
+                    count: s.riskCount,
+                  })}
+                </p>
+              </div>
+              <Link
+                to={`/auditor/audits/${auditId}/risk-snapshots/${s.id}`}
+                className="inline-flex items-center rounded-md border border-input bg-background px-3 py-1.5 text-xs font-medium hover:bg-accent"
+              >
+                {t('auditDetail.riskTab.sharedSnapshots.view')}
+              </Link>
+            </div>
+          ))}
+        </div>
       )}
     </Card>
   );
@@ -1222,42 +1719,82 @@ function DataSummaryTab({
     queryFn: () => {
       if (type === 'risk') return auditsService.getRiskSummary(auditId);
       if (type === 'assets') return auditsService.getAssetSummary(auditId);
-      if (type === 'personnel') return auditsService.getPersonnelSummary(auditId);
+      if (type === 'personnel')
+        return auditsService.getPersonnelSummary(auditId);
       return auditsService.getIntegrationSummary(auditId);
     },
   });
 
   const data = query.data?.data;
-  const rows = (data?.risks ?? data?.assets ?? data?.personnel ?? data?.integrations ?? []) as any[];
+  const rows = (data?.risks ??
+    data?.assets ??
+    data?.personnel ??
+    data?.integrations ??
+    []) as any[];
 
-  if (query.isLoading) return <Card className="p-6 text-sm text-muted-foreground">{t('auditDetail.dataTabs.loading')}</Card>;
+  if (query.isLoading)
+    return (
+      <Card className="p-6 text-sm text-muted-foreground">
+        {t('auditDetail.dataTabs.loading')}
+      </Card>
+    );
 
   return (
     <div className="space-y-4">
       <SnapshotSummaryCard auditId={auditId} />
+      {type === 'risk' && <SharedRiskSnapshotsCard auditId={auditId} />}
       <div className="grid gap-3 sm:grid-cols-3">
         <Card className="p-4">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t('auditDetail.dataTabs.currentTotal')}</p>
-          <p className="mt-1 text-2xl font-bold text-foreground">{data?.total ?? 0}</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            {t('auditDetail.dataTabs.currentTotal')}
+          </p>
+          <p className="mt-1 text-2xl font-bold text-foreground">
+            {data?.total ?? 0}
+          </p>
         </Card>
         <Card className="p-4 sm:col-span-2">
-          <BreakdownChips data={data?.byStatus ?? data?.byImpact ?? data?.byCriticality ?? data?.byRole ?? data?.byType} />
+          <BreakdownChips
+            data={
+              data?.byStatus ??
+              data?.byImpact ??
+              data?.byCriticality ??
+              data?.byRole ??
+              data?.byType
+            }
+          />
         </Card>
       </div>
       <Card className="overflow-hidden">
         {rows.length === 0 ? (
-          <p className="p-6 text-center text-sm text-muted-foreground">{t('auditDetail.dataTabs.noRows')}</p>
+          <p className="p-6 text-center text-sm text-muted-foreground">
+            {t('auditDetail.dataTabs.noRows')}
+          </p>
         ) : (
           <div className="divide-y divide-border">
             {rows.slice(0, 25).map((row, index) => (
-              <div key={row.id ?? index} className="flex items-center justify-between gap-3 p-4 text-sm">
+              <div
+                key={row.id ?? index}
+                className="flex items-center justify-between gap-3 p-4 text-sm"
+              >
                 <div className="min-w-0">
-                  <p className="truncate font-medium text-foreground">{row.title ?? row.name ?? row.email ?? row.provider ?? row.id}</p>
-                  <p className="truncate text-xs text-muted-foreground">{row.status ?? row.role ?? row.type ?? row.impact ?? '—'}</p>
+                  <p className="truncate font-medium text-foreground">
+                    {row.title ??
+                      row.name ??
+                      row.email ??
+                      row.provider ??
+                      row.id}
+                  </p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {row.status ?? row.role ?? row.type ?? row.impact ?? '—'}
+                  </p>
                 </div>
-                {(row.riskScore || row.criticality || row.mfaEnabled !== undefined) && (
+                {(row.riskScore ||
+                  row.criticality ||
+                  row.mfaEnabled !== undefined) && (
                   <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-                    {row.riskScore ?? row.criticality ?? (row.mfaEnabled ? 'MFA' : 'No MFA')}
+                    {row.riskScore ??
+                      row.criticality ??
+                      (row.mfaEnabled ? 'MFA' : 'No MFA')}
                   </span>
                 )}
               </div>
@@ -1272,17 +1809,17 @@ function DataSummaryTab({
 // ── Vendors Tab ───────────────────────────────────────────────────────────────
 
 const VENDOR_STATUS_COLORS: Record<string, string> = {
-  MONITORED:      'bg-green-50 text-green-700',
+  MONITORED: 'bg-green-50 text-green-700',
   ASSESSMENT_DUE: 'bg-amber-50 text-amber-700',
-  IN_REVIEW:      'bg-blue-50 text-blue-700',
-  BLOCKED:        'bg-red-50 text-red-700',
+  IN_REVIEW: 'bg-blue-50 text-blue-700',
+  BLOCKED: 'bg-red-50 text-red-700',
 };
 
 const VENDOR_TIER_COLORS: Record<string, string> = {
   CRITICAL: 'bg-red-50 text-red-700',
-  HIGH:     'bg-orange-50 text-orange-700',
-  MEDIUM:   'bg-amber-50 text-amber-700',
-  LOW:      'bg-slate-100 text-slate-600',
+  HIGH: 'bg-orange-50 text-orange-700',
+  MEDIUM: 'bg-amber-50 text-amber-700',
+  LOW: 'bg-slate-100 text-slate-600',
 };
 
 function VendorsTab() {
@@ -1294,7 +1831,11 @@ function VendorsTab() {
   const vendors = data ?? [];
 
   if (isLoading) {
-    return <div className="p-8 text-center text-sm text-muted-foreground">{t('auditDetail.vendors.loading')}</div>;
+    return (
+      <div className="p-8 text-center text-sm text-muted-foreground">
+        {t('auditDetail.vendors.loading')}
+      </div>
+    );
   }
 
   if (vendors.length === 0) {
@@ -1309,19 +1850,35 @@ function VendorsTab() {
     <Card className="overflow-hidden">
       <div className="px-5 py-3 border-b flex items-center gap-2">
         <Building2 className="w-4 h-4 text-muted-foreground" />
-        <span className="text-sm font-medium">{t('auditDetail.vendors.rosterTitle')}</span>
-        <Badge variant="secondary" className="ml-auto">{vendors.length}</Badge>
+        <span className="text-sm font-medium">
+          {t('auditDetail.vendors.rosterTitle')}
+        </span>
+        <Badge variant="secondary" className="ml-auto">
+          {vendors.length}
+        </Badge>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b bg-muted/40 text-xs text-muted-foreground">
-              <th className="px-4 py-2 text-left font-medium">{t('auditDetail.vendors.columns.vendor')}</th>
-              <th className="px-4 py-2 text-left font-medium">{t('auditDetail.vendors.columns.tier')}</th>
-              <th className="px-4 py-2 text-left font-medium">{t('auditDetail.vendors.columns.status')}</th>
-              <th className="px-4 py-2 text-right font-medium">{t('auditDetail.vendors.columns.securityScore')}</th>
-              <th className="px-4 py-2 text-left font-medium">{t('auditDetail.vendors.columns.lastAssessment')}</th>
-              <th className="px-4 py-2 text-left font-medium">{t('auditDetail.vendors.columns.nextDue')}</th>
+              <th className="px-4 py-2 text-left font-medium">
+                {t('auditDetail.vendors.columns.vendor')}
+              </th>
+              <th className="px-4 py-2 text-left font-medium">
+                {t('auditDetail.vendors.columns.tier')}
+              </th>
+              <th className="px-4 py-2 text-left font-medium">
+                {t('auditDetail.vendors.columns.status')}
+              </th>
+              <th className="px-4 py-2 text-right font-medium">
+                {t('auditDetail.vendors.columns.securityScore')}
+              </th>
+              <th className="px-4 py-2 text-left font-medium">
+                {t('auditDetail.vendors.columns.lastAssessment')}
+              </th>
+              <th className="px-4 py-2 text-left font-medium">
+                {t('auditDetail.vendors.columns.nextDue')}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -1330,28 +1887,42 @@ function VendorsTab() {
               // were dropped from Vendor. Show effective tier (residual ?? inherent)
               // and inherent score; finding counts are now derived from a join
               // and intentionally omitted from this audit-side summary.
-              const effectiveTier = v.residualTier ?? v.inherentTier ?? 'MEDIUM';
+              const effectiveTier =
+                v.residualTier ?? v.inherentTier ?? 'MEDIUM';
               return (
-                <tr key={v.id} className="border-b last:border-0 hover:bg-muted/20">
+                <tr
+                  key={v.id}
+                  className="border-b last:border-0 hover:bg-muted/20"
+                >
                   <td className="px-4 py-3">
                     <div className="font-medium">{v.name}</div>
-                    <div className="text-xs text-muted-foreground">{v.category}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {v.category}
+                    </div>
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${VENDOR_TIER_COLORS[effectiveTier] ?? 'bg-slate-100 text-slate-600'}`}>
+                    <span
+                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${VENDOR_TIER_COLORS[effectiveTier] ?? 'bg-slate-100 text-slate-600'}`}
+                    >
                       {effectiveTier}
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${VENDOR_STATUS_COLORS[v.status] ?? 'bg-slate-100 text-slate-600'}`}>
+                    <span
+                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${VENDOR_STATUS_COLORS[v.status] ?? 'bg-slate-100 text-slate-600'}`}
+                    >
                       {v.status.replace(/_/g, ' ')}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right font-mono">
                     {v.inherentRiskScore ?? '—'}
                   </td>
-                  <td className="px-4 py-3 text-muted-foreground">{fmt(v.lastAssessmentAt)}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{fmt(v.nextAssessmentAt)}</td>
+                  <td className="px-4 py-3 text-muted-foreground">
+                    {fmt(v.lastAssessmentAt)}
+                  </td>
+                  <td className="px-4 py-3 text-muted-foreground">
+                    {fmt(v.nextAssessmentAt)}
+                  </td>
                 </tr>
               );
             })}
@@ -1377,7 +1948,10 @@ function AuditorInvitationsDialog({
   const [role, setRole] = useState<'LEAD' | 'REVIEWER'>('REVIEWER');
   const [saving, setSaving] = useState(false);
 
-  const { data } = useQuery<{ success: boolean; data: AuditorInvitationRecord[] }>({
+  const { data } = useQuery<{
+    success: boolean;
+    data: AuditorInvitationRecord[];
+  }>({
     queryKey: ['audit-invitations', auditId],
     queryFn: () => auditsService.listInvitations(auditId),
     enabled: open,
@@ -1389,11 +1963,16 @@ function AuditorInvitationsDialog({
     if (!email.trim()) return;
     setSaving(true);
     try {
-      await auditsService.createInvitation(auditId, { email: email.trim(), role });
+      await auditsService.createInvitation(auditId, {
+        email: email.trim(),
+        role,
+      });
       toast.success(t('auditDetail.invitations.sent'));
       setEmail('');
       setRole('REVIEWER');
-      queryClient.invalidateQueries({ queryKey: ['audit-invitations', auditId] });
+      queryClient.invalidateQueries({
+        queryKey: ['audit-invitations', auditId],
+      });
     } catch {
       toast.error(t('auditDetail.invitations.sendFailed'));
     } finally {
@@ -1405,7 +1984,9 @@ function AuditorInvitationsDialog({
     try {
       await auditsService.revokeInvitation(auditId, invitationId);
       toast.success(t('auditDetail.invitations.revoked'));
-      queryClient.invalidateQueries({ queryKey: ['audit-invitations', auditId] });
+      queryClient.invalidateQueries({
+        queryKey: ['audit-invitations', auditId],
+      });
     } catch {
       toast.error(t('auditDetail.invitations.revokeFailed'));
     }
@@ -1416,12 +1997,16 @@ function AuditorInvitationsDialog({
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>{t('auditDetail.invitations.title')}</DialogTitle>
-          <DialogDescription>{t('auditDetail.invitations.description')}</DialogDescription>
+          <DialogDescription>
+            {t('auditDetail.invitations.description')}
+          </DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-3 sm:grid-cols-[1fr_140px_auto]">
           <div className="space-y-1.5">
-            <Label htmlFor="auditor-email">{t('auditDetail.invitations.email')}</Label>
+            <Label htmlFor="auditor-email">
+              {t('auditDetail.invitations.email')}
+            </Label>
             <Input
               id="auditor-email"
               type="email"
@@ -1431,28 +2016,38 @@ function AuditorInvitationsDialog({
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="auditor-role">{t('auditDetail.invitations.role')}</Label>
+            <Label htmlFor="auditor-role">
+              {t('auditDetail.invitations.role')}
+            </Label>
             <select
               id="auditor-role"
               className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
               value={role}
-              onChange={(event) => setRole(event.target.value as 'LEAD' | 'REVIEWER')}
+              onChange={(event) =>
+                setRole(event.target.value as 'LEAD' | 'REVIEWER')
+              }
             >
-              <option value="REVIEWER">{t('auditDetail.invitations.reviewer')}</option>
+              <option value="REVIEWER">
+                {t('auditDetail.invitations.reviewer')}
+              </option>
               <option value="LEAD">{t('auditDetail.invitations.lead')}</option>
             </select>
           </div>
           <div className="flex items-end">
             <Button onClick={inviteAuditor} disabled={saving || !email.trim()}>
               <Send className="mr-1 h-4 w-4" />
-              {saving ? t('auditDetail.invitations.sending') : t('auditDetail.invitations.send')}
+              {saving
+                ? t('auditDetail.invitations.sending')
+                : t('auditDetail.invitations.send')}
             </Button>
           </div>
         </div>
 
         <div className="rounded-md border">
           {invitations.length === 0 ? (
-            <p className="p-4 text-sm text-muted-foreground">{t('auditDetail.invitations.empty')}</p>
+            <p className="p-4 text-sm text-muted-foreground">
+              {t('auditDetail.invitations.empty')}
+            </p>
           ) : (
             invitations.map((invitation) => {
               const status = invitation.revokedAt
@@ -1461,15 +2056,25 @@ function AuditorInvitationsDialog({
                   ? t('auditDetail.invitations.acceptedStatus')
                   : t('auditDetail.invitations.pendingStatus');
               return (
-                <div key={invitation.id} className="flex items-center justify-between gap-3 border-b p-3 last:border-b-0">
+                <div
+                  key={invitation.id}
+                  className="flex items-center justify-between gap-3 border-b p-3 last:border-b-0"
+                >
                   <div>
                     <p className="text-sm font-medium">{invitation.email}</p>
                     <p className="text-xs text-muted-foreground">
-                      {invitation.role} · {status} · {t('auditDetail.invitations.expires', { date: fmt(invitation.expiresAt) })}
+                      {invitation.role} · {status} ·{' '}
+                      {t('auditDetail.invitations.expires', {
+                        date: fmt(invitation.expiresAt),
+                      })}
                     </p>
                   </div>
                   {!invitation.revokedAt && !invitation.acceptedAt && (
-                    <Button variant="ghost" size="sm" onClick={() => revokeInvitation(invitation.id)}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => revokeInvitation(invitation.id)}
+                    >
                       <Trash2 className="mr-1 h-4 w-4" />
                       {t('auditDetail.invitations.revoke')}
                     </Button>
@@ -1481,7 +2086,9 @@ function AuditorInvitationsDialog({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>{t('auditDetail.invitations.close')}</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            {t('auditDetail.invitations.close')}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -1498,20 +2105,20 @@ export function AuditDetailPage() {
   const canInviteAuditors = useIsAdmin();
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
 
-  const { data, isLoading } = useQuery<{ success: boolean; data: AuditRecord }>({
-    queryKey: ['audit', auditId],
-    queryFn: () => auditsService.get(auditId!),
-    enabled: !!auditId,
-  });
+  const { data, isLoading } = useQuery<{ success: boolean; data: AuditRecord }>(
+    {
+      queryKey: ['audit', auditId],
+      queryFn: () => auditsService.get(auditId!),
+      enabled: !!auditId,
+    },
+  );
   const { data: users = [] } = useQuery({
     queryKey: ['users'],
     queryFn: () => usersService.listUsers(),
   });
 
   const audit = data?.data;
-  const usersById = new Map(
-    users.map((user) => [user.id, user] as const),
-  );
+  const usersById = new Map(users.map((user) => [user.id, user] as const));
 
   function refresh() {
     queryClient.invalidateQueries({ queryKey: ['audit', auditId] });
@@ -1521,7 +2128,9 @@ export function AuditDetailPage() {
   if (isLoading) {
     return (
       <PageTemplate title={t('auditDetail.loading')} description="">
-        <div className="p-8 text-center text-sm text-muted-foreground">{t('auditDetail.loadingAudit')}</div>
+        <div className="p-8 text-center text-sm text-muted-foreground">
+          {t('auditDetail.loadingAudit')}
+        </div>
       </PageTemplate>
     );
   }
@@ -1529,7 +2138,9 @@ export function AuditDetailPage() {
   if (!audit) {
     return (
       <PageTemplate title={t('auditDetail.notFound')} description="">
-        <div className="p-8 text-center text-sm text-muted-foreground">{t('auditDetail.auditNotFound')}</div>
+        <div className="p-8 text-center text-sm text-muted-foreground">
+          {t('auditDetail.auditNotFound')}
+        </div>
       </PageTemplate>
     );
   }
@@ -1540,7 +2151,9 @@ export function AuditDetailPage() {
     t(`auditPanel.typeLabels.${AUDIT_TYPE_KEYS[audit.type]}`),
     audit.frameworkName,
     audit.isLocked ? t('auditDetail.locked') : null,
-  ].filter(Boolean).join(' · ');
+  ]
+    .filter(Boolean)
+    .join(' · ');
 
   return (
     <PageTemplate
@@ -1549,13 +2162,21 @@ export function AuditDetailPage() {
       actions={
         <div className="flex items-center gap-2">
           {canInviteAuditors && (
-            <Button variant="outline" size="sm" onClick={() => setInviteDialogOpen(true)}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setInviteDialogOpen(true)}
+            >
               <Send className="w-4 h-4 mr-1" />
               {t('auditDetail.invitations.invite')}
             </Button>
           )}
           <StatusBadge status={audit.status as AuditStatus} />
-          <Button variant="ghost" size="sm" onClick={() => navigate('/compliance/audits')}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/compliance/audits')}
+          >
             <ArrowLeft className="w-4 h-4 mr-1" />
             {t('auditDetail.back')}
           </Button>
@@ -1564,8 +2185,12 @@ export function AuditDetailPage() {
     >
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="overview">{t('auditDetail.tabs.overview')}</TabsTrigger>
-          <TabsTrigger value="evidence">{t('auditDetail.tabs.evidence')}</TabsTrigger>
+          <TabsTrigger value="overview">
+            {t('auditDetail.tabs.overview')}
+          </TabsTrigger>
+          <TabsTrigger value="evidence">
+            {t('auditDetail.tabs.evidence')}
+          </TabsTrigger>
           <TabsTrigger value="requests">
             <ClipboardList className="w-3.5 h-3.5 mr-1" />
             {t('auditDetail.tabs.requests')}
@@ -1573,18 +2198,33 @@ export function AuditDetailPage() {
           <TabsTrigger value="findings">
             {t('auditDetail.tabs.findings')}
             {(audit.findings ?? []).length > 0 && (
-              <Badge variant="secondary" className="ml-1.5 h-4 min-w-4 px-1 text-xs">
+              <Badge
+                variant="secondary"
+                className="ml-1.5 h-4 min-w-4 px-1 text-xs"
+              >
                 {(audit.findings ?? []).length}
               </Badge>
             )}
           </TabsTrigger>
-          <TabsTrigger value="comments">{t('auditDetail.tabs.comments')}</TabsTrigger>
-          <TabsTrigger value="report">{t('auditDetail.tabs.report')}</TabsTrigger>
-          <TabsTrigger value="framework">{t('auditDetail.tabs.framework')}</TabsTrigger>
+          <TabsTrigger value="comments">
+            {t('auditDetail.tabs.comments')}
+          </TabsTrigger>
+          <TabsTrigger value="report">
+            {t('auditDetail.tabs.report')}
+          </TabsTrigger>
+          <TabsTrigger value="framework">
+            {t('auditDetail.tabs.framework')}
+          </TabsTrigger>
           <TabsTrigger value="risk">{t('auditDetail.tabs.risk')}</TabsTrigger>
-          <TabsTrigger value="assets">{t('auditDetail.tabs.assets')}</TabsTrigger>
-          <TabsTrigger value="personnel">{t('auditDetail.tabs.personnel')}</TabsTrigger>
-          <TabsTrigger value="integrations">{t('auditDetail.tabs.integrations')}</TabsTrigger>
+          <TabsTrigger value="assets">
+            {t('auditDetail.tabs.assets')}
+          </TabsTrigger>
+          <TabsTrigger value="personnel">
+            {t('auditDetail.tabs.personnel')}
+          </TabsTrigger>
+          <TabsTrigger value="integrations">
+            {t('auditDetail.tabs.integrations')}
+          </TabsTrigger>
           <TabsTrigger value="vendors">
             <Building2 className="w-3.5 h-3.5 mr-1" />
             {t('auditDetail.tabs.vendors')}
