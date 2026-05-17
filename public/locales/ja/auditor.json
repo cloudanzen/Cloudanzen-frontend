@@ -98,6 +98,7 @@
     "goBack": "戻る",
     "back": "戻る",
     "exitPreview": "プレビューを終了",
+    "dashboard": "ダッシュボード",
     "lockedTitle": "監査は署名されロックされています",
     "lockedDescription": "{{date}} に署名されました。すべての管理策、指摘事項、メトリクスは固定されています。",
     "viewSignedPdf": "署名済みPDFを表示",

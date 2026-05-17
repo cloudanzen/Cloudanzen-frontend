@@ -37,6 +37,7 @@ import {
   Clock,
   XCircle,
   LogOut,
+  LayoutDashboard,
 } from 'lucide-react';
 import {
   auditsService,
@@ -332,6 +333,14 @@ export function AuditFinalReportPage() {
       description={`${auditTypeLabel[audit.type] ?? audit.type} · ${audit.frameworkName ?? t('finalReport.noFramework')}`}
       actions={
         <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate('/auditor/dashboard')}
+          >
+            <LayoutDashboard className="w-4 h-4 mr-1" />{' '}
+            {t('finalReport.dashboard')}
+          </Button>
           {isAdmin && (
             <Button
               variant="outline"

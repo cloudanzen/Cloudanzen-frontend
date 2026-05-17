@@ -2175,7 +2175,7 @@ export function AuditDetailPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => navigate(`/auditor/audits/${audit.id}/final-report`)}
+            onClick={() => navigate('/auditor/dashboard')}
             title={t('auditDetail.previewAsAuditor.tooltip')}
           >
             <Eye className="w-4 h-4 mr-1" />

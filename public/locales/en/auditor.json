@@ -98,6 +98,7 @@
     "goBack": "Go back",
     "back": "Back",
     "exitPreview": "Exit preview",
+    "dashboard": "Dashboard",
     "lockedTitle": "Audit signed and locked",
     "lockedDescription": "Signed on {{date}}. All controls, findings, and metrics are frozen.",
     "viewSignedPdf": "View signed PDF",
