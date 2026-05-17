@@ -141,6 +141,7 @@
       "errorTitle": "Couldn't load this snapshot",
       "errorBody": "Something went wrong fetching this snapshot. Try again or go back to the list.",
       "retry": "Retry",
+      "exitPreview": "Exit preview",
       "notFound": "This snapshot doesn't exist or you don't have access to it.",
       "immutableNotice": "This snapshot is immutable. It captures risk state at the time of creation and cannot be edited.",
       "totalRisks": "Total risks",

@@ -12,10 +12,11 @@ import { useQuery } from '@tanstack/react-query';
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { Card } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
-import { Loader2, ChevronLeft, AlertCircle } from 'lucide-react';
+import { Loader2, ChevronLeft, AlertCircle, LogOut } from 'lucide-react';
 import { auditsService } from '@/services/api/audits';
 import type { RiskSnapshotRecord } from '@/services/api/risks';
 import { RiskSnapshotItemsView } from '@/app/pages/risk/RiskSnapshotItemsView';
+import { useIsAdmin } from '@/hooks/useCurrentUser';
 import { QK } from '@/lib/queryKeys';
 import { STALE } from '@/lib/queryClient';
 
@@ -26,6 +27,7 @@ export function AuditorRiskSnapshotPage() {
     snapshotId: string;
   }>();
   const navigate = useNavigate();
+  const isAdmin = useIsAdmin();
 
   const {
     data: snap,
@@ -95,7 +97,21 @@ export function AuditorRiskSnapshotPage() {
   }
 
   return (
-    <PageTemplate title={t('snapshot.title')}>
+    <PageTemplate
+      title={t('snapshot.title')}
+      actions={
+        isAdmin ? (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate(`/compliance/audits/${auditId}`)}
+          >
+            <LogOut className="w-4 h-4 mr-1" />
+            {t('snapshot.detail.exitPreview')}
+          </Button>
+        ) : undefined
+      }
+    >
       <div className="space-y-4">
         <Link
           to={backTo}

@@ -97,6 +97,7 @@
     "loadFailed": "Failed to load report. You may not have access to this audit.",
     "goBack": "Go back",
     "back": "Back",
+    "exitPreview": "Exit preview",
     "lockedTitle": "Audit signed and locked",
     "lockedDescription": "Signed on {{date}}. All controls, findings, and metrics are frozen.",
     "viewSignedPdf": "View signed PDF",

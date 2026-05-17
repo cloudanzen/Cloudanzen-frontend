@@ -36,6 +36,7 @@ import {
   AlertCircle,
   Clock,
   XCircle,
+  LogOut,
 } from 'lucide-react';
 import {
   auditsService,
@@ -44,7 +45,7 @@ import {
   AuditSnapshot,
 } from '@/services/api/audits';
 import { usersService } from '@/services/api/users';
-import { useCanAudit } from '@/hooks/useCurrentUser';
+import { useCanAudit, useIsAdmin } from '@/hooks/useCurrentUser';
 import { useConfirmDialog } from '@/app/hooks/useConfirmDialog';
 import { resolveAuditorLabel } from '@/lib/audits';
 
@@ -191,6 +192,7 @@ export function AuditFinalReportPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const canAudit = useCanAudit();
+  const isAdmin = useIsAdmin();
   const confirm = useConfirmDialog();
 
   // Form state
@@ -232,9 +234,7 @@ export function AuditFinalReportPage() {
   )?.data;
   const audit: AuditRecord | undefined = report?.audit;
   const metrics: AuditReportMetrics | undefined = report?.metrics;
-  const usersById = new Map(
-    users.map((user) => [user.id, user] as const),
-  );
+  const usersById = new Map(users.map((user) => [user.id, user] as const));
   // Prefer snapshot for locked audits
   const display: AuditReportMetrics | AuditSnapshot | undefined =
     audit?.snapshot ?? metrics;
@@ -331,9 +331,20 @@ export function AuditFinalReportPage() {
       title={`${t('finalReport.title')} — ${audit.name}`}
       description={`${auditTypeLabel[audit.type] ?? audit.type} · ${audit.frameworkName ?? t('finalReport.noFramework')}`}
       actions={
-        <Button variant="outline" size="sm" onClick={() => navigate(-1)}>
-          <ChevronLeft className="w-4 h-4 mr-1" /> {t('finalReport.back')}
-        </Button>
+        <div className="flex items-center gap-2">
+          {isAdmin && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate(`/compliance/audits/${audit.id}`)}
+            >
+              <LogOut className="w-4 h-4 mr-1" /> {t('finalReport.exitPreview')}
+            </Button>
+          )}
+          <Button variant="outline" size="sm" onClick={() => navigate(-1)}>
+            <ChevronLeft className="w-4 h-4 mr-1" /> {t('finalReport.back')}
+          </Button>
+        </div>
       }
     >
       {/* Lock banner */}
