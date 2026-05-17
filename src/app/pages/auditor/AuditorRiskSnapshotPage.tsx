@@ -12,7 +12,13 @@ import { useQuery } from '@tanstack/react-query';
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { Card } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
-import { Loader2, ChevronLeft, AlertCircle, LogOut } from 'lucide-react';
+import {
+  Loader2,
+  ChevronLeft,
+  AlertCircle,
+  LogOut,
+  LayoutDashboard,
+} from 'lucide-react';
 import { auditsService } from '@/services/api/audits';
 import type { RiskSnapshotRecord } from '@/services/api/risks';
 import { RiskSnapshotItemsView } from '@/app/pages/risk/RiskSnapshotItemsView';
@@ -100,16 +106,26 @@ export function AuditorRiskSnapshotPage() {
     <PageTemplate
       title={t('snapshot.title')}
       actions={
-        isAdmin ? (
+        <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
-            onClick={() => navigate(`/compliance/audits/${auditId}`)}
+            onClick={() => navigate('/auditor/dashboard')}
           >
-            <LogOut className="w-4 h-4 mr-1" />
-            {t('snapshot.detail.exitPreview')}
+            <LayoutDashboard className="w-4 h-4 mr-1" />
+            {t('snapshot.detail.dashboard')}
           </Button>
-        ) : undefined
+          {isAdmin && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate(`/compliance/audits/${auditId}`)}
+            >
+              <LogOut className="w-4 h-4 mr-1" />
+              {t('snapshot.detail.exitPreview')}
+            </Button>
+          )}
+        </div>
       }
     >
       <div className="space-y-4">
