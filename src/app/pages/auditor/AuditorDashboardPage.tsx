@@ -8,7 +8,7 @@
  */
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -28,6 +28,9 @@ import {
   AuditControlRecord,
   AuditControlStatus,
 } from '@/services/api/audits';
+import type { RiskSnapshotRecord } from '@/services/api/risks';
+import { QK } from '@/lib/queryKeys';
+import { STALE } from '@/lib/queryClient';
 import { Card } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
 import { PageTemplate } from '@/app/components/PageTemplate';
@@ -35,6 +38,93 @@ import { PageTemplate } from '@/app/components/PageTemplate';
 import { fmt, daysRemaining, ReviewBadge } from './auditorDashboard/helpers';
 import { KpiCard } from './auditorDashboard/KpiCard';
 import { ControlReviewPanel } from './auditorDashboard/ControlReviewPanel';
+
+// ── Risk Snapshots section ────────────────────────────────────────────────────
+
+function AuditorRiskSnapshotsSection({ auditId }: { auditId: string }) {
+  const { t } = useTranslation('auditor');
+
+  const { data, isLoading, isError } = useQuery<{
+    success: boolean;
+    data: RiskSnapshotRecord[];
+  }>({
+    queryKey: QK.auditorRiskSnapshots(auditId),
+    queryFn: () => auditsService.listRiskSnapshots(auditId),
+    staleTime: STALE.RISKS,
+  });
+
+  const snapshots = data?.data ?? [];
+
+  return (
+    <section className="mt-6">
+      <div className="mb-3">
+        <h3 className="text-base font-semibold text-gray-900">
+          {t('dashboard.riskSnapshots.title')}
+        </h3>
+        <p className="text-sm text-gray-500">
+          {t('dashboard.riskSnapshots.description')}
+        </p>
+      </div>
+      <Card className="overflow-hidden">
+        {isLoading ? (
+          <div className="p-8 text-center text-sm text-gray-400">
+            {t('dashboard.riskSnapshots.loading')}
+          </div>
+        ) : isError ? (
+          <div className="p-8 text-center text-sm text-red-500">
+            {t('dashboard.riskSnapshots.loadFailed')}
+          </div>
+        ) : snapshots.length === 0 ? (
+          <div className="p-8 text-center text-sm text-gray-400">
+            {t('dashboard.riskSnapshots.empty')}
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 border-b border-gray-100">
+                <tr>
+                  <th className="px-4 py-2 text-left font-medium text-xs text-gray-500">
+                    {t('dashboard.riskSnapshots.columns.name')}
+                  </th>
+                  <th className="px-4 py-2 text-left font-medium text-xs text-gray-500">
+                    {t('dashboard.riskSnapshots.columns.createdAt')}
+                  </th>
+                  <th className="px-4 py-2 text-right font-medium text-xs text-gray-500">
+                    {t('dashboard.riskSnapshots.columns.riskCount')}
+                  </th>
+                  <th className="px-4 py-2 text-right font-medium text-xs text-gray-500">
+                    {t('dashboard.riskSnapshots.columns.action')}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {snapshots.map((s) => (
+                  <tr key={s.id} className="border-b last:border-0">
+                    <td className="px-4 py-3 font-medium">{s.name}</td>
+                    <td className="px-4 py-3 text-gray-600">
+                      {fmt(s.createdAt)}
+                    </td>
+                    <td className="px-4 py-3 text-right font-mono">
+                      {s.riskCount}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <Link
+                        to={`/auditor/audits/${auditId}/risk-snapshots/${s.id}`}
+                        className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium border border-gray-300 text-gray-700 hover:bg-gray-50"
+                      >
+                        {t('dashboard.riskSnapshots.view')}
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Card>
+    </section>
+  );
+}
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 
@@ -348,6 +438,8 @@ export function AuditorDashboardPage() {
           </div>
         )}
       </Card>
+
+      <AuditorRiskSnapshotsSection auditId={audit.id} />
 
       {/* Control review side panel */}
       {selectedControl && (
