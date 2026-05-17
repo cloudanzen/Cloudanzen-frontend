@@ -339,6 +339,9 @@ function SnapshotDetail({
                     {t('snapshot.detail.columns.risk')}
                   </th>
                   <th className="px-4 py-2 text-left font-medium">
+                    {t('snapshot.detail.columns.source')}
+                  </th>
+                  <th className="px-4 py-2 text-left font-medium">
                     {t('snapshot.detail.columns.asset')}
                   </th>
                   <th className="px-4 py-2 text-left font-medium">
@@ -360,7 +363,10 @@ function SnapshotDetail({
               </thead>
               <tbody>
                 {items.map((item) => (
-                  <tr key={item.id} className="border-b last:border-0">
+                  <tr
+                    key={`${item.source ?? 'legacy'}:${item.sourceId ?? item.id}`}
+                    className="border-b last:border-0"
+                  >
                     <td className="px-4 py-3">
                       <div className="font-medium max-w-xs">{item.title}</div>
                       {item.description && (
@@ -368,6 +374,15 @@ function SnapshotDetail({
                           {item.description}
                         </div>
                       )}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="inline-flex items-center rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-xs text-slate-600">
+                        {item.source === 'prisma'
+                          ? t('snapshot.detail.sources.prisma')
+                          : item.source === 'register'
+                            ? t('snapshot.detail.sources.register')
+                            : t('snapshot.detail.sources.legacy')}
+                      </span>
                     </td>
                     <td className="px-4 py-3 text-muted-foreground">
                       {item.assetTitle}
