@@ -562,6 +562,10 @@
     "auditNotFound": "Audit not found.",
     "locked": "Locked",
     "back": "Back",
+    "previewAsAuditor": {
+      "label": "Preview as auditor",
+      "tooltip": "Open the auditor view of this audit — same data the assigned auditor sees."
+    },
     "tabs": {
       "overview": "Overview",
       "evidence": "Evidence",
