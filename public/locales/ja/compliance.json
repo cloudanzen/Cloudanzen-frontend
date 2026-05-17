@@ -562,6 +562,10 @@
     "auditNotFound": "監査が見つかりません。",
     "locked": "ロック済み",
     "back": "戻る",
+    "previewAsAuditor": {
+      "label": "監査人ビューでプレビュー",
+      "tooltip": "この監査の監査人ビューを開きます — 担当監査人が見るのと同じデータです。"
+    },
     "tabs": {
       "overview": "概要",
       "evidence": "証拠",

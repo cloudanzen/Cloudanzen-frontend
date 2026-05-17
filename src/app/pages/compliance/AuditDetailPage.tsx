@@ -40,6 +40,7 @@ import {
   Clock,
   Building2,
   Camera,
+  Eye,
 } from 'lucide-react';
 import type { RiskSnapshotRecord } from '@/services/api/risks';
 import { QK } from '@/lib/queryKeys';
@@ -2171,6 +2172,15 @@ export function AuditDetailPage() {
               {t('auditDetail.invitations.invite')}
             </Button>
           )}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate(`/auditor/audits/${audit.id}/final-report`)}
+            title={t('auditDetail.previewAsAuditor.tooltip')}
+          >
+            <Eye className="w-4 h-4 mr-1" />
+            {t('auditDetail.previewAsAuditor.label')}
+          </Button>
           <StatusBadge status={audit.status as AuditStatus} />
           <Button
             variant="ghost"
