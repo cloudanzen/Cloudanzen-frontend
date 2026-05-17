@@ -562,6 +562,10 @@
     "auditNotFound": "Audit not found.",
     "locked": "Locked",
     "back": "Back",
+    "previewAsAuditor": {
+      "label": "Preview as auditor",
+      "tooltip": "Open the auditor view of this audit — same data the assigned auditor sees."
+    },
     "tabs": {
       "overview": "Overview",
       "evidence": "Evidence",
@@ -643,13 +647,7 @@
       "closed": "Closed",
       "addFinding": "Add Finding",
       "noMatch": "No findings match this filter.",
-      "columns": [
-        "Control",
-        "Severity",
-        "Description",
-        "Status",
-        ""
-      ]
+      "columns": ["Control", "Severity", "Description", "Status", ""]
     },
     "requests": {
       "totalRequests": "Total requests",
@@ -734,6 +732,17 @@
       "snapshotSelector": "Select audit snapshot",
       "currentTotal": "Current total",
       "noRows": "No current data found."
+    },
+    "riskTab": {
+      "sharedSnapshots": {
+        "title": "Shared risk snapshots",
+        "description": "Risk register snapshots the org has shared with the auditor that fall inside this audit's observation window.",
+        "loading": "Loading shared snapshots…",
+        "loadFailed": "Failed to load shared risk snapshots.",
+        "empty": "No risk snapshots shared for this audit's window. Toggle \"Shared with auditor\" on a snapshot at Risk → Snapshots.",
+        "riskCount": "{{count}} risks",
+        "view": "View"
+      }
     },
     "vendors": {
       "loading": "Loading vendors…",
