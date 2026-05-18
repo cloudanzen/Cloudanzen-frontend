@@ -10,7 +10,8 @@
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import {
   Shield,
   Clock,
@@ -40,6 +41,27 @@ import { useIsAdmin } from '@/hooks/useCurrentUser';
 import { fmt, daysRemaining, ReviewBadge } from './auditorDashboard/helpers';
 import { KpiCard } from './auditorDashboard/KpiCard';
 import { ControlReviewPanel } from './auditorDashboard/ControlReviewPanel';
+
+// Map Prisma AuditStatus enum → i18n statusHint key suffix. Six possible
+// values; lowercase camelCase to match locale JSON.
+function statusHintKey(status: string): string {
+  switch (status) {
+    case 'DRAFT':
+      return 'draft';
+    case 'UPCOMING':
+      return 'upcoming';
+    case 'PLANNED':
+      return 'planned';
+    case 'IN_PROGRESS':
+      return 'inProgress';
+    case 'AWAITING_REPORT':
+      return 'awaitingReport';
+    case 'COMPLETED':
+      return 'completed';
+    default:
+      return 'draft';
+  }
+}
 
 // ── Risk Snapshots section ────────────────────────────────────────────────────
 
@@ -176,6 +198,36 @@ export function AuditorDashboardPage() {
 
   const auditControls = controlsData?.data ?? [];
 
+  // ── Audit lifecycle mutation: IN_PROGRESS → AWAITING_REPORT ───────────────
+  // Backend allows AUDITOR / EXTERNAL_AUDITOR / admin to fire this transition
+  // (audit-command-routes.ts). Invalidate every query that holds audit status
+  // — including the admin caches (`['audit', id]`, `['audits']`) because admins
+  // exit preview back to /compliance/audits/:id, which would otherwise render
+  // stale status.
+  const qc = useQueryClient();
+  const moveToAwaitingReportMutation = useMutation({
+    mutationFn: () => {
+      if (!audit) throw new Error('No audit selected');
+      return auditsService.transitionToAwaitingReport(audit.id);
+    },
+    onSuccess: () => {
+      if (!audit) return;
+      toast.success(t('dashboard.moveToAwaitingReportSuccess'));
+      qc.invalidateQueries({ queryKey: ['auditor-audits'] });
+      qc.invalidateQueries({ queryKey: ['auditor-controls', audit.id] });
+      qc.invalidateQueries({ queryKey: ['audit-report', audit.id] });
+      qc.invalidateQueries({ queryKey: ['audit', audit.id] });
+      qc.invalidateQueries({ queryKey: ['audits'] });
+    },
+    onError: (err) => {
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : t('dashboard.moveToAwaitingReportError'),
+      );
+    },
+  });
+
   // ── KPI computations ──────────────────────────────────────────────────────
   const totalControls = auditControls.length;
   const reviewed = auditControls.filter(
@@ -258,25 +310,61 @@ export function AuditorDashboardPage() {
         <span className="ml-auto text-xs text-gray-400">
           {fmt(audit.startDate)} → {fmt(audit.endDate)}
         </span>
-        {/* Final Report button — shown when audit is IN_PROGRESS or COMPLETED */}
-        {(audit.status === 'IN_PROGRESS' || audit.status === 'COMPLETED') && (
+        {/* Status-aware lifecycle actions. Backend permission already
+            enforces canAudit on the transition; UI surfaces it so users
+            don't get stuck looking for a way to move the audit forward. */}
+        {audit.status === 'IN_PROGRESS' && (
+          <>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() =>
+                navigate(`/auditor/audits/${audit.id}/final-report`)
+              }
+            >
+              <ClipboardList className="w-4 h-4 mr-1" />
+              {t('dashboard.finalReport')}
+            </Button>
+            <Button
+              size="sm"
+              className="bg-purple-700 hover:bg-purple-600 text-white"
+              onClick={() => moveToAwaitingReportMutation.mutate()}
+              disabled={moveToAwaitingReportMutation.isPending}
+            >
+              <ClipboardList className="w-4 h-4 mr-1" />
+              {moveToAwaitingReportMutation.isPending
+                ? t('dashboard.movingToAwaitingReport')
+                : t('dashboard.moveToAwaitingReport')}
+            </Button>
+          </>
+        )}
+        {audit.status === 'AWAITING_REPORT' && (
           <Button
             size="sm"
-            variant={audit.status === 'COMPLETED' ? 'default' : 'outline'}
-            className={
-              audit.status === 'COMPLETED'
-                ? 'bg-green-700 hover:bg-green-600 text-white'
-                : ''
-            }
+            className="bg-purple-700 hover:bg-purple-600 text-white"
             onClick={() => navigate(`/auditor/audits/${audit.id}/final-report`)}
           >
             <ClipboardList className="w-4 h-4 mr-1" />
-            {audit.status === 'COMPLETED'
-              ? t('dashboard.viewFinalReport')
-              : t('dashboard.finalReport')}
+            {t('dashboard.goToFinalReport')}
+          </Button>
+        )}
+        {audit.status === 'COMPLETED' && (
+          <Button
+            size="sm"
+            className="bg-green-700 hover:bg-green-600 text-white"
+            onClick={() => navigate(`/auditor/audits/${audit.id}/final-report`)}
+          >
+            <ClipboardList className="w-4 h-4 mr-1" />
+            {t('dashboard.viewFinalReport')}
           </Button>
         )}
       </div>
+
+      {/* One-line status hint — explains what's expected at each status so
+          previewing admins and assigned auditors aren't left guessing. */}
+      <p className="-mt-3 mb-5 px-1 text-xs text-gray-500">
+        {t(`dashboard.statusHint.${statusHintKey(audit.status)}`)}
+      </p>
 
       {/* 4 KPI panels */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">

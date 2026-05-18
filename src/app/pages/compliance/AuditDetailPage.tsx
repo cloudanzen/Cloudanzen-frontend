@@ -1201,6 +1201,9 @@ function ReportTab({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const canAudit = useCanAudit();
+  // Start audit requires admin per backend (audit-command-routes.ts:317).
+  // Previously gated by canAudit which 403's real AUDITOR/EXTERNAL_AUDITOR users.
+  const isAdmin = useIsAdmin();
   const confirm = useConfirmDialog();
   const [acting, setActing] = useState(false);
   const [generatingPdf, setGeneratingPdf] = useState(false);
@@ -1330,7 +1333,7 @@ function ReportTab({
 
         <div className="flex flex-wrap gap-2">
           {(audit.status === 'UPCOMING' || audit.status === 'PLANNED') &&
-            canAudit && (
+            isAdmin && (
               <Button onClick={handleStart} disabled={acting}>
                 {acting
                   ? t('auditDetail.report.starting')
