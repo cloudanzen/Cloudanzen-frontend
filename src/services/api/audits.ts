@@ -75,11 +75,26 @@ export interface ControlRiskMappingItem {
   risk: ControlRiskItem;
 }
 
+export interface ControlTestRunItem {
+  id: string;
+  executedAt: string;
+  status: string;
+  summary?: string | null;
+  executionSource?: string | null;
+  durationMs?: number | null;
+}
+
 export interface ControlTestItem {
   id: string;
   name: string;
   status: string;
+  type?: string;
   completedAt?: string | null;
+  lastRunAt?: string | null;
+  lastResult?: string | null;
+  // Latest run pulled by buildControlDetailInclude (audit-helpers.ts) — take 1
+  // ordered desc by executedAt. Derive `latestRun = test.runs?.[0]` at render.
+  runs?: ControlTestRunItem[];
 }
 
 export interface ControlTestMappingItem {

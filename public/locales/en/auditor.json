@@ -8,6 +8,19 @@
     "viewFinalReport": "View Final Report",
     "finalReport": "Final Report",
     "exitPreview": "Exit preview",
+    "moveToAwaitingReport": "Move to Awaiting Report",
+    "movingToAwaitingReport": "Moving…",
+    "moveToAwaitingReportSuccess": "Audit moved to Awaiting Report",
+    "moveToAwaitingReportError": "Failed to move audit to Awaiting Report",
+    "goToFinalReport": "Open Final Report",
+    "statusHint": {
+      "draft": "This audit hasn't started. An admin will start it.",
+      "upcoming": "This audit hasn't started. An admin will start it.",
+      "planned": "This audit hasn't started. An admin will start it.",
+      "inProgress": "Review controls and add findings. Move to Awaiting Report when done.",
+      "awaitingReport": "Draft the executive summary and conclusion, then sign & complete on the Final Report page.",
+      "completed": "This audit is locked. Open the Final Report to view the signed record."
+    },
     "kpis": {
       "controlsInScope": "Controls in Scope",
       "controlsReviewed": "Controls Reviewed",
@@ -71,10 +84,10 @@
     "saving": "Saving...",
     "save": "Save Finding"
   },
-  "panel": {
-    "generateAi": "Generate AI note",
+  "controlReview": {
+    "generateAiNote": "Generate AI note",
     "generating": "Generating...",
-    "aiTitle": "AI-generated auditor note",
+    "aiGeneratedNote": "AI-generated auditor note",
     "reviewBeforeApplying": "Review before applying",
     "sources": "Sources",
     "applyNote": "Apply note",
@@ -90,7 +103,11 @@
     "noComments": "No comments on this control yet.",
     "auditor": "Auditor",
     "commentPlaceholder": "Add a comment...",
-    "failedToUpdateStatus": "Failed to update status"
+    "failedToUpdateStatus": "Failed to update status",
+    "openPolicyDocument": "Open policy document",
+    "noPolicyDocument": "No document attached",
+    "lastRun": "Last run",
+    "noRunsYet": "No runs yet"
   },
   "finalReport": {
     "title": "Final Audit Report",
@@ -145,6 +162,11 @@
     "saving": "Saving...",
     "signAndComplete": "Sign & Complete",
     "signing": "Signing...",
+    "noConclusion": "No conclusion recorded.",
+    "completeAndLocked": "This audit is complete and locked.",
+    "signedPdfTitle": "Upload Signed PDF (optional)",
+    "signedPdfDescription": "Attach a URL to the signed PDF version of this report (e.g. shared drive, S3, DocuSign).",
+    "inProgressNeedsTransitionHint": "Move this audit to Awaiting Report (from the dashboard) before signing.",
     "saveFailed": "Failed to save draft",
     "signFailed": "Failed to sign & complete",
     "signConfirmTitle": "Sign and Complete Audit",

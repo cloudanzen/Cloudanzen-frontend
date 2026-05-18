@@ -8,6 +8,19 @@
     "viewFinalReport": "最終進捗を表示",
     "finalReport": "最終進捗",
     "exitPreview": "プレビューを終了",
+    "moveToAwaitingReport": "報告書作成中へ移行",
+    "movingToAwaitingReport": "移行中…",
+    "moveToAwaitingReportSuccess": "監査を報告書作成中に移行しました",
+    "moveToAwaitingReportError": "監査の移行に失敗しました",
+    "goToFinalReport": "最終進捗を開く",
+    "statusHint": {
+      "draft": "この監査はまだ開始されていません。管理者が開始します。",
+      "upcoming": "この監査はまだ開始されていません。管理者が開始します。",
+      "planned": "この監査はまだ開始されていません。管理者が開始します。",
+      "inProgress": "管理策をレビューし、指摘事項を追加してください。完了したら報告書作成中へ移行します。",
+      "awaitingReport": "エグゼクティブサマリーと結論を作成し、最終進捗ページで署名・完了してください。",
+      "completed": "この監査はロックされています。最終進捗を開くと署名済みの記録を確認できます。"
+    },
     "kpis": {
       "controlsInScope": "対象管理策",
       "controlsReviewed": "レビュー済み管理策",
@@ -71,10 +84,10 @@
     "saving": "保存中...",
     "save": "指摘事項を保存"
   },
-  "panel": {
-    "generateAi": "AIメモを生成",
+  "controlReview": {
+    "generateAiNote": "AIメモを生成",
     "generating": "生成中...",
-    "aiTitle": "AI生成の監査メモ",
+    "aiGeneratedNote": "AI生成の監査メモ",
     "reviewBeforeApplying": "適用前に確認してください",
     "sources": "ソース",
     "applyNote": "メモを適用",
@@ -90,7 +103,11 @@
     "noComments": "この管理策にはまだコメントがありません。",
     "auditor": "監査人",
     "commentPlaceholder": "コメントを追加...",
-    "failedToUpdateStatus": "ステータスの更新に失敗しました"
+    "failedToUpdateStatus": "ステータスの更新に失敗しました",
+    "openPolicyDocument": "ポリシードキュメントを開く",
+    "noPolicyDocument": "ドキュメントが添付されていません",
+    "lastRun": "最終実行",
+    "noRunsYet": "実行履歴なし"
   },
   "finalReport": {
     "title": "最終監査進捗",
@@ -145,6 +162,11 @@
     "saving": "保存中...",
     "signAndComplete": "署名して完了",
     "signing": "署名中...",
+    "noConclusion": "結論が記録されていません。",
+    "completeAndLocked": "この監査は完了し、ロックされています。",
+    "signedPdfTitle": "署名済みPDFをアップロード（任意）",
+    "signedPdfDescription": "この報告書の署名済みPDFのURLを添付してください（共有ドライブ、S3、DocuSignなど）。",
+    "inProgressNeedsTransitionHint": "署名前にダッシュボードから監査を「報告書作成中」へ移行してください。",
     "saveFailed": "下書きの保存に失敗しました",
     "signFailed": "署名と完了に失敗しました",
     "signConfirmTitle": "監査に署名して完了",
