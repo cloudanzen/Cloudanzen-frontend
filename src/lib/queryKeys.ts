@@ -105,6 +105,8 @@ export const QK = {
   auditControls: (id: string) => ['audits', 'controls', id] as const,
   auditFindings: (auditId: string, controlId?: string) =>
     ['audits', 'findings', auditId, controlId] as const,
+  auditRequestsMine: (filter?: object) =>
+    ['audit-requests', 'mine', filter] as const,
 
   // Vendors
   vendors: (filter?: object) => ['vendors', 'list', filter] as const,

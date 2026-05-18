@@ -120,6 +120,13 @@
     "dueSoon": "Due Soon",
     "onboardingTasks": "Onboarding Tasks",
     "assignedTests": "Assigned Validations",
+    "auditRequests": {
+      "title": "Assigned Audit Requests",
+      "empty": "No assigned audit requests.",
+      "openAction": "Open",
+      "auditLevelRequest": "Audit-level request",
+      "overdue": "Overdue"
+    },
     "securityOnboarding": "Security Onboarding",
     "pending": "pending",
     "noPendingTests": "No pending validations assigned to you.",
