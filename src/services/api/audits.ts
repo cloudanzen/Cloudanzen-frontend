@@ -311,6 +311,26 @@ export interface AuditRequestRecord {
   }>;
 }
 
+// Cross-audit aggregation row returned by GET /api/audit-requests/my.
+// Flattened (no nested audit/control objects) since the Todo UI only needs
+// labels.
+export interface MyAuditRequestRow {
+  id: string;
+  auditId: string;
+  auditName: string;
+  auditStatus: string;
+  auditIsLocked: boolean;
+  controlId: string | null;
+  controlLabel: string | null;
+  title: string;
+  description: string | null;
+  status: AuditRequestStatus;
+  dueDate: string | null;
+  linkedEvidenceCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface AuditEvidenceSummaryItem {
   id: string;
   auditId: string;
@@ -636,6 +656,17 @@ export const auditsService = {
   deleteRequest(auditId: string, requestId: string) {
     return apiClient.delete<{ success: boolean }>(
       `/api/audits/${auditId}/requests/${requestId}`,
+    );
+  },
+
+  // Cross-audit aggregation for the Todo page. Backend per-audit list at
+  // /api/audits/:id/requests already filters by assignee for non-audit
+  // roles; this endpoint returns the same caller's requests across audits.
+  listMyAuditRequests(params?: { includeClosed?: boolean }) {
+    const query = params?.includeClosed ? { includeClosed: 'true' } : undefined;
+    return apiClient.get<{ success: boolean; data: MyAuditRequestRow[] }>(
+      '/api/audit-requests/my',
+      query,
     );
   },
 

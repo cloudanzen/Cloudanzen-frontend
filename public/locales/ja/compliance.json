@@ -659,7 +659,13 @@
       "dueDate": "期限日",
       "creating": "作成中…",
       "create": "作成",
-      "created": "リクエストを作成しました",
+      "created": "リクエストを作成しました。",
+      "createdAssigned": "リクエストを作成し、担当者を割り当てました。担当者のTodoに表示されます。",
+      "helper": {
+        "assigneeFlow": "割り当てられたリクエストは担当者のTodoページに表示されます。",
+        "unassignedStays": "未割り当てのリクエストはこの監査内で監査人に表示されます。担当者を割り当てるとTodoに追加されます。",
+        "evidenceTrackerNote": "証拠トラッカーは証拠がリンクされたリクエストのみカウントします。"
+      },
       "createFailed": "リクエストの作成に失敗しました",
       "updateFailed": "リクエストの更新に失敗しました",
       "requestsTitle": "リクエスト",

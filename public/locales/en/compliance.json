@@ -659,7 +659,13 @@
       "dueDate": "Due date",
       "creating": "Creating…",
       "create": "Create",
-      "created": "Request created",
+      "created": "Request created.",
+      "createdAssigned": "Request created and assigned. The assignee will see it in their Todo.",
+      "helper": {
+        "assigneeFlow": "Assigned requests appear in the assignee's Todo page.",
+        "unassignedStays": "Unassigned requests stay visible here for auditors. Assign a user to add it to their Todo.",
+        "evidenceTrackerNote": "Evidence Tracker counts only requests with linked evidence."
+      },
       "createFailed": "Failed to create request",
       "updateFailed": "Failed to update request",
       "requestsTitle": "Requests",

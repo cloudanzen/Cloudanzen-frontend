@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- legacy: to be typed progressively */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useParams, useNavigate } from 'react-router';
+import { useParams, useNavigate, useSearchParams } from 'react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { PageTemplate } from '@/app/components/PageTemplate';
@@ -732,9 +732,11 @@ function FindingsTab({
 function RequestsTab({
   audit,
   users,
+  highlightRequestId,
 }: {
   audit: AuditRecord;
   users: AuditorIdentity[];
+  highlightRequestId?: string | null;
 }) {
   const { t } = useTranslation('compliance');
   const canAudit = useCanAudit();
@@ -742,6 +744,11 @@ function RequestsTab({
   const controls = audit.auditControls ?? [];
   const [creating, setCreating] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [pendingHighlightId, setPendingHighlightId] = useState<string | null>(
+    null,
+  );
+  // Highlight target = explicit pending (from create flow) OR url param.
+  const activeHighlight = pendingHighlightId ?? highlightRequestId ?? null;
   const [form, setForm] = useState({
     title: '',
     controlId: '',
@@ -756,6 +763,26 @@ function RequestsTab({
     queryKey: ['audit-requests', audit.id],
     queryFn: () => auditsService.listRequests(audit.id),
   });
+
+  // Scroll + flash the highlighted row once its DOM node exists. `useEffect`
+  // re-runs when the requests list changes — covers both deep-link mount and
+  // the create-flow case where the row appears after a re-fetch.
+  const requestsForEffect = requestsData?.data;
+  useEffect(() => {
+    if (!activeHighlight || !requestsForEffect) return;
+    if (!requestsForEffect.some((r) => r.id === activeHighlight)) return;
+    const node = document.getElementById(`audit-request-${activeHighlight}`);
+    if (!node) return;
+    requestAnimationFrame(() => {
+      node.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      node.classList.add('ring-2', 'ring-amber-300', 'bg-amber-50');
+      setTimeout(() => {
+        node.classList.remove('ring-2', 'ring-amber-300', 'bg-amber-50');
+        // Clear the pending state so a subsequent create can re-trigger.
+        setPendingHighlightId((cur) => (cur === activeHighlight ? null : cur));
+      }, 3000);
+    });
+  }, [activeHighlight, requestsForEffect]);
 
   const { data: summaryData } = useQuery({
     queryKey: ['audit-evidence-summary', audit.id],
@@ -783,16 +810,26 @@ function RequestsTab({
   async function handleCreateRequest() {
     if (!form.title.trim()) return;
     setCreating(true);
+    const wasAssigned = Boolean(form.assignedTo);
     try {
-      await auditsService.createRequest(audit.id, {
+      const result = await auditsService.createRequest(audit.id, {
         title: form.title.trim(),
         controlId: form.controlId || null,
         assignedTo: form.assignedTo || null,
         dueDate: form.dueDate || null,
       });
+      const createdId = result?.data?.id ?? null;
       setForm({ title: '', controlId: '', assignedTo: '', dueDate: '' });
       refreshTracker();
-      toast.success(t('auditDetail.requests.created'));
+      if (createdId) {
+        // Trigger highlight effect once the list re-fetches with this id.
+        setPendingHighlightId(createdId);
+      }
+      toast.success(
+        wasAssigned
+          ? t('auditDetail.requests.createdAssigned')
+          : t('auditDetail.requests.created'),
+      );
     } catch {
       toast.error(t('auditDetail.requests.createFailed'));
     } finally {
@@ -842,6 +879,12 @@ function RequestsTab({
             {summary?.totals.byStatus.FLAGGED ?? 0}
           </p>
         </Card>
+      </div>
+
+      <div className="rounded-md border border-border bg-muted/30 px-4 py-3 text-xs text-muted-foreground space-y-1">
+        <p>{t('auditDetail.requests.helper.assigneeFlow')}</p>
+        <p>{t('auditDetail.requests.helper.unassignedStays')}</p>
+        <p>{t('auditDetail.requests.helper.evidenceTrackerNote')}</p>
       </div>
 
       {canAudit && !audit.isLocked && (
@@ -919,7 +962,11 @@ function RequestsTab({
               </p>
             ) : (
               requests.map((item) => (
-                <div key={item.id} className="space-y-3 p-4">
+                <div
+                  key={item.id}
+                  id={`audit-request-${item.id}`}
+                  className="space-y-3 p-4 rounded-md transition-shadow"
+                >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium text-foreground">
@@ -2109,6 +2156,30 @@ export function AuditDetailPage() {
   const canInviteAuditors = useIsAdmin();
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
 
+  // URL-aware tab state. Deep-links like `?tab=requests&requestId=...` open
+  // the right tab + highlight the right row (see RequestsTab below).
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabFromUrl = searchParams.get('tab') ?? 'overview';
+  const [activeTab, setActiveTab] = useState<string>(tabFromUrl);
+  useEffect(() => {
+    const next = searchParams.get('tab');
+    if (!next) return;
+    // Functional update so we don't have to depend on activeTab — avoids
+    // a re-sync loop when our own onValueChange flushes the param back.
+    setActiveTab((prev) => (next !== prev ? next : prev));
+  }, [searchParams]);
+  function handleTabChange(value: string) {
+    setActiveTab(value);
+    setSearchParams(
+      (prev) => {
+        prev.set('tab', value);
+        return prev;
+      },
+      { replace: true },
+    );
+  }
+  const requestIdFromUrl = searchParams.get('requestId') ?? null;
+
   const { data, isLoading } = useQuery<{ success: boolean; data: AuditRecord }>(
     {
       queryKey: ['audit', auditId],
@@ -2196,7 +2267,11 @@ export function AuditDetailPage() {
         </div>
       }
     >
-      <Tabs defaultValue="overview" className="space-y-4">
+      <Tabs
+        value={activeTab}
+        onValueChange={handleTabChange}
+        className="space-y-4"
+      >
         <TabsList>
           <TabsTrigger value="overview">
             {t('auditDetail.tabs.overview')}
@@ -2253,7 +2328,11 @@ export function AuditDetailPage() {
         </TabsContent>
 
         <TabsContent value="requests">
-          <RequestsTab audit={audit} users={users} />
+          <RequestsTab
+            audit={audit}
+            users={users}
+            highlightRequestId={requestIdFromUrl}
+          />
         </TabsContent>
 
         <TabsContent value="findings">
