@@ -272,6 +272,7 @@ export interface AuditComment {
   auditId: string;
   controlId?: string | null;
   auditEvidenceId?: string | null;
+  auditRequestId?: string | null;
   authorId: string;
   text: string;
   createdAt: string;
@@ -283,6 +284,32 @@ export interface AuditComment {
   };
 }
 
+export type AuditRequestEvidenceType =
+  | 'POLICY'
+  | 'SCREENSHOT'
+  | 'LOG'
+  | 'CONFIG'
+  | 'CONFIGURATION_EXPORT'
+  | 'REPORT'
+  | 'OTHER';
+
+export const AUDIT_REQUEST_EVIDENCE_TYPES: AuditRequestEvidenceType[] = [
+  'POLICY',
+  'SCREENSHOT',
+  'LOG',
+  'CONFIG',
+  'CONFIGURATION_EXPORT',
+  'REPORT',
+  'OTHER',
+];
+
+export interface AuditRequestRelatedUser {
+  id: string;
+  name?: string | null;
+  email: string;
+  role: string;
+}
+
 export interface AuditRequestRecord {
   id: string;
   auditId: string;
@@ -290,11 +317,16 @@ export interface AuditRequestRecord {
   controlId: string | null;
   title: string;
   description: string | null;
+  evidenceTypeRequested: AuditRequestEvidenceType | null;
   status: AuditRequestStatus;
   dueDate: string | null;
   assignedTo: string | null;
   createdBy: string;
   updatedBy: string | null;
+  flaggedBy: string | null;
+  flaggedAt: string | null;
+  acceptedBy: string | null;
+  acceptedAt: string | null;
   createdAt: string;
   updatedAt: string;
   assignee?: {
@@ -303,11 +335,17 @@ export interface AuditRequestRecord {
     email: string;
     role: string;
   } | null;
+  // Resolved on detail fetch only.
+  createdByUser?: AuditRequestRelatedUser | null;
+  updatedByUser?: AuditRequestRelatedUser | null;
+  flaggedByUser?: AuditRequestRelatedUser | null;
+  acceptedByUser?: AuditRequestRelatedUser | null;
   evidenceLinks?: Array<{
     auditRequestId: string;
     evidenceId: string;
     linkedAt: string;
-    evidence: ControlEvidenceItem & { controlId: string };
+    // Post Phase B: audit-level linked evidence has null controlId.
+    evidence: ControlEvidenceItem & { controlId: string | null };
   }>;
 }
 
@@ -343,6 +381,14 @@ export interface AuditEvidenceSummaryItem {
   approvedAt: string | null;
   createdAt: string;
   control: { id: string; isoReference: string; title: string };
+  // INVARIANT: AuditEvidenceSummaryItem is only populated from rows that have
+  // a matching `AuditEvidence` record. `AuditEvidence.controlId` is still
+  // NOT NULL (per-audit review record only makes sense per-control), and the
+  // backend link/upload flow only creates `AuditEvidence` when both
+  // `auditRequest.controlId` and `evidence.controlId` are set. Audit-level
+  // Evidence rows therefore never appear in this summary. If a future
+  // feature ever AuditEvidences an audit-level Evidence row, this type
+  // assertion becomes a lie — update the type then.
   evidence: ControlEvidenceItem & { controlId: string };
   requests: Array<
     Pick<
@@ -365,8 +411,30 @@ export interface CreateAuditRequestPayload {
   controlId?: string | null;
   title: string;
   description?: string | null;
+  evidenceTypeRequested?: AuditRequestEvidenceType | null;
   dueDate?: string | null;
   assignedTo?: string | null;
+}
+
+export interface UpdateAuditRequestPayload {
+  title?: string;
+  description?: string | null;
+  evidenceTypeRequested?: AuditRequestEvidenceType | null;
+  controlId?: string | null;
+  status?: AuditRequestStatus;
+  dueDate?: string | null;
+  assignedTo?: string | null;
+}
+
+export interface LinkableEvidenceResponse {
+  success: boolean;
+  data: ControlEvidenceItem[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 }
 
 export type AuditDataSnapshotType = 'START' | 'COMPLETION';
@@ -643,9 +711,7 @@ export const auditsService = {
   updateRequest(
     auditId: string,
     requestId: string,
-    payload: Partial<CreateAuditRequestPayload> & {
-      status?: AuditRequestStatus;
-    },
+    payload: UpdateAuditRequestPayload,
   ) {
     return apiClient.patch<{ success: boolean; data: AuditRequestRecord }>(
       `/api/audits/${auditId}/requests/${requestId}`,
@@ -657,6 +723,59 @@ export const auditsService = {
     return apiClient.delete<{ success: boolean }>(
       `/api/audits/${auditId}/requests/${requestId}`,
     );
+  },
+
+  getRequest(auditId: string, requestId: string) {
+    return apiClient.get<{ success: boolean; data: AuditRequestRecord }>(
+      `/api/audits/${auditId}/requests/${requestId}`,
+    );
+  },
+
+  listLinkableRequestEvidence(
+    auditId: string,
+    requestId: string,
+    params?: {
+      search?: string;
+      automated?: boolean;
+      page?: number;
+      limit?: number;
+    },
+  ) {
+    const query: Record<string, string> = {};
+    if (params?.search) query.search = params.search;
+    if (params?.automated !== undefined)
+      query.automated = String(params.automated);
+    if (params?.page !== undefined) query.page = String(params.page);
+    if (params?.limit !== undefined) query.limit = String(params.limit);
+    return apiClient.get<LinkableEvidenceResponse>(
+      `/api/audits/${auditId}/requests/${requestId}/linkable-evidence`,
+      Object.keys(query).length ? query : undefined,
+    );
+  },
+
+  async uploadRequestEvidence(
+    auditId: string,
+    requestId: string,
+    file: File,
+  ): Promise<{ success: boolean; data: ControlEvidenceItem }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await fetch(
+      `${apiClient.baseURL}/api/audits/${auditId}/requests/${requestId}/evidence/upload`,
+      {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+        headers: apiClient.token
+          ? { Authorization: `Bearer ${apiClient.token}` }
+          : {},
+      },
+    );
+    if (!response.ok) {
+      const text = await response.text().catch(() => '');
+      throw new Error(text || `Upload failed: ${response.status}`);
+    }
+    return response.json();
   },
 
   // Cross-audit aggregation for the Todo page. Backend per-audit list at
@@ -773,7 +892,11 @@ export const auditsService = {
 
   listComments(
     auditId: string,
-    filters?: { controlId?: string; auditEvidenceId?: string },
+    filters?: {
+      controlId?: string;
+      auditEvidenceId?: string;
+      auditRequestId?: string;
+    },
   ) {
     const params =
       filters && Object.keys(filters).length > 0 ? filters : undefined;
@@ -789,6 +912,7 @@ export const auditsService = {
       text: string;
       controlId?: string | null;
       auditEvidenceId?: string | null;
+      auditRequestId?: string | null;
     },
   ) {
     return apiClient.post<{ success: boolean; data: AuditComment }>(

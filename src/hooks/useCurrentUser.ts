@@ -51,7 +51,26 @@ export function useIsAuditor(): boolean {
 
 export function useCanAudit(): boolean {
   const user = useCurrentUser();
-  return ['SUPER_ADMIN', 'ORG_ADMIN', 'SECURITY_OWNER', 'AUDITOR', 'EXTERNAL_AUDITOR'].includes(
+  return [
+    'SUPER_ADMIN',
+    'ORG_ADMIN',
+    'SECURITY_OWNER',
+    'AUDITOR',
+    'EXTERNAL_AUDITOR',
+  ].includes(user?.role ?? '');
+}
+
+export function useIsExternalAuditor(): boolean {
+  return useCurrentUser()?.role === 'EXTERNAL_AUDITOR';
+}
+
+/** Admin or internal AUDITOR; excludes EXTERNAL_AUDITOR. Used wherever the
+ *  app must deny external auditors a broader "canAudit" capability — e.g.
+ *  editing request metadata, deleting requests, deleting others' comments,
+ *  browsing org-wide evidence. */
+export function useIsInternalAuditorOrAdmin(): boolean {
+  const user = useCurrentUser();
+  return ['SUPER_ADMIN', 'ORG_ADMIN', 'SECURITY_OWNER', 'AUDITOR'].includes(
     user?.role ?? '',
   );
 }
