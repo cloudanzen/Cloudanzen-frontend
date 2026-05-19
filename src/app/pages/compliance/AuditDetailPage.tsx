@@ -67,6 +67,7 @@ import {
 } from '@/hooks/useCurrentUser';
 import { useConfirmDialog } from '@/app/hooks/useConfirmDialog';
 import { ControlReviewPanel } from '@/app/pages/auditor/auditorDashboard/ControlReviewPanel';
+import { AuditRequestCreateModal } from './AuditRequestCreateModal';
 import { AddFindingModal } from '@/app/pages/auditor/auditorDashboard/AddFindingModal';
 import { resolveAuditorLabel, type AuditorIdentity } from '@/lib/audits';
 import { AUDIT_TYPE_KEYS, StatusBadge, fmt } from './AuditDetailPanel';
@@ -100,7 +101,7 @@ const FINDING_SEVERITY_COLORS: Record<string, string> = {
   OFI: 'bg-slate-100 text-slate-600',
 };
 
-const REQUEST_STATUS_COLORS: Record<AuditRequestStatus, string> = {
+export const REQUEST_STATUS_COLORS: Record<AuditRequestStatus, string> = {
   NOT_READY: 'bg-slate-100 text-slate-600',
   IN_REVIEW: 'bg-blue-50 text-blue-700',
   READY_FOR_AUDIT: 'bg-purple-50 text-purple-700',
@@ -117,6 +118,8 @@ const REQUEST_STATUS_OPTIONS: AuditRequestStatus[] = [
   'ACCEPTED',
   'NOT_APPLICABLE',
 ];
+
+export { REQUEST_STATUS_OPTIONS };
 
 // ── Overview Tab ─────────────────────────────────────────────────────────────
 
@@ -337,7 +340,7 @@ function OverviewTab({
   );
 }
 
-function RequestStatusBadge({ status }: { status: AuditRequestStatus }) {
+export function RequestStatusBadge({ status }: { status: AuditRequestStatus }) {
   return (
     <span
       className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${REQUEST_STATUS_COLORS[status]}`}
@@ -740,21 +743,13 @@ function RequestsTab({
 }) {
   const { t } = useTranslation('compliance');
   const canAudit = useCanAudit();
-  const queryClient = useQueryClient();
   const controls = audit.auditControls ?? [];
-  const [creating, setCreating] = useState(false);
-  const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
   const [pendingHighlightId, setPendingHighlightId] = useState<string | null>(
     null,
   );
   // Highlight target = explicit pending (from create flow) OR url param.
   const activeHighlight = pendingHighlightId ?? highlightRequestId ?? null;
-  const [form, setForm] = useState({
-    title: '',
-    controlId: '',
-    assignedTo: '',
-    dueDate: '',
-  });
 
   const { data: requestsData } = useQuery<{
     success: boolean;
@@ -792,64 +787,12 @@ function RequestsTab({
   const requests = requestsData?.data ?? [];
   const summary = summaryData?.data;
 
-  function refreshTracker() {
-    queryClient.invalidateQueries({ queryKey: ['audit-requests', audit.id] });
-    queryClient.invalidateQueries({
-      queryKey: ['audit-evidence-summary', audit.id],
-    });
-  }
-
   function controlLabel(controlId: string | null | undefined) {
     if (!controlId) return t('auditDetail.requests.auditLevel');
     const control = controls.find(
       (item) => item.control.id === controlId,
     )?.control;
     return control ? `${control.isoReference} · ${control.title}` : controlId;
-  }
-
-  async function handleCreateRequest() {
-    if (!form.title.trim()) return;
-    setCreating(true);
-    const wasAssigned = Boolean(form.assignedTo);
-    try {
-      const result = await auditsService.createRequest(audit.id, {
-        title: form.title.trim(),
-        controlId: form.controlId || null,
-        assignedTo: form.assignedTo || null,
-        dueDate: form.dueDate || null,
-      });
-      const createdId = result?.data?.id ?? null;
-      setForm({ title: '', controlId: '', assignedTo: '', dueDate: '' });
-      refreshTracker();
-      if (createdId) {
-        // Trigger highlight effect once the list re-fetches with this id.
-        setPendingHighlightId(createdId);
-      }
-      toast.success(
-        wasAssigned
-          ? t('auditDetail.requests.createdAssigned')
-          : t('auditDetail.requests.created'),
-      );
-    } catch {
-      toast.error(t('auditDetail.requests.createFailed'));
-    } finally {
-      setCreating(false);
-    }
-  }
-
-  async function handleStatusChange(
-    requestId: string,
-    status: AuditRequestStatus,
-  ) {
-    setUpdatingId(requestId);
-    try {
-      await auditsService.updateRequest(audit.id, requestId, { status });
-      refreshTracker();
-    } catch {
-      toast.error(t('auditDetail.requests.updateFailed'));
-    } finally {
-      setUpdatingId(null);
-    }
   }
 
   return (
@@ -888,64 +831,25 @@ function RequestsTab({
       </div>
 
       {canAudit && !audit.isLocked && (
-        <Card className="p-4">
-          <div className="grid gap-3 md:grid-cols-[1.5fr_1fr_1fr_0.8fr_auto]">
-            <input
-              value={form.title}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, title: event.target.value }))
-              }
-              placeholder={t('auditDetail.requests.titlePlaceholder')}
-              className="rounded-md border border-border bg-background px-3 py-2 text-sm"
-            />
-            <select
-              value={form.controlId}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, controlId: event.target.value }))
-              }
-              className="rounded-md border border-border bg-background px-3 py-2 text-sm"
-            >
-              <option value="">{t('auditDetail.requests.auditLevel')}</option>
-              {controls.map((control) => (
-                <option key={control.control.id} value={control.control.id}>
-                  {control.control.isoReference} · {control.control.title}
-                </option>
-              ))}
-            </select>
-            <select
-              value={form.assignedTo}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, assignedTo: event.target.value }))
-              }
-              className="rounded-md border border-border bg-background px-3 py-2 text-sm"
-            >
-              <option value="">{t('auditDetail.requests.unassigned')}</option>
-              {users.map((user) => (
-                <option key={user.id} value={user.id}>
-                  {user.name ?? user.email}
-                </option>
-              ))}
-            </select>
-            <input
-              type="date"
-              value={form.dueDate}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, dueDate: event.target.value }))
-              }
-              className="rounded-md border border-border bg-background px-3 py-2 text-sm"
-              aria-label={t('auditDetail.requests.dueDate')}
-            />
-            <Button
-              onClick={handleCreateRequest}
-              disabled={!form.title.trim() || creating}
-            >
-              <Plus className="mr-1 h-4 w-4" />
-              {creating
-                ? t('auditDetail.requests.creating')
-                : t('auditDetail.requests.create')}
-            </Button>
-          </div>
-        </Card>
+        <div className="flex justify-end">
+          <Button onClick={() => setCreateOpen(true)}>
+            <Plus className="mr-1 h-4 w-4" />
+            {t('auditDetail.requests.newRequestButton')}
+          </Button>
+        </div>
+      )}
+
+      {createOpen && (
+        <AuditRequestCreateModal
+          auditId={audit.id}
+          controls={controls}
+          users={users}
+          onClose={() => setCreateOpen(false)}
+          onCreated={(createdId) => {
+            setCreateOpen(false);
+            if (createdId) setPendingHighlightId(createdId);
+          }}
+        />
       )}
 
       <div className="grid gap-4 lg:grid-cols-[1fr_1.2fr]">
@@ -962,10 +866,11 @@ function RequestsTab({
               </p>
             ) : (
               requests.map((item) => (
-                <div
+                <Link
                   key={item.id}
                   id={`audit-request-${item.id}`}
-                  className="space-y-3 p-4 rounded-md transition-shadow"
+                  to={`/compliance/audits/${audit.id}/requests/${item.id}`}
+                  className="block space-y-3 p-4 transition-colors hover:bg-muted/30"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
@@ -993,26 +898,7 @@ function RequestsTab({
                       })}
                     </span>
                   </div>
-                  {!audit.isLocked && (
-                    <select
-                      value={item.status}
-                      disabled={updatingId === item.id}
-                      onChange={(event) =>
-                        handleStatusChange(
-                          item.id,
-                          event.target.value as AuditRequestStatus,
-                        )
-                      }
-                      className="rounded-md border border-border bg-background px-2 py-1 text-xs"
-                    >
-                      {REQUEST_STATUS_OPTIONS.map((status) => (
-                        <option key={status} value={status}>
-                          {status.replaceAll('_', ' ')}
-                        </option>
-                      ))}
-                    </select>
-                  )}
-                </div>
+                </Link>
               ))
             )}
           </div>
