@@ -452,11 +452,11 @@ function EditRequestForm({
   return (
     <Card className="space-y-3 p-4">
       <h2 className="text-sm font-semibold text-foreground">
-        {t('auditRequestDetail.edit.title')}
+        {t('auditRequestDetail.editPanel.title')}
       </h2>
       <div className="space-y-2">
         <label className="text-xs font-medium text-foreground">
-          {t('auditRequestDetail.edit.fieldTitle')}
+          {t('auditRequestDetail.editPanel.fieldTitle')}
         </label>
         <input
           value={title}
@@ -466,7 +466,7 @@ function EditRequestForm({
       </div>
       <div className="space-y-2">
         <label className="text-xs font-medium text-foreground">
-          {t('auditRequestDetail.edit.fieldDescription')}
+          {t('auditRequestDetail.editPanel.fieldDescription')}
         </label>
         <textarea
           value={description}
@@ -479,7 +479,7 @@ function EditRequestForm({
       <div className="grid gap-3 md:grid-cols-2">
         <div className="space-y-2">
           <label className="text-xs font-medium text-foreground">
-            {t('auditRequestDetail.edit.fieldEvidenceType')}
+            {t('auditRequestDetail.editPanel.fieldEvidenceType')}
           </label>
           <select
             value={evidenceType}
@@ -489,7 +489,7 @@ function EditRequestForm({
             className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
           >
             <option value="">
-              {t('auditRequestDetail.edit.evidenceTypeNone')}
+              {t('auditRequestDetail.editPanel.evidenceTypeNone')}
             </option>
             {AUDIT_REQUEST_EVIDENCE_TYPES.map((type) => (
               <option key={type} value={type}>
@@ -500,7 +500,7 @@ function EditRequestForm({
         </div>
         <div className="space-y-2">
           <label className="text-xs font-medium text-foreground">
-            {t('auditRequestDetail.edit.fieldDueDate')}
+            {t('auditRequestDetail.editPanel.fieldDueDate')}
           </label>
           <input
             type="date"
@@ -512,7 +512,7 @@ function EditRequestForm({
       </div>
       <div className="flex justify-end gap-2">
         <Button variant="outline" onClick={onCancel} disabled={submitting}>
-          {t('auditRequestDetail.edit.cancel')}
+          {t('auditRequestDetail.editPanel.cancel')}
         </Button>
         <Button
           onClick={() =>
@@ -526,8 +526,8 @@ function EditRequestForm({
           disabled={submitting || !title.trim()}
         >
           {submitting
-            ? t('auditRequestDetail.edit.saving')
-            : t('auditRequestDetail.edit.save')}
+            ? t('auditRequestDetail.editPanel.saving')
+            : t('auditRequestDetail.editPanel.save')}
         </Button>
       </div>
     </Card>

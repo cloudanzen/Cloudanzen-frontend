@@ -659,7 +659,7 @@
       "dueDate": "期限日",
       "creating": "作成中…",
       "create": "作成",
-      "newRequestButton": "+ 新規リクエスト",
+      "newRequestButton": "新規リクエスト",
       "created": "リクエストを作成しました。",
       "createdAssigned": "リクエストを作成し、担当者を割り当てました。担当者のTodoに表示されます。",
       "helper": {
@@ -866,6 +866,108 @@
         "lastAssessment": "最終評価",
         "nextDue": "次回期限"
       }
+    }
+  },
+  "auditRequestCreate": {
+    "title": "監査リクエスト新規作成",
+    "cancel": "キャンセル",
+    "submit": "リクエストを作成",
+    "fields": {
+      "title": "件名",
+      "description": "説明（どの証拠を求めていますか？）",
+      "evidenceType": "証拠タイプ",
+      "evidenceTypeNone": "— 指定なし —",
+      "control": "管理策",
+      "assignedTo": "担当者"
+    }
+  },
+  "auditRequestDetail": {
+    "title": {
+      "loading": "リクエストを読み込み中…",
+      "notFound": "監査リクエストが見つかりません"
+    },
+    "loading": "読み込み中…",
+    "notFound": "この監査リクエストを読み込めませんでした。",
+    "backToAudit": "監査に戻る",
+    "changeStatus": "ステータスを変更",
+    "edit": "編集",
+    "cancelEdit": "キャンセル",
+    "delete": "削除",
+    "confirmDelete": "この監査リクエストを削除しますか？",
+    "meta": {
+      "control": "管理策",
+      "auditLevel": "監査全体",
+      "assignee": "担当者",
+      "unassigned": "未割り当て",
+      "dueDate": "期限",
+      "createdBy": "作成者"
+    },
+    "ask": {
+      "title": "監査人からの依頼",
+      "noDescription": "説明は記載されていません。",
+      "typeRequested": "依頼された証拠タイプ"
+    },
+    "linkedEvidence": {
+      "title": "紐付けされた証拠",
+      "attach": "証拠を添付",
+      "empty": "まだ証拠は添付されていません。",
+      "linkedAt": "{{when}} に紐付け",
+      "unlink": "解除"
+    },
+    "editPanel": {
+      "title": "リクエストを編集",
+      "fieldTitle": "件名",
+      "fieldDescription": "説明",
+      "fieldEvidenceType": "証拠タイプ",
+      "evidenceTypeNone": "— 指定なし —",
+      "fieldDueDate": "期限日",
+      "cancel": "キャンセル",
+      "save": "保存",
+      "saving": "保存中…"
+    },
+    "toasts": {
+      "updated": "リクエストを更新しました。",
+      "updateFailed": "リクエストの更新に失敗しました",
+      "attachUpdated": "添付を更新しました。",
+      "attachFailed": "添付の更新に失敗しました",
+      "deleted": "リクエストを削除しました。",
+      "deleteFailed": "リクエストの削除に失敗しました"
+    }
+  },
+  "auditRequestAttach": {
+    "title": "証拠を添付",
+    "tabs": {
+      "pick": "既存から選択",
+      "upload": "新規アップロード"
+    },
+    "searchPlaceholder": "証拠を検索…",
+    "loading": "読み込み中…",
+    "link": "紐付け",
+    "empty": {
+      "generic": "一致する証拠が見つかりません。",
+      "restrictedPerControl": "この監査・管理策の証拠はまだありません。新しいファイルをアップロードするか、社内監査人に既存証拠の事前紐付けを依頼してください。",
+      "restrictedAuditLevel": "紐付け可能な証拠はまだありません。新しいファイルをアップロードするか、社内監査人に既存証拠の事前紐付けを依頼してください。"
+    },
+    "hintAskedFor": "監査人の依頼: {{type}}",
+    "uploadButton": "アップロード",
+    "uploading": "アップロード中…",
+    "toasts": {
+      "linked": "証拠を紐付けました。",
+      "linkFailed": "証拠の紐付けに失敗しました",
+      "uploaded": "証拠をアップロードし紐付けました。",
+      "uploadFailed": "証拠のアップロードに失敗しました"
+    }
+  },
+  "auditRequestComments": {
+    "title": "コメント",
+    "empty": "コメントはまだありません。",
+    "placeholder": "コメントを追加…",
+    "post": "投稿",
+    "posting": "投稿中…",
+    "delete": "削除",
+    "toasts": {
+      "postFailed": "コメントの投稿に失敗しました",
+      "deleteFailed": "コメントの削除に失敗しました"
     }
   },
   "documentDetail": {

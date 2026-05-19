@@ -659,7 +659,7 @@
       "dueDate": "Due date",
       "creating": "Creating…",
       "create": "Create",
-      "newRequestButton": "+ New Request",
+      "newRequestButton": "New Request",
       "created": "Request created.",
       "createdAssigned": "Request created and assigned. The assignee will see it in their Todo.",
       "helper": {
@@ -866,6 +866,108 @@
         "lastAssessment": "Last Assessment",
         "nextDue": "Next Due"
       }
+    }
+  },
+  "auditRequestCreate": {
+    "title": "New Audit Request",
+    "cancel": "Cancel",
+    "submit": "Create Request",
+    "fields": {
+      "title": "Title",
+      "description": "Description (what evidence are you asking for?)",
+      "evidenceType": "Evidence type",
+      "evidenceTypeNone": "— Not specified —",
+      "control": "Control",
+      "assignedTo": "Assigned to"
+    }
+  },
+  "auditRequestDetail": {
+    "title": {
+      "loading": "Loading request…",
+      "notFound": "Audit request not found"
+    },
+    "loading": "Loading…",
+    "notFound": "This audit request could not be loaded.",
+    "backToAudit": "Back to audit",
+    "changeStatus": "Change status",
+    "edit": "Edit",
+    "cancelEdit": "Cancel",
+    "delete": "Delete",
+    "confirmDelete": "Delete this audit request?",
+    "meta": {
+      "control": "Control",
+      "auditLevel": "Audit-level",
+      "assignee": "Assignee",
+      "unassigned": "Unassigned",
+      "dueDate": "Due",
+      "createdBy": "Created by"
+    },
+    "ask": {
+      "title": "Auditor's ask",
+      "noDescription": "No description provided.",
+      "typeRequested": "Evidence type requested"
+    },
+    "linkedEvidence": {
+      "title": "Linked evidence",
+      "attach": "Attach evidence",
+      "empty": "No evidence attached yet.",
+      "linkedAt": "Linked {{when}}",
+      "unlink": "Unlink"
+    },
+    "editPanel": {
+      "title": "Edit request",
+      "fieldTitle": "Title",
+      "fieldDescription": "Description",
+      "fieldEvidenceType": "Evidence type",
+      "evidenceTypeNone": "— Not specified —",
+      "fieldDueDate": "Due date",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving…"
+    },
+    "toasts": {
+      "updated": "Request updated.",
+      "updateFailed": "Failed to update request",
+      "attachUpdated": "Attachment updated.",
+      "attachFailed": "Failed to update attachment",
+      "deleted": "Request deleted.",
+      "deleteFailed": "Failed to delete request"
+    }
+  },
+  "auditRequestAttach": {
+    "title": "Attach Evidence",
+    "tabs": {
+      "pick": "Pick existing",
+      "upload": "Upload new"
+    },
+    "searchPlaceholder": "Search evidence…",
+    "loading": "Loading…",
+    "link": "Link",
+    "empty": {
+      "generic": "No matching evidence found.",
+      "restrictedPerControl": "No evidence in scope for this audit on this control yet. Upload a new file, or ask an internal auditor to pre-link existing evidence.",
+      "restrictedAuditLevel": "No linkable evidence yet. Upload a new file, or ask an internal auditor to pre-link existing evidence."
+    },
+    "hintAskedFor": "Auditor asked for: {{type}}",
+    "uploadButton": "Upload",
+    "uploading": "Uploading…",
+    "toasts": {
+      "linked": "Evidence linked.",
+      "linkFailed": "Failed to link evidence",
+      "uploaded": "Evidence uploaded and linked.",
+      "uploadFailed": "Failed to upload evidence"
+    }
+  },
+  "auditRequestComments": {
+    "title": "Comments",
+    "empty": "No comments yet.",
+    "placeholder": "Add a comment…",
+    "post": "Post",
+    "posting": "Posting…",
+    "delete": "Delete",
+    "toasts": {
+      "postFailed": "Failed to post comment",
+      "deleteFailed": "Failed to delete comment"
     }
   },
   "documentDetail": {
