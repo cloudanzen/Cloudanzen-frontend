@@ -1,14 +1,16 @@
-import { createBrowserRouter, redirect } from 'react-router';
+import { createBrowserRouter, redirect, type RouteObject } from 'react-router';
 import { lazy, Suspense } from 'react';
 import { Layout } from '@/app/components/Layout';
 import { SettingsLayout } from '@/app/components/settings/SettingsLayout';
 import { requireAuth, requireRoles } from '@/app/authGuard';
 import { NotFoundPage, RouteErrorBoundary } from '@/app/pages/NotFoundPage';
+import { platformRoutes } from '@/app/platform-routes';
 
 // ── Eager imports (needed immediately on load) ────────────────────────────────
 import { LoginPage } from '@/app/pages/auth/LoginPage';
 import { RegisterPage } from '@/app/pages/auth/RegisterPage';
 import { AuthCallbackPage } from '@/app/pages/auth/AuthCallbackPage';
+import { SupportSessionExchangePage } from '@/app/pages/SupportSessionExchangePage';
 
 // ── Lazy imports (code-split per route) ───────────────────────────────────────
 const HomePage = lazy(() =>
@@ -380,13 +382,16 @@ const FrameworkAccessRequestsPage = lazy(() =>
 );
 
 // ── Auth guard ────────────────────────────────────────────────────────────────
-// ── Router ────────────────────────────────────────────────────────────────────
-export const router = createBrowserRouter([
+// ── Tenant route tree ─────────────────────────────────────────────────────────
+const tenantRoutes: RouteObject[] = [
   // Public auth routes (no layout)
   { path: '/login', Component: LoginPage },
   { path: '/register', Component: RegisterPage },
   { path: '/auth/callback', Component: AuthCallbackPage },
   { path: '/auditor/invitations/:secret', Component: AuditorInvitationPage },
+
+  // Support session exchange (no auth — the one-time code IS the auth)
+  { path: '/support-session/exchange', Component: SupportSessionExchangePage },
 
   // Public Trust Center portal (no auth, no app layout)
   { path: '/trust/:orgSlug', Component: PublicTrustPortalPage },
@@ -601,7 +606,29 @@ export const router = createBrowserRouter([
 
   // Global catch-all for unmatched routes outside the layout
   { path: '*', Component: NotFoundPage },
-]);
+];
+
+// ── Hostname-based router selection ──────────────────────────────────────────
+// Production hostnames are pinned via DNS; the env allowlist is the trust
+// boundary. Anything not in VITE_PLATFORM_HOSTS falls through to the tenant
+// tree (preview deploys, attacker-controlled hosts, etc.).
+const PLATFORM_HOSTS = (
+  (
+    import.meta as ImportMeta & {
+      env?: Record<string, string | undefined>;
+    }
+  ).env?.VITE_PLATFORM_HOSTS ?? ''
+)
+  .split(',')
+  .map((s: string) => s.trim())
+  .filter(Boolean);
+const isPlatformHost =
+  typeof window !== 'undefined' &&
+  PLATFORM_HOSTS.includes(window.location.hostname);
+
+export const router = createBrowserRouter(
+  isPlatformHost ? platformRoutes : tenantRoutes,
+);
 
 // Re-export Suspense for convenience (used in Layout to wrap <Outlet />)
 export { Suspense };
