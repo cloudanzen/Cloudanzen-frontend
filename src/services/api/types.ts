@@ -508,8 +508,21 @@ export interface AuthResponse {
   token: string;
 }
 
+// Returned by GET /api/auth/me. `impersonation` is non-null only when the
+// request arrived with a valid aud='tenant_impersonation' JWT (per the
+// backend PR-X4 extension); the tenant shell renders the support-session
+// banner whenever this field is set.
+export interface ImpersonationContext {
+  sessionId: string;
+  adminEmail: string;
+  reason: string;
+  expiresAt: number;
+  effectiveRole: string;
+}
+
 export interface CurrentUser {
   user: User;
+  impersonation?: ImpersonationContext | null;
 }
 
 // Form types for create/update operations
