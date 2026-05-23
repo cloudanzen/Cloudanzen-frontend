@@ -11,11 +11,62 @@ const PlatformDashboardPage = lazy(() =>
   })),
 );
 
+// PR-X4: re-mount the 6 existing admin pages at hostname-rooted paths on
+// the platform tree. Components are reused from src/app/pages/admin/* —
+// no copy, just new routes. The legacy /admin/* mounts in the tenant tree
+// stay during the dual-mode window so SUPER_ADMIN users keep working
+// until PR-X5 migrates them.
+const OrganizationsPage = lazy(() =>
+  import('@/app/pages/admin/AdminOrganizationsPage').then((m) => ({
+    default: m.AdminOrganizationsPage,
+  })),
+);
+const ControlTemplatesPage = lazy(() =>
+  import('@/app/pages/admin/AdminTemplatesPage').then((m) => ({
+    default: m.AdminTemplatesPage,
+  })),
+);
+const TestTemplatesPage = lazy(() =>
+  import('@/app/pages/admin/AdminTestTemplatesPage').then((m) => ({
+    default: m.AdminTestTemplatesPage,
+  })),
+);
+const PolicyTemplatesPage = lazy(() =>
+  import('@/app/pages/admin/AdminPolicyTemplatesPage').then((m) => ({
+    default: m.AdminPolicyTemplatesPage,
+  })),
+);
+const FrameworksPage = lazy(() =>
+  import('@/app/pages/admin/AdminFrameworksPage').then((m) => ({
+    default: m.AdminFrameworksPage,
+  })),
+);
+const FrameworkRequestsPage = lazy(() =>
+  import('@/app/pages/admin/FrameworkAccessRequestsPage').then((m) => ({
+    default: m.FrameworkAccessRequestsPage,
+  })),
+);
+
+// PR-X4 stubs (sidebar links exist; full pages land in PR-X4.5/X6/X7).
+const SupportSessionsPage = lazy(() =>
+  import('@/app/pages/platform/SupportSessionsPage').then((m) => ({
+    default: m.SupportSessionsPage,
+  })),
+);
+const AllowlistPage = lazy(() =>
+  import('@/app/pages/platform/AllowlistPage').then((m) => ({
+    default: m.AllowlistPage,
+  })),
+);
+const ActivityLogPage = lazy(() =>
+  import('@/app/pages/platform/ActivityLogPage').then((m) => ({
+    default: m.ActivityLogPage,
+  })),
+);
+
 // Hostname-rooted at platform.cloudanzen.com. Paths intentionally have NO
-// /platform/* prefix — the hostname does the scoping.
-//
-// Routes for /organizations, /support-sessions, /templates/*, /frameworks,
-// /catalog/*, /allowlist, /activity are filled in PR-X4/X6/X7.
+// /platform/* prefix — the hostname does the scoping. Catalog routes
+// (/catalog/batches, /catalog/versions) land in PR-X6.
 export const platformRoutes: RouteObject[] = [
   { path: '/login', Component: PlatformLoginPage },
   {
@@ -25,6 +76,15 @@ export const platformRoutes: RouteObject[] = [
     ErrorBoundary: RouteErrorBoundary,
     children: [
       { index: true, Component: PlatformDashboardPage },
+      { path: 'organizations', Component: OrganizationsPage },
+      { path: 'support-sessions', Component: SupportSessionsPage },
+      { path: 'templates/control', Component: ControlTemplatesPage },
+      { path: 'templates/test', Component: TestTemplatesPage },
+      { path: 'templates/policy', Component: PolicyTemplatesPage },
+      { path: 'frameworks', Component: FrameworksPage },
+      { path: 'framework-requests', Component: FrameworkRequestsPage },
+      { path: 'allowlist', Component: AllowlistPage },
+      { path: 'activity', Component: ActivityLogPage },
       { path: '*', Component: NotFoundPage },
     ],
   },
