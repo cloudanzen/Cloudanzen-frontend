@@ -120,6 +120,11 @@
       "title": "Create Risk Snapshot",
       "description": "This will freeze your current risk register into an immutable, auditor-ready record.",
       "placeholder": "e.g. \"ISO 27001 – 2025 Annual Assessment\"",
+      "scopeLabel": "Scope",
+      "scopeAllLabel": "All scenarios",
+      "scopeAllDesc": "Capture every risk regardless of status.",
+      "scopeDecidedLabel": "Decided only",
+      "scopeDecidedDesc": "Capture only risks with a treatment decision (Mitigated, Accepted, Transferred).",
       "cancel": "Cancel",
       "create": "Create Snapshot",
       "success": "Snapshot created",
@@ -131,6 +136,14 @@
       "sharedWithAuditor": "Shared with auditor",
       "exportCsv": "Export CSV",
       "sharingError": "Failed to update sharing",
+      "sharedYes": "Yes",
+      "sharedNo": "No",
+      "errorTitle": "Couldn't load this snapshot",
+      "errorBody": "Something went wrong fetching this snapshot. Try again or go back to the list.",
+      "retry": "Retry",
+      "exitPreview": "Exit preview",
+      "dashboard": "Dashboard",
+      "notFound": "This snapshot doesn't exist or you don't have access to it.",
       "immutableNotice": "This snapshot is immutable. It captures risk state at the time of creation and cannot be edited.",
       "totalRisks": "Total risks",
       "criticalHigh": "Critical / High",
@@ -140,12 +153,18 @@
       "none": "None",
       "columns": {
         "risk": "Risk",
+        "source": "Source",
         "asset": "Asset",
         "impact": "Impact",
         "likelihood": "Likelihood",
         "score": "Score",
         "status": "Status",
         "treatments": "Treatments"
+      },
+      "sources": {
+        "prisma": "Risks",
+        "register": "Library",
+        "legacy": "Legacy"
       }
     },
     "list": {

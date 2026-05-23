@@ -8,9 +8,10 @@
  */
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate, useSearchParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import {
   Shield,
   Clock,
@@ -21,6 +22,7 @@ import {
   Link as LinkIcon,
   FlaskConical,
   Lock,
+  LogOut,
 } from 'lucide-react';
 import {
   auditsService,
@@ -28,19 +30,138 @@ import {
   AuditControlRecord,
   AuditControlStatus,
 } from '@/services/api/audits';
+import type { RiskSnapshotRecord } from '@/services/api/risks';
+import { QK } from '@/lib/queryKeys';
+import { STALE } from '@/lib/queryClient';
 import { Card } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
 import { PageTemplate } from '@/app/components/PageTemplate';
+import { useIsAdmin } from '@/hooks/useCurrentUser';
 
 import { fmt, daysRemaining, ReviewBadge } from './auditorDashboard/helpers';
 import { KpiCard } from './auditorDashboard/KpiCard';
 import { ControlReviewPanel } from './auditorDashboard/ControlReviewPanel';
+
+// Map Prisma AuditStatus enum → i18n statusHint key suffix. Six possible
+// values; lowercase camelCase to match locale JSON.
+function statusHintKey(status: string): string {
+  switch (status) {
+    case 'DRAFT':
+      return 'draft';
+    case 'UPCOMING':
+      return 'upcoming';
+    case 'PLANNED':
+      return 'planned';
+    case 'IN_PROGRESS':
+      return 'inProgress';
+    case 'AWAITING_REPORT':
+      return 'awaitingReport';
+    case 'COMPLETED':
+      return 'completed';
+    default:
+      return 'draft';
+  }
+}
+
+// ── Risk Snapshots section ────────────────────────────────────────────────────
+
+function AuditorRiskSnapshotsSection({ auditId }: { auditId: string }) {
+  const { t } = useTranslation('auditor');
+
+  const { data, isLoading, isError } = useQuery<{
+    success: boolean;
+    data: RiskSnapshotRecord[];
+  }>({
+    queryKey: QK.auditorRiskSnapshots(auditId),
+    queryFn: () => auditsService.listRiskSnapshots(auditId),
+    staleTime: STALE.RISKS,
+  });
+
+  const snapshots = data?.data ?? [];
+
+  return (
+    <section className="mt-6">
+      <div className="mb-3">
+        <h3 className="text-base font-semibold text-gray-900">
+          {t('dashboard.riskSnapshots.title')}
+        </h3>
+        <p className="text-sm text-gray-500">
+          {t('dashboard.riskSnapshots.description')}
+        </p>
+      </div>
+      <Card className="overflow-hidden">
+        {isLoading ? (
+          <div className="p-8 text-center text-sm text-gray-400">
+            {t('dashboard.riskSnapshots.loading')}
+          </div>
+        ) : isError ? (
+          <div className="p-8 text-center text-sm text-red-500">
+            {t('dashboard.riskSnapshots.loadFailed')}
+          </div>
+        ) : snapshots.length === 0 ? (
+          <div className="p-8 text-center text-sm text-gray-400">
+            {t('dashboard.riskSnapshots.empty')}
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 border-b border-gray-100">
+                <tr>
+                  <th className="px-4 py-2 text-left font-medium text-xs text-gray-500">
+                    {t('dashboard.riskSnapshots.columns.name')}
+                  </th>
+                  <th className="px-4 py-2 text-left font-medium text-xs text-gray-500">
+                    {t('dashboard.riskSnapshots.columns.createdAt')}
+                  </th>
+                  <th className="px-4 py-2 text-right font-medium text-xs text-gray-500">
+                    {t('dashboard.riskSnapshots.columns.riskCount')}
+                  </th>
+                  <th className="px-4 py-2 text-right font-medium text-xs text-gray-500">
+                    {t('dashboard.riskSnapshots.columns.action')}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {snapshots.map((s) => (
+                  <tr key={s.id} className="border-b last:border-0">
+                    <td className="px-4 py-3 font-medium">{s.name}</td>
+                    <td className="px-4 py-3 text-gray-600">
+                      {fmt(s.createdAt)}
+                    </td>
+                    <td className="px-4 py-3 text-right font-mono">
+                      {s.riskCount}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <Link
+                        to={`/auditor/audits/${auditId}/risk-snapshots/${s.id}`}
+                        className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium border border-gray-300 text-gray-700 hover:bg-gray-50"
+                      >
+                        {t('dashboard.riskSnapshots.view')}
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Card>
+    </section>
+  );
+}
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function AuditorDashboardPage() {
   const { t } = useTranslation('auditor');
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isAdmin = useIsAdmin();
+  // Preview-mode signal — when admin clicks "Preview as auditor" we append
+  // ?auditId=<id> so the dashboard shows that specific audit instead of
+  // the auto-pick, and we surface an "Exit preview" button back to the
+  // admin audit-detail page.
+  const previewAuditId = searchParams.get('auditId');
   const [selectedControl, setSelectedControl] =
     useState<AuditControlRecord | null>(null);
   const [statusFilter, setStatusFilter] = useState<'' | AuditControlStatus>('');
@@ -55,11 +176,13 @@ export function AuditorDashboardPage() {
   });
 
   const audits = auditsData?.data ?? [];
-  // Pick the most recent IN_PROGRESS audit, fall back to PLANNED, then first
+  // 1. If `?auditId=<id>` is present (admin preview), find that audit.
+  // 2. Otherwise: most recent IN_PROGRESS → PLANNED → first audit.
   const audit =
-    audits.find((a) => a.status === 'IN_PROGRESS') ??
-    audits.find((a) => a.status === 'PLANNED') ??
-    audits[0] ??
+    (previewAuditId && audits.find((a) => a.id === previewAuditId)) ||
+    audits.find((a) => a.status === 'IN_PROGRESS') ||
+    audits.find((a) => a.status === 'PLANNED') ||
+    audits[0] ||
     null;
 
   // Fetch controls for the active audit
@@ -74,6 +197,36 @@ export function AuditorDashboardPage() {
   });
 
   const auditControls = controlsData?.data ?? [];
+
+  // ── Audit lifecycle mutation: IN_PROGRESS → AWAITING_REPORT ───────────────
+  // Backend allows AUDITOR / EXTERNAL_AUDITOR / admin to fire this transition
+  // (audit-command-routes.ts). Invalidate every query that holds audit status
+  // — including the admin caches (`['audit', id]`, `['audits']`) because admins
+  // exit preview back to /compliance/audits/:id, which would otherwise render
+  // stale status.
+  const qc = useQueryClient();
+  const moveToAwaitingReportMutation = useMutation({
+    mutationFn: () => {
+      if (!audit) throw new Error('No audit selected');
+      return auditsService.transitionToAwaitingReport(audit.id);
+    },
+    onSuccess: () => {
+      if (!audit) return;
+      toast.success(t('dashboard.moveToAwaitingReportSuccess'));
+      qc.invalidateQueries({ queryKey: ['auditor-audits'] });
+      qc.invalidateQueries({ queryKey: ['auditor-controls', audit.id] });
+      qc.invalidateQueries({ queryKey: ['audit-report', audit.id] });
+      qc.invalidateQueries({ queryKey: ['audit', audit.id] });
+      qc.invalidateQueries({ queryKey: ['audits'] });
+    },
+    onError: (err) => {
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : t('dashboard.moveToAwaitingReportError'),
+      );
+    },
+  });
 
   // ── KPI computations ──────────────────────────────────────────────────────
   const totalControls = auditControls.length;
@@ -116,7 +269,22 @@ export function AuditorDashboardPage() {
   }
 
   return (
-    <PageTemplate title={t('dashboard.title')} description={audit.name}>
+    <PageTemplate
+      title={t('dashboard.title')}
+      description={audit.name}
+      actions={
+        isAdmin && previewAuditId ? (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate(`/compliance/audits/${previewAuditId}`)}
+          >
+            <LogOut className="w-4 h-4 mr-1" />
+            {t('dashboard.exitPreview')}
+          </Button>
+        ) : undefined
+      }
+    >
       {/* Audit meta banner */}
       <div className="flex flex-wrap items-center gap-3 mb-5 p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm text-gray-600">
         <span className="font-medium text-gray-900">{audit.name}</span>
@@ -142,25 +310,61 @@ export function AuditorDashboardPage() {
         <span className="ml-auto text-xs text-gray-400">
           {fmt(audit.startDate)} → {fmt(audit.endDate)}
         </span>
-        {/* Final Report button — shown when audit is IN_PROGRESS or COMPLETED */}
-        {(audit.status === 'IN_PROGRESS' || audit.status === 'COMPLETED') && (
+        {/* Status-aware lifecycle actions. Backend permission already
+            enforces canAudit on the transition; UI surfaces it so users
+            don't get stuck looking for a way to move the audit forward. */}
+        {audit.status === 'IN_PROGRESS' && (
+          <>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() =>
+                navigate(`/auditor/audits/${audit.id}/final-report`)
+              }
+            >
+              <ClipboardList className="w-4 h-4 mr-1" />
+              {t('dashboard.finalReport')}
+            </Button>
+            <Button
+              size="sm"
+              className="bg-purple-700 hover:bg-purple-600 text-white"
+              onClick={() => moveToAwaitingReportMutation.mutate()}
+              disabled={moveToAwaitingReportMutation.isPending}
+            >
+              <ClipboardList className="w-4 h-4 mr-1" />
+              {moveToAwaitingReportMutation.isPending
+                ? t('dashboard.movingToAwaitingReport')
+                : t('dashboard.moveToAwaitingReport')}
+            </Button>
+          </>
+        )}
+        {audit.status === 'AWAITING_REPORT' && (
           <Button
             size="sm"
-            variant={audit.status === 'COMPLETED' ? 'default' : 'outline'}
-            className={
-              audit.status === 'COMPLETED'
-                ? 'bg-green-700 hover:bg-green-600 text-white'
-                : ''
-            }
+            className="bg-purple-700 hover:bg-purple-600 text-white"
             onClick={() => navigate(`/auditor/audits/${audit.id}/final-report`)}
           >
             <ClipboardList className="w-4 h-4 mr-1" />
-            {audit.status === 'COMPLETED'
-              ? t('dashboard.viewFinalReport')
-              : t('dashboard.finalReport')}
+            {t('dashboard.goToFinalReport')}
+          </Button>
+        )}
+        {audit.status === 'COMPLETED' && (
+          <Button
+            size="sm"
+            className="bg-green-700 hover:bg-green-600 text-white"
+            onClick={() => navigate(`/auditor/audits/${audit.id}/final-report`)}
+          >
+            <ClipboardList className="w-4 h-4 mr-1" />
+            {t('dashboard.viewFinalReport')}
           </Button>
         )}
       </div>
+
+      {/* One-line status hint — explains what's expected at each status so
+          previewing admins and assigned auditors aren't left guessing. */}
+      <p className="-mt-3 mb-5 px-1 text-xs text-gray-500">
+        {t(`dashboard.statusHint.${statusHintKey(audit.status)}`)}
+      </p>
 
       {/* 4 KPI panels */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
@@ -348,6 +552,8 @@ export function AuditorDashboardPage() {
           </div>
         )}
       </Card>
+
+      <AuditorRiskSnapshotsSection auditId={audit.id} />
 
       {/* Control review side panel */}
       {selectedControl && (

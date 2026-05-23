@@ -1,14 +1,16 @@
-import { createBrowserRouter, redirect } from 'react-router';
+import { createBrowserRouter, redirect, type RouteObject } from 'react-router';
 import { lazy, Suspense } from 'react';
 import { Layout } from '@/app/components/Layout';
 import { SettingsLayout } from '@/app/components/settings/SettingsLayout';
 import { requireAuth, requireRoles } from '@/app/authGuard';
 import { NotFoundPage, RouteErrorBoundary } from '@/app/pages/NotFoundPage';
+import { platformRoutes } from '@/app/platform-routes';
 
 // ── Eager imports (needed immediately on load) ────────────────────────────────
 import { LoginPage } from '@/app/pages/auth/LoginPage';
 import { RegisterPage } from '@/app/pages/auth/RegisterPage';
 import { AuthCallbackPage } from '@/app/pages/auth/AuthCallbackPage';
+import { SupportSessionExchangePage } from '@/app/pages/SupportSessionExchangePage';
 
 // ── Lazy imports (code-split per route) ───────────────────────────────────────
 const HomePage = lazy(() =>
@@ -57,6 +59,11 @@ const AuditorDashboardPage = lazy(() =>
 const AuditFinalReportPage = lazy(() =>
   import('@/app/pages/auditor/AuditFinalReportPage').then((m) => ({
     default: m.AuditFinalReportPage,
+  })),
+);
+const AuditorRiskSnapshotPage = lazy(() =>
+  import('@/app/pages/auditor/AuditorRiskSnapshotPage').then((m) => ({
+    default: m.AuditorRiskSnapshotPage,
   })),
 );
 const AuditorInvitationPage = lazy(() =>
@@ -126,6 +133,11 @@ const AuditsPage = lazy(() =>
 const AuditDetailPage = lazy(() =>
   import('@/app/pages/compliance/AuditDetailPage').then((m) => ({
     default: m.AuditDetailPage,
+  })),
+);
+const AuditRequestDetailPage = lazy(() =>
+  import('@/app/pages/compliance/AuditRequestDetailPage').then((m) => ({
+    default: m.AuditRequestDetailPage,
   })),
 );
 const ComplianceSettingsPage = lazy(() =>
@@ -370,13 +382,16 @@ const FrameworkAccessRequestsPage = lazy(() =>
 );
 
 // ── Auth guard ────────────────────────────────────────────────────────────────
-// ── Router ────────────────────────────────────────────────────────────────────
-export const router = createBrowserRouter([
+// ── Tenant route tree ─────────────────────────────────────────────────────────
+const tenantRoutes: RouteObject[] = [
   // Public auth routes (no layout)
   { path: '/login', Component: LoginPage },
   { path: '/register', Component: RegisterPage },
   { path: '/auth/callback', Component: AuthCallbackPage },
   { path: '/auditor/invitations/:secret', Component: AuditorInvitationPage },
+
+  // Support session exchange (no auth — the one-time code IS the auth)
+  { path: '/support-session/exchange', Component: SupportSessionExchangePage },
 
   // Public Trust Center portal (no auth, no app layout)
   { path: '/trust/:orgSlug', Component: PublicTrustPortalPage },
@@ -417,6 +432,10 @@ export const router = createBrowserRouter([
         path: 'auditor/audits/:auditId/final-report',
         Component: AuditFinalReportPage,
       },
+      {
+        path: 'auditor/audits/:auditId/risk-snapshots/:snapshotId',
+        Component: AuditorRiskSnapshotPage,
+      },
 
       // Compliance
       { path: 'compliance/frameworks', Component: FrameworksPage },
@@ -433,15 +452,31 @@ export const router = createBrowserRouter([
       { path: 'compliance/policies', Component: PoliciesPage },
       { path: 'compliance/policies/:id', Component: PolicyDetailPage },
       { path: 'compliance/documents', Component: DocumentsPage },
-      { path: 'compliance/documents/:documentId', Component: DocumentDetailPage },
+      {
+        path: 'compliance/documents/:documentId',
+        Component: DocumentDetailPage,
+      },
       { path: 'compliance/audits', Component: AuditsPage },
       { path: 'compliance/audits/:auditId', Component: AuditDetailPage },
-      { path: 'compliance/findings', loader: () => redirect('/assets/findings') },
-      { path: 'compliance/settings', loader: () => redirect('/settings/compliance') },
+      {
+        path: 'compliance/audits/:auditId/requests/:requestId',
+        Component: AuditRequestDetailPage,
+      },
+      {
+        path: 'compliance/findings',
+        loader: () => redirect('/assets/findings'),
+      },
+      {
+        path: 'compliance/settings',
+        loader: () => redirect('/settings/compliance'),
+      },
 
       // Customer Trust
       { path: 'customer-trust/trust-center', Component: TrustCenterPage },
-      { path: 'customer-trust/settings', loader: () => redirect('/settings/customer-trust') },
+      {
+        path: 'customer-trust/settings',
+        loader: () => redirect('/settings/customer-trust'),
+      },
 
       // Risk
       { path: 'risk/overview', Component: RiskOverviewPage },
@@ -449,7 +484,10 @@ export const router = createBrowserRouter([
       { path: 'risk/risks/:riskId', Component: RiskDetailPage },
       { path: 'risk/library', Component: RiskLibraryPage },
       { path: 'risk/remediations', Component: RemediationsPage },
-      { path: 'risk/action-tracker', loader: () => redirect('/risk/remediations') },
+      {
+        path: 'risk/action-tracker',
+        loader: () => redirect('/risk/remediations'),
+      },
       { path: 'risk/snapshot', Component: SnapshotPage },
       { path: 'risk/engine', Component: RiskEnginePage },
       { path: 'risk/settings', loader: () => redirect('/settings/risk') },
@@ -458,12 +496,18 @@ export const router = createBrowserRouter([
       { path: 'vendors', Component: VendorsPage },
       {
         path: 'vendors/discovery',
-        loader: requireRoles(['SUPER_ADMIN', 'ORG_ADMIN', 'SECURITY_OWNER'], '/vendors'),
+        loader: requireRoles(
+          ['SUPER_ADMIN', 'ORG_ADMIN', 'SECURITY_OWNER'],
+          '/vendors',
+        ),
         Component: VendorDiscoveryPage,
       },
       {
         path: 'vendors/intake-requests',
-        loader: requireRoles(['SUPER_ADMIN', 'ORG_ADMIN', 'SECURITY_OWNER'], '/vendors'),
+        loader: requireRoles(
+          ['SUPER_ADMIN', 'ORG_ADMIN', 'SECURITY_OWNER'],
+          '/vendors',
+        ),
         Component: VendorIntakeRequestsPage,
       },
       { path: 'vendors/:vendorId', Component: VendorDetailPage },
@@ -474,14 +518,20 @@ export const router = createBrowserRouter([
       { path: 'assets/merge-review', Component: MergeReviewPage },
       { path: 'assets/code-changes', Component: CodeChangesPage },
       { path: 'assets/findings', Component: AssetsFindingsPage },
-      { path: 'assets/vulnerabilities', loader: () => redirect('/assets/findings') },
+      {
+        path: 'assets/vulnerabilities',
+        loader: () => redirect('/assets/findings'),
+      },
       { path: 'assets/security-alerts', Component: SecurityAlertsPage },
       { path: 'assets/settings', loader: () => redirect('/settings/assets') },
 
       // Personnel
       { path: 'personnel/computers', Component: ComputersPage },
       { path: 'personnel/access', Component: AccessManagementPage },
-      { path: 'personnel/settings', loader: () => redirect('/settings/personnel') },
+      {
+        path: 'personnel/settings',
+        loader: () => redirect('/settings/personnel'),
+      },
 
       // AI
       {
@@ -502,7 +552,10 @@ export const router = createBrowserRouter([
       { path: 'admin/test-templates', Component: AdminTestTemplatesPage },
       { path: 'admin/policy-templates', Component: AdminPolicyTemplatesPage },
       { path: 'admin/frameworks', Component: AdminFrameworksPage },
-      { path: 'admin/framework-requests', Component: FrameworkAccessRequestsPage },
+      {
+        path: 'admin/framework-requests',
+        Component: FrameworkAccessRequestsPage,
+      },
       { path: 'admin/organizations', Component: AdminOrganizationsPage },
 
       // Other
@@ -513,7 +566,10 @@ export const router = createBrowserRouter([
         Component: PartnerApiPage,
       },
       { path: 'onboarding-tasks', Component: OnboardingTasksPage },
-      { path: 'my-security-tasks', loader: () => redirect('/onboarding-tasks') },
+      {
+        path: 'my-security-tasks',
+        loader: () => redirect('/onboarding-tasks'),
+      },
 
       // Settings shell
       {
@@ -550,7 +606,29 @@ export const router = createBrowserRouter([
 
   // Global catch-all for unmatched routes outside the layout
   { path: '*', Component: NotFoundPage },
-]);
+];
+
+// ── Hostname-based router selection ──────────────────────────────────────────
+// Production hostnames are pinned via DNS; the env allowlist is the trust
+// boundary. Anything not in VITE_PLATFORM_HOSTS falls through to the tenant
+// tree (preview deploys, attacker-controlled hosts, etc.).
+const PLATFORM_HOSTS = (
+  (
+    import.meta as ImportMeta & {
+      env?: Record<string, string | undefined>;
+    }
+  ).env?.VITE_PLATFORM_HOSTS ?? ''
+)
+  .split(',')
+  .map((s: string) => s.trim())
+  .filter(Boolean);
+const isPlatformHost =
+  typeof window !== 'undefined' &&
+  PLATFORM_HOSTS.includes(window.location.hostname);
+
+export const router = createBrowserRouter(
+  isPlatformHost ? platformRoutes : tenantRoutes,
+);
 
 // Re-export Suspense for convenience (used in Layout to wrap <Outlet />)
 export { Suspense };

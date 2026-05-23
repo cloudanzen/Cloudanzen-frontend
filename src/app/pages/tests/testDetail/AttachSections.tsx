@@ -200,7 +200,11 @@ export function AttachEvidenceSection({
     const other: typeof available = [];
     for (const e of available) {
       if (!matchesSearch(e)) continue;
-      if (controlIdSet.size > 0 && controlIdSet.has(e.controlId)) {
+      if (
+        controlIdSet.size > 0 &&
+        e.controlId &&
+        controlIdSet.has(e.controlId)
+      ) {
         rel.push(e);
       } else {
         other.push(e);

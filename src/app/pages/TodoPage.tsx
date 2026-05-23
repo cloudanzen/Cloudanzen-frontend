@@ -1,13 +1,35 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { ClipboardList, ShieldCheck, AlertTriangle, CheckCircle, Clock, ChevronRight, Search, X } from 'lucide-react';
+import {
+  ClipboardList,
+  ShieldCheck,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  ChevronRight,
+  Search,
+  X,
+  FileQuestion,
+} from 'lucide-react';
+import { Link } from 'react-router';
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { Card } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
 import { Input } from '@/app/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/app/components/ui/select';
 import { testsService } from '@/services/api/tests';
+import { auditsService } from '@/services/api/audits';
+import {
+  AUDIT_REQUEST_STATUS_LABELS,
+  AUDIT_REQUEST_STATUS_COLORS,
+} from '@/lib/auditRequestStatus';
 import { onboardingService } from '@/services/api/onboarding';
 import { authService } from '@/services/api/auth';
 import { QK } from '@/lib/queryKeys';
@@ -26,18 +48,132 @@ function isOverdue(dueDate: string): boolean {
 
 // ─── Status badge ─────────────────────────────────────────────────────────────
 
-const STATUS_CFG: Record<TestStatus, { key: string; label: string; cls: string }> = {
-  OK:                { key: 'complete',          label: 'Complete',          cls: 'bg-green-50 text-green-700 border-green-200' },
-  Due_soon:          { key: 'dueSoon',           label: 'Due Soon',           cls: 'bg-amber-50 text-amber-700 border-amber-200' },
-  Overdue:           { key: 'overdue',           label: 'Overdue',            cls: 'bg-red-50 text-red-700 border-red-200' },
-  Needs_remediation: { key: 'needsRemediation',  label: 'Needs Remediation',  cls: 'bg-purple-50 text-purple-700 border-purple-200' },
+const STATUS_CFG: Record<
+  TestStatus,
+  { key: string; label: string; cls: string }
+> = {
+  OK: {
+    key: 'complete',
+    label: 'Complete',
+    cls: 'bg-green-50 text-green-700 border-green-200',
+  },
+  Due_soon: {
+    key: 'dueSoon',
+    label: 'Due Soon',
+    cls: 'bg-amber-50 text-amber-700 border-amber-200',
+  },
+  Overdue: {
+    key: 'overdue',
+    label: 'Overdue',
+    cls: 'bg-red-50 text-red-700 border-red-200',
+  },
+  Needs_remediation: {
+    key: 'needsRemediation',
+    label: 'Needs Remediation',
+    cls: 'bg-purple-50 text-purple-700 border-purple-200',
+  },
 };
+
+// ─── Assigned Audit Requests section ──────────────────────────────────────────
+
+function AssignedAuditRequestsSection() {
+  const { t } = useTranslation('dashboard');
+  const { data, isLoading } = useQuery({
+    queryKey: QK.auditRequestsMine(),
+    queryFn: () => auditsService.listMyAuditRequests(),
+    staleTime: STALE.RISKS,
+  });
+
+  const rows = data?.data ?? [];
+  if (!isLoading && rows.length === 0) {
+    return null;
+  }
+
+  return (
+    <Card className="overflow-hidden">
+      <div className="px-4 py-3 bg-muted border-b border-border flex items-center gap-2">
+        <FileQuestion className="w-4 h-4 text-muted-foreground" />
+        <h2 className="text-sm font-semibold text-foreground">
+          {t('todo.auditRequests.title')}
+        </h2>
+        {!isLoading && (
+          <span className="ml-auto text-xs text-muted-foreground/70">
+            {rows.length} {t('todo.pending')}
+          </span>
+        )}
+      </div>
+      {isLoading ? (
+        <div className="p-4 space-y-2">
+          {[...Array(2)].map((_, i) => (
+            <div key={i} className="h-12 bg-muted rounded animate-pulse" />
+          ))}
+        </div>
+      ) : (
+        <div className="divide-y divide-border">
+          {rows.map((row) => {
+            const overdue = row.dueDate && new Date(row.dueDate) < new Date();
+            return (
+              <div
+                key={row.id}
+                className="flex items-center gap-3 px-4 py-3 hover:bg-muted/40 transition-colors"
+              >
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground truncate">
+                    {row.title}
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {row.auditName}
+                    {' · '}
+                    {row.controlLabel ??
+                      t('todo.auditRequests.auditLevelRequest')}
+                  </p>
+                </div>
+                <span
+                  className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${AUDIT_REQUEST_STATUS_COLORS[row.status]}`}
+                >
+                  {AUDIT_REQUEST_STATUS_LABELS[row.status]}
+                </span>
+                {row.dueDate && (
+                  <span
+                    className={`text-xs ${overdue ? 'text-red-600 font-medium' : 'text-muted-foreground'}`}
+                  >
+                    {overdue
+                      ? t('todo.auditRequests.overdue')
+                      : fmtDate(row.dueDate)}
+                  </span>
+                )}
+                {row.linkedEvidenceCount > 0 && (
+                  <span className="text-xs text-muted-foreground/70 bg-muted px-1.5 py-0.5 rounded">
+                    {row.linkedEvidenceCount}
+                  </span>
+                )}
+                <Link
+                  to={`/compliance/audits/${row.auditId}?tab=requests&requestId=${row.id}`}
+                  className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700"
+                >
+                  {t('todo.auditRequests.openAction')}
+                  <ChevronRight className="w-3 h-3" />
+                </Link>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </Card>
+  );
+}
 
 function StatusBadge({ status }: { status: TestStatus }) {
   const { t } = useTranslation('dashboard');
-  const cfg = STATUS_CFG[status] ?? { key: status, label: status, cls: 'bg-gray-50 text-gray-600 border-gray-200' };
+  const cfg = STATUS_CFG[status] ?? {
+    key: status,
+    label: status,
+    cls: 'bg-gray-50 text-gray-600 border-gray-200',
+  };
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${cfg.cls}`}>
+    <span
+      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${cfg.cls}`}
+    >
       {t(`todo.statusLabels.${cfg.key}`, cfg.label)}
     </span>
   );
@@ -61,15 +197,26 @@ function OnboardingTaskRow({
   const { t } = useTranslation('dashboard');
   return (
     <div className="flex items-start gap-3 py-3 border-b border-border last:border-0">
-      <div className={`mt-0.5 flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center ${done ? 'bg-green-100' : 'bg-amber-100'}`}>
-        {done
-          ? <CheckCircle className="w-3.5 h-3.5 text-green-600" />
-          : <Clock className="w-3.5 h-3.5 text-amber-600" />
-        }
+      <div
+        className={`mt-0.5 flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center ${done ? 'bg-green-100' : 'bg-amber-100'}`}
+      >
+        {done ? (
+          <CheckCircle className="w-3.5 h-3.5 text-green-600" />
+        ) : (
+          <Clock className="w-3.5 h-3.5 text-amber-600" />
+        )}
       </div>
       <div className="flex-1 min-w-0">
-        <p className={`text-sm font-medium ${done ? 'text-muted-foreground/70 line-through' : 'text-foreground'}`}>{label}</p>
-        <p className="text-xs text-muted-foreground/70 mt-0.5">{done ? t('todo.completedAt', { date: fmtDate(doneAt) }) : description}</p>
+        <p
+          className={`text-sm font-medium ${done ? 'text-muted-foreground/70 line-through' : 'text-foreground'}`}
+        >
+          {label}
+        </p>
+        <p className="text-xs text-muted-foreground/70 mt-0.5">
+          {done
+            ? t('todo.completedAt', { date: fmtDate(doneAt) })
+            : description}
+        </p>
       </div>
       {!done && (
         <a
@@ -95,14 +242,18 @@ export function TodoPage() {
   const [typeFilter, setTypeFilter] = useState(ALL_FILTER_VALUE);
 
   // Fetch tests assigned to me that are not complete
-  const { data: testsData, isLoading: testsLoading, refetch: refetchTests } = useQuery({
+  const {
+    data: testsData,
+    isLoading: testsLoading,
+    refetch: refetchTests,
+  } = useQuery({
     queryKey: [...QK.tests({ ownerId: me?.id }), 'my-work'],
     queryFn: async () => {
       if (!me?.id) return [];
       const res = await testsService.listTests({ ownerId: me.id, limit: 100 });
       if (res.success && res.data) {
         // Show all non-OK tests
-        return (res.data as TestRecord[]).filter(t => t.status !== 'OK');
+        return (res.data as TestRecord[]).filter((t) => t.status !== 'OK');
       }
       return [];
     },
@@ -121,34 +272,62 @@ export function TodoPage() {
   });
 
   const pendingTests = useMemo(() => testsData ?? [], [testsData]);
-  const assignedFilterOptions = useMemo(() => ({
-    categories: Array.from(new Set(pendingTests.map((test) => test.category))).sort((a, b) => a.localeCompare(b)),
-    statuses: Array.from(new Set(pendingTests.map((test) => test.status))).sort((a, b) => a.localeCompare(b)),
-    types: Array.from(new Set(pendingTests.map((test) => test.type))).sort((a, b) => a.localeCompare(b)),
-  }), [pendingTests]);
+  const assignedFilterOptions = useMemo(
+    () => ({
+      categories: Array.from(
+        new Set(pendingTests.map((test) => test.category)),
+      ).sort((a, b) => a.localeCompare(b)),
+      statuses: Array.from(
+        new Set(pendingTests.map((test) => test.status)),
+      ).sort((a, b) => a.localeCompare(b)),
+      types: Array.from(new Set(pendingTests.map((test) => test.type))).sort(
+        (a, b) => a.localeCompare(b),
+      ),
+    }),
+    [pendingTests],
+  );
   const normalizedSearchQuery = searchQuery.trim().toLowerCase();
-  const filteredPendingTests = useMemo(() => pendingTests.filter((test) => {
-    if (categoryFilter !== ALL_FILTER_VALUE && test.category !== categoryFilter) return false;
-    if (statusFilter !== ALL_FILTER_VALUE && test.status !== statusFilter) return false;
-    if (typeFilter !== ALL_FILTER_VALUE && test.type !== typeFilter) return false;
-    if (!normalizedSearchQuery) return true;
+  const filteredPendingTests = useMemo(
+    () =>
+      pendingTests.filter((test) => {
+        if (
+          categoryFilter !== ALL_FILTER_VALUE &&
+          test.category !== categoryFilter
+        )
+          return false;
+        if (statusFilter !== ALL_FILTER_VALUE && test.status !== statusFilter)
+          return false;
+        if (typeFilter !== ALL_FILTER_VALUE && test.type !== typeFilter)
+          return false;
+        if (!normalizedSearchQuery) return true;
 
-    return [
-      test.name,
-      test.description,
-      test.category,
-      test.status,
-      test.type,
-      test.owner?.name,
-      test.owner?.email,
-    ].some((value) => value?.toLowerCase().includes(normalizedSearchQuery));
-  }), [categoryFilter, normalizedSearchQuery, pendingTests, statusFilter, typeFilter]);
-  const hasAssignedFilters = normalizedSearchQuery !== ''
-    || categoryFilter !== ALL_FILTER_VALUE
-    || statusFilter !== ALL_FILTER_VALUE
-    || typeFilter !== ALL_FILTER_VALUE;
-  const overdue = pendingTests.filter(t => isOverdue(t.dueDate) && t.status !== 'OK');
-  const dueSoon = pendingTests.filter(t => !isOverdue(t.dueDate));
+        return [
+          test.name,
+          test.description,
+          test.category,
+          test.status,
+          test.type,
+          test.owner?.name,
+          test.owner?.email,
+        ].some((value) => value?.toLowerCase().includes(normalizedSearchQuery));
+      }),
+    [
+      categoryFilter,
+      normalizedSearchQuery,
+      pendingTests,
+      statusFilter,
+      typeFilter,
+    ],
+  );
+  const hasAssignedFilters =
+    normalizedSearchQuery !== '' ||
+    categoryFilter !== ALL_FILTER_VALUE ||
+    statusFilter !== ALL_FILTER_VALUE ||
+    typeFilter !== ALL_FILTER_VALUE;
+  const overdue = pendingTests.filter(
+    (t) => isOverdue(t.dueDate) && t.status !== 'OK',
+  );
+  const dueSoon = pendingTests.filter((t) => !isOverdue(t.dueDate));
 
   const clearAssignedFilters = () => {
     setSearchQuery('');
@@ -194,17 +373,14 @@ export function TodoPage() {
       ].filter((task) => task.enabled)
     : [];
 
-  const onboardingDoneCount   = onboardingTasks.filter((t) => t.done).length;
-  const onboardingTotalCount  = onboardingTasks.length;
+  const onboardingDoneCount = onboardingTasks.filter((t) => t.done).length;
+  const onboardingTotalCount = onboardingTasks.length;
   const onboardingPendingCount = onboardingTotalCount - onboardingDoneCount;
 
   const totalPending = pendingTests.length + onboardingPendingCount;
 
   return (
-    <PageTemplate
-      title={t('todo.title')}
-      description={t('todo.description')}
-    >
+    <PageTemplate title={t('todo.title')} description={t('todo.description')}>
       {/* ── Summary strip ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         {[
@@ -220,7 +396,10 @@ export function TodoPage() {
             label: t('todo.overdueTests'),
             value: testsLoading ? '…' : overdue.length,
             icon: <AlertTriangle className="w-4 h-4" />,
-            cls: overdue.length > 0 ? 'text-red-700 bg-red-50' : 'text-foreground bg-card',
+            cls:
+              overdue.length > 0
+                ? 'text-red-700 bg-red-50'
+                : 'text-foreground bg-card',
           },
           {
             key: 'dueSoon',
@@ -238,13 +417,14 @@ export function TodoPage() {
                 ? t('todo.notApplicable', { defaultValue: 'N/A' })
                 : `${onboardingDoneCount}/${onboardingTotalCount}`,
             icon: <ShieldCheck className="w-4 h-4" />,
-            cls: onboardingTotalCount === 0
-              ? 'text-muted-foreground bg-muted'
-              : onboardingPendingCount === 0
-                ? 'text-green-700 bg-green-50'
-                : 'text-amber-700 bg-amber-50',
+            cls:
+              onboardingTotalCount === 0
+                ? 'text-muted-foreground bg-muted'
+                : onboardingPendingCount === 0
+                  ? 'text-green-700 bg-green-50'
+                  : 'text-amber-700 bg-amber-50',
           },
-        ].map(s => (
+        ].map((s) => (
           <Card key={s.key} className={`p-4 flex items-center gap-3 ${s.cls}`}>
             <div className="opacity-70">{s.icon}</div>
             <div>
@@ -256,26 +436,42 @@ export function TodoPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-
-        {/* ── Assigned Tests ── */}
+        {/* ── Assigned Tests + Audit Requests ── */}
         <div className="lg:col-span-2 space-y-4">
+          {/* Assigned Audit Requests */}
+          <AssignedAuditRequestsSection />
 
           {/* Overdue */}
           {(testsLoading || overdue.length > 0) && (
             <Card className="overflow-hidden">
               <div className="px-4 py-3 bg-red-50 border-b border-red-100 flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4 text-red-500" />
-                <h2 className="text-sm font-semibold text-red-700">{t('todo.overdueTests')}</h2>
-                {!testsLoading && <span className="ml-auto text-xs text-red-500">{overdue.length}</span>}
+                <h2 className="text-sm font-semibold text-red-700">
+                  {t('todo.overdueTests')}
+                </h2>
+                {!testsLoading && (
+                  <span className="ml-auto text-xs text-red-500">
+                    {overdue.length}
+                  </span>
+                )}
               </div>
               {testsLoading ? (
                 <div className="p-4 space-y-2">
-                  {[...Array(2)].map((_, i) => <div key={i} className="h-10 bg-muted rounded animate-pulse" />)}
+                  {[...Array(2)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="h-10 bg-muted rounded animate-pulse"
+                    />
+                  ))}
                 </div>
               ) : (
                 <div className="divide-y divide-border">
-                  {overdue.map(test => (
-                    <TestRow key={test.id} test={test} onView={() => setSelectedTestId(test.id)} />
+                  {overdue.map((test) => (
+                    <TestRow
+                      key={test.id}
+                      test={test}
+                      onView={() => setSelectedTestId(test.id)}
+                    />
                   ))}
                 </div>
               )}
@@ -287,11 +483,16 @@ export function TodoPage() {
             <div className="px-4 py-3 bg-muted border-b border-border space-y-3">
               <div className="flex items-center gap-2">
                 <ClipboardList className="w-4 h-4 text-muted-foreground" />
-                <h2 className="text-sm font-semibold text-foreground">{t('todo.assignedTests')}</h2>
+                <h2 className="text-sm font-semibold text-foreground">
+                  {t('todo.assignedTests')}
+                </h2>
                 {!testsLoading && (
                   <span className="ml-auto text-xs text-muted-foreground/70">
                     {hasAssignedFilters
-                      ? t('todo.filteredPending', { count: filteredPendingTests.length, total: pendingTests.length })
+                      ? t('todo.filteredPending', {
+                          count: filteredPendingTests.length,
+                          total: pendingTests.length,
+                        })
                       : `${pendingTests.length} ${t('todo.pending')}`}
                   </span>
                 )}
@@ -309,14 +510,21 @@ export function TodoPage() {
                     />
                   </div>
 
-                  <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <Select
+                    value={categoryFilter}
+                    onValueChange={setCategoryFilter}
+                  >
                     <SelectTrigger className="h-9 bg-background">
                       <SelectValue placeholder={t('todo.categoryFilter')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value={ALL_FILTER_VALUE}>{t('todo.allCategories')}</SelectItem>
+                      <SelectItem value={ALL_FILTER_VALUE}>
+                        {t('todo.allCategories')}
+                      </SelectItem>
                       {assignedFilterOptions.categories.map((category) => (
-                        <SelectItem key={category} value={category}>{category}</SelectItem>
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -326,9 +534,13 @@ export function TodoPage() {
                       <SelectValue placeholder={t('todo.statusFilter')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value={ALL_FILTER_VALUE}>{t('todo.allStatuses')}</SelectItem>
+                      <SelectItem value={ALL_FILTER_VALUE}>
+                        {t('todo.allStatuses')}
+                      </SelectItem>
                       {assignedFilterOptions.statuses.map((status) => (
-                        <SelectItem key={status} value={status}>{getStatusLabel(status)}</SelectItem>
+                        <SelectItem key={status} value={status}>
+                          {getStatusLabel(status)}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -338,9 +550,13 @@ export function TodoPage() {
                       <SelectValue placeholder={t('todo.typeFilter')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value={ALL_FILTER_VALUE}>{t('todo.allTypes')}</SelectItem>
+                      <SelectItem value={ALL_FILTER_VALUE}>
+                        {t('todo.allTypes')}
+                      </SelectItem>
                       {assignedFilterOptions.types.map((type) => (
-                        <SelectItem key={type} value={type}>{type}</SelectItem>
+                        <SelectItem key={type} value={type}>
+                          {type}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -362,7 +578,12 @@ export function TodoPage() {
             </div>
             {testsLoading ? (
               <div className="p-4 space-y-2">
-                {[...Array(3)].map((_, i) => <div key={i} className="h-10 bg-muted rounded animate-pulse" />)}
+                {[...Array(3)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-10 bg-muted rounded animate-pulse"
+                  />
+                ))}
               </div>
             ) : pendingTests.length === 0 ? (
               <div className="p-8 text-center text-sm text-muted-foreground/70">
@@ -376,8 +597,12 @@ export function TodoPage() {
               </div>
             ) : (
               <div className="divide-y divide-border">
-                {filteredPendingTests.map(test => (
-                  <TestRow key={test.id} test={test} onView={() => setSelectedTestId(test.id)} />
+                {filteredPendingTests.map((test) => (
+                  <TestRow
+                    key={test.id}
+                    test={test}
+                    onView={() => setSelectedTestId(test.id)}
+                  />
                 ))}
               </div>
             )}
@@ -391,9 +616,13 @@ export function TodoPage() {
             <Card className="overflow-hidden">
               <div className="px-4 py-3 bg-muted border-b border-border flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-muted-foreground" />
-                <h2 className="text-sm font-semibold text-foreground">{t('todo.securityOnboarding')}</h2>
+                <h2 className="text-sm font-semibold text-foreground">
+                  {t('todo.securityOnboarding')}
+                </h2>
                 {onboarding && onboardingTotalCount > 0 && (
-                  <span className={`ml-auto text-xs font-medium ${onboarding.allComplete ? 'text-green-600' : 'text-amber-600'}`}>
+                  <span
+                    className={`ml-auto text-xs font-medium ${onboarding.allComplete ? 'text-green-600' : 'text-amber-600'}`}
+                  >
                     {onboarding.allComplete
                       ? t('todo.complete')
                       : t('todo.nDone', { count: onboardingDoneCount })}
@@ -404,7 +633,10 @@ export function TodoPage() {
               {onboardingLoading ? (
                 <div className="p-4 space-y-2">
                   {[...Array(onboardingTotalCount || 1)].map((_, i) => (
-                    <div key={i} className="h-10 bg-muted rounded animate-pulse" />
+                    <div
+                      key={i}
+                      className="h-10 bg-muted rounded animate-pulse"
+                    />
                   ))}
                 </div>
               ) : onboarding ? (
@@ -432,7 +664,9 @@ export function TodoPage() {
                   ))}
                 </div>
               ) : (
-                <p className="p-4 text-sm text-muted-foreground/70">{t('todo.couldNotLoadOnboarding')}</p>
+                <p className="p-4 text-sm text-muted-foreground/70">
+                  {t('todo.couldNotLoadOnboarding')}
+                </p>
               )}
             </Card>
           </div>
@@ -444,7 +678,10 @@ export function TodoPage() {
         <TestDetailPanel
           testId={selectedTestId}
           onClose={() => setSelectedTestId(null)}
-          onMutated={() => { setSelectedTestId(null); refetchTests(); }}
+          onMutated={() => {
+            setSelectedTestId(null);
+            refetchTests();
+          }}
         />
       )}
     </PageTemplate>
@@ -458,8 +695,12 @@ function TestRow({ test, onView }: { test: TestRecord; onView: () => void }) {
   return (
     <div className="flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors">
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-foreground truncate">{test.name}</p>
-        <p className={`text-xs mt-0.5 ${overdue ? 'text-red-500 font-medium' : 'text-muted-foreground/70'}`}>
+        <p className="text-sm font-medium text-foreground truncate">
+          {test.name}
+        </p>
+        <p
+          className={`text-xs mt-0.5 ${overdue ? 'text-red-500 font-medium' : 'text-muted-foreground/70'}`}
+        >
           Due {fmtDate(test.dueDate)}
           {overdue && ' · Overdue'}
         </p>

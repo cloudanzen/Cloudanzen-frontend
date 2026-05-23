@@ -95,7 +95,9 @@ function AuditorNoteAiPanel({
         ) : (
           <Sparkles className="h-3.5 w-3.5" />
         )}
-        {generateMutation.isPending ? t('controlReview.generating') : t('controlReview.generateAiNote')}
+        {generateMutation.isPending
+          ? t('controlReview.generating')
+          : t('controlReview.generateAiNote')}
       </button>
     );
   }
@@ -258,13 +260,22 @@ export function FindingRow({
 
 // ── Control Comments Section ──────────────────────────────────────────────────
 
-function ControlCommentsSection({ auditId, controlId }: { auditId: string; controlId: string }) {
+function ControlCommentsSection({
+  auditId,
+  controlId,
+}: {
+  auditId: string;
+  controlId: string;
+}) {
   const me = useCurrentUser();
   const confirm = useConfirmDialog();
   const [text, setText] = useState('');
   const [posting, setPosting] = useState(false);
 
-  const { data, refetch } = useQuery<{ success: boolean; data: AuditComment[] }>({
+  const { data, refetch } = useQuery<{
+    success: boolean;
+    data: AuditComment[];
+  }>({
     queryKey: ['audit-comments', auditId, controlId],
     queryFn: () => auditsService.listComments(auditId, { controlId }),
   });
@@ -275,7 +286,10 @@ function ControlCommentsSection({ auditId, controlId }: { auditId: string; contr
     if (!text.trim()) return;
     setPosting(true);
     try {
-      await auditsService.postComment(auditId, { text: text.trim(), controlId });
+      await auditsService.postComment(auditId, {
+        text: text.trim(),
+        controlId,
+      });
       setText('');
       refetch();
     } catch {
@@ -302,16 +316,27 @@ function ControlCommentsSection({ auditId, controlId }: { auditId: string; contr
   }
 
   function initials(name: string | null | undefined, email: string): string {
-    if (name) return name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
+    if (name)
+      return name
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase();
     return email.slice(0, 2).toUpperCase();
   }
 
   return (
     <div className="p-5">
-      <SectionHead icon={<MessageCircle className="w-3.5 h-3.5" />} title={`Comments (${comments.length})`} />
+      <SectionHead
+        icon={<MessageCircle className="w-3.5 h-3.5" />}
+        title={`Comments (${comments.length})`}
+      />
       <div className="space-y-3 mb-3">
         {comments.length === 0 ? (
-          <p className="text-xs text-gray-400">No comments on this control yet.</p>
+          <p className="text-xs text-gray-400">
+            No comments on this control yet.
+          </p>
         ) : (
           comments.map((c) => (
             <div key={c.id} className="flex gap-2.5">
@@ -320,13 +345,22 @@ function ControlCommentsSection({ auditId, controlId }: { auditId: string; contr
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
-                  <span className="text-xs font-semibold text-gray-800">{c.author?.name ?? c.author?.email}</span>
+                  <span className="text-xs font-semibold text-gray-800">
+                    {c.author?.name ?? c.author?.email}
+                  </span>
                   {c.author?.role === 'AUDITOR' && (
-                    <span className="text-xs px-1 py-0 rounded bg-violet-50 text-violet-700">Auditor</span>
+                    <span className="text-xs px-1 py-0 rounded bg-violet-50 text-violet-700">
+                      Auditor
+                    </span>
                   )}
-                  <span className="text-xs text-gray-400">{new Date(c.createdAt).toLocaleDateString()}</span>
+                  <span className="text-xs text-gray-400">
+                    {new Date(c.createdAt).toLocaleDateString()}
+                  </span>
                   {me?.id === c.authorId && (
-                    <button onClick={() => handleDelete(c.id)} className="ml-auto text-gray-300 hover:text-red-400">
+                    <button
+                      onClick={() => handleDelete(c.id)}
+                      className="ml-auto text-gray-300 hover:text-red-400"
+                    >
                       <Trash2 className="w-3 h-3" />
                     </button>
                   )}
@@ -351,7 +385,11 @@ function ControlCommentsSection({ auditId, controlId }: { auditId: string; contr
           disabled={!text.trim() || posting}
           className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-800 disabled:opacity-40 self-end"
         >
-          {posting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+          {posting ? (
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+          ) : (
+            <Send className="w-3.5 h-3.5" />
+          )}
         </button>
       </div>
     </div>
@@ -371,6 +409,7 @@ export function ControlReviewPanel({
   onClose: () => void;
   onUpdated: () => void;
 }) {
+  const { t } = useTranslation('auditor');
   const [showFindingModal, setShowFindingModal] = useState(false);
   const [savingStatus, setSavingStatus] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -380,7 +419,8 @@ export function ControlReviewPanel({
   const ctrl = auditControl.control;
   const evidence: ControlEvidenceItem[] = ctrl.evidence ?? [];
   const auditEvidences: AuditEvidenceReview[] = ctrl.auditEvidences ?? [];
-  const policies: ControlPolicyItem[] = ctrl.policyMappings?.map((p) => p.policy) ?? [];
+  const policies: ControlPolicyItem[] =
+    ctrl.policyMappings?.map((p) => p.policy) ?? [];
   const risks: ControlRiskItem[] = ctrl.riskMappings?.map((r) => r.risk) ?? [];
   const tests: ControlTestItem[] = ctrl.testMappings?.map((r) => r.test) ?? [];
   const findings: ControlFindingItem[] = ctrl.findings ?? [];
@@ -389,9 +429,12 @@ export function ControlReviewPanel({
   const hasFailingTests = tests.some(
     (t) => t.status === 'Overdue' || t.status === 'Needs_remediation',
   );
-  const hasFlaggedEvidence = auditEvidences.some((ae) => ae.status === 'FLAGGED');
+  const hasFlaggedEvidence = auditEvidences.some(
+    (ae) => ae.status === 'FLAGGED',
+  );
   const allEvidenceApproved =
-    auditEvidences.length > 0 && auditEvidences.every((ae) => ae.status === 'APPROVED');
+    auditEvidences.length > 0 &&
+    auditEvidences.every((ae) => ae.status === 'APPROVED');
 
   const [flaggingId, setFlaggingId] = useState<string | null>(null);
   const [flagReason, setFlagReason] = useState<Record<string, string>>({});
@@ -432,10 +475,17 @@ export function ControlReviewPanel({
   async function handleApproveEvidence(auditEvidenceId: string) {
     setEvidencePending(auditEvidenceId);
     try {
-      await auditsService.approveEvidence(auditId, auditControl.id, auditEvidenceId);
+      await auditsService.approveEvidence(
+        auditId,
+        auditControl.id,
+        auditEvidenceId,
+      );
       onUpdated();
-    } catch { toast.error('Failed to approve evidence'); }
-    finally { setEvidencePending(null); }
+    } catch {
+      toast.error('Failed to approve evidence');
+    } finally {
+      setEvidencePending(null);
+    }
   }
 
   async function handleFlagEvidence(auditEvidenceId: string) {
@@ -443,21 +493,40 @@ export function ControlReviewPanel({
     if (!reason) return;
     setEvidencePending(auditEvidenceId);
     try {
-      await auditsService.flagEvidence(auditId, auditControl.id, auditEvidenceId, reason);
+      await auditsService.flagEvidence(
+        auditId,
+        auditControl.id,
+        auditEvidenceId,
+        reason,
+      );
       setFlaggingId(null);
-      setFlagReason((prev) => { const n = { ...prev }; delete n[auditEvidenceId]; return n; });
+      setFlagReason((prev) => {
+        const n = { ...prev };
+        delete n[auditEvidenceId];
+        return n;
+      });
       onUpdated();
-    } catch { toast.error('Failed to flag evidence'); }
-    finally { setEvidencePending(null); }
+    } catch {
+      toast.error('Failed to flag evidence');
+    } finally {
+      setEvidencePending(null);
+    }
   }
 
   async function handleReadyEvidence(auditEvidenceId: string) {
     setEvidencePending(auditEvidenceId);
     try {
-      await auditsService.readyEvidence(auditId, auditControl.id, auditEvidenceId);
+      await auditsService.readyEvidence(
+        auditId,
+        auditControl.id,
+        auditEvidenceId,
+      );
       onUpdated();
-    } catch { toast.error('Failed to mark evidence ready'); }
-    finally { setEvidencePending(null); }
+    } catch {
+      toast.error('Failed to mark evidence ready');
+    } finally {
+      setEvidencePending(null);
+    }
   }
 
   const statusOptions: {
@@ -586,20 +655,27 @@ export function ControlReviewPanel({
 
             {/* Readiness Banner */}
             {(hasFlaggedEvidence || hasFailingTests || allEvidenceApproved) && (
-              <div className={`mx-5 mt-3 rounded-lg px-3 py-2 text-xs flex items-center gap-2 ${
-                hasFlaggedEvidence || hasFailingTests
-                  ? 'bg-amber-50 text-amber-800 border border-amber-200'
-                  : 'bg-green-50 text-green-800 border border-green-200'
-              }`}>
+              <div
+                className={`mx-5 mt-3 rounded-lg px-3 py-2 text-xs flex items-center gap-2 ${
+                  hasFlaggedEvidence || hasFailingTests
+                    ? 'bg-amber-50 text-amber-800 border border-amber-200'
+                    : 'bg-green-50 text-green-800 border border-green-200'
+                }`}
+              >
                 {hasFlaggedEvidence || hasFailingTests ? (
                   <ShieldAlert className="w-3.5 h-3.5 flex-shrink-0" />
                 ) : (
                   <ShieldCheck className="w-3.5 h-3.5 flex-shrink-0" />
                 )}
                 <span>
-                  {hasFlaggedEvidence && 'Some evidence has been flagged and needs attention. '}
-                  {hasFailingTests && 'Failing validations — this control is not ready for audit. '}
-                  {!hasFlaggedEvidence && !hasFailingTests && allEvidenceApproved && 'All evidence approved. Control ready for audit.'}
+                  {hasFlaggedEvidence &&
+                    'Some evidence has been flagged and needs attention. '}
+                  {hasFailingTests &&
+                    'Failing validations — this control is not ready for audit. '}
+                  {!hasFlaggedEvidence &&
+                    !hasFailingTests &&
+                    allEvidenceApproved &&
+                    'All evidence approved. Control ready for audit.'}
                 </span>
               </div>
             )}
@@ -617,31 +693,51 @@ export function ControlReviewPanel({
               ) : (
                 <div className="space-y-2">
                   {evidence.map((ev: ControlEvidenceItem) => {
-                    const review = auditEvidences.find((ae) => ae.evidenceId === ev.id);
+                    const review = auditEvidences.find(
+                      (ae) => ae.evidenceId === ev.id,
+                    );
                     const isBusy = evidencePending === review?.id;
                     const isExpanding = flaggingId === review?.id;
                     return (
-                      <div key={ev.id} className="border border-gray-100 rounded-lg bg-gray-50">
+                      <div
+                        key={ev.id}
+                        className="border border-gray-100 rounded-lg bg-gray-50"
+                      >
                         <div className="flex items-center gap-2 text-xs px-3 py-2">
                           <FileText className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-                          <span className="font-medium text-gray-700">{ev.type}</span>
+                          <span className="font-medium text-gray-700">
+                            {ev.type}
+                          </span>
                           {ev.fileName && (
-                            <span className="text-gray-500 truncate flex-1">{ev.fileName}</span>
+                            <span className="text-gray-500 truncate flex-1">
+                              {ev.fileName}
+                            </span>
                           )}
                           {ev.automated && (
-                            <Badge variant="outline" className="text-xs">Automated</Badge>
+                            <Badge variant="outline" className="text-xs">
+                              Automated
+                            </Badge>
                           )}
                           {/* Status badge */}
                           {review && (
-                            <span className={`px-1.5 py-0.5 rounded text-xs font-medium flex-shrink-0 ${
-                              review.status === 'APPROVED' ? 'bg-green-50 text-green-700' :
-                              review.status === 'FLAGGED'  ? 'bg-amber-50 text-amber-700' :
-                              review.status === 'READY'    ? 'bg-blue-50 text-blue-700' :
-                              'bg-gray-100 text-gray-500'
-                            }`}>
-                              {review.status === 'APPROVED' ? 'Approved' :
-                               review.status === 'FLAGGED'  ? 'Flagged' :
-                               review.status === 'READY'    ? 'Ready' : 'Pending'}
+                            <span
+                              className={`px-1.5 py-0.5 rounded text-xs font-medium flex-shrink-0 ${
+                                review.status === 'APPROVED'
+                                  ? 'bg-green-50 text-green-700'
+                                  : review.status === 'FLAGGED'
+                                    ? 'bg-amber-50 text-amber-700'
+                                    : review.status === 'READY'
+                                      ? 'bg-blue-50 text-blue-700'
+                                      : 'bg-gray-100 text-gray-500'
+                              }`}
+                            >
+                              {review.status === 'APPROVED'
+                                ? 'Approved'
+                                : review.status === 'FLAGGED'
+                                  ? 'Flagged'
+                                  : review.status === 'READY'
+                                    ? 'Ready'
+                                    : 'Pending'}
                             </span>
                           )}
                           {/* Actions */}
@@ -649,17 +745,27 @@ export function ControlReviewPanel({
                             <div className="flex items-center gap-1 ml-auto">
                               {review.status !== 'APPROVED' && (
                                 <button
-                                  onClick={() => handleApproveEvidence(review.id)}
+                                  onClick={() =>
+                                    handleApproveEvidence(review.id)
+                                  }
                                   disabled={isBusy}
                                   title="Approve"
                                   className="text-gray-300 hover:text-green-600 disabled:opacity-40"
                                 >
-                                  {isBusy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckSquare className="w-3.5 h-3.5" />}
+                                  {isBusy ? (
+                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                  ) : (
+                                    <CheckSquare className="w-3.5 h-3.5" />
+                                  )}
                                 </button>
                               )}
                               {review.status !== 'FLAGGED' && (
                                 <button
-                                  onClick={() => setFlaggingId(isExpanding ? null : review.id)}
+                                  onClick={() =>
+                                    setFlaggingId(
+                                      isExpanding ? null : review.id,
+                                    )
+                                  }
                                   disabled={isBusy}
                                   title="Flag"
                                   className="text-gray-300 hover:text-amber-600 disabled:opacity-40"
@@ -674,12 +780,20 @@ export function ControlReviewPanel({
                                   title="Mark Ready"
                                   className="text-gray-300 hover:text-blue-600 disabled:opacity-40"
                                 >
-                                  {isBusy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RotateCcw className="w-3.5 h-3.5" />}
+                                  {isBusy ? (
+                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                  ) : (
+                                    <RotateCcw className="w-3.5 h-3.5" />
+                                  )}
                                 </button>
                               )}
                               {review.status === 'APPROVED' && (
                                 <button
-                                  onClick={() => setFlaggingId(isExpanding ? null : review.id)}
+                                  onClick={() =>
+                                    setFlaggingId(
+                                      isExpanding ? null : review.id,
+                                    )
+                                  }
                                   disabled={isBusy}
                                   title="Flag"
                                   className="text-gray-300 hover:text-amber-600 disabled:opacity-40"
@@ -690,21 +804,28 @@ export function ControlReviewPanel({
                             </div>
                           )}
                           {/* Automated evidence: only approve */}
-                          {review && ev.automated && review.status !== 'APPROVED' && (
-                            <button
-                              onClick={() => handleApproveEvidence(review.id)}
-                              disabled={isBusy}
-                              title="Approve"
-                              className="ml-auto text-gray-300 hover:text-green-600 disabled:opacity-40"
-                            >
-                              {isBusy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckSquare className="w-3.5 h-3.5" />}
-                            </button>
-                          )}
+                          {review &&
+                            ev.automated &&
+                            review.status !== 'APPROVED' && (
+                              <button
+                                onClick={() => handleApproveEvidence(review.id)}
+                                disabled={isBusy}
+                                title="Approve"
+                                className="ml-auto text-gray-300 hover:text-green-600 disabled:opacity-40"
+                              >
+                                {isBusy ? (
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                ) : (
+                                  <CheckSquare className="w-3.5 h-3.5" />
+                                )}
+                              </button>
+                            )}
                         </div>
                         {/* Flag reason display */}
                         {review?.status === 'FLAGGED' && review.flagReason && (
                           <div className="px-3 pb-2 text-xs text-amber-700 bg-amber-50/50">
-                            <span className="font-medium">Flag reason:</span> {review.flagReason}
+                            <span className="font-medium">Flag reason:</span>{' '}
+                            {review.flagReason}
                           </div>
                         )}
                         {/* Inline flag form */}
@@ -714,13 +835,20 @@ export function ControlReviewPanel({
                               rows={2}
                               placeholder="Reason for flagging…"
                               value={flagReason[review.id] ?? ''}
-                              onChange={(e) => setFlagReason((prev) => ({ ...prev, [review.id]: e.target.value }))}
+                              onChange={(e) =>
+                                setFlagReason((prev) => ({
+                                  ...prev,
+                                  [review.id]: e.target.value,
+                                }))
+                              }
                               className="w-full text-xs border border-amber-200 rounded px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-amber-400 resize-none bg-amber-50/30"
                             />
                             <div className="flex gap-2">
                               <button
                                 onClick={() => handleFlagEvidence(review.id)}
-                                disabled={!(flagReason[review.id]?.trim()) || isBusy}
+                                disabled={
+                                  !flagReason[review.id]?.trim() || isBusy
+                                }
                                 className="text-xs bg-amber-600 text-white px-2.5 py-1 rounded hover:bg-amber-700 disabled:opacity-40"
                               >
                                 {isBusy ? 'Flagging…' : 'Submit Flag'}
@@ -741,7 +869,9 @@ export function ControlReviewPanel({
               )}
             </div>
 
-            {/* Related Policies */}
+            {/* Related Policies — entire row is a link when documentUrl
+                is present so auditors can open the policy document without
+                hunting for a small icon. Non-clickable muted row otherwise. */}
             {policies.length > 0 && (
               <div className="p-5">
                 <SectionHead
@@ -749,35 +879,65 @@ export function ControlReviewPanel({
                   title={`Policies (${policies.length})`}
                 />
                 <div className="space-y-1.5">
-                  {policies.map((p: ControlPolicyItem) => (
-                    <div
-                      key={p.id}
-                      className="flex items-center gap-2 text-xs border border-gray-100 rounded-lg px-3 py-2 bg-gray-50"
-                    >
-                      <BookOpen className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-                      <span className="font-medium text-gray-700 flex-1 truncate">{p.name}</span>
-                      <span className={`px-1.5 py-0.5 rounded text-xs font-medium flex-shrink-0 ${
-                        p.approvedAt ? 'bg-green-50 text-green-700' : 'bg-amber-50 text-amber-700'
-                      }`}>
-                        {p.approvedAt ? 'Approved' : (p.status || 'Draft')}
+                  {policies.map((p: ControlPolicyItem) => {
+                    const statusBadge = (
+                      <span
+                        className={`px-1.5 py-0.5 rounded text-xs font-medium flex-shrink-0 ${
+                          p.approvedAt
+                            ? 'bg-green-50 text-green-700'
+                            : 'bg-amber-50 text-amber-700'
+                        }`}
+                      >
+                        {p.approvedAt ? 'Approved' : p.status || 'Draft'}
                       </span>
-                      {p.documentUrl && (
+                    );
+                    if (p.documentUrl) {
+                      return (
                         <a
+                          key={p.id}
                           href={p.documentUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-blue-400 hover:text-blue-600 flex-shrink-0"
+                          className="flex items-center gap-2 text-xs border border-gray-100 rounded-lg px-3 py-2 bg-gray-50 hover:bg-gray-100 hover:border-gray-200 transition-colors"
                         >
-                          <LinkIcon className="w-3.5 h-3.5" />
+                          <BookOpen className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                          <span className="font-medium text-gray-700 flex-1 truncate">
+                            {p.name}
+                          </span>
+                          {statusBadge}
+                          <span className="inline-flex items-center gap-1 text-blue-600 flex-shrink-0">
+                            <span className="hidden sm:inline">
+                              {t('controlReview.openPolicyDocument')}
+                            </span>
+                            <LinkIcon className="w-3.5 h-3.5" />
+                          </span>
                         </a>
-                      )}
-                    </div>
-                  ))}
+                      );
+                    }
+                    return (
+                      <div
+                        key={p.id}
+                        className="flex items-center gap-2 text-xs border border-gray-100 rounded-lg px-3 py-2 bg-gray-50"
+                      >
+                        <BookOpen className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                        <span className="font-medium text-gray-700 flex-1 truncate">
+                          {p.name}
+                        </span>
+                        {statusBadge}
+                        <span className="text-gray-400 italic flex-shrink-0">
+                          {t('controlReview.noPolicyDocument')}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
 
-            {/* Related Validations */}
+            {/* Related Validations — render latest run summary inline so
+                auditors can see execution status without leaving the panel.
+                Backend populates `runs` (latest 1) + cheap fallback fields
+                `lastRunAt` / `lastResult` (audit-helpers.ts). */}
             <div className="p-5">
               <SectionHead
                 icon={<FlaskConical className="w-3.5 h-3.5" />}
@@ -789,30 +949,55 @@ export function ControlReviewPanel({
                 </p>
               ) : (
                 <div className="space-y-1.5">
-                  {tests.map((t: ControlTestItem) => (
-                    <div
-                      key={t.id}
-                      className="flex items-center gap-2 text-xs border border-gray-100 rounded-lg px-3 py-2"
-                    >
-                      <span className="font-medium text-gray-700 flex-1 truncate">
-                        {t.name}
-                      </span>
-                      <span
-                        className={`px-1.5 py-0.5 rounded text-xs font-medium ${
-                          t.status === 'OK'
-                            ? 'bg-green-50 text-green-700'
-                            : t.status === 'Overdue'
-                              ? 'bg-red-50 text-red-700'
-                              : 'bg-amber-50 text-amber-700'
-                        }`}
+                  {tests.map((tt: ControlTestItem) => {
+                    const latestRun = tt.runs?.[0];
+                    const runIso = latestRun?.executedAt ?? tt.lastRunAt;
+                    const runStatus = latestRun?.status ?? tt.lastResult;
+                    return (
+                      <div
+                        key={tt.id}
+                        className="text-xs border border-gray-100 rounded-lg px-3 py-2"
                       >
-                        {t.status}
-                      </span>
-                      {t.completedAt && (
-                        <CheckCircle2 className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
-                      )}
-                    </div>
-                  ))}
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-gray-700 flex-1 truncate">
+                            {tt.name}
+                          </span>
+                          <span
+                            className={`px-1.5 py-0.5 rounded text-xs font-medium ${
+                              tt.status === 'OK'
+                                ? 'bg-green-50 text-green-700'
+                                : tt.status === 'Overdue'
+                                  ? 'bg-red-50 text-red-700'
+                                  : 'bg-amber-50 text-amber-700'
+                            }`}
+                          >
+                            {tt.status}
+                          </span>
+                          {tt.completedAt && (
+                            <CheckCircle2 className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
+                          )}
+                        </div>
+                        <div className="mt-1 text-gray-500">
+                          {runIso ? (
+                            <>
+                              {t('controlReview.lastRun')}:{' '}
+                              {new Date(runIso).toLocaleString()}
+                              {runStatus ? ` · ${runStatus}` : null}
+                            </>
+                          ) : (
+                            <span className="italic text-gray-400">
+                              {t('controlReview.noRunsYet')}
+                            </span>
+                          )}
+                        </div>
+                        {latestRun?.summary && (
+                          <div className="mt-1 text-gray-500 line-clamp-2">
+                            {latestRun.summary}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
