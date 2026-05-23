@@ -36,7 +36,8 @@ describe('apiClient X-Impersonation-Session header', () => {
 
   it('omits the header when no impersonation session is active', async () => {
     await apiClient.get('/api/auth/me');
-    const init = mockFetch.mock.calls[0][1] as RequestInit;
+    const init = mockFetch.mock.calls[0]?.[1] as RequestInit | undefined;
+    if (!init) throw new Error('fetch was not called');
     const headers = new Headers(init.headers);
     expect(headers.has('X-Impersonation-Session')).toBe(false);
   });
@@ -44,7 +45,8 @@ describe('apiClient X-Impersonation-Session header', () => {
   it('attaches the header when sessionStorage holds an id', async () => {
     writeImpersonationSessionId('abc-123-session-id');
     await apiClient.get('/api/auth/me');
-    const init = mockFetch.mock.calls[0][1] as RequestInit;
+    const init = mockFetch.mock.calls[0]?.[1] as RequestInit | undefined;
+    if (!init) throw new Error('fetch was not called');
     const headers = new Headers(init.headers);
     expect(headers.get('X-Impersonation-Session')).toBe('abc-123-session-id');
   });
@@ -53,7 +55,8 @@ describe('apiClient X-Impersonation-Session header', () => {
     writeImpersonationSessionId('abc-123-session-id');
     clearImpersonationSessionId();
     await apiClient.get('/api/auth/me');
-    const init = mockFetch.mock.calls[0][1] as RequestInit;
+    const init = mockFetch.mock.calls[0]?.[1] as RequestInit | undefined;
+    if (!init) throw new Error('fetch was not called');
     const headers = new Headers(init.headers);
     expect(headers.has('X-Impersonation-Session')).toBe(false);
   });
