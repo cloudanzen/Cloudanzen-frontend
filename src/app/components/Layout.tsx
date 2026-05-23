@@ -1,18 +1,29 @@
-import { createContext, useContext, useState, Suspense, useEffect } from "react";
-import { Outlet } from "react-router";
-import { Sidebar } from "@/app/components/Sidebar";
-import { Header } from "@/app/components/Header";
-import { ErrorBoundary } from "@/app/components/ErrorBoundary";
-import { useTranslation } from "react-i18next";
-import { authService } from "@/services/api/auth";
+import {
+  createContext,
+  useContext,
+  useState,
+  Suspense,
+  useEffect,
+} from 'react';
+import { Outlet } from 'react-router';
+import { Sidebar } from '@/app/components/Sidebar';
+import { Header } from '@/app/components/Header';
+import { ErrorBoundary } from '@/app/components/ErrorBoundary';
+import { ImpersonationBanner } from '@/app/components/ImpersonationBanner';
+import { useTranslation } from 'react-i18next';
+import { authService } from '@/services/api/auth';
 
 function RouteErrorFallback() {
   const { t } = useTranslation('common');
   return (
     <div className="flex flex-col items-center justify-center h-64 gap-4">
       <div className="text-center">
-        <h2 className="text-lg font-semibold text-gray-900">{t('errors.somethingWentWrong')}</h2>
-        <p className="text-sm text-gray-500 mt-1">{t('errors.pageLoadError')}</p>
+        <h2 className="text-lg font-semibold text-gray-900">
+          {t('errors.somethingWentWrong')}
+        </h2>
+        <p className="text-sm text-gray-500 mt-1">
+          {t('errors.pageLoadError')}
+        </p>
       </div>
       <div className="flex gap-2">
         <button
@@ -67,13 +78,13 @@ export function Layout() {
   }, [i18n]);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     try {
-      return localStorage.getItem("manzen.sidebar.collapsed") === "1";
+      return localStorage.getItem('manzen.sidebar.collapsed') === '1';
     } catch {
       return false;
     }
   });
 
-  const isDesktop = () => window.matchMedia("(min-width: 1024px)").matches;
+  const isDesktop = () => window.matchMedia('(min-width: 1024px)').matches;
 
   const ctx: SidebarContextValue = {
     open: sidebarOpen,
@@ -82,7 +93,7 @@ export function Layout() {
       if (isDesktop()) {
         setSidebarCollapsed((v) => {
           const next = !v;
-          localStorage.setItem("manzen.sidebar.collapsed", next ? "1" : "0");
+          localStorage.setItem('manzen.sidebar.collapsed', next ? '1' : '0');
           return next;
         });
         return;
@@ -92,7 +103,7 @@ export function Layout() {
     close: () => setSidebarOpen(false),
     setCollapsed: (collapsed) => {
       setSidebarCollapsed(collapsed);
-      localStorage.setItem("manzen.sidebar.collapsed", collapsed ? "1" : "0");
+      localStorage.setItem('manzen.sidebar.collapsed', collapsed ? '1' : '0');
     },
   };
 
@@ -118,24 +129,27 @@ export function Layout() {
         {/* Sidebar — off-canvas on mobile, static on desktop */}
         <div
           className={[
-            "fixed inset-y-0 left-0 z-30 flex-shrink-0 transition-transform duration-300 ease-in-out",
-            "lg:relative lg:translate-x-0 lg:z-auto",
-            sidebarOpen ? "translate-x-0" : "-translate-x-full",
-          ].join(" ")}
+            'fixed inset-y-0 left-0 z-30 flex-shrink-0 transition-transform duration-300 ease-in-out',
+            'lg:relative lg:translate-x-0 lg:z-auto',
+            sidebarOpen ? 'translate-x-0' : '-translate-x-full',
+          ].join(' ')}
         >
           <Sidebar collapsed={sidebarCollapsed} />
         </div>
 
         {/* Main content */}
         <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+          <ImpersonationBanner />
           <Header />
           <main id="main-content" className="flex-1 overflow-y-auto">
             <ErrorBoundary fallback={<RouteErrorFallback />}>
-              <Suspense fallback={
-                <div className="flex items-center justify-center h-64">
-                  <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                </div>
-              }>
+              <Suspense
+                fallback={
+                  <div className="flex items-center justify-center h-64">
+                    <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                  </div>
+                }
+              >
                 <Outlet />
               </Suspense>
             </ErrorBoundary>
