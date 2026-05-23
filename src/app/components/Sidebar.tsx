@@ -20,7 +20,6 @@ import {
   ClipboardCheck,
   Bell,
   Sparkles,
-  Crown,
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -57,7 +56,8 @@ const ADMIN_ROLES: AppRole[] = ['SUPER_ADMIN', 'ORG_ADMIN', 'SECURITY_OWNER'];
 function getInitials(name?: string | null, email?: string): string {
   if (name && name.trim()) {
     const parts = name.trim().split(/\s+/);
-    if (parts.length >= 2) return (parts[0]!.charAt(0) + parts[1]!.charAt(0)).toUpperCase();
+    if (parts.length >= 2)
+      return (parts[0]!.charAt(0) + parts[1]!.charAt(0)).toUpperCase();
     return parts[0]!.slice(0, 2).toUpperCase();
   }
   if (email) return email.slice(0, 2).toUpperCase();
@@ -190,125 +190,262 @@ export function Sidebar({ collapsed = false }: { collapsed?: boolean }) {
     return () => mq.removeEventListener('change', onChange);
   }, []);
 
-  const navigation = useMemo<NavItem[]>(() => [
-    { id: 'home', title: t('nav.home'), href: '/', icon: Home },
-    { id: 'todo', title: t('nav.todo'), href: '/todo', icon: Briefcase },
-    { id: 'validations', title: t('nav.validations'), href: '/validations', icon: FileCheck },
-    {
-      id: 'myAudit',
-      title: t('nav.myAudit'),
-      href: '/auditor/dashboard',
-      icon: ClipboardCheck,
-      roles: ['AUDITOR'],
-    },
-    {
-      id: 'compliance',
-      title: t('nav.compliance'),
-      icon: Shield,
-      children: [
-        { id: 'frameworks', title: t('nav.frameworks'), href: '/compliance/frameworks' },
-        { id: 'controls', title: t('nav.controls'), href: '/compliance/controls' },
-        { id: 'policies', title: t('nav.policies'), href: '/compliance/policies' },
-        { id: 'documents', title: t('nav.documents'), href: '/compliance/documents' },
-        { id: 'audits', title: t('nav.audits'), href: '/compliance/audits' },
-        { id: 'compliance-settings', title: t('nav.settings'), href: '/settings/compliance', roles: [...ADMIN_ROLES] },
-      ],
-    },
-    {
-      id: 'risk',
-      title: t('nav.risk'),
-      icon: TrendingUp,
-      children: [
-        { id: 'risk-overview', title: t('nav.overview'), href: '/risk/overview' },
-        { id: 'risks', title: t('nav.risks'), href: '/risk/risks' },
-        { id: 'riskLibrary', title: t('nav.riskLibrary'), href: '/risk/library' },
-        { id: 'remediations', title: t('nav.remediations'), href: '/risk/remediations' },
-        { id: 'findings', title: t('nav.findings'), href: '/assets/findings' },
-        { id: 'snapshot', title: t('nav.snapshot'), href: '/risk/snapshot' },
-        { id: 'riskEngine', title: t('nav.riskEngine'), href: '/risk/engine', roles: [...ADMIN_ROLES] },
-        { id: 'risk-settings', title: t('nav.settings'), href: '/settings/risk', roles: [...ADMIN_ROLES] },
-      ],
-    },
-    {
-      id: 'vendors',
-      title: t('nav.vendors'),
-      icon: Building2,
-      children: [
-        { id: 'vendors-list', title: t('nav.vendors'), href: '/vendors' },
-        { id: 'vendors-discovery', title: t('nav.vendorDiscovery'), href: '/vendors/discovery', roles: [...ADMIN_ROLES] },
-        { id: 'vendors-intake', title: t('nav.vendorIntakeRequests'), href: '/vendors/intake-requests', roles: [...ADMIN_ROLES] },
-      ],
-    },
-    {
-      id: 'assets',
-      title: t('nav.assets'),
-      icon: Server,
-      children: [
-        { id: 'inventory', title: t('nav.inventory'), href: '/assets/inventory' },
-        { id: 'mergeReview', title: t('nav.mergeReview'), href: '/assets/merge-review' },
-        { id: 'codeChanges', title: t('nav.codeChanges'), href: '/assets/code-changes' },
-        { id: 'securityAlerts', title: t('nav.securityAlerts'), href: '/assets/security-alerts' },
-        { id: 'assets-settings', title: t('nav.settings'), href: '/settings/assets', roles: [...ADMIN_ROLES] },
-      ],
-    },
-    {
-      id: 'personnel',
-      title: t('nav.personnel'),
-      icon: UserCheck,
-      children: [
-        { id: 'computers', title: t('nav.computers'), href: '/personnel/computers' },
-        { id: 'accessManagement', title: t('nav.accessManagement'), href: '/personnel/access' },
-        { id: 'personnel-settings', title: t('nav.settings'), href: '/settings/personnel', roles: [...ADMIN_ROLES] },
-      ],
-    },
-    {
-      id: 'aiAssistant',
-      title: t('nav.aiAssistant'),
-      icon: Sparkles,
-      roles: [...ADMIN_ROLES],
-      children: [
-        { id: 'aiChat', title: t('nav.aiChat'), href: '/ai/chat' },
-        { id: 'questionnaireAi', title: t('nav.questionnaireAi'), href: '/ai/questionnaire-assistant' },
-        { id: 'knowledgeBase', title: t('nav.knowledgeBase'), href: '/ai/knowledge-base' },
-        { id: 'aiSettings', title: t('nav.aiSettings'), href: '/settings/ai', roles: [...ADMIN_ROLES] },
-      ],
-    },
-    {
-      id: 'customerTrust',
-      title: t('nav.customerTrust'),
-      icon: Users,
-      children: [
-        { id: 'trustCenter', title: t('nav.trustCenter'), href: '/customer-trust/trust-center' },
-        { id: 'customerTrust-settings', title: t('nav.settings'), href: '/settings/customer-trust', roles: [...ADMIN_ROLES] },
-      ],
-    },
-    { id: 'progress', title: t('nav.progress'), href: '/progress', icon: BarChart3 },
-    { id: 'notifications', title: t('nav.notifications'), href: '/notifications', icon: Bell },
-    {
-      id: 'integrations',
-      title: t('nav.integrations'),
-      icon: Settings,
-      children: [
-        { id: 'connectedApps', title: t('nav.connectedApps'), href: '/integrations' },
-        { id: 'partnerApi', title: t('nav.partnerApi'), href: '/integrations/partner-api', roles: [...ADMIN_ROLES] },
-      ],
-    },
-    { id: 'onboardingTasks', title: t('nav.onboardingTasks'), href: '/onboarding-tasks', icon: CheckSquare },
-    {
-      id: 'platformAdmin',
-      title: t('nav.platformAdmin'),
-      icon: Crown,
-      roles: ['SUPER_ADMIN'],
-      children: [
-        { id: 'controlTemplates', title: t('nav.controlTemplates'), href: '/admin/templates', roles: ['SUPER_ADMIN'] },
-        { id: 'testTemplates', title: t('nav.testTemplates'), href: '/admin/test-templates', roles: ['SUPER_ADMIN'] },
-        { id: 'policyTemplates', title: t('nav.policyTemplates'), href: '/admin/policy-templates', roles: ['SUPER_ADMIN'] },
-        { id: 'admin-frameworks', title: t('nav.frameworks'), href: '/admin/frameworks', roles: ['SUPER_ADMIN'] },
-        { id: 'admin-framework-requests', title: t('nav.frameworkRequests'), href: '/admin/framework-requests', roles: ['SUPER_ADMIN'] },
-        { id: 'organizations', title: t('nav.organizations'), href: '/admin/organizations', roles: ['SUPER_ADMIN'] },
-      ],
-    },
-  ], [t]);
+  const navigation = useMemo<NavItem[]>(
+    () => [
+      { id: 'home', title: t('nav.home'), href: '/', icon: Home },
+      { id: 'todo', title: t('nav.todo'), href: '/todo', icon: Briefcase },
+      {
+        id: 'validations',
+        title: t('nav.validations'),
+        href: '/validations',
+        icon: FileCheck,
+      },
+      {
+        id: 'myAudit',
+        title: t('nav.myAudit'),
+        href: '/auditor/dashboard',
+        icon: ClipboardCheck,
+        roles: ['AUDITOR'],
+      },
+      {
+        id: 'compliance',
+        title: t('nav.compliance'),
+        icon: Shield,
+        children: [
+          {
+            id: 'frameworks',
+            title: t('nav.frameworks'),
+            href: '/compliance/frameworks',
+          },
+          {
+            id: 'controls',
+            title: t('nav.controls'),
+            href: '/compliance/controls',
+          },
+          {
+            id: 'policies',
+            title: t('nav.policies'),
+            href: '/compliance/policies',
+          },
+          {
+            id: 'documents',
+            title: t('nav.documents'),
+            href: '/compliance/documents',
+          },
+          { id: 'audits', title: t('nav.audits'), href: '/compliance/audits' },
+          {
+            id: 'compliance-settings',
+            title: t('nav.settings'),
+            href: '/settings/compliance',
+            roles: [...ADMIN_ROLES],
+          },
+        ],
+      },
+      {
+        id: 'risk',
+        title: t('nav.risk'),
+        icon: TrendingUp,
+        children: [
+          {
+            id: 'risk-overview',
+            title: t('nav.overview'),
+            href: '/risk/overview',
+          },
+          { id: 'risks', title: t('nav.risks'), href: '/risk/risks' },
+          {
+            id: 'riskLibrary',
+            title: t('nav.riskLibrary'),
+            href: '/risk/library',
+          },
+          {
+            id: 'remediations',
+            title: t('nav.remediations'),
+            href: '/risk/remediations',
+          },
+          {
+            id: 'findings',
+            title: t('nav.findings'),
+            href: '/assets/findings',
+          },
+          { id: 'snapshot', title: t('nav.snapshot'), href: '/risk/snapshot' },
+          {
+            id: 'riskEngine',
+            title: t('nav.riskEngine'),
+            href: '/risk/engine',
+            roles: [...ADMIN_ROLES],
+          },
+          {
+            id: 'risk-settings',
+            title: t('nav.settings'),
+            href: '/settings/risk',
+            roles: [...ADMIN_ROLES],
+          },
+        ],
+      },
+      {
+        id: 'vendors',
+        title: t('nav.vendors'),
+        icon: Building2,
+        children: [
+          { id: 'vendors-list', title: t('nav.vendors'), href: '/vendors' },
+          {
+            id: 'vendors-discovery',
+            title: t('nav.vendorDiscovery'),
+            href: '/vendors/discovery',
+            roles: [...ADMIN_ROLES],
+          },
+          {
+            id: 'vendors-intake',
+            title: t('nav.vendorIntakeRequests'),
+            href: '/vendors/intake-requests',
+            roles: [...ADMIN_ROLES],
+          },
+        ],
+      },
+      {
+        id: 'assets',
+        title: t('nav.assets'),
+        icon: Server,
+        children: [
+          {
+            id: 'inventory',
+            title: t('nav.inventory'),
+            href: '/assets/inventory',
+          },
+          {
+            id: 'mergeReview',
+            title: t('nav.mergeReview'),
+            href: '/assets/merge-review',
+          },
+          {
+            id: 'codeChanges',
+            title: t('nav.codeChanges'),
+            href: '/assets/code-changes',
+          },
+          {
+            id: 'securityAlerts',
+            title: t('nav.securityAlerts'),
+            href: '/assets/security-alerts',
+          },
+          {
+            id: 'assets-settings',
+            title: t('nav.settings'),
+            href: '/settings/assets',
+            roles: [...ADMIN_ROLES],
+          },
+        ],
+      },
+      {
+        id: 'personnel',
+        title: t('nav.personnel'),
+        icon: UserCheck,
+        children: [
+          {
+            id: 'computers',
+            title: t('nav.computers'),
+            href: '/personnel/computers',
+          },
+          {
+            id: 'accessManagement',
+            title: t('nav.accessManagement'),
+            href: '/personnel/access',
+          },
+          {
+            id: 'personnel-settings',
+            title: t('nav.settings'),
+            href: '/settings/personnel',
+            roles: [...ADMIN_ROLES],
+          },
+        ],
+      },
+      {
+        id: 'aiAssistant',
+        title: t('nav.aiAssistant'),
+        icon: Sparkles,
+        roles: [...ADMIN_ROLES],
+        children: [
+          { id: 'aiChat', title: t('nav.aiChat'), href: '/ai/chat' },
+          {
+            id: 'questionnaireAi',
+            title: t('nav.questionnaireAi'),
+            href: '/ai/questionnaire-assistant',
+          },
+          {
+            id: 'knowledgeBase',
+            title: t('nav.knowledgeBase'),
+            href: '/ai/knowledge-base',
+          },
+          {
+            id: 'aiSettings',
+            title: t('nav.aiSettings'),
+            href: '/settings/ai',
+            roles: [...ADMIN_ROLES],
+          },
+        ],
+      },
+      {
+        id: 'customerTrust',
+        title: t('nav.customerTrust'),
+        icon: Users,
+        children: [
+          {
+            id: 'trustCenter',
+            title: t('nav.trustCenter'),
+            href: '/customer-trust/trust-center',
+          },
+          {
+            id: 'customerTrust-settings',
+            title: t('nav.settings'),
+            href: '/settings/customer-trust',
+            roles: [...ADMIN_ROLES],
+          },
+        ],
+      },
+      {
+        id: 'progress',
+        title: t('nav.progress'),
+        href: '/progress',
+        icon: BarChart3,
+      },
+      {
+        id: 'notifications',
+        title: t('nav.notifications'),
+        href: '/notifications',
+        icon: Bell,
+      },
+      {
+        id: 'integrations',
+        title: t('nav.integrations'),
+        icon: Settings,
+        children: [
+          {
+            id: 'connectedApps',
+            title: t('nav.connectedApps'),
+            href: '/integrations',
+          },
+          {
+            id: 'partnerApi',
+            title: t('nav.partnerApi'),
+            href: '/integrations/partner-api',
+            roles: [...ADMIN_ROLES],
+          },
+        ],
+      },
+      {
+        id: 'onboardingTasks',
+        title: t('nav.onboardingTasks'),
+        href: '/onboarding-tasks',
+        icon: CheckSquare,
+      },
+      // PR-X8: the "Platform Admin" sidebar section is gone. Platform
+      // operators are org-less SUPER_ADMINs who log in at
+      // platform.cloudanzen.com — they never see the customer-app sidebar.
+      // Tenant-side SUPER_ADMIN rows no longer exist (PR-X5 migration +
+      // PR-X8 CHECK constraint), so even if the role gate stayed, nobody
+      // here would match.
+    ],
+    [t],
+  );
 
   const isCompact = collapsed && isDesktop;
 
@@ -325,9 +462,7 @@ export function Sidebar({ collapsed = false }: { collapsed?: boolean }) {
 
   const toggleExpanded = (id: string) => {
     setExpandedItems((prev) =>
-      prev.includes(id)
-        ? prev.filter((item) => item !== id)
-        : [...prev, id],
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
     );
   };
 
