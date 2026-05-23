@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -14,34 +14,45 @@ import {
   DialogFooter,
 } from '@/app/components/ui/dialog';
 import { Switch } from '@/app/components/ui/switch';
-import { Loader2, Download, ChevronLeft, Camera, Share2, Lock } from 'lucide-react';
+import {
+  Loader2,
+  Download,
+  ChevronLeft,
+  Camera,
+  Share2,
+  AlertCircle,
+} from 'lucide-react';
+import { RiskSnapshotItemsView } from './RiskSnapshotItemsView';
 import { QK } from '@/lib/queryKeys';
 import { STALE } from '@/lib/queryClient';
-import { risksService, RiskSnapshotRecord, RiskSnapshotItem } from '@/services/api/risks';
+import { risksService, RiskSnapshotRecord } from '@/services/api/risks';
+import { RiskStatus } from '@/services/api/types';
+import { RequirePermission } from '@/app/components/rbac/RequirePermission';
+import { PERMISSIONS } from '@/lib/rbac/permissions';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-const IMPACT_COLORS: Record<string, string> = {
-  CRITICAL: 'bg-red-100 text-red-800 border-red-200',
-  HIGH:     'bg-orange-100 text-orange-800 border-orange-200',
-  MEDIUM:   'bg-yellow-100 text-yellow-800 border-yellow-200',
-  LOW:      'bg-green-100 text-green-800 border-green-200',
-};
-
-const STATUS_COLORS: Record<string, string> = {
-  OPEN:        'bg-blue-50 text-blue-700',
-  MITIGATED:   'bg-green-50 text-green-700',
-  ACCEPTED:    'bg-slate-100 text-slate-600',
-  TRANSFERRED: 'bg-purple-50 text-purple-700',
-};
-
 function fmt(dateStr: string) {
   return new Date(dateStr).toLocaleDateString(undefined, {
-    year: 'numeric', month: 'short', day: 'numeric',
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
   });
 }
 
 // ── Create Snapshot Dialog ─────────────────────────────────────────────────────
+
+// Status set that maps to Vanta's "Include only approved scenarios" toggle.
+// Our `RiskStatus` enum is `OPEN | MITIGATED | ACCEPTED | TRANSFERRED`, so
+// "decided" = everything except `OPEN`. The UI label is "Decided only"
+// because we have no `APPROVED` value in the enum.
+const DECIDED_STATUSES: RiskStatus[] = [
+  RiskStatus.MITIGATED,
+  RiskStatus.ACCEPTED,
+  RiskStatus.TRANSFERRED,
+];
+
+type CreateScope = 'all' | 'decided';
 
 function CreateSnapshotDialog({
   open,
@@ -54,21 +65,36 @@ function CreateSnapshotDialog({
 }) {
   const { t } = useTranslation('risk');
   const [name, setName] = useState('');
+  const [scope, setScope] = useState<CreateScope>('all');
 
   const mutation = useMutation({
-    mutationFn: () => risksService.createSnapshot(name.trim()),
+    mutationFn: () =>
+      risksService.createSnapshot(
+        name.trim(),
+        scope === 'decided' ? DECIDED_STATUSES : undefined,
+      ),
     onSuccess: (res) => {
       if (res.data) {
         toast.success(t('snapshot.createDialog.success'));
         onCreated(res.data.id);
         setName('');
+        setScope('all');
       }
     },
     onError: () => toast.error(t('snapshot.createDialog.error')),
   });
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (!v) { setName(''); onClose(); } }}>
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!v) {
+          setName('');
+          setScope('all');
+          onClose();
+        }
+      }}
+    >
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>{t('snapshot.createDialog.title')}</DialogTitle>
@@ -80,15 +106,64 @@ function CreateSnapshotDialog({
           placeholder={t('snapshot.createDialog.placeholder')}
           value={name}
           onChange={(e) => setName(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter' && name.trim()) mutation.mutate(); }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && name.trim()) mutation.mutate();
+          }}
         />
+
+        <fieldset className="space-y-2">
+          <legend className="text-sm font-medium text-foreground">
+            {t('snapshot.createDialog.scopeLabel')}
+          </legend>
+          <label className="flex cursor-pointer items-start gap-2 rounded-md border border-slate-200 p-3 hover:bg-slate-50">
+            <input
+              type="radio"
+              name="scope"
+              value="all"
+              checked={scope === 'all'}
+              onChange={() => setScope('all')}
+              className="mt-1"
+            />
+            <div className="text-sm">
+              <div className="font-medium">
+                {t('snapshot.createDialog.scopeAllLabel')}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {t('snapshot.createDialog.scopeAllDesc')}
+              </div>
+            </div>
+          </label>
+          <label className="flex cursor-pointer items-start gap-2 rounded-md border border-slate-200 p-3 hover:bg-slate-50">
+            <input
+              type="radio"
+              name="scope"
+              value="decided"
+              checked={scope === 'decided'}
+              onChange={() => setScope('decided')}
+              className="mt-1"
+            />
+            <div className="text-sm">
+              <div className="font-medium">
+                {t('snapshot.createDialog.scopeDecidedLabel')}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {t('snapshot.createDialog.scopeDecidedDesc')}
+              </div>
+            </div>
+          </label>
+        </fieldset>
+
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>{t('snapshot.createDialog.cancel')}</Button>
+          <Button variant="outline" onClick={onClose}>
+            {t('snapshot.createDialog.cancel')}
+          </Button>
           <Button
             onClick={() => mutation.mutate()}
             disabled={!name.trim() || mutation.isPending}
           >
-            {mutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+            {mutation.isPending && (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            )}
             {t('snapshot.createDialog.create')}
           </Button>
         </DialogFooter>
@@ -109,9 +184,15 @@ function SnapshotDetail({
   const { t } = useTranslation('risk');
   const qc = useQueryClient();
 
-  const { data: snap, isLoading } = useQuery<RiskSnapshotRecord>({
+  const {
+    data: snap,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery<RiskSnapshotRecord>({
     queryKey: QK.riskSnapshotDetail(snapshotId),
-    queryFn: () => risksService.getSnapshotDetail(snapshotId).then((r) => r.data!),
+    queryFn: () =>
+      risksService.getSnapshotDetail(snapshotId).then((r) => r.data!),
     staleTime: STALE.RISKS,
   });
 
@@ -124,19 +205,17 @@ function SnapshotDetail({
     onError: () => toast.error(t('snapshot.detail.sharingError')),
   });
 
-  const metrics = useMemo(() => {
-    const items: RiskSnapshotItem[] = snap?.items ?? [];
-    return {
-      total: items.length,
-      criticalHigh: items.filter((i) => i.impact === 'CRITICAL' || i.impact === 'HIGH').length,
-      accepted: items.filter((i) => i.status === 'ACCEPTED').length,
-      mitigated: items.filter((i) => i.status === 'MITIGATED').length,
-    };
-  }, [snap]);
-
   const exportCsv = useCallback(() => {
     if (!snap?.items) return;
-    const headers = ['Title', 'Asset', 'Impact', 'Likelihood', 'Score', 'Status', 'Treatments'];
+    const headers = [
+      'Title',
+      'Asset',
+      'Impact',
+      'Likelihood',
+      'Score',
+      'Status',
+      'Treatments',
+    ];
     const rows = snap.items.map((r) =>
       [
         `"${r.title.replace(/"/g, '""')}"`,
@@ -158,42 +237,83 @@ function SnapshotDetail({
     URL.revokeObjectURL(url);
   }, [snap]);
 
-  if (isLoading || !snap) {
+  if (isLoading) {
     return (
       <div className="flex h-48 items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
       </div>
     );
   }
-
-  const items: RiskSnapshotItem[] = snap.items ?? [];
-
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4 flex-wrap">
+  if (isError) {
+    return (
+      <Card className="flex flex-col items-center gap-4 p-12 text-center">
+        <AlertCircle className="h-10 w-10 text-red-400" />
         <div>
-          <button
-            onClick={onBack}
-            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-2"
-          >
-            <ChevronLeft className="w-3.5 h-3.5" />
-            {t('snapshot.detail.backToSnapshots')}
-          </button>
-          <h2 className="text-xl font-semibold">{snap.name}</h2>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            {t('snapshot.detail.createdInfo', { date: fmt(snap.createdAt), count: snap.riskCount })}
+          <p className="font-medium">{t('snapshot.detail.errorTitle')}</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {t('snapshot.detail.errorBody')}
           </p>
         </div>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={onBack}>
+            <ChevronLeft className="w-4 h-4 mr-1.5" />
+            {t('snapshot.detail.backToSnapshots')}
+          </Button>
+          <Button onClick={() => refetch()}>
+            {t('snapshot.detail.retry')}
+          </Button>
+        </div>
+      </Card>
+    );
+  }
+  if (!snap) {
+    return (
+      <Card className="flex flex-col items-center gap-4 p-12 text-center">
+        <AlertCircle className="h-10 w-10 text-muted-foreground/40" />
+        <div>
+          <p className="font-medium">{t('snapshot.detail.notFound')}</p>
+        </div>
+        <Button variant="outline" onClick={onBack}>
+          <ChevronLeft className="w-4 h-4 mr-1.5" />
+          {t('snapshot.detail.backToSnapshots')}
+        </Button>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Admin chrome: back + share toggle + CSV export */}
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <button
+          onClick={onBack}
+          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        >
+          <ChevronLeft className="w-3.5 h-3.5" />
+          {t('snapshot.detail.backToSnapshots')}
+        </button>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 text-sm">
             <Share2 className="w-4 h-4 text-muted-foreground" />
-            <span className="text-muted-foreground">{t('snapshot.detail.sharedWithAuditor')}</span>
-            <Switch
-              checked={snap.sharedWithAuditor}
-              onCheckedChange={() => toggleMutation.mutate()}
-              disabled={toggleMutation.isPending}
-            />
+            <span className="text-muted-foreground">
+              {t('snapshot.detail.sharedWithAuditor')}
+            </span>
+            <RequirePermission
+              permission={PERMISSIONS.SNAPSHOTS_SHARE_WITH_AUDITOR}
+              fallback={
+                <span className="text-sm font-medium">
+                  {snap.sharedWithAuditor
+                    ? t('snapshot.detail.sharedYes')
+                    : t('snapshot.detail.sharedNo')}
+                </span>
+              }
+            >
+              <Switch
+                checked={snap.sharedWithAuditor}
+                onCheckedChange={() => toggleMutation.mutate()}
+                disabled={toggleMutation.isPending}
+              />
+            </RequirePermission>
           </div>
           <Button variant="outline" size="sm" onClick={exportCsv}>
             <Download className="w-4 h-4 mr-1.5" />
@@ -202,105 +322,7 @@ function SnapshotDetail({
         </div>
       </div>
 
-      {/* Immutability notice */}
-      <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-        <Lock className="w-4 h-4 shrink-0" />
-        {t('snapshot.detail.immutableNotice')}
-      </div>
-
-      {/* Metric cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        {[
-          { label: t('snapshot.detail.totalRisks'), value: metrics.total },
-          { label: t('snapshot.detail.criticalHigh'), value: metrics.criticalHigh },
-          { label: t('snapshot.detail.accepted'), value: metrics.accepted },
-          { label: t('snapshot.detail.mitigated'), value: metrics.mitigated },
-        ].map((m) => (
-          <Card key={m.label} className="p-5">
-            <p className="text-sm text-muted-foreground">{m.label}</p>
-            <p className="mt-1 text-3xl font-semibold">{m.value}</p>
-          </Card>
-        ))}
-      </div>
-
-      {/* Risk table */}
-      {items.length === 0 ? (
-        <Card className="p-8 text-center text-sm text-muted-foreground">
-          {t('snapshot.detail.noRisks')}
-        </Card>
-      ) : (
-        <Card className="overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b bg-muted/40 text-xs text-muted-foreground">
-                  <th className="px-4 py-2 text-left font-medium">{t('snapshot.detail.columns.risk')}</th>
-                  <th className="px-4 py-2 text-left font-medium">{t('snapshot.detail.columns.asset')}</th>
-                  <th className="px-4 py-2 text-left font-medium">{t('snapshot.detail.columns.impact')}</th>
-                  <th className="px-4 py-2 text-left font-medium">{t('snapshot.detail.columns.likelihood')}</th>
-                  <th className="px-4 py-2 text-right font-medium">{t('snapshot.detail.columns.score')}</th>
-                  <th className="px-4 py-2 text-left font-medium">{t('snapshot.detail.columns.status')}</th>
-                  <th className="px-4 py-2 text-left font-medium">{t('snapshot.detail.columns.treatments')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((item) => (
-                  <tr key={item.id} className="border-b last:border-0">
-                    <td className="px-4 py-3">
-                      <div className="font-medium max-w-xs">{item.title}</div>
-                      {item.description && (
-                        <div className="text-xs text-muted-foreground mt-0.5 line-clamp-1 max-w-xs">
-                          {item.description}
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-muted-foreground">{item.assetTitle}</td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${IMPACT_COLORS[item.impact] ?? 'bg-slate-100 text-slate-600 border-slate-200'}`}
-                      >
-                        {item.impact}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${IMPACT_COLORS[item.likelihood] ?? 'bg-slate-100 text-slate-600 border-slate-200'}`}
-                      >
-                        {item.likelihood}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-right font-mono font-medium">{item.riskScore}</td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[item.status] ?? 'bg-slate-100 text-slate-600'}`}
-                      >
-                        {item.status.replace('_', ' ')}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      {item.treatments.length === 0 ? (
-                        <span className="text-muted-foreground text-xs">{t('snapshot.detail.none')}</span>
-                      ) : (
-                        <div className="flex flex-wrap gap-1">
-                          {item.treatments.map((t) => (
-                            <span
-                              key={t.controlId}
-                              title={t.title}
-                              className="inline-flex items-center rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-xs text-slate-700"
-                            >
-                              {t.isoReference}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
-      )}
+      <RiskSnapshotItemsView snap={snap} />
     </div>
   );
 }
@@ -358,16 +380,27 @@ function SnapshotList({ onSelect }: { onSelect: (id: string) => void }) {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b bg-muted/40 text-xs text-muted-foreground">
-                <th className="px-4 py-2 text-left font-medium">{t('snapshot.list.columns.name')}</th>
-                <th className="px-4 py-2 text-left font-medium">{t('snapshot.list.columns.created')}</th>
-                <th className="px-4 py-2 text-right font-medium">{t('snapshot.list.columns.risks')}</th>
-                <th className="px-4 py-2 text-center font-medium">{t('snapshot.list.columns.shared')}</th>
+                <th className="px-4 py-2 text-left font-medium">
+                  {t('snapshot.list.columns.name')}
+                </th>
+                <th className="px-4 py-2 text-left font-medium">
+                  {t('snapshot.list.columns.created')}
+                </th>
+                <th className="px-4 py-2 text-right font-medium">
+                  {t('snapshot.list.columns.risks')}
+                </th>
+                <th className="px-4 py-2 text-center font-medium">
+                  {t('snapshot.list.columns.shared')}
+                </th>
                 <th className="px-4 py-2" />
               </tr>
             </thead>
             <tbody>
               {snapshots.map((s) => (
-                <tr key={s.id} className="border-b last:border-0 hover:bg-muted/20">
+                <tr
+                  key={s.id}
+                  className="border-b last:border-0 hover:bg-muted/20"
+                >
                   <td className="px-4 py-3">
                     <button
                       onClick={() => onSelect(s.id)}
@@ -376,17 +409,36 @@ function SnapshotList({ onSelect }: { onSelect: (id: string) => void }) {
                       {s.name}
                     </button>
                   </td>
-                  <td className="px-4 py-3 text-muted-foreground">{fmt(s.createdAt)}</td>
-                  <td className="px-4 py-3 text-right font-mono">{s.riskCount}</td>
+                  <td className="px-4 py-3 text-muted-foreground">
+                    {fmt(s.createdAt)}
+                  </td>
+                  <td className="px-4 py-3 text-right font-mono">
+                    {s.riskCount}
+                  </td>
                   <td className="px-4 py-3 text-center">
-                    <Switch
-                      checked={s.sharedWithAuditor}
-                      onCheckedChange={() => toggleMutation.mutate(s.id)}
-                      disabled={toggleMutation.isPending}
-                    />
+                    <RequirePermission
+                      permission={PERMISSIONS.SNAPSHOTS_SHARE_WITH_AUDITOR}
+                      fallback={
+                        <span className="text-xs text-muted-foreground">
+                          {s.sharedWithAuditor
+                            ? t('snapshot.detail.sharedYes')
+                            : t('snapshot.detail.sharedNo')}
+                        </span>
+                      }
+                    >
+                      <Switch
+                        checked={s.sharedWithAuditor}
+                        onCheckedChange={() => toggleMutation.mutate(s.id)}
+                        disabled={toggleMutation.isPending}
+                      />
+                    </RequirePermission>
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <Button variant="ghost" size="sm" onClick={() => onSelect(s.id)}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onSelect(s.id)}
+                    >
                       {t('snapshot.list.view')}
                     </Button>
                   </td>
@@ -431,7 +483,10 @@ export function SnapshotPage() {
       />
 
       {selectedId ? (
-        <SnapshotDetail snapshotId={selectedId} onBack={() => setSelectedId(null)} />
+        <SnapshotDetail
+          snapshotId={selectedId}
+          onBack={() => setSelectedId(null)}
+        />
       ) : (
         <SnapshotList onSelect={setSelectedId} />
       )}

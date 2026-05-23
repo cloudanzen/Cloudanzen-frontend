@@ -14,6 +14,8 @@ export const NotificationEventType = {
   AUDIT_CREATED: 'audit.created',
   AUDIT_COMMENT_ADDED: 'audit.comment_added',
   AUDIT_REMINDER: 'audit.reminder',
+  AUDIT_REQUEST_ASSIGNED: 'audit.request.assigned',
+  AUDIT_REQUEST_STATUS_CHANGED: 'audit.request.status_changed',
   POLICY_ACCEPTANCE_ASSIGNED: 'policy.acceptance_assigned',
   FRAMEWORK_ACTIVATED: 'framework.activated',
   COVERAGE_DROP: 'framework.coverage_drop',
@@ -25,9 +27,18 @@ export const NotificationEventType = {
   TRUST_CENTER_REQUEST: 'trust_center.request',
 } as const;
 
-export type NotificationEventType = typeof NotificationEventType[keyof typeof NotificationEventType];
+export type NotificationEventType =
+  (typeof NotificationEventType)[keyof typeof NotificationEventType];
 
-export type NotificationCategory = 'Validations' | 'Risks' | 'Controls' | 'Audits' | 'Policies' | 'Frameworks' | 'Access' | 'Trust Center';
+export type NotificationCategory =
+  | 'Validations'
+  | 'Risks'
+  | 'Controls'
+  | 'Audits'
+  | 'Policies'
+  | 'Frameworks'
+  | 'Access'
+  | 'Trust Center';
 
 export interface NotificationEventDefinition {
   eventType: NotificationEventType;
@@ -41,19 +52,22 @@ export const NOTIFICATION_EVENT_DEFINITIONS: NotificationEventDefinition[] = [
     eventType: NotificationEventType.TEST_FAILED,
     category: 'Validations',
     label: 'Validation failed',
-    description: 'Alerts when an automated or pipeline-backed compliance validation fails.',
+    description:
+      'Alerts when an automated or pipeline-backed compliance validation fails.',
   },
   {
     eventType: NotificationEventType.TEST_OVERDUE,
     category: 'Validations',
     label: 'Validation overdue',
-    description: 'Reminds owners when evidence collection or validation completion is overdue.',
+    description:
+      'Reminds owners when evidence collection or validation completion is overdue.',
   },
   {
     eventType: NotificationEventType.TEST_ASSIGNED,
     category: 'Validations',
     label: 'Validation assigned',
-    description: 'Notifies you when ownership of a validation is assigned to you.',
+    description:
+      'Notifies you when ownership of a validation is assigned to you.',
   },
   {
     eventType: NotificationEventType.ATTESTATION_REQUESTED,
@@ -83,7 +97,8 @@ export const NOTIFICATION_EVENT_DEFINITIONS: NotificationEventDefinition[] = [
     eventType: NotificationEventType.RISK_DUE,
     category: 'Risks',
     label: 'Risk due soon',
-    description: 'Reminds owners when risk remediation deadlines are approaching.',
+    description:
+      'Reminds owners when risk remediation deadlines are approaching.',
   },
   {
     eventType: NotificationEventType.RISK_OWNER_ASSIGNED,
@@ -101,13 +116,15 @@ export const NOTIFICATION_EVENT_DEFINITIONS: NotificationEventDefinition[] = [
     eventType: NotificationEventType.CONTROL_ASSIGNED,
     category: 'Controls',
     label: 'Control assigned',
-    description: 'Notifies you when a control owner or steward assignment changes.',
+    description:
+      'Notifies you when a control owner or steward assignment changes.',
   },
   {
     eventType: NotificationEventType.CONTROL_STATUS_CHANGED,
     category: 'Controls',
     label: 'Control status changed',
-    description: 'Keeps you updated when control implementation status changes.',
+    description:
+      'Keeps you updated when control implementation status changes.',
   },
   {
     eventType: NotificationEventType.AUDIT_CREATED,
@@ -125,19 +142,36 @@ export const NOTIFICATION_EVENT_DEFINITIONS: NotificationEventDefinition[] = [
     eventType: NotificationEventType.AUDIT_REMINDER,
     category: 'Audits',
     label: 'Audit reminder',
-    description: 'Reminds audit owners and contributors about upcoming deadlines.',
+    description:
+      'Reminds audit owners and contributors about upcoming deadlines.',
+  },
+  {
+    eventType: NotificationEventType.AUDIT_REQUEST_ASSIGNED,
+    category: 'Audits',
+    label: 'Audit request assigned',
+    description:
+      'Notifies you when an audit request is assigned or reassigned to you.',
+  },
+  {
+    eventType: NotificationEventType.AUDIT_REQUEST_STATUS_CHANGED,
+    category: 'Audits',
+    label: 'Audit request status changed',
+    description:
+      'Notifies you when status changes on an audit request you created or are assigned to.',
   },
   {
     eventType: NotificationEventType.POLICY_ACCEPTANCE_ASSIGNED,
     category: 'Policies',
     label: 'Policy acceptance assigned',
-    description: 'Notifies users when a newly published policy version needs their acceptance.',
+    description:
+      'Notifies users when a newly published policy version needs their acceptance.',
   },
   {
     eventType: NotificationEventType.FRAMEWORK_ACTIVATED,
     category: 'Frameworks',
     label: 'Framework activated',
-    description: 'Confirms when a compliance framework becomes active for your organization.',
+    description:
+      'Confirms when a compliance framework becomes active for your organization.',
   },
   {
     eventType: NotificationEventType.COVERAGE_DROP,
@@ -149,19 +183,22 @@ export const NOTIFICATION_EVENT_DEFINITIONS: NotificationEventDefinition[] = [
     eventType: NotificationEventType.GAP_OWNER_ASSIGNED,
     category: 'Frameworks',
     label: 'Gap owner assigned',
-    description: 'Notifies you when you are assigned ownership of a framework gap or requirement.',
+    description:
+      'Notifies you when you are assigned ownership of a framework gap or requirement.',
   },
   {
     eventType: NotificationEventType.FRAMEWORK_ACCESS_APPROVED,
     category: 'Frameworks',
     label: 'Framework access approved',
-    description: 'Tells you when a framework access request you submitted has been approved.',
+    description:
+      'Tells you when a framework access request you submitted has been approved.',
   },
   {
     eventType: NotificationEventType.FRAMEWORK_ACCESS_REJECTED,
     category: 'Frameworks',
     label: 'Framework access rejected',
-    description: 'Tells you when a framework access request you submitted has been rejected.',
+    description:
+      'Tells you when a framework access request you submitted has been rejected.',
   },
   {
     eventType: NotificationEventType.ACCESS_REVIEW_DUE,
@@ -179,12 +216,19 @@ export const NOTIFICATION_EVENT_DEFINITIONS: NotificationEventDefinition[] = [
     eventType: NotificationEventType.TRUST_CENTER_REQUEST,
     category: 'Trust Center',
     label: 'Trust center request',
-    description: 'Notifies you about incoming trust center requests or follow-ups.',
+    description:
+      'Notifies you about incoming trust center requests or follow-ups.',
   },
 ];
 
-export const NOTIFICATION_EVENT_TYPES = NOTIFICATION_EVENT_DEFINITIONS.map((definition) => definition.eventType);
+export const NOTIFICATION_EVENT_TYPES = NOTIFICATION_EVENT_DEFINITIONS.map(
+  (definition) => definition.eventType,
+);
 
-export function getNotificationEventDefinition(eventType: NotificationEventType | string) {
-  return NOTIFICATION_EVENT_DEFINITIONS.find((definition) => definition.eventType === eventType);
+export function getNotificationEventDefinition(
+  eventType: NotificationEventType | string,
+) {
+  return NOTIFICATION_EVENT_DEFINITIONS.find(
+    (definition) => definition.eventType === eventType,
+  );
 }

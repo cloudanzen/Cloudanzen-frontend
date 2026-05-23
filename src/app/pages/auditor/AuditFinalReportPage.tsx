@@ -36,6 +36,8 @@ import {
   AlertCircle,
   Clock,
   XCircle,
+  LogOut,
+  LayoutDashboard,
 } from 'lucide-react';
 import {
   auditsService,
@@ -44,7 +46,7 @@ import {
   AuditSnapshot,
 } from '@/services/api/audits';
 import { usersService } from '@/services/api/users';
-import { useCanAudit } from '@/hooks/useCurrentUser';
+import { useCanAudit, useIsAdmin } from '@/hooks/useCurrentUser';
 import { useConfirmDialog } from '@/app/hooks/useConfirmDialog';
 import { resolveAuditorLabel } from '@/lib/audits';
 
@@ -97,6 +99,7 @@ function SectionHeader({
 // ── Compliance donut (SVG) ───────────────────────────────────────────────────
 
 function ComplianceDonut({ pct }: { pct: number }) {
+  const { t } = useTranslation('auditor');
   const r = 40;
   const circ = 2 * Math.PI * r;
   const dash = (pct / 100) * circ;
@@ -134,7 +137,9 @@ function ComplianceDonut({ pct }: { pct: number }) {
           {pct}%
         </text>
       </svg>
-      <p className="text-xs text-gray-500 mt-1">Compliance Rate</p>
+      <p className="text-xs text-gray-500 mt-1">
+        {t('finalReport.complianceRate')}
+      </p>
     </div>
   );
 }
@@ -146,24 +151,25 @@ function FindingsBreakdown({
 }: {
   metrics: AuditReportMetrics | AuditSnapshot;
 }) {
+  const { t } = useTranslation('auditor');
   const rows = [
     {
-      label: 'Major',
+      label: t('finalReport.major'),
       count: metrics.majorFindings,
       color: 'bg-red-100 text-red-700',
     },
     {
-      label: 'Minor',
+      label: t('finalReport.minor'),
       count: metrics.minorFindings,
       color: 'bg-amber-100 text-amber-700',
     },
     {
-      label: 'Observation',
+      label: t('finalReport.observation'),
       count: metrics.observationFindings,
       color: 'bg-blue-100 text-blue-700',
     },
     {
-      label: 'OFI',
+      label: t('finalReport.ofi'),
       count: metrics.ofiFindings,
       color: 'bg-purple-100 text-purple-700',
     },
@@ -191,6 +197,7 @@ export function AuditFinalReportPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const canAudit = useCanAudit();
+  const isAdmin = useIsAdmin();
   const confirm = useConfirmDialog();
 
   // Form state
@@ -232,14 +239,20 @@ export function AuditFinalReportPage() {
   )?.data;
   const audit: AuditRecord | undefined = report?.audit;
   const metrics: AuditReportMetrics | undefined = report?.metrics;
-  const usersById = new Map(
-    users.map((user) => [user.id, user] as const),
-  );
+  const usersById = new Map(users.map((user) => [user.id, user] as const));
   // Prefer snapshot for locked audits
   const display: AuditReportMetrics | AuditSnapshot | undefined =
     audit?.snapshot ?? metrics;
 
   const isLocked = audit?.isLocked ?? false;
+  // Editing the report draft is meaningful only after the audit has started
+  // and before it locks. Backend `update-report` allows any non-locked audit;
+  // this UI gate prevents auditors from accidentally writing exec-summary /
+  // conclusion on DRAFT / UPCOMING / PLANNED audits.
+  const canEditReportDraft =
+    !isLocked &&
+    canAudit &&
+    (audit?.status === 'IN_PROGRESS' || audit?.status === 'AWAITING_REPORT');
 
   async function saveDraft() {
     if (!auditId) return;
@@ -331,9 +344,28 @@ export function AuditFinalReportPage() {
       title={`${t('finalReport.title')} — ${audit.name}`}
       description={`${auditTypeLabel[audit.type] ?? audit.type} · ${audit.frameworkName ?? t('finalReport.noFramework')}`}
       actions={
-        <Button variant="outline" size="sm" onClick={() => navigate(-1)}>
-          <ChevronLeft className="w-4 h-4 mr-1" /> {t('finalReport.back')}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate(`/auditor/dashboard?auditId=${audit.id}`)}
+          >
+            <LayoutDashboard className="w-4 h-4 mr-1" />{' '}
+            {t('finalReport.dashboard')}
+          </Button>
+          {isAdmin && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate(`/compliance/audits/${audit.id}`)}
+            >
+              <LogOut className="w-4 h-4 mr-1" /> {t('finalReport.exitPreview')}
+            </Button>
+          )}
+          <Button variant="outline" size="sm" onClick={() => navigate(-1)}>
+            <ChevronLeft className="w-4 h-4 mr-1" /> {t('finalReport.back')}
+          </Button>
+        </div>
       }
     >
       {/* Lock banner */}
@@ -366,12 +398,15 @@ export function AuditFinalReportPage() {
       <div className="space-y-6">
         {/* ── 1. Executive Summary ── */}
         <Card className="p-6">
-          <SectionHeader icon={PenLine} title="Executive Summary" />
+          <SectionHeader
+            icon={PenLine}
+            title={t('finalReport.executiveSummary')}
+          />
           {isLocked ? (
             <p className="text-sm text-gray-700 whitespace-pre-wrap">
               {audit.executiveSummary || (
                 <span className="italic text-gray-400">
-                  No summary provided.
+                  {t('finalReport.noSummary')}
                 </span>
               )}
             </p>
@@ -384,11 +419,11 @@ export function AuditFinalReportPage() {
                   setSummary(e.target.value);
                   setSummaryDirty(true);
                 }}
-                placeholder="Provide a high-level summary of the audit: objectives, scope overview, overall findings, and key conclusions…"
+                placeholder={t('finalReport.summaryPlaceholder')}
                 className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-300"
               />
               <p className="text-xs text-gray-400 mt-1">
-                This summary will appear at the top of the completed report.
+                {t('finalReport.summaryHint')}
               </p>
             </>
           )}
@@ -396,31 +431,40 @@ export function AuditFinalReportPage() {
 
         {/* ── 2. Scope ── */}
         <Card className="p-6">
-          <SectionHeader icon={Shield} title="Scope" />
+          <SectionHeader icon={Shield} title={t('finalReport.scope')} />
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
             {[
-              { label: 'Audit Name', value: audit.name },
+              { label: t('finalReport.auditName'), value: audit.name },
               {
-                label: 'Type',
+                label: t('finalReport.type'),
                 value: auditTypeLabel[audit.type] ?? audit.type,
               },
-              { label: 'Framework', value: audit.frameworkName ?? '—' },
               {
-                label: 'Period',
+                label: t('finalReport.framework'),
+                value: audit.frameworkName ?? '—',
+              },
+              {
+                label: t('finalReport.period'),
                 value: audit.periodStart
                   ? `${fmt(audit.periodStart)} – ${fmt(audit.periodEnd)}`
                   : '—',
               },
-              { label: 'Start Date', value: fmt(audit.startDate) },
               {
-                label: 'End Date',
+                label: t('finalReport.startDate'),
+                value: fmt(audit.startDate),
+              },
+              {
+                label: t('finalReport.endDate'),
                 value: fmt(audit.closedAt ?? audit.endDate),
               },
               {
-                label: 'Auditor',
+                label: t('finalReport.auditor'),
                 value: resolveAuditorLabel(audit, usersById),
               },
-              { label: 'Controls in Scope', value: display.totalControls },
+              {
+                label: t('finalReport.controlsInScope'),
+                value: display.totalControls,
+              },
             ].map((r) => (
               <div key={r.label}>
                 <p className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-0.5">
@@ -434,27 +478,30 @@ export function AuditFinalReportPage() {
 
         {/* ── 3. Compliance % ── */}
         <Card className="p-6">
-          <SectionHeader icon={TrendingUp} title="Compliance Overview" />
+          <SectionHeader
+            icon={TrendingUp}
+            title={t('finalReport.complianceOverview')}
+          />
           <div className="flex flex-col sm:flex-row items-center gap-6">
             <ComplianceDonut pct={display.compliancePct} />
             <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 gap-3 w-full">
               <KpiCard
-                label="Compliant"
+                label={t('finalReport.compliant')}
                 value={display.compliantControls}
                 color="text-green-600"
               />
               <KpiCard
-                label="Non-Compliant"
+                label={t('finalReport.nonCompliant')}
                 value={display.nonCompliantControls}
                 color="text-red-600"
               />
               <KpiCard
-                label="Not Applicable"
+                label={t('finalReport.notApplicable')}
                 value={display.notApplicableControls}
                 color="text-gray-500"
               />
               <KpiCard
-                label="Pending Review"
+                label={t('finalReport.pendingReview')}
                 value={display.pendingControls}
                 color="text-amber-600"
               />
@@ -464,25 +511,28 @@ export function AuditFinalReportPage() {
 
         {/* ── 4. Findings Breakdown ── */}
         <Card className="p-6">
-          <SectionHeader icon={AlertTriangle} title="Findings Breakdown" />
+          <SectionHeader
+            icon={AlertTriangle}
+            title={t('finalReport.findingsBreakdown')}
+          />
           <div className="grid grid-cols-3 gap-4 mb-4 text-center text-sm">
             <div>
               <p className="text-2xl font-bold text-gray-800">
                 {display.totalFindings}
               </p>
-              <p className="text-xs text-gray-500">Total</p>
+              <p className="text-xs text-gray-500">{t('finalReport.total')}</p>
             </div>
             <div>
               <p className="text-2xl font-bold text-red-600">
                 {display.openFindings}
               </p>
-              <p className="text-xs text-gray-500">Open</p>
+              <p className="text-xs text-gray-500">{t('finalReport.open')}</p>
             </div>
             <div>
               <p className="text-2xl font-bold text-green-600">
                 {display.closedFindings}
               </p>
-              <p className="text-xs text-gray-500">Closed</p>
+              <p className="text-xs text-gray-500">{t('finalReport.closed')}</p>
             </div>
           </div>
           <FindingsBreakdown metrics={display} />
@@ -493,26 +543,26 @@ export function AuditFinalReportPage() {
           <Card className="p-6">
             <SectionHeader
               icon={BarChart3}
-              title="Risk Summary at Completion"
+              title={t('finalReport.riskSummary')}
             />
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <KpiCard
-                label="Critical"
+                label={t('finalReport.critical')}
                 value={(display as AuditSnapshot).criticalRisks}
                 color="text-red-700"
               />
               <KpiCard
-                label="High"
+                label={t('finalReport.high')}
                 value={(display as AuditSnapshot).highRisks}
                 color="text-orange-600"
               />
               <KpiCard
-                label="Medium"
+                label={t('finalReport.medium')}
                 value={(display as AuditSnapshot).mediumRisks}
                 color="text-amber-600"
               />
               <KpiCard
-                label="Low"
+                label={t('finalReport.low')}
                 value={(display as AuditSnapshot).lowRisks}
                 color="text-green-600"
               />
@@ -522,12 +572,15 @@ export function AuditFinalReportPage() {
 
         {/* ── 6. Audit Conclusion ── */}
         <Card className="p-6">
-          <SectionHeader icon={CheckCircle2} title="Audit Conclusion" />
+          <SectionHeader
+            icon={CheckCircle2}
+            title={t('finalReport.auditConclusion')}
+          />
           {isLocked ? (
             <p className="text-sm text-gray-700 whitespace-pre-wrap">
               {audit.auditConclusion || (
                 <span className="italic text-gray-400">
-                  No conclusion recorded.
+                  {t('finalReport.noConclusion')}
                 </span>
               )}
             </p>
@@ -540,7 +593,7 @@ export function AuditFinalReportPage() {
                   setConclusion(e.target.value);
                   setConclusionDirty(true);
                 }}
-                placeholder="State the overall audit outcome (e.g. Pass / Pass with conditions / Fail) and any follow-up actions required…"
+                placeholder={t('finalReport.conclusionPlaceholder')}
                 className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-300"
               />
             </>
@@ -550,16 +603,18 @@ export function AuditFinalReportPage() {
         {/* ── 7. Signed PDF ── */}
         {!isLocked && (
           <Card className="p-6">
-            <SectionHeader icon={Upload} title="Upload Signed PDF (optional)" />
+            <SectionHeader
+              icon={Upload}
+              title={t('finalReport.signedPdfTitle')}
+            />
             <p className="text-xs text-gray-500 mb-2">
-              Attach a URL to the signed PDF version of this report (e.g. shared
-              drive, S3, DocuSign).
+              {t('finalReport.signedPdfDescription')}
             </p>
             <input
               type="url"
               value={pdfUrl}
               onChange={(e) => setPdfUrl(e.target.value)}
-              placeholder="https://…"
+              placeholder={t('finalReport.signedPdfPlaceholder')}
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
             />
           </Card>
@@ -572,8 +627,10 @@ export function AuditFinalReportPage() {
           </div>
         )}
 
-        {/* ── Actions (hidden when locked) ── */}
-        {!isLocked && canAudit && (
+        {/* ── Actions ── */}
+        {/* Draft editing allowed only in IN_PROGRESS / AWAITING_REPORT.
+            Sign & Complete only in AWAITING_REPORT (backend enforces). */}
+        {canEditReportDraft && (
           <div className="flex flex-col sm:flex-row gap-3 pt-2 border-t">
             <Button
               variant="outline"
@@ -586,27 +643,40 @@ export function AuditFinalReportPage() {
               ) : (
                 <FileText className="w-4 h-4 mr-2" />
               )}
-              {saving ? 'Saving draft…' : 'Save Draft'}
+              {saving ? t('finalReport.saving') : t('finalReport.saveDraft')}
             </Button>
 
-            <Button
-              onClick={handleSignAndComplete}
-              disabled={saving || signing}
-              className="flex-1 bg-green-700 hover:bg-green-600 text-white"
-            >
-              {signing ? (
-                <Clock className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
-                <Lock className="w-4 h-4 mr-2" />
-              )}
-              {signing ? 'Signing…' : 'Sign & Complete Audit'}
-            </Button>
+            {audit.status === 'AWAITING_REPORT' && (
+              <Button
+                onClick={handleSignAndComplete}
+                disabled={saving || signing}
+                className="flex-1 bg-green-700 hover:bg-green-600 text-white"
+              >
+                {signing ? (
+                  <Clock className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Lock className="w-4 h-4 mr-2" />
+                )}
+                {signing
+                  ? t('finalReport.signing')
+                  : t('finalReport.signAndComplete')}
+              </Button>
+            )}
+          </div>
+        )}
+
+        {/* IN_PROGRESS user can edit drafts but must move audit to
+            AWAITING_REPORT before signing. */}
+        {canEditReportDraft && audit.status === 'IN_PROGRESS' && (
+          <div className="flex items-center gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+            <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" />
+            {t('finalReport.inProgressNeedsTransitionHint')}
           </div>
         )}
 
         {isLocked && !canAudit && (
           <div className="flex items-center gap-2 text-sm text-gray-500 pt-2 border-t">
-            <Lock className="w-4 h-4" /> This audit is complete and locked.
+            <Lock className="w-4 h-4" /> {t('finalReport.completeAndLocked')}
           </div>
         )}
       </div>

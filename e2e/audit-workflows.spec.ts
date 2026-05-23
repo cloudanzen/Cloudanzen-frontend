@@ -48,12 +48,26 @@ type AuditRecord = {
       title: string;
       status: string;
       description?: string;
-      evidence?: Array<{ id: string; type: string; fileName?: string | null; fileUrl?: string | null; automated?: boolean; createdAt: string }>;
+      evidence?: Array<{
+        id: string;
+        type: string;
+        fileName?: string | null;
+        fileUrl?: string | null;
+        automated?: boolean;
+        createdAt: string;
+      }>;
       policyMappings?: unknown[];
       riskMappings?: unknown[];
       testMappings?: unknown[];
       findings?: unknown[];
-      auditEvidences?: Array<{ id: string; evidenceId: string; status: string; flagReason?: string | null; flaggedAt?: string | null; approvedAt?: string | null }>;
+      auditEvidences?: Array<{
+        id: string;
+        evidenceId: string;
+        status: string;
+        flagReason?: string | null;
+        flaggedAt?: string | null;
+        approvedAt?: string | null;
+      }>;
     };
   }>;
   _count?: { auditControls: number };
@@ -181,22 +195,38 @@ async function mockAuditApis(
     const method = request.method();
 
     if (url.pathname === '/api/setup/setup-status') {
-      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ canSetup: false, setup: true }) });
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ canSetup: false, setup: true }),
+      });
       return;
     }
 
     if (url.pathname === '/api/users' && method === 'GET') {
-      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, data: users }) });
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ success: true, data: users }),
+      });
       return;
     }
 
     if (url.pathname === '/api/controls' && method === 'GET') {
-      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, data: controls }) });
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ success: true, data: controls }),
+      });
       return;
     }
 
     if (url.pathname === '/api/audits' && method === 'GET') {
-      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, data: audits }) });
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ success: true, data: audits }),
+      });
       return;
     }
 
@@ -207,27 +237,42 @@ async function mockAuditApis(
         id: '81c13f81-0d57-4cf8-a2f7-f6165bfadfd8',
         name: String(payload.name ?? 'Untitled Audit'),
         type: (payload.type as AuditRecord['type']) ?? 'INTERNAL',
-        frameworkName: (payload.frameworkName as string | undefined) ?? 'ISO 27001',
+        frameworkName:
+          (payload.frameworkName as string | undefined) ?? 'ISO 27001',
         startDate: String(payload.startDate ?? '2026-04-20'),
         endDate: (payload.endDate as string | undefined) ?? null,
-        assignedAuditorId: (payload.assignedAuditorId as string | undefined) ?? null,
-        externalAuditorEmail: (payload.externalAuditorEmail as string | undefined) ?? null,
+        assignedAuditorId:
+          (payload.assignedAuditorId as string | undefined) ?? null,
+        externalAuditorEmail:
+          (payload.externalAuditorEmail as string | undefined) ?? null,
       });
       audits.unshift(created);
-      await route.fulfill({ status: 201, contentType: 'application/json', body: JSON.stringify({ success: true, data: created }) });
+      await route.fulfill({
+        status: 201,
+        contentType: 'application/json',
+        body: JSON.stringify({ success: true, data: created }),
+      });
       return;
     }
 
     const auditIdMatch = url.pathname.match(/^\/api\/audits\/([^/]+)$/);
     if (auditIdMatch && method === 'GET') {
-      const audit = audits.find((item) => item.id === auditIdMatch[1]) ?? buildAudit({ id: auditIdMatch[1] });
-      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, data: audit }) });
+      const audit =
+        audits.find((item) => item.id === auditIdMatch[1]) ??
+        buildAudit({ id: auditIdMatch[1] });
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ success: true, data: audit }),
+      });
       return;
     }
 
     const reportMatch = url.pathname.match(/^\/api\/audits\/([^/]+)\/report$/);
     if (reportMatch && method === 'GET') {
-      const audit = audits.find((item) => item.id === reportMatch[1]) ?? buildAudit({ id: reportMatch[1], status: 'IN_PROGRESS' });
+      const audit =
+        audits.find((item) => item.id === reportMatch[1]) ??
+        buildAudit({ id: reportMatch[1], status: 'IN_PROGRESS' });
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -256,7 +301,11 @@ async function mockAuditApis(
       return;
     }
 
-    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, data: [] }) });
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ success: true, data: [] }),
+    });
   });
 }
 
@@ -266,14 +315,21 @@ async function openScheduleAuditModal(page: Page): Promise<void> {
   await page.getByRole('button', { name: /schedule/i }).click();
 }
 
-async function fillScheduleStepOne(page: Page, auditName: string): Promise<void> {
-  await page.getByPlaceholder('e.g. ISO 27001 Annual Surveillance Audit').fill(auditName);
+async function fillScheduleStepOne(
+  page: Page,
+  auditName: string,
+): Promise<void> {
+  await page
+    .getByPlaceholder('e.g. ISO 27001 Annual Surveillance Audit')
+    .fill(auditName);
   await page.locator('input[type="date"]').nth(2).fill('2026-04-20');
   await page.getByRole('button', { name: /scope & auditor/i }).click();
 }
 
 test.describe('Audit workflow UX regressions', () => {
-  test('newly scheduled audit should show the assigned auditor name in the audits list', async ({ page }) => {
+  test('newly scheduled audit should show the assigned auditor name in the audits list', async ({
+    page,
+  }) => {
     await loginAsRole(page, 'ORG_ADMIN');
     await mockAuditApis(page);
 
@@ -286,7 +342,9 @@ test.describe('Audit workflow UX regressions', () => {
     await expect(page.getByText('Auditor Jane')).toBeVisible();
   });
 
-  test('audit detail should show who the assigned auditor is', async ({ page }) => {
+  test('audit detail should show who the assigned auditor is', async ({
+    page,
+  }) => {
     await loginAsRole(page, 'ORG_ADMIN');
     const audit = buildAudit({ status: 'IN_PROGRESS' });
     await mockAuditApis(page, { initialAudits: [audit] });
@@ -296,7 +354,9 @@ test.describe('Audit workflow UX regressions', () => {
     await expect(page.getByText('Auditor Jane')).toBeVisible();
   });
 
-  test('audit final report should display the auditor name, not the raw internal user id', async ({ page }) => {
+  test('audit final report should display the auditor name, not the raw internal user id', async ({
+    page,
+  }) => {
     await loginAsRole(page, 'ORG_ADMIN');
     const audit = buildAudit({ status: 'IN_PROGRESS' });
     await mockAuditApis(page, { initialAudits: [audit] });
@@ -306,7 +366,9 @@ test.describe('Audit workflow UX regressions', () => {
     await expect(page.getByText('Auditor Jane')).toBeVisible();
   });
 
-  test('external audit scheduling should block submission until auditor contact details are provided', async ({ page }) => {
+  test('external audit scheduling should block submission until auditor contact details are provided', async ({
+    page,
+  }) => {
     await loginAsRole(page, 'ORG_ADMIN');
     let createCount = 0;
     await mockAuditApis(page, {
@@ -321,5 +383,91 @@ test.describe('Audit workflow UX regressions', () => {
     await page.getByRole('button', { name: /create audit/i }).click();
 
     await expect.poll(() => createCount).toBe(0);
+  });
+
+  test('IN_PROGRESS auditor dashboard shows Move to Awaiting Report button', async ({
+    page,
+  }) => {
+    await loginAsRole(page, 'ORG_ADMIN');
+    const audit = buildAudit({ status: 'IN_PROGRESS' });
+    await mockAuditApis(page, { initialAudits: [audit] });
+
+    await page.goto(`/auditor/dashboard?auditId=${audit.id}`);
+    await page.waitForLoadState('networkidle');
+
+    await expect(
+      page.getByRole('button', { name: /move to awaiting report/i }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: /^final report$/i }),
+    ).toBeVisible();
+  });
+
+  test('AWAITING_REPORT auditor dashboard shows Open Final Report button instead of Move', async ({
+    page,
+  }) => {
+    await loginAsRole(page, 'ORG_ADMIN');
+    const audit = buildAudit({ status: 'AWAITING_REPORT' });
+    await mockAuditApis(page, { initialAudits: [audit] });
+
+    await page.goto(`/auditor/dashboard?auditId=${audit.id}`);
+    await page.waitForLoadState('networkidle');
+
+    await expect(
+      page.getByRole('button', { name: /open final report/i }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: /move to awaiting report/i }),
+    ).not.toBeVisible();
+  });
+
+  test('AUDITOR role does not see Start Audit button on admin audit detail', async ({
+    page,
+  }) => {
+    await loginAsRole(page, 'AUDITOR');
+    const audit = buildAudit({ status: 'PLANNED' });
+    await mockAuditApis(page, { initialAudits: [audit] });
+
+    await page.goto(`/compliance/audits/${audit.id}`);
+    await page.waitForLoadState('networkidle');
+
+    // Tab into Report tab where Start Audit lives.
+    const reportTab = page.getByRole('tab', { name: /report/i });
+    if (await reportTab.isVisible()) {
+      await reportTab.click();
+    }
+
+    await expect(
+      page.getByRole('button', { name: /start audit/i }),
+    ).not.toBeVisible();
+  });
+
+  test('Final Report Sign & Complete button is hidden in IN_PROGRESS and visible in AWAITING_REPORT', async ({
+    page,
+  }) => {
+    await loginAsRole(page, 'ORG_ADMIN');
+    const inProgressAudit = buildAudit({ status: 'IN_PROGRESS' });
+    await mockAuditApis(page, { initialAudits: [inProgressAudit] });
+
+    await page.goto(`/auditor/audits/${inProgressAudit.id}/final-report`);
+    await page.waitForLoadState('networkidle');
+
+    await expect(
+      page.getByRole('button', { name: /sign & complete audit/i }),
+    ).not.toBeVisible();
+
+    // Now an AWAITING_REPORT audit: Sign & Complete should be visible.
+    const awaitingAudit = buildAudit({
+      id: '11111111-2222-3333-4444-555555555555',
+      status: 'AWAITING_REPORT',
+    });
+    await mockAuditApis(page, { initialAudits: [awaitingAudit] });
+
+    await page.goto(`/auditor/audits/${awaitingAudit.id}/final-report`);
+    await page.waitForLoadState('networkidle');
+
+    await expect(
+      page.getByRole('button', { name: /sign & complete audit/i }),
+    ).toBeVisible();
   });
 });

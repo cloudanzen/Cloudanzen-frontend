@@ -3,6 +3,7 @@ import {
   getAuthToken,
   setAuthToken,
 } from '@/services/authStorage';
+import { readImpersonationSessionId } from '@/services/impersonationStorage';
 
 // Base API configuration and types
 // Trim defensively: Vercel-stored values can carry trailing whitespace
@@ -76,6 +77,15 @@ class ApiClient {
 
     if (this.token) {
       headers.set('Authorization', `Bearer ${this.token}`);
+    }
+
+    // Impersonation opt-in (per-tab). The backend ignores the
+    // __Host-impersonation-token cookie unless this header is also present
+    // and matches the cookie's supportSessionId claim. Stored in
+    // sessionStorage so it's tab-scoped (the cookie is browser-global).
+    const impersonationSessionId = readImpersonationSessionId();
+    if (impersonationSessionId) {
+      headers.set('X-Impersonation-Session', impersonationSessionId);
     }
 
     return headers;

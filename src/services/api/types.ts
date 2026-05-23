@@ -128,8 +128,8 @@ export interface Asset {
 export interface AssetCoverage {
   total: number;
   byProvider: Array<{ provider: string; count: number; staleCount: number }>;
-  byCategory: Array<{ category: string; count: number }>; 
-  bySubtype: Array<{ subtype: string; count: number }>; 
+  byCategory: Array<{ category: string; count: number }>;
+  bySubtype: Array<{ subtype: string; count: number }>;
   staleCount: number;
   unmanaged: number;
   ownedCount: number;
@@ -243,13 +243,32 @@ export interface AssetDetail extends Asset {
     field: string;
     values: Array<{ value: string; assetIds: string[] }>;
   }>;
-  parentRelations?: Array<{ relationshipType: string; parentAsset: AssetRelationshipItem }>;
-  childRelations?: Array<{ relationshipType: string; childAsset: AssetRelationshipItem }>;
+  parentRelations?: Array<{
+    relationshipType: string;
+    parentAsset: AssetRelationshipItem;
+  }>;
+  childRelations?: Array<{
+    relationshipType: string;
+    childAsset: AssetRelationshipItem;
+  }>;
   changeLog?: AssetChangeLogEntry[];
   reviews?: AssetReview[];
-  controlMappings?: Array<{ id: string; controlId: string; control: { id: string; title: string; status: string } }>;
-  testMappings?: Array<{ id: string; testId: string; test: { id: string; name: string; status: string } }>;
-  findings?: Array<{ id: string; title: string; severity: string; status: string }>;
+  controlMappings?: Array<{
+    id: string;
+    controlId: string;
+    control: { id: string; title: string; status: string };
+  }>;
+  testMappings?: Array<{
+    id: string;
+    testId: string;
+    test: { id: string; name: string; status: string };
+  }>;
+  findings?: Array<{
+    id: string;
+    title: string;
+    severity: string;
+    status: string;
+  }>;
 }
 
 export interface AssetMergeGroup {
@@ -315,7 +334,9 @@ export interface Evidence {
   fileName?: string;
   fileUrl?: string;
   hash: string;
-  controlId: string;
+  // null = audit-level evidence (linked to an audit request that has no
+  // specific controlId). Global evidence creation still requires controlId.
+  controlId: string | null;
   collectedBy?: string;
   automated: boolean;
   createdAt: string;
@@ -377,7 +398,11 @@ export interface PolicyApprovalRecord {
   approvalRound: number;
   approverId: string;
   approver?: { id: string; name: string | null; email: string };
-  policyVersion?: { id: string; versionNumber: number; publishedAt: string } | null;
+  policyVersion?: {
+    id: string;
+    versionNumber: number;
+    publishedAt: string;
+  } | null;
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
   comment?: string;
   respondedAt?: string;
@@ -416,7 +441,13 @@ export interface PolicyAcceptanceRecord {
   versionNumber: number;
   userId: string;
   user?: { id: string; name: string | null; email: string };
-  policy?: { id: string; name: string; status: string; version: string; versionNumber: number };
+  policy?: {
+    id: string;
+    name: string;
+    status: string;
+    version: string;
+    versionNumber: number;
+  };
   status: 'PENDING' | 'ACCEPTED';
   acceptedAt?: string;
   createdAt: string;

@@ -1,13 +1,34 @@
 import { apiClient } from './client';
+import type { RiskSnapshotRecord } from './risks';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-export type AuditType    = 'INTERNAL' | 'EXTERNAL' | 'SURVEILLANCE' | 'RECERTIFICATION';
-export type AuditStatus  = 'DRAFT' | 'UPCOMING' | 'PLANNED' | 'IN_PROGRESS' | 'AWAITING_REPORT' | 'COMPLETED';
-export type AuditControlStatus = 'PENDING' | 'COMPLIANT' | 'NON_COMPLIANT' | 'NOT_APPLICABLE';
+export type AuditType =
+  | 'INTERNAL'
+  | 'EXTERNAL'
+  | 'SURVEILLANCE'
+  | 'RECERTIFICATION';
+export type AuditStatus =
+  | 'DRAFT'
+  | 'UPCOMING'
+  | 'PLANNED'
+  | 'IN_PROGRESS'
+  | 'AWAITING_REPORT'
+  | 'COMPLETED';
+export type AuditControlStatus =
+  | 'PENDING'
+  | 'COMPLIANT'
+  | 'NON_COMPLIANT'
+  | 'NOT_APPLICABLE';
 export type FindingSeverity = 'MINOR' | 'MAJOR' | 'OBSERVATION' | 'OFI';
 export type AuditEvidenceStatus = 'PENDING' | 'READY' | 'FLAGGED' | 'APPROVED';
-export type AuditRequestStatus = 'NOT_READY' | 'IN_REVIEW' | 'READY_FOR_AUDIT' | 'FLAGGED' | 'ACCEPTED' | 'NOT_APPLICABLE';
+export type AuditRequestStatus =
+  | 'NOT_READY'
+  | 'IN_REVIEW'
+  | 'READY_FOR_AUDIT'
+  | 'FLAGGED'
+  | 'ACCEPTED'
+  | 'NOT_APPLICABLE';
 export type AuditAuditorRole = 'LEAD' | 'REVIEWER';
 
 // ── Nested item shapes returned by the API inside control sub-objects ─────────
@@ -23,7 +44,7 @@ export interface ControlEvidenceItem {
 
 /** Per-audit review record for one evidence item (from AuditEvidence join table). */
 export interface AuditEvidenceReview {
-  id: string;          // AuditEvidence.id
+  id: string; // AuditEvidence.id
   evidenceId: string;
   status: AuditEvidenceStatus;
   flagReason?: string | null;
@@ -54,11 +75,26 @@ export interface ControlRiskMappingItem {
   risk: ControlRiskItem;
 }
 
+export interface ControlTestRunItem {
+  id: string;
+  executedAt: string;
+  status: string;
+  summary?: string | null;
+  executionSource?: string | null;
+  durationMs?: number | null;
+}
+
 export interface ControlTestItem {
   id: string;
   name: string;
   status: string;
+  type?: string;
   completedAt?: string | null;
+  lastRunAt?: string | null;
+  lastResult?: string | null;
+  // Latest run pulled by buildControlDetailInclude (audit-helpers.ts) — take 1
+  // ordered desc by executedAt. Derive `latestRun = test.runs?.[0]` at render.
+  runs?: ControlTestRunItem[];
 }
 
 export interface ControlTestMappingItem {
@@ -74,115 +110,115 @@ export interface ControlFindingItem {
 }
 
 export interface AuditSnapshot {
-  id:                    string;
-  auditId:               string;
-  capturedAt:            string;
-  totalControls:         number;
-  compliantControls:     number;
-  nonCompliantControls:  number;
+  id: string;
+  auditId: string;
+  capturedAt: string;
+  totalControls: number;
+  compliantControls: number;
+  nonCompliantControls: number;
   notApplicableControls: number;
-  pendingControls:       number;
-  compliancePct:         number;
-  totalFindings:         number;
-  openFindings:          number;
-  closedFindings:        number;
-  majorFindings:         number;
-  minorFindings:         number;
-  observationFindings:   number;
-  ofiFindings:           number;
-  criticalRisks:         number;
-  highRisks:             number;
-  mediumRisks:           number;
-  lowRisks:              number;
+  pendingControls: number;
+  compliancePct: number;
+  totalFindings: number;
+  openFindings: number;
+  closedFindings: number;
+  majorFindings: number;
+  minorFindings: number;
+  observationFindings: number;
+  ofiFindings: number;
+  criticalRisks: number;
+  highRisks: number;
+  mediumRisks: number;
+  lowRisks: number;
 }
 
 export interface AuditFindingRecord {
-  id:          string;
-  auditId:     string;
-  controlId:   string;
-  severity:    FindingSeverity;
+  id: string;
+  auditId: string;
+  controlId: string;
+  severity: FindingSeverity;
   description: string;
   remediation: string | null;
-  status:      string;
-  createdAt:   string;
+  status: string;
+  createdAt: string;
   control?: { id: string; isoReference: string; title: string };
 }
 
 export interface AuditControlRecord {
-  id:           string;
-  auditId:      string;
-  controlId:    string;
+  id: string;
+  auditId: string;
+  controlId: string;
   reviewStatus: AuditControlStatus;
-  reviewedBy:   string | null;
-  reviewedAt:   string | null;
-  notes:        string | null;
+  reviewedBy: string | null;
+  reviewedAt: string | null;
+  notes: string | null;
   control: {
-    id:           string;
+    id: string;
     isoReference: string;
-    title:        string;
-    status:       string;
+    title: string;
+    status: string;
     description?: string;
-    evidence?:    ControlEvidenceItem[];
+    evidence?: ControlEvidenceItem[];
     policyMappings?: ControlPolicyMappingItem[];
     riskMappings?: ControlRiskMappingItem[];
     testMappings?: ControlTestMappingItem[];
-    findings?:    ControlFindingItem[];
+    findings?: ControlFindingItem[];
     auditEvidences?: AuditEvidenceReview[];
   };
 }
 
 export interface AuditRecord {
-  id:                   string;
-  name:                 string;
-  type:                 AuditType;
-  frameworkId:          string | null;
-  frameworkName:        string | null;
-  periodStart:          string | null;
-  periodEnd:            string | null;
-  startDate:            string;
-  endDate:              string | null;
-  status:               AuditStatus;
-  earlyAccessDate:      string | null;
-  startedAt:            string | null;
-  awaitingReportAt:     string | null;
-  assignedAuditorId:    string | null;
+  id: string;
+  name: string;
+  type: AuditType;
+  frameworkId: string | null;
+  frameworkName: string | null;
+  periodStart: string | null;
+  periodEnd: string | null;
+  startDate: string;
+  endDate: string | null;
+  status: AuditStatus;
+  earlyAccessDate: string | null;
+  startedAt: string | null;
+  awaitingReportAt: string | null;
+  assignedAuditorId: string | null;
   externalAuditorEmail: string | null;
-  ownerId:              string;
-  organizationId:       string;
-  createdAt:            string;
-  closedAt:             string | null;
+  ownerId: string;
+  organizationId: string;
+  createdAt: string;
+  closedAt: string | null;
   // Final report fields
-  executiveSummary:     string | null;
-  auditConclusion:      string | null;
-  signedPdfUrl:         string | null;
-  signedAt:             string | null;
-  signedById:           string | null;
-  isLocked:             boolean;
-  findings:             AuditFindingRecord[];
-  auditControls?:       AuditControlRecord[];
-  snapshot?:            AuditSnapshot | null;
-  _count?:              { auditControls: number };
+  executiveSummary: string | null;
+  auditConclusion: string | null;
+  signedPdfUrl: string | null;
+  signedAt: string | null;
+  signedById: string | null;
+  isLocked: boolean;
+  findings: AuditFindingRecord[];
+  auditControls?: AuditControlRecord[];
+  snapshot?: AuditSnapshot | null;
+  _count?: { auditControls: number };
 }
 
 /** Live metrics returned by GET /:id/report (before snapshot exists) */
 export interface AuditReportMetrics {
-  totalControls:         number;
-  compliantControls:     number;
-  nonCompliantControls:  number;
+  totalControls: number;
+  compliantControls: number;
+  nonCompliantControls: number;
   notApplicableControls: number;
-  pendingControls:       number;
-  compliancePct:         number;
-  totalFindings:         number;
-  openFindings:          number;
-  closedFindings:        number;
-  majorFindings:         number;
-  minorFindings:         number;
-  observationFindings:   number;
-  ofiFindings:           number;
+  pendingControls: number;
+  compliancePct: number;
+  totalFindings: number;
+  openFindings: number;
+  closedFindings: number;
+  majorFindings: number;
+  minorFindings: number;
+  observationFindings: number;
+  ofiFindings: number;
 }
 
 export interface AuditReportResponse {
-  audit:   AuditRecord;
+  audit: AuditRecord;
   metrics: AuditReportMetrics;
 }
 
@@ -207,44 +243,71 @@ export interface PublicAuditorInvitation {
 }
 
 export interface CreateAuditPayload {
-  name:                  string;
-  type:                  AuditType;
-  frameworkId?:          string;
-  frameworkName?:        string;
-  periodStart?:          string;
-  periodEnd?:            string;
-  startDate:             string;
-  endDate?:              string;
-  earlyAccessDate?:      string;
-  assignedAuditorId?:    string;
-  auditorIds?:           string[];
+  name: string;
+  type: AuditType;
+  frameworkId?: string;
+  frameworkName?: string;
+  periodStart?: string;
+  periodEnd?: string;
+  startDate: string;
+  endDate?: string;
+  earlyAccessDate?: string;
+  assignedAuditorId?: string;
+  auditorIds?: string[];
   externalAuditorEmail?: string;
-  controlIds?:           string[];
-  allControls?:          boolean;
+  controlIds?: string[];
+  allControls?: boolean;
 }
 
 export interface CreateFindingPayload {
-  controlId:    string;
-  severity:     FindingSeverity;
-  description:  string;
+  controlId: string;
+  severity: FindingSeverity;
+  description: string;
   remediation?: string;
-  status?:      string;
+  status?: string;
 }
 
 export interface AuditComment {
-  id:         string;
-  auditId:    string;
+  id: string;
+  auditId: string;
   controlId?: string | null;
   auditEvidenceId?: string | null;
-  authorId:   string;
-  text:       string;
-  createdAt:  string;
+  auditRequestId?: string | null;
+  authorId: string;
+  text: string;
+  createdAt: string;
   author: {
-    id:    string;
+    id: string;
     name?: string | null;
     email: string;
-    role:  string;
+    role: string;
   };
+}
+
+export type AuditRequestEvidenceType =
+  | 'POLICY'
+  | 'SCREENSHOT'
+  | 'LOG'
+  | 'CONFIG'
+  | 'CONFIGURATION_EXPORT'
+  | 'REPORT'
+  | 'OTHER';
+
+export const AUDIT_REQUEST_EVIDENCE_TYPES: AuditRequestEvidenceType[] = [
+  'POLICY',
+  'SCREENSHOT',
+  'LOG',
+  'CONFIG',
+  'CONFIGURATION_EXPORT',
+  'REPORT',
+  'OTHER',
+];
+
+export interface AuditRequestRelatedUser {
+  id: string;
+  name?: string | null;
+  email: string;
+  role: string;
 }
 
 export interface AuditRequestRecord {
@@ -254,20 +317,56 @@ export interface AuditRequestRecord {
   controlId: string | null;
   title: string;
   description: string | null;
+  evidenceTypeRequested: AuditRequestEvidenceType | null;
   status: AuditRequestStatus;
   dueDate: string | null;
   assignedTo: string | null;
   createdBy: string;
   updatedBy: string | null;
+  flaggedBy: string | null;
+  flaggedAt: string | null;
+  acceptedBy: string | null;
+  acceptedAt: string | null;
   createdAt: string;
   updatedAt: string;
-  assignee?: { id: string; name?: string | null; email: string; role: string } | null;
+  assignee?: {
+    id: string;
+    name?: string | null;
+    email: string;
+    role: string;
+  } | null;
+  // Resolved on detail fetch only.
+  createdByUser?: AuditRequestRelatedUser | null;
+  updatedByUser?: AuditRequestRelatedUser | null;
+  flaggedByUser?: AuditRequestRelatedUser | null;
+  acceptedByUser?: AuditRequestRelatedUser | null;
   evidenceLinks?: Array<{
     auditRequestId: string;
     evidenceId: string;
     linkedAt: string;
-    evidence: ControlEvidenceItem & { controlId: string };
+    // Post Phase B: audit-level linked evidence has null controlId.
+    evidence: ControlEvidenceItem & { controlId: string | null };
   }>;
+}
+
+// Cross-audit aggregation row returned by GET /api/audit-requests/my.
+// Flattened (no nested audit/control objects) since the Todo UI only needs
+// labels.
+export interface MyAuditRequestRow {
+  id: string;
+  auditId: string;
+  auditName: string;
+  auditStatus: string;
+  auditIsLocked: boolean;
+  controlId: string | null;
+  controlLabel: string | null;
+  title: string;
+  description: string | null;
+  status: AuditRequestStatus;
+  dueDate: string | null;
+  linkedEvidenceCount: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface AuditEvidenceSummaryItem {
@@ -282,8 +381,21 @@ export interface AuditEvidenceSummaryItem {
   approvedAt: string | null;
   createdAt: string;
   control: { id: string; isoReference: string; title: string };
+  // INVARIANT: AuditEvidenceSummaryItem is only populated from rows that have
+  // a matching `AuditEvidence` record. `AuditEvidence.controlId` is still
+  // NOT NULL (per-audit review record only makes sense per-control), and the
+  // backend link/upload flow only creates `AuditEvidence` when both
+  // `auditRequest.controlId` and `evidence.controlId` are set. Audit-level
+  // Evidence rows therefore never appear in this summary. If a future
+  // feature ever AuditEvidences an audit-level Evidence row, this type
+  // assertion becomes a lie — update the type then.
   evidence: ControlEvidenceItem & { controlId: string };
-  requests: Array<Pick<AuditRequestRecord, 'id' | 'title' | 'status' | 'assignedTo' | 'dueDate'>>;
+  requests: Array<
+    Pick<
+      AuditRequestRecord,
+      'id' | 'title' | 'status' | 'assignedTo' | 'dueDate'
+    >
+  >;
   commentCount: number;
 }
 
@@ -299,8 +411,30 @@ export interface CreateAuditRequestPayload {
   controlId?: string | null;
   title: string;
   description?: string | null;
+  evidenceTypeRequested?: AuditRequestEvidenceType | null;
   dueDate?: string | null;
   assignedTo?: string | null;
+}
+
+export interface UpdateAuditRequestPayload {
+  title?: string;
+  description?: string | null;
+  evidenceTypeRequested?: AuditRequestEvidenceType | null;
+  controlId?: string | null;
+  status?: AuditRequestStatus;
+  dueDate?: string | null;
+  assignedTo?: string | null;
+}
+
+export interface LinkableEvidenceResponse {
+  success: boolean;
+  data: ControlEvidenceItem[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 }
 
 export type AuditDataSnapshotType = 'START' | 'COMPLETION';
@@ -334,7 +468,13 @@ export interface AuditFrameworkRequirement {
 }
 
 export interface AuditFrameworkResponse {
-  framework: { id: string; slug: string; name: string; version: string; description?: string | null } | null;
+  framework: {
+    id: string;
+    slug: string;
+    name: string;
+    version: string;
+    description?: string | null;
+  } | null;
   requirements: AuditFrameworkRequirement[];
 }
 
@@ -365,131 +505,329 @@ export interface AuditListResponse {
 // ── Service ───────────────────────────────────────────────────────────────────
 
 export const auditsService = {
-  list(params?: { type?: AuditType; status?: AuditStatus; search?: string; page?: number; limit?: number }) {
+  list(params?: {
+    type?: AuditType;
+    status?: AuditStatus;
+    search?: string;
+    page?: number;
+    limit?: number;
+  }) {
     // Strip out undefined/empty values so they aren't sent as the string "undefined"
     const clean: Record<string, string> = {};
-    if (params?.type   && (params.type   as unknown) !== 'undefined' && (params.type   as unknown) !== 'all') clean.type   = params.type;
-    if (params?.status && (params.status as unknown) !== 'undefined' && (params.status as unknown) !== 'all') clean.status = params.status;
-    if (params?.search && params.search !== 'undefined' && params.search !== 'all') clean.search = params.search;
+    if (
+      params?.type &&
+      (params.type as unknown) !== 'undefined' &&
+      (params.type as unknown) !== 'all'
+    )
+      clean.type = params.type;
+    if (
+      params?.status &&
+      (params.status as unknown) !== 'undefined' &&
+      (params.status as unknown) !== 'all'
+    )
+      clean.status = params.status;
+    if (
+      params?.search &&
+      params.search !== 'undefined' &&
+      params.search !== 'all'
+    )
+      clean.search = params.search;
     if (params?.page !== undefined) clean.page = String(params.page);
     if (params?.limit !== undefined) clean.limit = String(params.limit);
-    return apiClient.get<AuditListResponse>('/api/audits', Object.keys(clean).length ? clean : undefined);
+    return apiClient.get<AuditListResponse>(
+      '/api/audits',
+      Object.keys(clean).length ? clean : undefined,
+    );
   },
 
   get(id: string) {
-    return apiClient.get<{ success: boolean; data: AuditRecord }>(`/api/audits/${id}`);
+    return apiClient.get<{ success: boolean; data: AuditRecord }>(
+      `/api/audits/${id}`,
+    );
   },
 
   create(payload: CreateAuditPayload) {
-    return apiClient.post<{ success: boolean; data: AuditRecord }>('/api/audits', payload);
+    return apiClient.post<{ success: boolean; data: AuditRecord }>(
+      '/api/audits',
+      payload,
+    );
   },
 
   update(id: string, payload: Partial<CreateAuditPayload>) {
-    return apiClient.patch<{ success: boolean; data: AuditRecord }>(`/api/audits/${id}`, payload);
+    return apiClient.patch<{ success: boolean; data: AuditRecord }>(
+      `/api/audits/${id}`,
+      payload,
+    );
   },
 
   start(id: string) {
-    return apiClient.post<{ success: boolean; data: AuditRecord }>(`/api/audits/${id}/start`);
+    return apiClient.post<{ success: boolean; data: AuditRecord }>(
+      `/api/audits/${id}/start`,
+    );
   },
 
   close(id: string) {
-    return apiClient.post<{ success: boolean; data: AuditRecord }>(`/api/audits/${id}/close`);
+    return apiClient.post<{ success: boolean; data: AuditRecord }>(
+      `/api/audits/${id}/close`,
+    );
   },
 
   transitionToAwaitingReport(id: string) {
-    return apiClient.post<{ success: boolean; data: AuditRecord }>(`/api/audits/${id}/transition-to-awaiting-report`);
+    return apiClient.post<{ success: boolean; data: AuditRecord }>(
+      `/api/audits/${id}/transition-to-awaiting-report`,
+    );
   },
 
   listControls(id: string) {
-    return apiClient.get<{ success: boolean; data: AuditControlRecord[] }>(`/api/audits/${id}/controls`);
+    return apiClient.get<{ success: boolean; data: AuditControlRecord[] }>(
+      `/api/audits/${id}/controls`,
+    );
   },
 
   getEvidenceSummary(id: string) {
-    return apiClient.get<{ success: boolean; data: AuditEvidenceSummaryResponse }>(`/api/audits/${id}/evidence-summary`);
+    return apiClient.get<{
+      success: boolean;
+      data: AuditEvidenceSummaryResponse;
+    }>(`/api/audits/${id}/evidence-summary`);
   },
 
   getFramework(auditId: string) {
-    return apiClient.get<{ success: boolean; data: AuditFrameworkResponse }>(`/api/audits/${auditId}/framework`);
+    return apiClient.get<{ success: boolean; data: AuditFrameworkResponse }>(
+      `/api/audits/${auditId}/framework`,
+    );
   },
 
   getRiskSummary(auditId: string) {
-    return apiClient.get<{ success: boolean; data: AuditSummaryResponse }>(`/api/audits/${auditId}/risk-summary`);
+    return apiClient.get<{ success: boolean; data: AuditSummaryResponse }>(
+      `/api/audits/${auditId}/risk-summary`,
+    );
   },
 
   getAssetSummary(auditId: string) {
-    return apiClient.get<{ success: boolean; data: AuditSummaryResponse }>(`/api/audits/${auditId}/asset-summary`);
+    return apiClient.get<{ success: boolean; data: AuditSummaryResponse }>(
+      `/api/audits/${auditId}/asset-summary`,
+    );
   },
 
   getPersonnelSummary(auditId: string) {
-    return apiClient.get<{ success: boolean; data: AuditSummaryResponse }>(`/api/audits/${auditId}/personnel-summary`);
+    return apiClient.get<{ success: boolean; data: AuditSummaryResponse }>(
+      `/api/audits/${auditId}/personnel-summary`,
+    );
   },
 
   getIntegrationSummary(auditId: string) {
-    return apiClient.get<{ success: boolean; data: AuditSummaryResponse }>(`/api/audits/${auditId}/integration-summary`);
+    return apiClient.get<{ success: boolean; data: AuditSummaryResponse }>(
+      `/api/audits/${auditId}/integration-summary`,
+    );
   },
 
   listSnapshots(auditId: string) {
-    return apiClient.get<{ success: boolean; data: AuditSnapshotListItem[] }>(`/api/audits/${auditId}/snapshots`);
+    return apiClient.get<{ success: boolean; data: AuditSnapshotListItem[] }>(
+      `/api/audits/${auditId}/snapshots`,
+    );
   },
 
   getSnapshot(auditId: string, snapshotType: AuditDataSnapshotType) {
-    return apiClient.get<{ success: boolean; data: AuditDataSnapshotRecord }>(`/api/audits/${auditId}/snapshots/${snapshotType}`);
+    return apiClient.get<{ success: boolean; data: AuditDataSnapshotRecord }>(
+      `/api/audits/${auditId}/snapshots/${snapshotType}`,
+    );
   },
 
-  updateControl(auditId: string, controlId: string, payload: { reviewStatus?: AuditControlStatus; notes?: string }) {
-    return apiClient.patch<{ success: boolean; data: AuditControlRecord }>(`/api/audits/${auditId}/controls/${controlId}`, payload);
+  // ── Risk snapshots (auditor portal) ─────────────────────────────────────────
+  // Auditor-portal view: only snapshots the org has explicitly shared AND that
+  // fall inside this audit's observation window. Distinct from `listSnapshots`
+  // (which lists AuditDataSnapshot — start/completion auto-captures).
+
+  listRiskSnapshots(auditId: string) {
+    return apiClient.get<{ success: boolean; data: RiskSnapshotRecord[] }>(
+      `/api/audits/${auditId}/risk-snapshots`,
+    );
+  },
+
+  getRiskSnapshotDetail(auditId: string, snapshotId: string) {
+    return apiClient.get<{ success: boolean; data: RiskSnapshotRecord }>(
+      `/api/audits/${auditId}/risk-snapshots/${snapshotId}`,
+    );
+  },
+
+  updateControl(
+    auditId: string,
+    controlId: string,
+    payload: { reviewStatus?: AuditControlStatus; notes?: string },
+  ) {
+    return apiClient.patch<{ success: boolean; data: AuditControlRecord }>(
+      `/api/audits/${auditId}/controls/${controlId}`,
+      payload,
+    );
   },
 
   createFinding(auditId: string, payload: CreateFindingPayload) {
-    return apiClient.post<{ success: boolean; data: AuditFindingRecord }>(`/api/audits/${auditId}/findings`, payload);
+    return apiClient.post<{ success: boolean; data: AuditFindingRecord }>(
+      `/api/audits/${auditId}/findings`,
+      payload,
+    );
   },
 
-  updateFinding(auditId: string, findingId: string, payload: Partial<Omit<CreateFindingPayload, 'controlId'>>) {
-    return apiClient.patch<{ success: boolean; data: AuditFindingRecord }>(`/api/audits/${auditId}/findings/${findingId}`, payload);
+  updateFinding(
+    auditId: string,
+    findingId: string,
+    payload: Partial<Omit<CreateFindingPayload, 'controlId'>>,
+  ) {
+    return apiClient.patch<{ success: boolean; data: AuditFindingRecord }>(
+      `/api/audits/${auditId}/findings/${findingId}`,
+      payload,
+    );
   },
 
   deleteFinding(auditId: string, findingId: string) {
-    return apiClient.delete<{ success: boolean }>(`/api/audits/${auditId}/findings/${findingId}`);
+    return apiClient.delete<{ success: boolean }>(
+      `/api/audits/${auditId}/findings/${findingId}`,
+    );
   },
 
   // ── Requests ────────────────────────────────────────────────────────────────
 
-  listRequests(auditId: string, params?: { controlId?: string; status?: AuditRequestStatus; assignedTo?: string }) {
-    return apiClient.get<{ success: boolean; data: AuditRequestRecord[] }>(`/api/audits/${auditId}/requests`, params);
+  listRequests(
+    auditId: string,
+    params?: {
+      controlId?: string;
+      status?: AuditRequestStatus;
+      assignedTo?: string;
+    },
+  ) {
+    return apiClient.get<{ success: boolean; data: AuditRequestRecord[] }>(
+      `/api/audits/${auditId}/requests`,
+      params,
+    );
   },
 
   createRequest(auditId: string, payload: CreateAuditRequestPayload) {
-    return apiClient.post<{ success: boolean; data: AuditRequestRecord }>(`/api/audits/${auditId}/requests`, payload);
+    return apiClient.post<{ success: boolean; data: AuditRequestRecord }>(
+      `/api/audits/${auditId}/requests`,
+      payload,
+    );
   },
 
-  updateRequest(auditId: string, requestId: string, payload: Partial<CreateAuditRequestPayload> & { status?: AuditRequestStatus }) {
-    return apiClient.patch<{ success: boolean; data: AuditRequestRecord }>(`/api/audits/${auditId}/requests/${requestId}`, payload);
+  updateRequest(
+    auditId: string,
+    requestId: string,
+    payload: UpdateAuditRequestPayload,
+  ) {
+    return apiClient.patch<{ success: boolean; data: AuditRequestRecord }>(
+      `/api/audits/${auditId}/requests/${requestId}`,
+      payload,
+    );
   },
 
   deleteRequest(auditId: string, requestId: string) {
-    return apiClient.delete<{ success: boolean }>(`/api/audits/${auditId}/requests/${requestId}`);
+    return apiClient.delete<{ success: boolean }>(
+      `/api/audits/${auditId}/requests/${requestId}`,
+    );
   },
 
-  linkRequestEvidence(auditId: string, requestId: string, payload: { evidenceId: string; action?: 'link' | 'unlink' }) {
-    return apiClient.post<{ success: boolean; data: AuditRequestRecord }>(`/api/audits/${auditId}/requests/${requestId}/evidence`, payload);
+  getRequest(auditId: string, requestId: string) {
+    return apiClient.get<{ success: boolean; data: AuditRequestRecord }>(
+      `/api/audits/${auditId}/requests/${requestId}`,
+    );
+  },
+
+  listLinkableRequestEvidence(
+    auditId: string,
+    requestId: string,
+    params?: {
+      search?: string;
+      automated?: boolean;
+      page?: number;
+      limit?: number;
+    },
+  ) {
+    const query: Record<string, string> = {};
+    if (params?.search) query.search = params.search;
+    if (params?.automated !== undefined)
+      query.automated = String(params.automated);
+    if (params?.page !== undefined) query.page = String(params.page);
+    if (params?.limit !== undefined) query.limit = String(params.limit);
+    return apiClient.get<LinkableEvidenceResponse>(
+      `/api/audits/${auditId}/requests/${requestId}/linkable-evidence`,
+      Object.keys(query).length ? query : undefined,
+    );
+  },
+
+  async uploadRequestEvidence(
+    auditId: string,
+    requestId: string,
+    file: File,
+  ): Promise<{ success: boolean; data: ControlEvidenceItem }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await fetch(
+      `${apiClient.baseURL}/api/audits/${auditId}/requests/${requestId}/evidence/upload`,
+      {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+        headers: apiClient.token
+          ? { Authorization: `Bearer ${apiClient.token}` }
+          : {},
+      },
+    );
+    if (!response.ok) {
+      const text = await response.text().catch(() => '');
+      throw new Error(text || `Upload failed: ${response.status}`);
+    }
+    return response.json();
+  },
+
+  // Cross-audit aggregation for the Todo page. Backend per-audit list at
+  // /api/audits/:id/requests already filters by assignee for non-audit
+  // roles; this endpoint returns the same caller's requests across audits.
+  listMyAuditRequests(params?: { includeClosed?: boolean }) {
+    const query = params?.includeClosed ? { includeClosed: 'true' } : undefined;
+    return apiClient.get<{ success: boolean; data: MyAuditRequestRow[] }>(
+      '/api/audit-requests/my',
+      query,
+    );
+  },
+
+  linkRequestEvidence(
+    auditId: string,
+    requestId: string,
+    payload: { evidenceId: string; action?: 'link' | 'unlink' },
+  ) {
+    return apiClient.post<{ success: boolean; data: AuditRequestRecord }>(
+      `/api/audits/${auditId}/requests/${requestId}/evidence`,
+      payload,
+    );
   },
 
   // ── Auditor invitations ────────────────────────────────────────────────────
 
   listInvitations(auditId: string) {
-    return apiClient.get<{ success: boolean; data: AuditorInvitationRecord[] }>(`/api/audits/${auditId}/invitations`);
+    return apiClient.get<{ success: boolean; data: AuditorInvitationRecord[] }>(
+      `/api/audits/${auditId}/invitations`,
+    );
   },
 
-  createInvitation(auditId: string, payload: { email: string; role?: AuditAuditorRole; expiresAt?: string }) {
-    return apiClient.post<{ success: boolean; data: AuditorInvitationRecord }>(`/api/audits/${auditId}/invitations`, payload);
+  createInvitation(
+    auditId: string,
+    payload: { email: string; role?: AuditAuditorRole; expiresAt?: string },
+  ) {
+    return apiClient.post<{ success: boolean; data: AuditorInvitationRecord }>(
+      `/api/audits/${auditId}/invitations`,
+      payload,
+    );
   },
 
   revokeInvitation(auditId: string, invitationId: string) {
-    return apiClient.delete<{ success: boolean }>(`/api/audits/${auditId}/invitations/${invitationId}`);
+    return apiClient.delete<{ success: boolean }>(
+      `/api/audits/${auditId}/invitations/${invitationId}`,
+    );
   },
 
   getPublicInvitation(secret: string) {
-    return apiClient.get<{ success: boolean; data: PublicAuditorInvitation }>(`/api/auditor-invitations/${secret}`);
+    return apiClient.get<{ success: boolean; data: PublicAuditorInvitation }>(
+      `/api/auditor-invitations/${secret}`,
+    );
   },
 
   acceptPublicInvitation(secret: string) {
@@ -513,21 +851,31 @@ export const auditsService = {
 
   /** Get final report draft + live metrics */
   getReport(auditId: string) {
-    return apiClient.get<{ success: boolean; data: AuditReportResponse }>(`/api/audits/${auditId}/report`);
+    return apiClient.get<{ success: boolean; data: AuditReportResponse }>(
+      `/api/audits/${auditId}/report`,
+    );
   },
 
   /** Update executive summary / conclusion / PDF URL */
-  updateReport(auditId: string, payload: {
-    executiveSummary?: string | null;
-    auditConclusion?:  string | null;
-    signedPdfUrl?:     string | null;
-  }) {
-    return apiClient.patch<{ success: boolean; data: AuditRecord }>(`/api/audits/${auditId}/report`, payload);
+  updateReport(
+    auditId: string,
+    payload: {
+      executiveSummary?: string | null;
+      auditConclusion?: string | null;
+      signedPdfUrl?: string | null;
+    },
+  ) {
+    return apiClient.patch<{ success: boolean; data: AuditRecord }>(
+      `/api/audits/${auditId}/report`,
+      payload,
+    );
   },
 
   /** Sign & complete — locks audit, captures snapshot, → COMPLETED */
   signAndComplete(auditId: string) {
-    return apiClient.post<{ success: boolean; data: AuditRecord }>(`/api/audits/${auditId}/sign-and-complete`);
+    return apiClient.post<{ success: boolean; data: AuditRecord }>(
+      `/api/audits/${auditId}/sign-and-complete`,
+    );
   },
 
   generateReportPdf(auditId: string) {
@@ -542,35 +890,72 @@ export const auditsService = {
 
   // ── Comments ────────────────────────────────────────────────────────────────
 
-  listComments(auditId: string, filters?: { controlId?: string; auditEvidenceId?: string }) {
-    const params = filters && Object.keys(filters).length > 0 ? filters : undefined;
-    return apiClient.get<{ success: boolean; data: AuditComment[] }>(`/api/audits/${auditId}/comments`, params);
+  listComments(
+    auditId: string,
+    filters?: {
+      controlId?: string;
+      auditEvidenceId?: string;
+      auditRequestId?: string;
+    },
+  ) {
+    const params =
+      filters && Object.keys(filters).length > 0 ? filters : undefined;
+    return apiClient.get<{ success: boolean; data: AuditComment[] }>(
+      `/api/audits/${auditId}/comments`,
+      params,
+    );
   },
 
-  postComment(auditId: string, payload: { text: string; controlId?: string | null; auditEvidenceId?: string | null }) {
-    return apiClient.post<{ success: boolean; data: AuditComment }>(`/api/audits/${auditId}/comments`, payload);
+  postComment(
+    auditId: string,
+    payload: {
+      text: string;
+      controlId?: string | null;
+      auditEvidenceId?: string | null;
+      auditRequestId?: string | null;
+    },
+  ) {
+    return apiClient.post<{ success: boolean; data: AuditComment }>(
+      `/api/audits/${auditId}/comments`,
+      payload,
+    );
   },
 
   deleteComment(auditId: string, commentId: string) {
-    return apiClient.delete<{ success: boolean }>(`/api/audits/${auditId}/comments/${commentId}`);
+    return apiClient.delete<{ success: boolean }>(
+      `/api/audits/${auditId}/comments/${commentId}`,
+    );
   },
 
   // ── Evidence review (approve / flag / ready) ─────────────────────────────
 
-  approveEvidence(auditId: string, auditControlId: string, auditEvidenceId: string) {
+  approveEvidence(
+    auditId: string,
+    auditControlId: string,
+    auditEvidenceId: string,
+  ) {
     return apiClient.patch<{ success: boolean; data: AuditEvidenceReview }>(
       `/api/audits/${auditId}/controls/${auditControlId}/evidence/${auditEvidenceId}/approve`,
     );
   },
 
-  flagEvidence(auditId: string, auditControlId: string, auditEvidenceId: string, reason: string) {
+  flagEvidence(
+    auditId: string,
+    auditControlId: string,
+    auditEvidenceId: string,
+    reason: string,
+  ) {
     return apiClient.patch<{ success: boolean; data: AuditEvidenceReview }>(
       `/api/audits/${auditId}/controls/${auditControlId}/evidence/${auditEvidenceId}/flag`,
       { reason },
     );
   },
 
-  readyEvidence(auditId: string, auditControlId: string, auditEvidenceId: string) {
+  readyEvidence(
+    auditId: string,
+    auditControlId: string,
+    auditEvidenceId: string,
+  ) {
     return apiClient.patch<{ success: boolean; data: AuditEvidenceReview }>(
       `/api/audits/${auditId}/controls/${auditControlId}/evidence/${auditEvidenceId}/ready`,
     );
