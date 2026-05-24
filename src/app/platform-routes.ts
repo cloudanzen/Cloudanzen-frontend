@@ -64,9 +64,25 @@ const ActivityLogPage = lazy(() =>
   })),
 );
 
+// PR-X9 catalog UI.
+const CatalogBatchesPage = lazy(() =>
+  import('@/app/pages/platform/catalog/BatchesPage').then((m) => ({
+    default: m.BatchesPage,
+  })),
+);
+const CatalogBatchDetailPage = lazy(() =>
+  import('@/app/pages/platform/catalog/BatchDetailPage').then((m) => ({
+    default: m.BatchDetailPage,
+  })),
+);
+const CatalogVersionsPage = lazy(() =>
+  import('@/app/pages/platform/catalog/VersionsPage').then((m) => ({
+    default: m.VersionsPage,
+  })),
+);
+
 // Hostname-rooted at platform.cloudanzen.com. Paths intentionally have NO
-// /platform/* prefix — the hostname does the scoping. Catalog routes
-// (/catalog/batches, /catalog/versions) land in PR-X6.
+// /platform/* prefix — the hostname does the scoping.
 export const platformRoutes: RouteObject[] = [
   { path: '/login', Component: PlatformLoginPage },
   {
@@ -85,6 +101,9 @@ export const platformRoutes: RouteObject[] = [
       { path: 'framework-requests', Component: FrameworkRequestsPage },
       { path: 'allowlist', Component: AllowlistPage },
       { path: 'activity', Component: ActivityLogPage },
+      { path: 'catalog/batches', Component: CatalogBatchesPage },
+      { path: 'catalog/batches/:id', Component: CatalogBatchDetailPage },
+      { path: 'catalog/versions', Component: CatalogVersionsPage },
       { path: '*', Component: NotFoundPage },
     ],
   },
