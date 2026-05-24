@@ -18,6 +18,8 @@ import {
 import { Eye, EyeOff, Lock, Mail, Shield, KeyRound } from 'lucide-react';
 import { ApiError } from '@/services/api/client';
 import { platformAuthService } from '@/services/api/platformAuth';
+import { authService } from '@/services/api/auth';
+import { Role } from '@/services/api/types';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email'),
@@ -51,6 +53,19 @@ export function PlatformLoginPage() {
         toast.info('Enter your authenticator code');
         return;
       }
+      // Cache the platform admin in authStorage so useCurrentUser() /
+      // useHasRole('SUPER_ADMIN') return truthy on platform-tree pages
+      // (the 6 re-mounted admin pages still call useHasRole internally).
+      // organizationId is set to '' rather than null because the cached
+      // User shape requires a string; platform-side pages never read it.
+      authService.cacheUser({
+        id: res.user.id,
+        email: res.user.email,
+        name: res.user.name ?? undefined,
+        role: Role.SUPER_ADMIN,
+        organizationId: '',
+        createdAt: new Date().toISOString(),
+      });
       toast.success('Signed in');
       navigate('/', { replace: true });
     } catch (err) {

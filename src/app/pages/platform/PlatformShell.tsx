@@ -2,6 +2,7 @@ import { Outlet, Link, useNavigate, useLocation } from 'react-router';
 import { Suspense } from 'react';
 import { usePlatformAdmin } from '@/app/hooks/usePlatformAdmin';
 import { platformAuthService } from '@/services/api/platformAuth';
+import { authService } from '@/services/api/auth';
 import { Button } from '@/app/components/ui/button';
 import { Shield, LogOut } from 'lucide-react';
 
@@ -34,6 +35,9 @@ export function PlatformShell() {
 
   const handleLogout = async () => {
     await platformAuthService.logout();
+    // Wipe the cached SUPER_ADMIN entry that platform login wrote into
+    // authStorage so useCurrentUser() returns null after logout.
+    authService.clearCachedUser();
     navigate('/login', { replace: true });
   };
 
