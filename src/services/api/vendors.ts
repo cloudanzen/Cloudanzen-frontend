@@ -2,14 +2,21 @@ import { apiClient } from './client';
 
 // ── Vendor types ─────────────────────────────────────────────────────────────
 
-export type VendorStatus = 'MONITORED' | 'ASSESSMENT_DUE' | 'IN_REVIEW' | 'BLOCKED';
+export type VendorStatus =
+  | 'MONITORED'
+  | 'ASSESSMENT_DUE'
+  | 'IN_REVIEW'
+  | 'BLOCKED';
 export type RiskTier = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
 // Legacy alias kept for callers that imported `VendorTier` while we rolled
 // out the inherent/residual split. Remove once consumers migrate.
 export type VendorTier = RiskTier;
 
 export type DataClass = 'PII' | 'Sensitive' | 'Internal' | 'Public';
-export type BusinessCriticality = 'Mission-critical' | 'Business-important' | 'Operational';
+export type BusinessCriticality =
+  | 'Mission-critical'
+  | 'Business-important'
+  | 'Operational';
 
 export interface VendorOwnerSummary {
   id: string;
@@ -40,7 +47,14 @@ export interface VendorRecord {
   lastAssessmentAt: string | null;
   nextAssessmentAt: string | null;
   contractEndDate?: string | null;
-  discoverySource?: 'OKTA' | 'AZUREAD' | 'JUMPCLOUD' | 'WORKSPACE' | 'MANUAL' | 'INTAKE' | null;
+  discoverySource?:
+    | 'OKTA'
+    | 'AZUREAD'
+    | 'JUMPCLOUD'
+    | 'WORKSPACE'
+    | 'MANUAL'
+    | 'INTAKE'
+    | null;
   lastIncidentAt?: string | null;
   notes?: string | null;
   createdAt: string;
@@ -197,7 +211,13 @@ export interface ReviewDecisionInput {
   validUntil?: string | null;
 }
 
-export type VendorDocumentKind = 'SOC2' | 'ISO27001' | 'PEN_TEST' | 'DPA' | 'PRIVACY_POLICY' | 'OTHER';
+export type VendorDocumentKind =
+  | 'SOC2'
+  | 'ISO27001'
+  | 'PEN_TEST'
+  | 'DPA'
+  | 'PRIVACY_POLICY'
+  | 'OTHER';
 
 export interface VendorDocumentControlLink {
   id: string;
@@ -269,9 +289,21 @@ export interface VendorQuestionnaireStatus {
 // ── Monitoring types ──────────────────────────────────────────────────────────
 
 export type VendorMonitoringEventType =
-  | 'BREACH' | 'VULN_DISCLOSED' | 'CERT_EXPIRED' | 'CERT_REISSUED'
-  | 'SOC2_REISSUED' | 'SUBPROCESSOR_CHANGE' | 'POLICY_UPDATE' | 'ADVERSE_NEWS' | 'OTHER';
-export type VendorMonitoringSeverity = 'INFO' | 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  | 'BREACH'
+  | 'VULN_DISCLOSED'
+  | 'CERT_EXPIRED'
+  | 'CERT_REISSUED'
+  | 'SOC2_REISSUED'
+  | 'SUBPROCESSOR_CHANGE'
+  | 'POLICY_UPDATE'
+  | 'ADVERSE_NEWS'
+  | 'OTHER';
+export type VendorMonitoringSeverity =
+  | 'INFO'
+  | 'LOW'
+  | 'MEDIUM'
+  | 'HIGH'
+  | 'CRITICAL';
 
 export interface VendorMonitoringEvent {
   id: string;
@@ -318,7 +350,11 @@ export interface CreateVendorMonitoringEventInput {
 
 // ── Incident types ────────────────────────────────────────────────────────────
 
-export type VendorIncidentKind = 'BREACH' | 'OUTAGE' | 'SUBPROCESSOR_CHANGE' | 'OTHER';
+export type VendorIncidentKind =
+  | 'BREACH'
+  | 'OUTAGE'
+  | 'SUBPROCESSOR_CHANGE'
+  | 'OTHER';
 
 export interface VendorIncident {
   id: string;
@@ -343,8 +379,16 @@ export interface CreateVendorIncidentInput {
 
 // ── Discovery types ───────────────────────────────────────────────────────────
 
-export type VendorDiscoveryStatus = 'PENDING' | 'PROMOTED' | 'DISMISSED' | 'MERGED';
-export type VendorDiscoverySource = 'OKTA' | 'AZUREAD' | 'JUMPCLOUD' | 'WORKSPACE';
+export type VendorDiscoveryStatus =
+  | 'PENDING'
+  | 'PROMOTED'
+  | 'DISMISSED'
+  | 'MERGED';
+export type VendorDiscoverySource =
+  | 'OKTA'
+  | 'AZUREAD'
+  | 'JUMPCLOUD'
+  | 'WORKSPACE';
 
 export interface VendorDiscoveryCandidate {
   id: string;
@@ -415,7 +459,9 @@ export interface DecideVendorIntakeRequestInput {
 
 type ApiResp<T> = { success: boolean; data: T };
 
-function paramsToRecord(params?: VendorListParams): Record<string, string | number | boolean> | undefined {
+function paramsToRecord(
+  params?: VendorListParams,
+): Record<string, string | number | boolean> | undefined {
   if (!params) return undefined;
   const out: Record<string, string | number | boolean> = {};
   if (params.search) out.search = params.search;
@@ -424,7 +470,8 @@ function paramsToRecord(params?: VendorListParams): Record<string, string | numb
   if (params.residualTier) out.residualTier = params.residualTier;
   if (params.effectiveTier) out.effectiveTier = params.effectiveTier;
   if (params.highRisk !== undefined) out.highRisk = params.highRisk;
-  if (params.dueWithinDays !== undefined) out.dueWithinDays = params.dueWithinDays;
+  if (params.dueWithinDays !== undefined)
+    out.dueWithinDays = params.dueWithinDays;
   if (params.page !== undefined) out.page = params.page;
   if (params.limit !== undefined) out.limit = params.limit;
   return Object.keys(out).length > 0 ? out : undefined;
@@ -432,20 +479,24 @@ function paramsToRecord(params?: VendorListParams): Record<string, string | numb
 
 export const vendorsService = {
   async get(id: string): Promise<VendorRecord | null> {
-    const res = await apiClient.get<ApiResp<VendorRecord>>(`/api/vendors/${id}`);
+    const res = await apiClient.get<ApiResp<VendorRecord>>(
+      `/api/vendors/${id}`,
+    );
     return res?.data ?? null;
   },
 
   async list(params?: VendorListParams): Promise<VendorRecord[]> {
-    const res = await apiClient.get<ApiResp<VendorRecord[]>>('/api/vendors', paramsToRecord(params));
+    const res = await apiClient.get<ApiResp<VendorRecord[]>>(
+      '/api/vendors',
+      paramsToRecord(params),
+    );
     return res?.data ?? [];
   },
 
   async listPage(params?: VendorListParams): Promise<VendorListResponse> {
-    const res = await apiClient.get<ApiResp<VendorRecord[]> & VendorListResponse>(
-      '/api/vendors',
-      paramsToRecord(params),
-    );
+    const res = await apiClient.get<
+      ApiResp<VendorRecord[]> & VendorListResponse
+    >('/api/vendors', paramsToRecord(params));
     return {
       data: res?.data ?? [],
       pagination: res.pagination,
@@ -453,29 +504,51 @@ export const vendorsService = {
   },
 
   async create(input: CreateVendorInput): Promise<VendorRecord> {
-    const res = await apiClient.post<ApiResp<VendorRecord>>('/api/vendors', input);
+    const res = await apiClient.post<ApiResp<VendorRecord>>(
+      '/api/vendors',
+      input,
+    );
     return res.data;
   },
 
-  async update(id: string, patch: UpdateVendorInput): Promise<VendorRecord | null> {
-    const res = await apiClient.put<ApiResp<VendorRecord>>(`/api/vendors/${id}`, patch);
+  async update(
+    id: string,
+    patch: UpdateVendorInput,
+  ): Promise<VendorRecord | null> {
+    const res = await apiClient.put<ApiResp<VendorRecord>>(
+      `/api/vendors/${id}`,
+      patch,
+    );
     return res?.data ?? null;
+  },
+
+  async delete(id: string): Promise<void> {
+    await apiClient.delete<void>(`/api/vendors/${id}`);
   },
 
   // ── Contacts ──
   contacts: {
     async list(vendorId: string): Promise<VendorContact[]> {
-      const res = await apiClient.get<ApiResp<VendorContact[]>>(`/api/vendors/${vendorId}/contacts`);
+      const res = await apiClient.get<ApiResp<VendorContact[]>>(
+        `/api/vendors/${vendorId}/contacts`,
+      );
       return res?.data ?? [];
     },
-    async create(vendorId: string, input: CreateVendorContactInput): Promise<VendorContact> {
+    async create(
+      vendorId: string,
+      input: CreateVendorContactInput,
+    ): Promise<VendorContact> {
       const res = await apiClient.post<ApiResp<VendorContact>>(
         `/api/vendors/${vendorId}/contacts`,
         input,
       );
       return res.data;
     },
-    async update(vendorId: string, contactId: string, patch: UpdateVendorContactInput): Promise<VendorContact> {
+    async update(
+      vendorId: string,
+      contactId: string,
+      patch: UpdateVendorContactInput,
+    ): Promise<VendorContact> {
       const res = await apiClient.patch<ApiResp<VendorContact>>(
         `/api/vendors/${vendorId}/contacts/${contactId}`,
         patch,
@@ -483,17 +556,24 @@ export const vendorsService = {
       return res.data;
     },
     async remove(vendorId: string, contactId: string): Promise<void> {
-      await apiClient.delete<void>(`/api/vendors/${vendorId}/contacts/${contactId}`);
+      await apiClient.delete<void>(
+        `/api/vendors/${vendorId}/contacts/${contactId}`,
+      );
     },
   },
 
   // ── Reviews ──
   reviews: {
     async list(vendorId: string): Promise<VendorReview[]> {
-      const res = await apiClient.get<ApiResp<VendorReview[]>>(`/api/vendors/${vendorId}/reviews`);
+      const res = await apiClient.get<ApiResp<VendorReview[]>>(
+        `/api/vendors/${vendorId}/reviews`,
+      );
       return res?.data ?? [];
     },
-    async get(vendorId: string, reviewId: string): Promise<VendorReview | null> {
+    async get(
+      vendorId: string,
+      reviewId: string,
+    ): Promise<VendorReview | null> {
       const res = await apiClient.get<ApiResp<VendorReview>>(
         `/api/vendors/${vendorId}/reviews/${reviewId}`,
       );
@@ -506,7 +586,11 @@ export const vendorsService = {
       );
       return res.data;
     },
-    async update(vendorId: string, reviewId: string, patch: UpdateVendorReviewInput): Promise<VendorReview> {
+    async update(
+      vendorId: string,
+      reviewId: string,
+      patch: UpdateVendorReviewInput,
+    ): Promise<VendorReview> {
       const res = await apiClient.patch<ApiResp<VendorReview>>(
         `/api/vendors/${vendorId}/reviews/${reviewId}`,
         patch,
@@ -520,7 +604,11 @@ export const vendorsService = {
       );
       return res.data;
     },
-    async decide(vendorId: string, reviewId: string, body: ReviewDecisionInput): Promise<VendorReview> {
+    async decide(
+      vendorId: string,
+      reviewId: string,
+      body: ReviewDecisionInput,
+    ): Promise<VendorReview> {
       const res = await apiClient.post<ApiResp<VendorReview>>(
         `/api/vendors/${vendorId}/reviews/${reviewId}/decision`,
         body,
@@ -535,13 +623,21 @@ export const vendorsService = {
       return res.data;
     },
     documents: {
-      async list(vendorId: string, reviewId: string): Promise<VendorReviewDocument[]> {
+      async list(
+        vendorId: string,
+        reviewId: string,
+      ): Promise<VendorReviewDocument[]> {
         const res = await apiClient.get<ApiResp<VendorReviewDocument[]>>(
           `/api/vendors/${vendorId}/reviews/${reviewId}/documents`,
         );
         return res?.data ?? [];
       },
-      async upload(vendorId: string, reviewId: string, file: File, kind: VendorDocumentKind): Promise<VendorReviewDocument> {
+      async upload(
+        vendorId: string,
+        reviewId: string,
+        file: File,
+        kind: VendorDocumentKind,
+      ): Promise<VendorReviewDocument> {
         const formData = new FormData();
         formData.append('file', file);
         const response = await fetch(
@@ -550,20 +646,39 @@ export const vendorsService = {
             method: 'POST',
             body: formData,
             credentials: 'include',
-            headers: apiClient.token ? { Authorization: `Bearer ${apiClient.token}` } : {},
+            headers: apiClient.token
+              ? { Authorization: `Bearer ${apiClient.token}` }
+              : {},
           },
         );
         if (!response.ok) {
           const payload = await response.json().catch(() => undefined);
-          throw new Error(payload?.message || 'Failed to upload vendor document');
+          throw new Error(
+            payload?.message || 'Failed to upload vendor document',
+          );
         }
         const payload = await response.json();
         return payload.data;
       },
-      async remove(vendorId: string, reviewId: string, documentId: string): Promise<void> {
-        await apiClient.delete<void>(`/api/vendors/${vendorId}/reviews/${reviewId}/documents/${documentId}`);
+      async remove(
+        vendorId: string,
+        reviewId: string,
+        documentId: string,
+      ): Promise<void> {
+        await apiClient.delete<void>(
+          `/api/vendors/${vendorId}/reviews/${reviewId}/documents/${documentId}`,
+        );
       },
-      async createControlLink(vendorId: string, reviewId: string, documentId: string, input: { controlId: string; confidence?: 'HIGH' | 'MEDIUM' | 'LOW'; notes?: string | null }): Promise<VendorDocumentControlLink> {
+      async createControlLink(
+        vendorId: string,
+        reviewId: string,
+        documentId: string,
+        input: {
+          controlId: string;
+          confidence?: 'HIGH' | 'MEDIUM' | 'LOW';
+          notes?: string | null;
+        },
+      ): Promise<VendorDocumentControlLink> {
         const res = await apiClient.post<ApiResp<VendorDocumentControlLink>>(
           `/api/vendors/${vendorId}/reviews/${reviewId}/documents/${documentId}/control-links`,
           input,
@@ -572,32 +687,59 @@ export const vendorsService = {
       },
     },
     questionnaire: {
-      async list(vendorId: string, reviewId: string): Promise<VendorQuestionnaireAnswer[]> {
+      async list(
+        vendorId: string,
+        reviewId: string,
+      ): Promise<VendorQuestionnaireAnswer[]> {
         const res = await apiClient.get<ApiResp<VendorQuestionnaireAnswer[]>>(
           `/api/vendors/${vendorId}/reviews/${reviewId}/questionnaire/answers`,
         );
         return res?.data ?? [];
       },
-      async listSuggestions(vendorId: string, reviewId: string): Promise<VendorQuestionnaireRunResult['suggestedControls']> {
-        const res = await apiClient.get<ApiResp<VendorQuestionnaireRunResult['suggestedControls']>>(
+      async listSuggestions(
+        vendorId: string,
+        reviewId: string,
+      ): Promise<VendorQuestionnaireRunResult['suggestedControls']> {
+        const res = await apiClient.get<
+          ApiResp<VendorQuestionnaireRunResult['suggestedControls']>
+        >(
           `/api/vendors/${vendorId}/reviews/${reviewId}/questionnaire/suggestions`,
         );
         return res?.data ?? [];
       },
-      async getStatus(vendorId: string, reviewId: string): Promise<VendorQuestionnaireStatus> {
+      async getStatus(
+        vendorId: string,
+        reviewId: string,
+      ): Promise<VendorQuestionnaireStatus> {
         const res = await apiClient.get<ApiResp<VendorQuestionnaireStatus>>(
           `/api/vendors/${vendorId}/reviews/${reviewId}/questionnaire/status`,
         );
         return res.data;
       },
-      async run(vendorId: string, reviewId: string): Promise<VendorQuestionnaireRunResult> {
-        const res = await apiClient.post<ApiResp<{ queued: boolean; reviewId: string }>>(
-          `/api/vendors/${vendorId}/reviews/${reviewId}/questionnaire/run`,
-          {},
-        );
-        return { answers: [], suggestedControls: [], warning: null, generationId: undefined, ...res.data } as VendorQuestionnaireRunResult;
+      async run(
+        vendorId: string,
+        reviewId: string,
+      ): Promise<VendorQuestionnaireRunResult> {
+        const res = await apiClient.post<
+          ApiResp<{ queued: boolean; reviewId: string }>
+        >(`/api/vendors/${vendorId}/reviews/${reviewId}/questionnaire/run`, {});
+        return {
+          answers: [],
+          suggestedControls: [],
+          warning: null,
+          generationId: undefined,
+          ...res.data,
+        } as VendorQuestionnaireRunResult;
       },
-      async updateAnswer(vendorId: string, reviewId: string, answerId: string, input: { status: 'ACCEPTED' | 'EDITED' | 'DISMISSED'; finalText?: string | null }): Promise<VendorQuestionnaireAnswer> {
+      async updateAnswer(
+        vendorId: string,
+        reviewId: string,
+        answerId: string,
+        input: {
+          status: 'ACCEPTED' | 'EDITED' | 'DISMISSED';
+          finalText?: string | null;
+        },
+      ): Promise<VendorQuestionnaireAnswer> {
         const res = await apiClient.patch<ApiResp<VendorQuestionnaireAnswer>>(
           `/api/vendors/${vendorId}/reviews/${reviewId}/questionnaire/answers/${answerId}`,
           input,
@@ -618,11 +760,13 @@ export const vendorsService = {
       );
       return res?.data ?? [];
     },
-    async promote(candidateId: string, input: PromoteDiscoveryCandidateInput): Promise<{ candidate: VendorDiscoveryCandidate; vendor: VendorRecord }> {
-      const res = await apiClient.post<ApiResp<{ candidate: VendorDiscoveryCandidate; vendor: VendorRecord }>>(
-        `/api/vendors/discovery/candidates/${candidateId}/promote`,
-        input,
-      );
+    async promote(
+      candidateId: string,
+      input: PromoteDiscoveryCandidateInput,
+    ): Promise<{ candidate: VendorDiscoveryCandidate; vendor: VendorRecord }> {
+      const res = await apiClient.post<
+        ApiResp<{ candidate: VendorDiscoveryCandidate; vendor: VendorRecord }>
+      >(`/api/vendors/discovery/candidates/${candidateId}/promote`, input);
       return res.data;
     },
     async dismiss(candidateId: string): Promise<VendorDiscoveryCandidate> {
@@ -632,7 +776,10 @@ export const vendorsService = {
       );
       return res.data;
     },
-    async merge(candidateId: string, vendorId: string): Promise<VendorDiscoveryCandidate> {
+    async merge(
+      candidateId: string,
+      vendorId: string,
+    ): Promise<VendorDiscoveryCandidate> {
       const res = await apiClient.post<ApiResp<VendorDiscoveryCandidate>>(
         `/api/vendors/discovery/candidates/${candidateId}/merge`,
         { vendorId },
@@ -648,21 +795,33 @@ export const vendorsService = {
       );
       return res.data;
     },
-    async list(vendorId: string, params?: { acknowledged?: 'true' | 'false'; severity?: VendorMonitoringSeverity }): Promise<VendorMonitoringEvent[]> {
+    async list(
+      vendorId: string,
+      params?: {
+        acknowledged?: 'true' | 'false';
+        severity?: VendorMonitoringSeverity;
+      },
+    ): Promise<VendorMonitoringEvent[]> {
       const res = await apiClient.get<ApiResp<VendorMonitoringEvent[]>>(
         `/api/vendors/${vendorId}/monitoring`,
         params,
       );
       return res?.data ?? [];
     },
-    async create(vendorId: string, input: CreateVendorMonitoringEventInput): Promise<VendorMonitoringEvent> {
+    async create(
+      vendorId: string,
+      input: CreateVendorMonitoringEventInput,
+    ): Promise<VendorMonitoringEvent> {
       const res = await apiClient.post<ApiResp<VendorMonitoringEvent>>(
         `/api/vendors/${vendorId}/monitoring`,
         input,
       );
       return res.data;
     },
-    async acknowledge(vendorId: string, eventId: string): Promise<VendorMonitoringEvent> {
+    async acknowledge(
+      vendorId: string,
+      eventId: string,
+    ): Promise<VendorMonitoringEvent> {
       const res = await apiClient.post<ApiResp<VendorMonitoringEvent>>(
         `/api/vendors/${vendorId}/monitoring/${eventId}/acknowledge`,
         {},
@@ -678,7 +837,10 @@ export const vendorsService = {
       );
       return res?.data ?? [];
     },
-    async create(vendorId: string, input: CreateVendorIncidentInput): Promise<VendorIncident> {
+    async create(
+      vendorId: string,
+      input: CreateVendorIncidentInput,
+    ): Promise<VendorIncident> {
       const res = await apiClient.post<ApiResp<VendorIncident>>(
         `/api/vendors/${vendorId}/incidents`,
         input,
@@ -688,7 +850,9 @@ export const vendorsService = {
   },
 
   intake: {
-    async create(input: CreateVendorIntakeRequestInput): Promise<VendorIntakeRequest> {
+    async create(
+      input: CreateVendorIntakeRequestInput,
+    ): Promise<VendorIntakeRequest> {
       const res = await apiClient.post<ApiResp<VendorIntakeRequest>>(
         '/api/vendors/intake-requests',
         input,
@@ -707,9 +871,15 @@ export const vendorsService = {
     async decide(
       id: string,
       input: DecideVendorIntakeRequestInput,
-    ): Promise<VendorIntakeRequest | { intake: VendorIntakeRequest; vendor: VendorRecord }> {
+    ): Promise<
+      | VendorIntakeRequest
+      | { intake: VendorIntakeRequest; vendor: VendorRecord }
+    > {
       const res = await apiClient.post<
-        ApiResp<VendorIntakeRequest | { intake: VendorIntakeRequest; vendor: VendorRecord }>
+        ApiResp<
+          | VendorIntakeRequest
+          | { intake: VendorIntakeRequest; vendor: VendorRecord }
+        >
       >(`/api/vendors/intake-requests/${id}/decision`, input);
       return res.data;
     },

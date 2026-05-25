@@ -4,11 +4,37 @@ import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { PageTemplate } from '@/app/components/PageTemplate';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/app/components/ui/tabs';
 import { Badge } from '@/app/components/ui/badge';
 import { Button } from '@/app/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
-import { ArrowLeft, ClipboardCheck, ShieldCheck } from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/app/components/ui/card';
+import { Input } from '@/app/components/ui/input';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from '@/app/components/ui/dialog';
+import { useConfirmDialog } from '@/app/hooks/useConfirmDialog';
+import {
+  ArrowLeft,
+  ClipboardCheck,
+  ShieldCheck,
+  Pencil,
+  Trash2,
+} from 'lucide-react';
 import {
   RiskTier,
   UpdateVendorInput,
@@ -100,13 +126,18 @@ export function VendorDetailPage() {
 
   const { data: reviewDocuments = [] } = useQuery({
     queryKey: QK.vendorReviewDocuments(vendorId ?? '', openReview?.id ?? ''),
-    queryFn: () => vendorsService.reviews.documents.list(vendorId ?? '', openReview!.id),
+    queryFn: () =>
+      vendorsService.reviews.documents.list(vendorId ?? '', openReview!.id),
     enabled: Boolean(vendorId && openReview?.id),
   });
 
   const { data: questionnaireAnswers = [] } = useQuery({
-    queryKey: QK.vendorQuestionnaireAnswers(vendorId ?? '', openReview?.id ?? ''),
-    queryFn: () => vendorsService.reviews.questionnaire.list(vendorId ?? '', openReview!.id),
+    queryKey: QK.vendorQuestionnaireAnswers(
+      vendorId ?? '',
+      openReview?.id ?? '',
+    ),
+    queryFn: () =>
+      vendorsService.reviews.questionnaire.list(vendorId ?? '', openReview!.id),
     enabled: Boolean(vendorId && openReview?.id),
   });
 
@@ -117,15 +148,29 @@ export function VendorDetailPage() {
   const [pollAfterRun, setPollAfterRun] = useState(false);
 
   const { data: reviewAiStatus } = useQuery({
-    queryKey: QK.vendorQuestionnaireStatus(vendorId ?? '', openReview?.id ?? ''),
-    queryFn: () => vendorsService.reviews.questionnaire.getStatus(vendorId ?? '', openReview!.id),
+    queryKey: QK.vendorQuestionnaireStatus(
+      vendorId ?? '',
+      openReview?.id ?? '',
+    ),
+    queryFn: () =>
+      vendorsService.reviews.questionnaire.getStatus(
+        vendorId ?? '',
+        openReview!.id,
+      ),
     enabled: Boolean(vendorId && openReview?.id),
     refetchInterval: pollAfterRun ? 2000 : false,
   });
 
   const { data: suggestedControls = [] } = useQuery({
-    queryKey: QK.vendorQuestionnaireSuggestions(vendorId ?? '', openReview?.id ?? ''),
-    queryFn: () => vendorsService.reviews.questionnaire.listSuggestions(vendorId ?? '', openReview!.id),
+    queryKey: QK.vendorQuestionnaireSuggestions(
+      vendorId ?? '',
+      openReview?.id ?? '',
+    ),
+    queryFn: () =>
+      vendorsService.reviews.questionnaire.listSuggestions(
+        vendorId ?? '',
+        openReview!.id,
+      ),
     enabled: Boolean(vendorId && openReview?.id),
     refetchInterval: pollAfterRun ? 3000 : false,
   });
@@ -139,6 +184,23 @@ export function VendorDetailPage() {
       qc.invalidateQueries({ queryKey: QK.vendors() });
     },
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: () => vendorsService.delete(vendorId ?? ''),
+    onSuccess: () => {
+      toast.success(t('detail.deleteSuccess'));
+      qc.invalidateQueries({ queryKey: QK.vendors() });
+      navigate('/vendors');
+    },
+    onError: (err) => {
+      toast.error(
+        err instanceof Error ? err.message : t('detail.deleteFailed'),
+      );
+    },
+  });
+
+  const confirm = useConfirmDialog();
+  const [editOpen, setEditOpen] = useState(false);
 
   const startReviewMutation = useMutation({
     mutationFn: () => vendorsService.reviews.start(vendorId ?? ''),
@@ -190,72 +252,161 @@ export function VendorDetailPage() {
 
   const uploadDocumentMutation = useMutation({
     mutationFn: ({ file, kind }: { file: File; kind: VendorDocumentKind }) =>
-      vendorsService.reviews.documents.upload(vendorId ?? '', openReview!.id, file, kind),
+      vendorsService.reviews.documents.upload(
+        vendorId ?? '',
+        openReview!.id,
+        file,
+        kind,
+      ),
     onSuccess: async () => {
       setSelectedFile(null);
       toast.success(t('phase3.uploadSuccess'));
-      await qc.invalidateQueries({ queryKey: QK.vendorReviewDocuments(vendorId ?? '', openReview?.id ?? '') });
+      await qc.invalidateQueries({
+        queryKey: QK.vendorReviewDocuments(
+          vendorId ?? '',
+          openReview?.id ?? '',
+        ),
+      });
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : t('phase3.uploadFailed'));
+      toast.error(
+        error instanceof Error ? error.message : t('phase3.uploadFailed'),
+      );
     },
   });
 
   const runQuestionnaireMutation = useMutation({
-    mutationFn: () => vendorsService.reviews.questionnaire.run(vendorId ?? '', openReview!.id),
+    mutationFn: () =>
+      vendorsService.reviews.questionnaire.run(vendorId ?? '', openReview!.id),
     onSuccess: async () => {
       setPollAfterRun(true);
       toast.success(t('phase3.runQueued'));
-      await qc.invalidateQueries({ queryKey: QK.vendorQuestionnaireStatus(vendorId ?? '', openReview?.id ?? '') });
+      await qc.invalidateQueries({
+        queryKey: QK.vendorQuestionnaireStatus(
+          vendorId ?? '',
+          openReview?.id ?? '',
+        ),
+      });
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : t('phase3.runFailed'));
+      toast.error(
+        error instanceof Error ? error.message : t('phase3.runFailed'),
+      );
     },
   });
 
   const updateAnswerMutation = useMutation({
-    mutationFn: ({ answerId, status, finalText }: { answerId: string; status: 'ACCEPTED' | 'EDITED' | 'DISMISSED'; finalText?: string | null }) =>
-      vendorsService.reviews.questionnaire.updateAnswer(vendorId ?? '', openReview!.id, answerId, { status, finalText }),
+    mutationFn: ({
+      answerId,
+      status,
+      finalText,
+    }: {
+      answerId: string;
+      status: 'ACCEPTED' | 'EDITED' | 'DISMISSED';
+      finalText?: string | null;
+    }) =>
+      vendorsService.reviews.questionnaire.updateAnswer(
+        vendorId ?? '',
+        openReview!.id,
+        answerId,
+        { status, finalText },
+      ),
     onSuccess: async () => {
       toast.success(t('phase3.answerSaved'));
-      await qc.invalidateQueries({ queryKey: QK.vendorQuestionnaireAnswers(vendorId ?? '', openReview?.id ?? '') });
+      await qc.invalidateQueries({
+        queryKey: QK.vendorQuestionnaireAnswers(
+          vendorId ?? '',
+          openReview?.id ?? '',
+        ),
+      });
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : t('phase3.answerSaveFailed'));
+      toast.error(
+        error instanceof Error ? error.message : t('phase3.answerSaveFailed'),
+      );
     },
   });
 
   const createControlLinkMutation = useMutation({
-    mutationFn: ({ documentId, controlId, confidence }: { documentId: string; controlId: string; confidence: 'HIGH' | 'MEDIUM' | 'LOW' }) =>
-      vendorsService.reviews.documents.createControlLink(vendorId ?? '', openReview!.id, documentId, { controlId, confidence }),
+    mutationFn: ({
+      documentId,
+      controlId,
+      confidence,
+    }: {
+      documentId: string;
+      controlId: string;
+      confidence: 'HIGH' | 'MEDIUM' | 'LOW';
+    }) =>
+      vendorsService.reviews.documents.createControlLink(
+        vendorId ?? '',
+        openReview!.id,
+        documentId,
+        { controlId, confidence },
+      ),
     onSuccess: async () => {
       toast.success(t('phase3.controlAccepted'));
-      await qc.invalidateQueries({ queryKey: QK.vendorReviewDocuments(vendorId ?? '', openReview?.id ?? '') });
+      await qc.invalidateQueries({
+        queryKey: QK.vendorReviewDocuments(
+          vendorId ?? '',
+          openReview?.id ?? '',
+        ),
+      });
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : t('phase3.controlAcceptFailed'));
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t('phase3.controlAcceptFailed'),
+      );
     },
   });
 
   const deleteDocumentMutation = useMutation({
-    mutationFn: (documentId: string) => vendorsService.reviews.documents.remove(vendorId ?? '', openReview!.id, documentId),
+    mutationFn: (documentId: string) =>
+      vendorsService.reviews.documents.remove(
+        vendorId ?? '',
+        openReview!.id,
+        documentId,
+      ),
     onSuccess: async () => {
       toast.success(t('phase3.deleteSuccess'));
       await Promise.all([
-        qc.invalidateQueries({ queryKey: QK.vendorReviewDocuments(vendorId ?? '', openReview?.id ?? '') }),
-        qc.invalidateQueries({ queryKey: QK.vendorQuestionnaireAnswers(vendorId ?? '', openReview?.id ?? '') }),
+        qc.invalidateQueries({
+          queryKey: QK.vendorReviewDocuments(
+            vendorId ?? '',
+            openReview?.id ?? '',
+          ),
+        }),
+        qc.invalidateQueries({
+          queryKey: QK.vendorQuestionnaireAnswers(
+            vendorId ?? '',
+            openReview?.id ?? '',
+          ),
+        }),
       ]);
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : t('phase3.deleteFailed'));
+      toast.error(
+        error instanceof Error ? error.message : t('phase3.deleteFailed'),
+      );
     },
   });
 
   useEffect(() => {
     if (!pollAfterRun) return;
     if (reviewAiStatus?.state === 'COMPLETED') {
-      void qc.invalidateQueries({ queryKey: QK.vendorQuestionnaireAnswers(vendorId ?? '', openReview?.id ?? '') });
-      void qc.invalidateQueries({ queryKey: QK.vendorQuestionnaireSuggestions(vendorId ?? '', openReview?.id ?? '') });
+      void qc.invalidateQueries({
+        queryKey: QK.vendorQuestionnaireAnswers(
+          vendorId ?? '',
+          openReview?.id ?? '',
+        ),
+      });
+      void qc.invalidateQueries({
+        queryKey: QK.vendorQuestionnaireSuggestions(
+          vendorId ?? '',
+          openReview?.id ?? '',
+        ),
+      });
       setPollAfterRun(false);
     }
   }, [pollAfterRun, reviewAiStatus?.state, qc, vendorId, openReview?.id]);
@@ -284,6 +435,27 @@ export function VendorDetailPage() {
           <Button variant="outline" onClick={() => navigate('/vendors')}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             {t('detail.back')}
+          </Button>
+          <Button variant="outline" onClick={() => setEditOpen(true)}>
+            <Pencil className="mr-2 h-4 w-4" />
+            {t('detail.edit')}
+          </Button>
+          <Button
+            variant="outline"
+            className="text-red-600 hover:bg-red-50 border-red-200"
+            onClick={async () => {
+              const ok = await confirm({
+                title: t('detail.deleteConfirmTitle', { name: vendor.name }),
+                description: t('detail.deleteConfirmBody'),
+                confirmLabel: t('detail.delete'),
+                variant: 'destructive',
+              });
+              if (ok) deleteMutation.mutate();
+            }}
+            disabled={deleteMutation.isPending}
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            {t('detail.delete')}
           </Button>
           {!openReview && (
             <Button
@@ -356,7 +528,9 @@ export function VendorDetailPage() {
             <TabsTrigger value="documents">{t('detail.documents')}</TabsTrigger>
             <TabsTrigger value="contacts">{t('detail.contacts')}</TabsTrigger>
             <TabsTrigger value="findings">{t('detail.findings')}</TabsTrigger>
-            <TabsTrigger value="monitoring">{t('detail.monitoring')}</TabsTrigger>
+            <TabsTrigger value="monitoring">
+              {t('detail.monitoring')}
+            </TabsTrigger>
             <TabsTrigger value="incidents">{t('detail.incidents')}</TabsTrigger>
             <TabsTrigger value="risk">{t('detail.riskContext')}</TabsTrigger>
             <TabsTrigger value="notes">{t('detail.notes')}</TabsTrigger>
@@ -377,10 +551,7 @@ export function VendorDetailPage() {
                   label={t('detail.residualScore')}
                   value={vendor.residualRiskScore?.toString() ?? '—'}
                 />
-                <Field
-                  label={t('detail.dataClass')}
-                  value={vendor.dataClass}
-                />
+                <Field label={t('detail.dataClass')} value={vendor.dataClass} />
                 <Field
                   label={t('detail.businessCriticality')}
                   value={vendor.businessCriticality}
@@ -466,9 +637,13 @@ export function VendorDetailPage() {
                     />
                     <Field
                       label={t('inherent.tierLabel', {
-                        tier: t(`riskLevel.${review.inherentTierSnapshot ?? 'MEDIUM'}`),
+                        tier: t(
+                          `riskLevel.${review.inherentTierSnapshot ?? 'MEDIUM'}`,
+                        ),
                       })}
-                      value={review.inherentRiskScoreSnapshot?.toString() ?? '—'}
+                      value={
+                        review.inherentRiskScoreSnapshot?.toString() ?? '—'
+                      }
                     />
                     <Field
                       label={t('review.residual')}
@@ -503,10 +678,7 @@ export function VendorDetailPage() {
                         </Button>
                       )}
                       {review.status === 'UNDER_APPROVAL' && (
-                        <Button
-                          size="sm"
-                          onClick={() => setDecisionOpen(true)}
-                        >
+                        <Button size="sm" onClick={() => setDecisionOpen(true)}>
                           {t('review.decide')}
                         </Button>
                       )}
@@ -535,17 +707,24 @@ export function VendorDetailPage() {
               selectedFile={selectedFile}
               onUpload={() => {
                 if (selectedFile) {
-                  uploadDocumentMutation.mutate({ file: selectedFile, kind: selectedKind });
+                  uploadDocumentMutation.mutate({
+                    file: selectedFile,
+                    kind: selectedKind,
+                  });
                 }
               }}
               uploading={uploadDocumentMutation.isPending}
               onRunAiReview={() => runQuestionnaireMutation.mutate()}
               runningAiReview={runQuestionnaireMutation.isPending}
               documents={reviewDocuments}
-              onDeleteDocument={(documentId) => deleteDocumentMutation.mutate(documentId)}
+              onDeleteDocument={(documentId) =>
+                deleteDocumentMutation.mutate(documentId)
+              }
               questionnaireAnswers={questionnaireAnswers}
               answerEdits={answerEdits}
-              onAnswerEditChange={(answerId, value) => setAnswerEdits((curr) => ({ ...curr, [answerId]: value }))}
+              onAnswerEditChange={(answerId, value) =>
+                setAnswerEdits((curr) => ({ ...curr, [answerId]: value }))
+              }
               onAcceptAnswer={(answer) =>
                 updateAnswerMutation.mutate({
                   answerId: answer.id,
@@ -604,7 +783,9 @@ export function VendorDetailPage() {
                 <VendorRiskContextForm
                   vendor={vendor}
                   orgUsers={orgUsers}
-                  onSave={(patch: UpdateVendorInput) => updateMutation.mutateAsync(patch)}
+                  onSave={(patch: UpdateVendorInput) =>
+                    updateMutation.mutateAsync(patch)
+                  }
                   saving={updateMutation.isPending}
                 />
               </CardContent>
@@ -637,14 +818,156 @@ export function VendorDetailPage() {
           onOpenChange={setDecisionOpen}
           saving={decideMutation.isPending}
           onSubmit={(data) =>
-            decideMutation.mutateAsync({
-              reviewId: openReview.id,
-              data,
-            }).then(() => undefined)
+            decideMutation
+              .mutateAsync({
+                reviewId: openReview.id,
+                data,
+              })
+              .then(() => undefined)
           }
         />
       )}
+
+      <EditVendorDialog
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        vendor={vendor}
+        onSave={(patch) => updateMutation.mutateAsync(patch)}
+        saving={updateMutation.isPending}
+      />
     </PageTemplate>
+  );
+}
+
+// ── Edit Vendor Dialog ──────────────────────────────────────────────────────
+//
+// Inline edit form for the core vendor fields (name, category, website,
+// trustCenterUrl, subprocessorsListUrl). Risk fields stay editable in the
+// "Risk context" tab via VendorRiskContextForm. Notes live in the Notes
+// tab via VendorNotesEditor. This dialog is the catch-all for everything
+// the other tabs don't cover.
+
+interface EditVendorDialogProps {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  vendor: {
+    name: string;
+    category: string;
+    website?: string | null;
+    trustCenterUrl?: string | null;
+    subprocessorsListUrl?: string | null;
+  };
+  onSave: (patch: UpdateVendorInput) => Promise<unknown>;
+  saving: boolean;
+}
+
+function EditVendorDialog({
+  open,
+  onOpenChange,
+  vendor,
+  onSave,
+  saving,
+}: EditVendorDialogProps) {
+  const { t } = useTranslation('vendors');
+  const [name, setName] = useState(vendor.name);
+  const [category, setCategory] = useState(vendor.category);
+  const [website, setWebsite] = useState(vendor.website ?? '');
+  const [trustCenterUrl, setTrustCenterUrl] = useState(
+    vendor.trustCenterUrl ?? '',
+  );
+  const [subprocessorsListUrl, setSubprocessorsListUrl] = useState(
+    vendor.subprocessorsListUrl ?? '',
+  );
+
+  // Re-seed inputs when the dialog opens (covers the user-closes-without-
+  // saving-then-reopens path; otherwise the form would show stale values).
+  useEffect(() => {
+    if (open) {
+      setName(vendor.name);
+      setCategory(vendor.category);
+      setWebsite(vendor.website ?? '');
+      setTrustCenterUrl(vendor.trustCenterUrl ?? '');
+      setSubprocessorsListUrl(vendor.subprocessorsListUrl ?? '');
+    }
+  }, [open, vendor]);
+
+  const submit = async () => {
+    await onSave({
+      name: name.trim(),
+      category: category.trim(),
+      website: website.trim() || null,
+      trustCenterUrl: trustCenterUrl.trim() || null,
+      subprocessorsListUrl: subprocessorsListUrl.trim() || null,
+    });
+    onOpenChange(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{t('detail.editDialogTitle')}</DialogTitle>
+          <DialogDescription>{t('detail.editDialogBody')}</DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-3">
+          <div>
+            <label className="text-xs font-medium text-gray-700">
+              {t('dialog.nameField')}
+            </label>
+            <Input value={name} onChange={(e) => setName(e.target.value)} />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-gray-700">
+              {t('dialog.categoryField')}
+            </label>
+            <Input
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-gray-700">
+              {t('dialog.websiteField')}
+            </label>
+            <Input
+              value={website}
+              onChange={(e) => setWebsite(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-gray-700">
+              {t('detail.trustCenterUrl')}
+            </label>
+            <Input
+              value={trustCenterUrl}
+              onChange={(e) => setTrustCenterUrl(e.target.value)}
+              placeholder="https://trust.example.com"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-gray-700">
+              {t('detail.subprocessorsListUrl')}
+            </label>
+            <Input
+              value={subprocessorsListUrl}
+              onChange={(e) => setSubprocessorsListUrl(e.target.value)}
+              placeholder="https://example.com/subprocessors"
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            {t('detail.cancel')}
+          </Button>
+          <Button
+            onClick={submit}
+            disabled={saving || !name.trim() || !category.trim()}
+          >
+            {saving ? t('detail.saving') : t('detail.save')}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
