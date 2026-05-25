@@ -16,7 +16,22 @@ import {
 } from '@/app/components/ui/dialog';
 import { useHasRole } from '@/hooks/useCurrentUser';
 import { adminService, OrgDetailDto } from '@/services/api/admin';
-import { Search, Plus, Building2, Users, Shield, ChevronRight, Loader2, Trash2 } from 'lucide-react';
+import {
+  platformOpsService,
+  type SupportRole,
+} from '@/services/api/platformOps';
+import {
+  Search,
+  Plus,
+  Building2,
+  Users,
+  Shield,
+  ChevronRight,
+  Loader2,
+  Trash2,
+  Headphones,
+  ExternalLink,
+} from 'lucide-react';
 import { fmtDate } from '@/lib/format-date';
 import { toast } from 'sonner';
 
@@ -43,14 +58,16 @@ export function AdminOrganizationsPage() {
   if (!isSuperAdmin) {
     return (
       <PageTemplate title={t('common.accessDenied')}>
-        <p className="text-muted-foreground">{t('common.superAdminRequired')}</p>
+        <p className="text-muted-foreground">
+          {t('common.superAdminRequired')}
+        </p>
       </PageTemplate>
     );
   }
 
   const list = orgs?.data ?? [];
-  const filtered = list.filter(
-    (o) => o.name.toLowerCase().includes(search.toLowerCase()),
+  const filtered = list.filter((o) =>
+    o.name.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -68,19 +85,29 @@ export function AdminOrganizationsPage() {
         <Card>
           <CardContent className="pt-4">
             <div className="text-2xl font-bold">{list.length}</div>
-            <div className="text-xs text-muted-foreground">{t('organizations.stats.organizations')}</div>
+            <div className="text-xs text-muted-foreground">
+              {t('organizations.stats.organizations')}
+            </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4">
-            <div className="text-2xl font-bold">{list.reduce((s, o) => s + o.userCount, 0)}</div>
-            <div className="text-xs text-muted-foreground">{t('organizations.stats.totalUsers')}</div>
+            <div className="text-2xl font-bold">
+              {list.reduce((s, o) => s + o.userCount, 0)}
+            </div>
+            <div className="text-xs text-muted-foreground">
+              {t('organizations.stats.totalUsers')}
+            </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4">
-            <div className="text-2xl font-bold">{list.reduce((s, o) => s + o.activeFrameworks, 0)}</div>
-            <div className="text-xs text-muted-foreground">{t('organizations.stats.activeFrameworks')}</div>
+            <div className="text-2xl font-bold">
+              {list.reduce((s, o) => s + o.activeFrameworks, 0)}
+            </div>
+            <div className="text-xs text-muted-foreground">
+              {t('organizations.stats.activeFrameworks')}
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -112,7 +139,9 @@ export function AdminOrganizationsPage() {
                 <Building2 className="h-5 w-5 text-muted-foreground shrink-0" />
                 <div className="flex-1 min-w-0">
                   <div className="font-medium">{org.name}</div>
-                  <div className="text-xs text-muted-foreground">Created {fmtDate(org.createdAt)}</div>
+                  <div className="text-xs text-muted-foreground">
+                    Created {fmtDate(org.createdAt)}
+                  </div>
                 </div>
                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
                   <Users className="h-3 w-3" /> {org.userCount}
@@ -126,7 +155,9 @@ export function AdminOrganizationsPage() {
             </Card>
           ))}
           {filtered.length === 0 && (
-            <p className="text-center text-muted-foreground py-8">{t('organizations.noOrganizations')}</p>
+            <p className="text-center text-muted-foreground py-8">
+              {t('organizations.noOrganizations')}
+            </p>
           )}
         </div>
       )}
@@ -137,7 +168,9 @@ export function AdminOrganizationsPage() {
         loading={detailLoading}
         open={!!selectedOrgId}
         onClose={() => setSelectedOrgId(null)}
-        onMutated={() => qc.invalidateQueries({ queryKey: ['admin', 'organizations'] })}
+        onMutated={() =>
+          qc.invalidateQueries({ queryKey: ['admin', 'organizations'] })
+        }
       />
 
       {/* Create dialog */}
@@ -182,7 +215,8 @@ function OrgDetailDialog({
   const allFrameworks = allFwRes?.data ?? [];
 
   const saveMutation = useMutation({
-    mutationFn: () => adminService.updateAllowedFrameworks(detail!.id, [...selectedFwIds]),
+    mutationFn: () =>
+      adminService.updateAllowedFrameworks(detail!.id, [...selectedFwIds]),
     onSuccess: () => {
       setEditingAllowed(false);
       onMutated();
@@ -190,7 +224,8 @@ function OrgDetailDialog({
   });
 
   const deleteMutation = useMutation({
-    mutationFn: () => adminService.deleteOrganization(detail!.id, deleteConfirmName),
+    mutationFn: () =>
+      adminService.deleteOrganization(detail!.id, deleteConfirmName),
     onSuccess: () => {
       toast.success(`Organization "${detail!.name}" deleted`);
       setShowDeleteConfirm(false);
@@ -204,13 +239,15 @@ function OrgDetailDialog({
   });
 
   const startEditing = () => {
-    const currentIds = new Set((detail?.allowedFrameworks ?? []).map(f => f.id));
+    const currentIds = new Set(
+      (detail?.allowedFrameworks ?? []).map((f) => f.id),
+    );
     setSelectedFwIds(currentIds);
     setEditingAllowed(true);
   };
 
   const toggleFw = (id: string) => {
-    setSelectedFwIds(prev => {
+    setSelectedFwIds((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
@@ -221,7 +258,15 @@ function OrgDetailDialog({
   if (!open) return null;
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (!v) { setEditingAllowed(false); onClose(); } }}>
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!v) {
+          setEditingAllowed(false);
+          onClose();
+        }
+      }}
+    >
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         {loading || !detail ? (
           <div className="flex items-center gap-2 py-8 justify-center">
@@ -239,11 +284,15 @@ function OrgDetailDialog({
             <div className="space-y-4">
               <div className="grid grid-cols-3 gap-4 text-sm">
                 <div className="text-center p-2 bg-muted rounded">
-                  <div className="text-lg font-bold">{detail.counts.controls}</div>
+                  <div className="text-lg font-bold">
+                    {detail.counts.controls}
+                  </div>
                   <div className="text-xs text-muted-foreground">Controls</div>
                 </div>
                 <div className="text-center p-2 bg-muted rounded">
-                  <div className="text-lg font-bold">{detail.counts.policies}</div>
+                  <div className="text-lg font-bold">
+                    {detail.counts.policies}
+                  </div>
                   <div className="text-xs text-muted-foreground">Policies</div>
                 </div>
                 <div className="text-center p-2 bg-muted rounded">
@@ -254,12 +303,19 @@ function OrgDetailDialog({
 
               {/* Users */}
               <div>
-                <div className="text-sm font-medium mb-2">Users ({detail.users.length})</div>
+                <div className="text-sm font-medium mb-2">
+                  Users ({detail.users.length})
+                </div>
                 <div className="border rounded divide-y max-h-40 overflow-y-auto">
                   {detail.users.map((u) => (
-                    <div key={u.id} className="flex items-center gap-3 px-3 py-2 text-sm">
+                    <div
+                      key={u.id}
+                      className="flex items-center gap-3 px-3 py-2 text-sm"
+                    >
                       <span className="flex-1">{u.name || u.email}</span>
-                      <span className="text-xs text-muted-foreground">{u.email}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {u.email}
+                      </span>
                       <Badge variant="outline">{u.role}</Badge>
                     </div>
                   ))}
@@ -268,16 +324,35 @@ function OrgDetailDialog({
 
               {/* Active Frameworks */}
               <div>
-                <div className="text-sm font-medium mb-2">Active Frameworks ({detail.frameworks.length})</div>
+                <div className="text-sm font-medium mb-2">
+                  Active Frameworks ({detail.frameworks.length})
+                </div>
                 {detail.frameworks.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">No frameworks activated.</p>
+                  <p className="text-sm text-muted-foreground">
+                    No frameworks activated.
+                  </p>
                 ) : (
                   <div className="border rounded divide-y max-h-40 overflow-y-auto">
                     {detail.frameworks.map((f) => (
-                      <div key={f.id} className="flex items-center gap-3 px-3 py-2 text-sm">
-                        <span className="flex-1 font-medium">{f.name} {f.version}</span>
-                        <Badge variant={f.status === 'active' ? 'default' : 'secondary'}>{f.status}</Badge>
-                        {f.activatedAt && <span className="text-xs text-muted-foreground">{fmtDate(f.activatedAt)}</span>}
+                      <div
+                        key={f.id}
+                        className="flex items-center gap-3 px-3 py-2 text-sm"
+                      >
+                        <span className="flex-1 font-medium">
+                          {f.name} {f.version}
+                        </span>
+                        <Badge
+                          variant={
+                            f.status === 'active' ? 'default' : 'secondary'
+                          }
+                        >
+                          {f.status}
+                        </Badge>
+                        {f.activatedAt && (
+                          <span className="text-xs text-muted-foreground">
+                            {fmtDate(f.activatedAt)}
+                          </span>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -301,22 +376,31 @@ function OrgDetailDialog({
                         onClick={() => saveMutation.mutate()}
                         disabled={saveMutation.isPending}
                       >
-                        {saveMutation.isPending && <Loader2 className="h-3 w-3 mr-1 animate-spin" />}
+                        {saveMutation.isPending && (
+                          <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                        )}
                         Save
                       </Button>
-                      <Button variant="outline" size="sm" onClick={() => setEditingAllowed(false)}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setEditingAllowed(false)}
+                      >
                         Cancel
                       </Button>
                     </div>
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground mb-2">
-                  Only these frameworks will be visible to the org admin for activation.
+                  Only these frameworks will be visible to the org admin for
+                  activation.
                 </p>
                 {editingAllowed ? (
                   <div className="border rounded max-h-48 overflow-y-auto">
                     {allFrameworks.length === 0 ? (
-                      <p className="text-xs text-muted-foreground p-3 text-center">Loading...</p>
+                      <p className="text-xs text-muted-foreground p-3 text-center">
+                        Loading...
+                      </p>
                     ) : (
                       allFrameworks.map((fw: any) => (
                         <label
@@ -330,26 +414,40 @@ function OrgDetailDialog({
                             className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                           />
                           <span className="text-sm">{fw.name}</span>
-                          {fw.version && <span className="text-xs text-muted-foreground">{fw.version}</span>}
+                          {fw.version && (
+                            <span className="text-xs text-muted-foreground">
+                              {fw.version}
+                            </span>
+                          )}
                         </label>
                       ))
                     )}
                   </div>
                 ) : (detail.allowedFrameworks?.length ?? 0) === 0 ? (
-                  <p className="text-sm text-muted-foreground">No frameworks assigned — org can see all frameworks.</p>
+                  <p className="text-sm text-muted-foreground">
+                    No frameworks assigned — org can see all frameworks.
+                  </p>
                 ) : (
                   <div className="border rounded divide-y max-h-40 overflow-y-auto">
                     {detail.allowedFrameworks.map((f) => (
-                      <div key={f.id} className="flex items-center gap-3 px-3 py-2 text-sm">
+                      <div
+                        key={f.id}
+                        className="flex items-center gap-3 px-3 py-2 text-sm"
+                      >
                         <Shield className="h-3.5 w-3.5 text-blue-500 shrink-0" />
                         <span className="flex-1 font-medium">{f.name}</span>
-                        <span className="text-xs text-muted-foreground">{f.version}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {f.version}
+                        </span>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
             </div>
+
+            {/* Support session section */}
+            <SupportSessionLauncher orgId={detail.id} orgName={detail.name} />
 
             {/* Delete section */}
             {!showDeleteConfirm ? (
@@ -369,7 +467,9 @@ function OrgDetailDialog({
                   This will permanently delete all data for this organization.
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Type <span className="font-mono font-bold">{detail.name}</span> to confirm:
+                  Type{' '}
+                  <span className="font-mono font-bold">{detail.name}</span> to
+                  confirm:
                 </p>
                 <Input
                   value={deleteConfirmName}
@@ -381,16 +481,24 @@ function OrgDetailDialog({
                   <Button
                     variant="destructive"
                     size="sm"
-                    disabled={deleteConfirmName !== detail.name || deleteMutation.isPending}
+                    disabled={
+                      deleteConfirmName !== detail.name ||
+                      deleteMutation.isPending
+                    }
                     onClick={() => deleteMutation.mutate()}
                   >
-                    {deleteMutation.isPending && <Loader2 className="h-3 w-3 mr-1 animate-spin" />}
+                    {deleteMutation.isPending && (
+                      <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                    )}
                     Confirm Delete
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmName(''); }}
+                    onClick={() => {
+                      setShowDeleteConfirm(false);
+                      setDeleteConfirmName('');
+                    }}
                   >
                     Cancel
                   </Button>
@@ -399,7 +507,9 @@ function OrgDetailDialog({
             )}
 
             <DialogFooter>
-              <Button variant="outline" onClick={onClose}>Close</Button>
+              <Button variant="outline" onClick={onClose}>
+                Close
+              </Button>
             </DialogFooter>
           </>
         )}
@@ -437,7 +547,7 @@ function CreateOrgDialog({
   const frameworks = fwRes?.data ?? [];
 
   const toggleFw = (id: string) => {
-    setSelectedFwIds(prev => {
+    setSelectedFwIds((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
@@ -452,7 +562,12 @@ function CreateOrgDialog({
         frameworkIds: [...selectedFwIds],
       }),
     onSuccess: () => {
-      setForm({ organizationName: '', adminName: '', adminEmail: '', adminPassword: '' });
+      setForm({
+        organizationName: '',
+        adminName: '',
+        adminEmail: '',
+        adminPassword: '',
+      });
       setSelectedFwIds(new Set());
       setError('');
       onCreated();
@@ -471,26 +586,48 @@ function CreateOrgDialog({
         <div className="space-y-3">
           <div>
             <label className="text-sm font-medium">Organization Name</label>
-            <Input value={form.organizationName} onChange={(e) => setForm({ ...form, organizationName: e.target.value })} />
+            <Input
+              value={form.organizationName}
+              onChange={(e) =>
+                setForm({ ...form, organizationName: e.target.value })
+              }
+            />
           </div>
           <div>
             <label className="text-sm font-medium">Admin Name</label>
-            <Input value={form.adminName} onChange={(e) => setForm({ ...form, adminName: e.target.value })} />
+            <Input
+              value={form.adminName}
+              onChange={(e) => setForm({ ...form, adminName: e.target.value })}
+            />
           </div>
           <div>
             <label className="text-sm font-medium">Admin Email</label>
-            <Input type="email" value={form.adminEmail} onChange={(e) => setForm({ ...form, adminEmail: e.target.value })} />
+            <Input
+              type="email"
+              value={form.adminEmail}
+              onChange={(e) => setForm({ ...form, adminEmail: e.target.value })}
+            />
           </div>
           <div>
             <label className="text-sm font-medium">Admin Password</label>
-            <Input type="password" value={form.adminPassword} onChange={(e) => setForm({ ...form, adminPassword: e.target.value })} />
+            <Input
+              type="password"
+              value={form.adminPassword}
+              onChange={(e) =>
+                setForm({ ...form, adminPassword: e.target.value })
+              }
+            />
           </div>
           <div>
             <label className="text-sm font-medium">Allowed Frameworks</label>
-            <p className="text-xs text-gray-500 mb-2">Select which frameworks this organization can activate</p>
+            <p className="text-xs text-gray-500 mb-2">
+              Select which frameworks this organization can activate
+            </p>
             <div className="border border-gray-200 rounded-lg max-h-40 overflow-y-auto">
               {frameworks.length === 0 ? (
-                <p className="text-xs text-gray-400 p-3 text-center">Loading frameworks...</p>
+                <p className="text-xs text-gray-400 p-3 text-center">
+                  Loading frameworks...
+                </p>
               ) : (
                 frameworks.map((fw: any) => (
                   <label
@@ -504,28 +641,188 @@ function CreateOrgDialog({
                       className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
                     <span className="text-sm text-gray-800">{fw.name}</span>
-                    {fw.version && <span className="text-xs text-gray-400">{fw.version}</span>}
+                    {fw.version && (
+                      <span className="text-xs text-gray-400">
+                        {fw.version}
+                      </span>
+                    )}
                   </label>
                 ))
               )}
             </div>
             {selectedFwIds.size > 0 && (
-              <p className="text-xs text-blue-600 mt-1">{selectedFwIds.size} framework{selectedFwIds.size !== 1 ? 's' : ''} selected</p>
+              <p className="text-xs text-blue-600 mt-1">
+                {selectedFwIds.size} framework
+                {selectedFwIds.size !== 1 ? 's' : ''} selected
+              </p>
             )}
           </div>
           {error && <p className="text-sm text-destructive">{error}</p>}
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
           <Button
             onClick={() => mutation.mutate()}
-            disabled={mutation.isPending || !form.organizationName || !form.adminEmail || !form.adminPassword}
+            disabled={
+              mutation.isPending ||
+              !form.organizationName ||
+              !form.adminEmail ||
+              !form.adminPassword
+            }
           >
-            {mutation.isPending && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}
+            {mutation.isPending && (
+              <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+            )}
             Create Organization
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+// ── Support Session Launcher ──────────────────────────────────────────────────
+//
+// Inline section inside the org-detail dialog. Pre-fills the org. Same
+// flow lives on /support-sessions with an org picker for the global
+// entry point.
+
+const SS_DURATIONS: Array<{ value: 900 | 3600 | 14400; label: string }> = [
+  { value: 900, label: '15 min' },
+  { value: 3600, label: '1 hour' },
+  { value: 14400, label: '4 hours' },
+];
+const SS_ROLES: SupportRole[] = [
+  'ORG_ADMIN',
+  'SECURITY_OWNER',
+  'AUDITOR',
+  'CONTRIBUTOR',
+  'VIEWER',
+];
+
+function SupportSessionLauncher({
+  orgId,
+  orgName,
+}: {
+  orgId: string;
+  orgName: string;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const [reason, setReason] = useState('');
+  const [duration, setDuration] = useState<900 | 3600 | 14400>(3600);
+  const [role, setRole] = useState<SupportRole>('ORG_ADMIN');
+
+  const open = useMutation({
+    mutationFn: () =>
+      platformOpsService.createSession({
+        organizationId: orgId,
+        reason: reason.trim(),
+        durationSeconds: duration,
+        effectiveRole: role,
+      }),
+    onSuccess: (res) => {
+      toast.success(`Session opened for ${orgName} — opening tab`);
+      window.open(res.exchangeUrl, '_blank', 'noopener');
+      setReason('');
+      setExpanded(false);
+    },
+    onError: (err) => {
+      const msg =
+        err instanceof Error ? err.message : 'Failed to open support session';
+      toast.error(msg);
+    },
+  });
+
+  return (
+    <div className="border-t pt-4 mt-2">
+      {!expanded ? (
+        <Button variant="outline" size="sm" onClick={() => setExpanded(true)}>
+          <Headphones className="h-3.5 w-3.5 mr-1" />
+          Open support session
+        </Button>
+      ) : (
+        <div className="space-y-3 bg-muted/30 p-3 rounded">
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">
+              Reason (required)
+            </label>
+            <Input
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="Customer ticket #1234 — investigating failed import"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                Duration
+              </label>
+              <div className="flex gap-1">
+                {SS_DURATIONS.map((d) => (
+                  <button
+                    key={d.value}
+                    type="button"
+                    onClick={() => setDuration(d.value)}
+                    className={`px-2 py-1 text-xs rounded border ${
+                      duration === d.value
+                        ? 'bg-blue-600 text-white border-blue-600'
+                        : 'bg-white text-gray-700 border-gray-200'
+                    }`}
+                  >
+                    {d.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                Effective role
+              </label>
+              <select
+                value={role}
+                onChange={(e) => setRole(e.target.value as SupportRole)}
+                className="w-full text-xs border border-gray-200 rounded px-2 py-1 bg-white"
+              >
+                {SS_ROLES.map((r) => (
+                  <option key={r} value={r}>
+                    {r}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              onClick={() => open.mutate()}
+              disabled={open.isPending || reason.trim().length === 0}
+            >
+              {open.isPending ? (
+                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+              ) : (
+                <ExternalLink className="h-3 w-3 mr-1" />
+              )}
+              Open session
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setExpanded(false);
+                setReason('');
+              }}
+            >
+              Cancel
+            </Button>
+          </div>
+          <p className="text-xs text-gray-500">
+            Opening mints a one-time URL and loads it in a new tab. The
+            impersonation cookie is per-tab — your other tabs stay normal.
+          </p>
+        </div>
+      )}
+    </div>
   );
 }
