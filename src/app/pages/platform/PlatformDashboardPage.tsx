@@ -1,7 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router';
 import { usePlatformAdmin } from '@/app/hooks/usePlatformAdmin';
 import { Card } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
+import { cn } from '@/app/components/ui/utils';
 import {
   platformHealthService,
   type PlatformHealthPayload,
@@ -14,6 +16,7 @@ import {
   Briefcase,
   Activity,
   Clock,
+  ChevronRight,
 } from 'lucide-react';
 
 // PR-X7: real cards backed by GET /api/platform/health. Polls at 60s
@@ -29,28 +32,62 @@ function MetricCard({
   value,
   subtitle,
   icon,
+  to,
   tone = 'default',
 }: {
   title: string;
   value: string | number;
   subtitle?: string;
   icon: React.ReactNode;
+  to?: string;
   tone?: 'default' | 'warning' | 'danger';
 }) {
+  const navigate = useNavigate();
+  const clickable = Boolean(to);
   const toneClass =
     tone === 'danger'
       ? 'text-red-600'
       : tone === 'warning'
         ? 'text-amber-600'
-        : 'text-gray-900';
+        : 'text-foreground';
+
+  const openTarget = () => {
+    if (to) navigate(to);
+  };
+
   return (
-    <Card className="p-4 bg-white">
+    <Card
+      role={clickable ? 'button' : undefined}
+      tabIndex={clickable ? 0 : undefined}
+      onClick={openTarget}
+      onKeyDown={(event) => {
+        if (!clickable) return;
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          openTarget();
+        }
+      }}
+      className={cn(
+        'group p-4 bg-card transition-all',
+        clickable &&
+          'cursor-pointer hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500',
+      )}
+    >
       <div className="flex items-center justify-between mb-2">
-        <span className="text-sm text-gray-600">{title}</span>
-        <span className="text-gray-400">{icon}</span>
+        <span className="text-sm text-muted-foreground">{title}</span>
+        <span className="text-muted-foreground">{icon}</span>
       </div>
-      <div className={`text-2xl font-semibold ${toneClass}`}>{value}</div>
-      {subtitle && <div className="text-xs text-gray-500 mt-1">{subtitle}</div>}
+      <div className="flex items-end justify-between gap-3">
+        <div>
+          <div className={`text-2xl font-semibold ${toneClass}`}>{value}</div>
+          {subtitle && (
+            <div className="text-xs text-muted-foreground mt-1">{subtitle}</div>
+          )}
+        </div>
+        {clickable && (
+          <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+        )}
+      </div>
     </Card>
   );
 }
@@ -62,32 +99,34 @@ function asNumberOrDash(v: number | null | undefined): string {
 function IntegrationsCard({ data }: { data: PlatformHealthPayload }) {
   const providers = Object.entries(data.integrations.failingByProvider);
   return (
-    <Card className="p-4 bg-white">
+    <Card className="p-4 bg-card">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-sm text-gray-600">Integrations</span>
-        <Plug className="w-4 h-4 text-gray-400" />
+        <span className="text-sm text-muted-foreground">Integrations</span>
+        <Plug className="w-4 h-4 text-muted-foreground" />
       </div>
       <div className="flex gap-6 mb-3">
         <div>
           <div className="text-2xl font-semibold text-green-600">
             {data.integrations.healthy}
           </div>
-          <div className="text-xs text-gray-500">Healthy</div>
+          <div className="text-xs text-muted-foreground">Healthy</div>
         </div>
         <div>
           <div className="text-2xl font-semibold text-red-600">
             {data.integrations.failing}
           </div>
-          <div className="text-xs text-gray-500">Failing</div>
+          <div className="text-xs text-muted-foreground">Failing</div>
         </div>
       </div>
       {providers.length > 0 && (
-        <div className="border-t border-gray-200 pt-2">
-          <div className="text-xs text-gray-600 mb-1">Failing by provider:</div>
+        <div className="border-t border-border pt-2">
+          <div className="text-xs text-muted-foreground mb-1">
+            Failing by provider:
+          </div>
           <ul className="text-xs space-y-0.5">
             {providers.map(([provider, count]) => (
               <li key={provider} className="flex justify-between">
-                <span className="text-gray-700">{provider}</span>
+                <span className="text-foreground">{provider}</span>
                 <span className="text-red-600 font-medium">{count}</span>
               </li>
             ))}
@@ -104,32 +143,32 @@ function JobsCard({ data }: { data: PlatformHealthPayload }) {
     data.jobs.dlqDepth.compliance +
     data.jobs.dlqDepth.riskEvaluation;
   return (
-    <Card className="p-4 bg-white">
+    <Card className="p-4 bg-card">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-sm text-gray-600">Job queues</span>
-        <Briefcase className="w-4 h-4 text-gray-400" />
+        <span className="text-sm text-muted-foreground">Job queues</span>
+        <Briefcase className="w-4 h-4 text-muted-foreground" />
       </div>
-      <div className="text-2xl font-semibold text-gray-900 mb-2">
+      <div className="text-2xl font-semibold text-foreground mb-2">
         {dlqTotal}{' '}
-        <span className="text-sm font-normal text-gray-500">DLQ</span>
+        <span className="text-sm font-normal text-muted-foreground">DLQ</span>
       </div>
       <div className="text-xs space-y-1">
         <div className="flex justify-between">
-          <span className="text-gray-600">Scan</span>
-          <span className="text-gray-900">
+          <span className="text-muted-foreground">Scan</span>
+          <span className="text-foreground">
             queue {data.jobs.queueDepth.scan} / dlq {data.jobs.dlqDepth.scan}
           </span>
         </div>
         <div className="flex justify-between">
-          <span className="text-gray-600">Compliance</span>
-          <span className="text-gray-900">
+          <span className="text-muted-foreground">Compliance</span>
+          <span className="text-foreground">
             queue {data.jobs.queueDepth.compliance} / dlq{' '}
             {data.jobs.dlqDepth.compliance}
           </span>
         </div>
         <div className="flex justify-between">
-          <span className="text-gray-600">Risk evaluation</span>
-          <span className="text-gray-900">
+          <span className="text-muted-foreground">Risk evaluation</span>
+          <span className="text-foreground">
             queue {data.jobs.queueDepth.riskEvaluation}
           </span>
         </div>
@@ -139,31 +178,43 @@ function JobsCard({ data }: { data: PlatformHealthPayload }) {
 }
 
 function IncidentsCard({ data }: { data: PlatformHealthPayload }) {
+  const navigate = useNavigate();
   return (
-    <Card className="p-4 bg-white col-span-full">
+    <Card
+      role="button"
+      tabIndex={0}
+      onClick={() => navigate('/activity')}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          navigate('/activity');
+        }
+      }}
+      className="group p-4 bg-card col-span-full cursor-pointer transition-all hover:border-blue-200 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+    >
       <div className="flex items-center justify-between mb-3">
-        <span className="text-sm font-medium text-gray-900">
+        <span className="text-sm font-medium text-foreground">
           Recent platform activity
         </span>
-        <Activity className="w-4 h-4 text-gray-400" />
+        <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
       </div>
       {data.recentIncidents.length === 0 ? (
-        <p className="text-sm text-gray-500">No recent activity.</p>
+        <p className="text-sm text-muted-foreground">No recent activity.</p>
       ) : (
-        <ul className="divide-y divide-gray-100">
+        <ul className="divide-y divide-border">
           {data.recentIncidents.map((row, i) => (
             <li
               key={`${row.ts}-${i}`}
               className="py-2 flex items-center gap-3 text-sm"
             >
-              <Clock className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-              <span className="text-gray-500 w-40 flex-shrink-0">
+              <Clock className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+              <span className="text-muted-foreground w-40 flex-shrink-0">
                 {new Date(row.ts).toLocaleString()}
               </span>
-              <span className="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded">
+              <span className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">
                 {row.action}
               </span>
-              <span className="text-gray-700 truncate">
+              <span className="text-foreground truncate">
                 {row.targetType}
                 {row.targetId ? ` · ${row.targetId.slice(0, 8)}` : ''}
               </span>
@@ -189,8 +240,10 @@ export function PlatformDashboardPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
-          <p className="text-xs text-gray-500 mt-0.5">
+          <h1 className="text-2xl font-semibold text-foreground">
+            Platform Dashboard
+          </h1>
+          <p className="text-xs text-muted-foreground mt-0.5">
             Signed in as {admin?.email ?? '…'}
             {data?.generatedAt && (
               <span className="ml-2">
@@ -222,31 +275,37 @@ export function PlatformDashboardPage() {
       )}
 
       {isLoading || !data ? (
-        <Card className="p-6 bg-white text-sm text-gray-500">Loading…</Card>
+        <Card className="p-6 bg-card text-sm text-muted-foreground">
+          Loading…
+        </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <MetricCard
             title="Organizations"
             value={data.orgs.total}
             icon={<Building2 className="w-4 h-4" />}
+            to="/organizations"
           />
           <MetricCard
             title="Frameworks activated"
             value={asNumberOrDash(data.frameworks.activated)}
             subtitle="From framework pool (PR-X7.5)"
             icon={<Activity className="w-4 h-4" />}
+            to="/frameworks"
           />
           <MetricCard
             title="Pending framework requests"
             value={asNumberOrDash(data.frameworks.pendingRequests)}
             subtitle="From framework pool (PR-X7.5)"
             icon={<AlertTriangle className="w-4 h-4" />}
+            to="/framework-requests"
           />
           <MetricCard
             title="Active support sessions"
             value={data.supportSessions.activeNow}
             subtitle={`${data.supportSessions.openedLast24h} opened in last 24h`}
             icon={<Briefcase className="w-4 h-4" />}
+            to="/support-sessions"
             tone={data.supportSessions.activeNow > 0 ? 'warning' : 'default'}
           />
           <IntegrationsCard data={data} />

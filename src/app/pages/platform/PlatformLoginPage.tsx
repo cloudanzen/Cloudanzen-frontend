@@ -15,7 +15,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/app/components/ui/form';
-import { Eye, EyeOff, Lock, Mail, Shield, KeyRound } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, KeyRound } from 'lucide-react';
 import { ApiError } from '@/services/api/client';
 import { platformAuthService } from '@/services/api/platformAuth';
 import { authService } from '@/services/api/auth';
@@ -89,8 +89,10 @@ export function PlatformLoginPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-blue-900 flex items-center justify-center px-4">
       <Card className="w-full max-w-md p-8 bg-white">
         <div className="flex flex-col items-center mb-6">
-          <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center mb-3">
-            <Shield className="w-6 h-6 text-white" />
+          <div className="w-12 h-12 rounded-lg bg-blue-600 flex items-center justify-center mb-3 shadow-sm">
+            <span className="text-lg font-bold text-white tracking-normal">
+              CA
+            </span>
           </div>
           <h1 className="text-xl font-semibold text-gray-900">
             CloudAnzen Platform Console
