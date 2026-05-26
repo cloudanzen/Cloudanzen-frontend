@@ -376,6 +376,12 @@ export function Sidebar({ collapsed = false }: { collapsed?: boolean }) {
             href: '/ai/knowledge-base',
           },
           {
+            // T-102: ISO/IEC 42001 AI model registry.
+            id: 'aiModels',
+            title: t('nav.aiModels'),
+            href: '/ai/models',
+          },
+          {
             id: 'aiSettings',
             title: t('nav.aiSettings'),
             href: '/settings/ai',
