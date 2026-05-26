@@ -290,6 +290,12 @@ const AiChatPage = lazy(() =>
     default: m.AiChatPage,
   })),
 );
+// T-102: ISO/IEC 42001 AI model registry.
+const AiModelsPage = lazy(() =>
+  import('@/app/pages/ai/AiModelsPage').then((m) => ({
+    default: m.AiModelsPage,
+  })),
+);
 
 // Other
 const IntegrationsPage = lazy(() =>
@@ -545,6 +551,10 @@ const tenantRoutes: RouteObject[] = [
       {
         path: 'ai/knowledge-base',
         Component: AiDocumentsPage,
+      },
+      {
+        path: 'ai/models',
+        Component: AiModelsPage,
       },
 
       // Platform Admin (SUPER_ADMIN)
