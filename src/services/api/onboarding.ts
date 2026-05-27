@@ -21,7 +21,7 @@ export interface OnboardingStatus {
   policyAccepted: boolean;
   policyAcceptedAt: string | null;
   policyVersionAccepted: string | null; // JSON-serialised array of policy ids
-  pendingPolicyIds: string[];           // published policies not yet accepted
+  pendingPolicyIds: string[]; // published policies not yet accepted
   // Task 2
   mdmEnrolled: boolean;
   mdmEnrolledAt: string | null;
@@ -31,10 +31,34 @@ export interface OnboardingStatus {
   trainingStartedAt: string | null;
   trainingCompleted: boolean;
   trainingCompletedAt: string | null;
+  trainingRequired: boolean;
+  trainingCourses: TrainingCourse[];
   // Aggregates computed over *required* tasks only
   completedCount: number;
   totalCount: number;
   allComplete: boolean;
+}
+
+export interface TrainingCourse {
+  courseSlug: string;
+  frameworkSlug: string;
+  frameworkName: string;
+  title: string;
+  description: string;
+  estimatedMinutes: number;
+  version: number;
+  passThresholdPct: number;
+  startedAt: string | null;
+  completedAt: string | null;
+  scorePct: number | null;
+  status: 'not_started' | 'in_progress' | 'completed' | 'retry_required';
+}
+
+export interface TrainingAttemptPayload {
+  kind: 'course_attempt';
+  moduleScores: Record<string, number>;
+  quizAnswers: Record<string, string>;
+  durationSeconds: number;
 }
 
 export interface UserOnboardingSummary {
@@ -55,27 +79,46 @@ export const onboardingService = {
   },
 
   /** Task 1 — accept all org policies */
-  async acceptPolicies(policyIds: string[]): Promise<{ success: boolean; data: OnboardingStatus }> {
+  async acceptPolicies(
+    policyIds: string[],
+  ): Promise<{ success: boolean; data: OnboardingStatus }> {
     return apiClient.post('/api/onboarding/accept-policies', { policyIds });
   },
 
-  /** Task 3 — record video started */
-  async recordTrainingStart(): Promise<{ success: boolean; data: OnboardingStatus }> {
-    return apiClient.post('/api/onboarding/training-start', {});
+  /** Task 3 — start one framework-specific course */
+  async recordTrainingStart(
+    courseSlug: string,
+  ): Promise<{ success: boolean; data: OnboardingStatus }> {
+    return apiClient.post(`/api/onboarding/training/${courseSlug}/start`, {});
   },
 
-  /** Task 3 — record video completed (call when playback hits 100%) */
-  async recordTrainingComplete(): Promise<{ success: boolean; data: OnboardingStatus }> {
-    return apiClient.post('/api/onboarding/training-complete', {});
+  /** Task 3 — complete one framework-specific course */
+  async recordTrainingComplete(
+    courseSlug: string,
+    scorePct: number,
+    attemptPayload: TrainingAttemptPayload,
+  ): Promise<{ success: boolean; data: OnboardingStatus }> {
+    return apiClient.post(`/api/onboarding/training/${courseSlug}/complete`, {
+      scorePct,
+      attemptPayload,
+    });
   },
 
   /** Admin: list all users with their onboarding status */
-  async listUsersOnboarding(): Promise<{ success: boolean; data: UserOnboardingSummary[] }> {
+  async listUsersOnboarding(): Promise<{
+    success: boolean;
+    data: UserOnboardingSummary[];
+  }> {
     return apiClient.get('/api/onboarding/users');
   },
 
   /** Admin: get one user's detail */
-  async getUserOnboarding(userId: string): Promise<{ success: boolean; data: { user: UserOnboardingSummary; onboarding: OnboardingStatus } }> {
+  async getUserOnboarding(
+    userId: string,
+  ): Promise<{
+    success: boolean;
+    data: { user: UserOnboardingSummary; onboarding: OnboardingStatus };
+  }> {
     return apiClient.get(`/api/onboarding/users/${userId}`);
   },
 };

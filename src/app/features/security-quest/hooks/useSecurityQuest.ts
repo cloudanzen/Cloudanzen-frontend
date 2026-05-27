@@ -4,12 +4,14 @@ import type { QuestState, FeedbackData, UserAnswer } from '../lib/types';
 import { MODULE_IDS, getModuleById } from '../content/modules';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 
-const STORAGE_KEY_PREFIX = 'manzen-security-quest-state';
+const STORAGE_KEY_PREFIX = 'cloudanzen-academy-state:legacy-quest';
 const TICK_INTERVAL = 1000;
 
 export function useSecurityQuest() {
   const currentUser = useCurrentUser();
-  const storageKey = currentUser ? `${STORAGE_KEY_PREFIX}:${currentUser.id}` : null;
+  const storageKey = currentUser
+    ? `${STORAGE_KEY_PREFIX}:${currentUser.id}`
+    : null;
 
   // Only called once at mount via useRef — no need for useCallback
   function loadSavedState(): QuestState | null {

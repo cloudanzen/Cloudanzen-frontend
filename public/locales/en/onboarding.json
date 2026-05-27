@@ -1,0 +1,31 @@
+{
+  "cloudanzenAcademy": {
+    "workspace": {
+      "trainingTitle": "CloudAnzen Academy",
+      "courseProgress": "{{done}} of {{total}} courses complete"
+    },
+    "empty": {
+      "noRequiredCourses": "No framework-specific training is required for your role right now.",
+      "noCourseContent": "Course content is not available for the selected framework yet."
+    },
+    "completedOn": "All required Academy courses completed on {{date}}",
+    "savingCompletion": "Saving course completion...",
+    "errors": {
+      "saveFailed": "Failed to save course completion."
+    },
+    "courseCard": {
+      "estimatedMinutes": "{{count}} min"
+    },
+    "player": {
+      "title": "CloudAnzen Academy",
+      "checksComplete": "{{done}}/{{total}} checks complete",
+      "score": "{{score}}% score",
+      "reset": "Reset",
+      "completeCourse": "Complete course",
+      "courseUnavailable": "Course content is not available yet.",
+      "englishOnlyNote": "Course module content is currently provided in English while translations are reviewed.",
+      "answerEveryModule": "Answer every module check before completing this course.",
+      "passThreshold": "Score {{threshold}}% or higher to complete. Review the missed modules and try again."
+    }
+  }
+}

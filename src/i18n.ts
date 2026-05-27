@@ -22,6 +22,7 @@ i18n
       'access',
       'assets',
       'tests',
+      'onboarding',
     ],
     defaultNS: 'common',
     backend: {

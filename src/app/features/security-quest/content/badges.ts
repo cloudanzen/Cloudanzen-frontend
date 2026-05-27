@@ -3,14 +3,14 @@ import type { BadgeDefinition } from '../lib/types';
 export const BADGES: BadgeDefinition[] = [
   {
     id: 'pack-protector',
-    name: 'Pack Protector',
-    description: 'Recognized that security is everyone\'s responsibility.',
+    name: 'Policy Champion',
+    description: "Recognized that security is everyone's responsibility.",
     icon: 'shield-check',
     moduleId: 'module-1',
   },
   {
     id: 'password-hound',
-    name: 'Password Hound',
+    name: 'Credential Steward',
     description: 'Mastered strong passphrases and password manager awareness.',
     icon: 'key-round',
     moduleId: 'module-2',
@@ -25,7 +25,8 @@ export const BADGES: BadgeDefinition[] = [
   {
     id: 'threat-sniffer',
     name: 'Threat Sniffer',
-    description: 'Can identify phishing, social engineering, and malware risks.',
+    description:
+      'Can identify phishing, social engineering, and malware risks.',
     icon: 'search',
     moduleId: 'module-4',
   },
@@ -39,23 +40,25 @@ export const BADGES: BadgeDefinition[] = [
   {
     id: 'data-guardian',
     name: 'Data Guardian',
-    description: 'Handles sensitive data with care and follows sharing policies.',
+    description:
+      'Handles sensitive data with care and follows sharing policies.',
     icon: 'file-lock-2',
     moduleId: 'module-5',
   },
   {
     id: 'top-watchdog',
-    name: 'Top Watchdog',
-    description: 'Completed the final challenge and proved real-world readiness.',
+    name: 'Security Lead',
+    description:
+      'Completed the final challenge and proved real-world readiness.',
     icon: 'award',
     moduleId: 'final-challenge',
   },
 ];
 
 export function getBadgeById(id: string): BadgeDefinition | undefined {
-  return BADGES.find(b => b.id === id);
+  return BADGES.find((b) => b.id === id);
 }
 
 export function getBadgesForModule(moduleId: string): BadgeDefinition[] {
-  return BADGES.filter(b => b.moduleId === moduleId);
+  return BADGES.filter((b) => b.moduleId === moduleId);
 }
