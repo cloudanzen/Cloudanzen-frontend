@@ -1,0 +1,31 @@
+{
+  "cloudanzenAcademy": {
+    "workspace": {
+      "trainingTitle": "CloudAnzen Academy",
+      "courseProgress": "{{done}} / {{total}} コース完了"
+    },
+    "empty": {
+      "noRequiredCourses": "現在、このロールに必要なフレームワーク別トレーニングはありません。",
+      "noCourseContent": "選択したフレームワークのコース内容はまだ利用できません。"
+    },
+    "completedOn": "{{date}} に必要な Academy コースをすべて完了しました",
+    "savingCompletion": "コース完了を保存しています...",
+    "errors": {
+      "saveFailed": "コース完了の保存に失敗しました。"
+    },
+    "courseCard": {
+      "estimatedMinutes": "{{count}} 分"
+    },
+    "player": {
+      "title": "CloudAnzen Academy",
+      "checksComplete": "{{done}}/{{total}} チェック完了",
+      "score": "スコア {{score}}%",
+      "reset": "リセット",
+      "completeCourse": "コースを完了",
+      "courseUnavailable": "コース内容はまだ利用できません。",
+      "englishOnlyNote": "コース本文は翻訳レビュー中のため、現在は英語で表示されます。",
+      "answerEveryModule": "このコースを完了する前に、すべてのモジュールチェックに回答してください。",
+      "passThreshold": "完了するには {{threshold}}% 以上のスコアが必要です。未達のモジュールを確認して再試行してください。"
+    }
+  }
+}

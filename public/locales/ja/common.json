@@ -292,7 +292,7 @@
     },
     "progress": {
       "title": "セキュリティオンボーディング",
-      "tasksComplete": "{{done}}/3 タスク完了",
+      "tasksComplete": "{{done}}/{{total}} タスク完了",
       "description": "セキュリティオンボーディングを完了するには、すべてのタスクを完了してください。",
       "allTasksCompleteTitle": "すべてのタスクが完了しました！",
       "allTasksCompleteDescription": "セキュリティオンボーディングはすべて完了しました。ありがとうございます。"
@@ -458,7 +458,7 @@
       "setupSystem": "システムを設定"
     },
     "note": "注: セットアップは一度だけ実行できます。投入される管理策とポリシーは、上で選択したフレームワークに応じて決まります。",
-    "footer": "© 2024 Manzen Security Platform. All rights reserved.",
+    "footer": "© 2024 CloudAnzen Security Platform. All rights reserved.",
     "validation": {
       "organizationNameMin": "組織名は2文字以上で入力してください",
       "adminNameMin": "管理者名は2文字以上で入力してください",

@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  Dog,
   Trophy,
   Shield,
   AlertTriangle,
@@ -8,6 +7,7 @@ import {
   CheckCircle2,
   XCircle,
   ArrowRight,
+  ShieldCheck,
 } from 'lucide-react';
 import type { QuestState } from '../lib/types';
 import {
@@ -82,7 +82,7 @@ export function SummaryScreen({
 
   return (
     <div className="max-w-xl mx-auto space-y-5 py-4">
-      {/* Mascot + Rating hero */}
+      {/* Rating hero */}
       <div
         className={`rounded-2xl border-2 ${ratingCfg.border} ${ratingCfg.bg} p-5 text-center space-y-3`}
       >
@@ -104,9 +104,8 @@ export function SummaryScreen({
           </p>
         </div>
 
-        {/* Mascot line */}
         <div className="flex items-start gap-2 bg-white/60 rounded-lg px-3 py-2 text-left">
-          <Dog
+          <ShieldCheck
             className="w-5 h-5 text-slate-500 flex-shrink-0 mt-0.5"
             aria-hidden="true"
           />

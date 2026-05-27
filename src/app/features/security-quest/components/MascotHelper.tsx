@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dog } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 
 interface MascotHelperProps {
   message: string;
@@ -21,7 +21,11 @@ const ICON_STYLES = {
   info: 'bg-sky-100 text-sky-600',
 };
 
-export function MascotHelper({ message, variant = 'default', compact = false }: MascotHelperProps) {
+export function MascotHelper({
+  message,
+  variant = 'default',
+  compact = false,
+}: MascotHelperProps) {
   if (!message) return null;
 
   return (
@@ -33,7 +37,10 @@ export function MascotHelper({ message, variant = 'default', compact = false }: 
       <div
         className={`flex-shrink-0 rounded-lg p-1.5 ${ICON_STYLES[variant]} ${compact ? 'w-7 h-7' : 'w-9 h-9'} flex items-center justify-center`}
       >
-        <Dog className={compact ? 'w-4 h-4' : 'w-5 h-5'} aria-hidden="true" />
+        <ShieldCheck
+          className={compact ? 'w-4 h-4' : 'w-5 h-5'}
+          aria-hidden="true"
+        />
       </div>
       <p className={`${compact ? 'text-xs' : 'text-sm'} leading-relaxed`}>
         {message}

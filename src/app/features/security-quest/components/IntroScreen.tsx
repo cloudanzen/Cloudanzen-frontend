@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dog, Clock, Award, Target, ArrowRight } from 'lucide-react';
+import { ShieldCheck, Clock, Award, Target, ArrowRight } from 'lucide-react';
 import { MASCOT_LINES } from '../content/copy';
 import { BADGES } from '../content/badges';
 
@@ -10,34 +10,36 @@ interface IntroScreenProps {
   onResume?: () => void;
 }
 
-export function IntroScreen({ onStart, hasProgress, onResume }: IntroScreenProps) {
+export function IntroScreen({
+  onStart,
+  hasProgress,
+  onResume,
+}: IntroScreenProps) {
   return (
     <div className="max-w-xl mx-auto space-y-6 py-6">
       {/* Hero */}
       <div className="text-center space-y-4">
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-slate-100 mb-2">
-          <Dog className="w-9 h-9 text-slate-700" aria-hidden="true" />
+          <ShieldCheck className="w-9 h-9 text-slate-700" aria-hidden="true" />
         </div>
         <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
-          Manzen Security Quest
+          CloudAnzen Academy
         </h2>
         <p className="text-base text-slate-500 font-medium">
-          Guard the Pack
+          Security awareness training
         </p>
       </div>
 
       {/* Mascot welcome */}
       <div className="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
         <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center">
-          <Dog className="w-5 h-5 text-slate-600" aria-hidden="true" />
+          <ShieldCheck className="w-5 h-5 text-slate-600" aria-hidden="true" />
         </div>
         <div className="space-y-1">
           <p className="text-sm text-slate-700 leading-relaxed">
             {MASCOT_LINES.welcome}
           </p>
-          <p className="text-sm text-slate-500">
-            {MASCOT_LINES.startPrompt}
-          </p>
+          <p className="text-sm text-slate-500">{MASCOT_LINES.startPrompt}</p>
         </div>
       </div>
 
@@ -59,7 +61,9 @@ export function IntroScreen({ onStart, hasProgress, onResume }: IntroScreenProps
 
       {/* What you'll learn */}
       <div className="rounded-xl border border-gray-200 bg-white p-4 space-y-2">
-        <h3 className="text-sm font-semibold text-gray-900">What you'll cover</h3>
+        <h3 className="text-sm font-semibold text-gray-900">
+          What you'll cover
+        </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
           {[
             'Your role in security',
@@ -68,9 +72,15 @@ export function IntroScreen({ onStart, hasProgress, onResume }: IntroScreenProps
             'Phishing & social engineering',
             'Device & data protection',
             'Final challenge',
-          ].map(topic => (
-            <div key={topic} className="flex items-center gap-2 text-sm text-gray-600">
-              <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-blue-400" aria-hidden="true" />
+          ].map((topic) => (
+            <div
+              key={topic}
+              className="flex items-center gap-2 text-sm text-gray-600"
+            >
+              <span
+                className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-blue-400"
+                aria-hidden="true"
+              />
               {topic}
             </div>
           ))}

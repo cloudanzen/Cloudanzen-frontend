@@ -2,7 +2,10 @@ const TOKEN_KEY = 'isms_token';
 const USER_KEY = 'isms_user';
 
 function hasBrowserStorage(): boolean {
-  return typeof window !== 'undefined' && typeof window.sessionStorage !== 'undefined';
+  return (
+    typeof window !== 'undefined' &&
+    typeof window.sessionStorage !== 'undefined'
+  );
 }
 
 function readWithMigration(key: string): string | null {
@@ -83,11 +86,13 @@ export function clearCachedUser(): void {
 
 function clearSecurityQuestStorage(): void {
   if (typeof window === 'undefined' || !window.localStorage) return;
-  const prefix = 'manzen-security-quest-state';
+  const prefixes = ['manzen-security-quest-state', 'cloudanzen-academy-state'];
   const keys: string[] = [];
   for (let i = 0; i < window.localStorage.length; i++) {
     const key = window.localStorage.key(i);
-    if (key?.startsWith(prefix)) keys.push(key);
+    if (key && prefixes.some((prefix) => key.startsWith(prefix))) {
+      keys.push(key);
+    }
   }
   keys.forEach((key) => window.localStorage.removeItem(key));
 }

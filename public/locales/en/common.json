@@ -292,7 +292,7 @@
     },
     "progress": {
       "title": "Security Onboarding",
-      "tasksComplete": "{{done}}/3 tasks complete",
+      "tasksComplete": "{{done}}/{{total}} tasks complete",
       "description": "Complete all tasks to finish your security onboarding.",
       "allTasksCompleteTitle": "All tasks complete!",
       "allTasksCompleteDescription": "Your security onboarding is fully done. Thank you."
@@ -458,7 +458,7 @@
       "setupSystem": "Setup System"
     },
     "note": "Note: Setup can only be performed once. Controls and policies seeded will reflect the frameworks selected above.",
-    "footer": "© 2024 Manzen Security Platform. All rights reserved.",
+    "footer": "© 2024 CloudAnzen Security Platform. All rights reserved.",
     "validation": {
       "organizationNameMin": "Organization name must be at least 2 characters",
       "adminNameMin": "Admin name must be at least 2 characters",
