@@ -15,10 +15,11 @@ export const FRAMEWORK_CATALOG: Record<string, FrameworkCatalogEntry> = {
   'iso-27001': {
     slug: 'iso-27001',
     domains: ['Security'],
-    tagline: 'The global benchmark for information security management',
+    tagline: 'The ISMS foundation for security, compliance, and customer trust',
     overview:
-      'ISO/IEC 27001:2022 defines the requirements for an information security management system. Annex A groups 93 controls across organizational, people, physical, and technological themes.',
+      'ISO/IEC 27001:2022 defines the requirements for an information security management system. It combines leadership, risk assessment, risk treatment, internal audit, management review, and Annex A controls across organizational, people, physical, and technological themes.',
     industries: [
+      'AI / SaaS',
       'Technology',
       'Finance',
       'Healthcare',
@@ -27,13 +28,15 @@ export const FRAMEWORK_CATALOG: Record<string, FrameworkCatalogEntry> = {
       'Professional Services',
     ],
     scope: [
-      'Information assets inside the ISMS boundary',
+      'ISMS context, interested parties, boundaries, and exclusions',
+      'Information assets, risks, and treatment plans inside the ISMS boundary',
       'Statement of Applicability and Annex A control selection',
+      'Internal audit, management review, corrective action, and continual improvement',
     ],
     benefits: [
-      'Widely recognized certification',
-      'Disciplined risk management program',
-      'Strong foundation for SOC 2, HIPAA, and other mapped frameworks',
+      'Globally recognized certification for customer and enterprise reviews',
+      'Repeatable risk assessment, treatment, and control monitoring program',
+      'Reusable evidence foundation for SOC 2, HIPAA, ISO 42001, and other mapped frameworks',
     ],
     controlDomains: [
       { label: 'Organizational Controls', count: 37 },
