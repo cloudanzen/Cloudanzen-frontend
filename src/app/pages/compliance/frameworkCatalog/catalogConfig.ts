@@ -148,26 +148,31 @@ export const FRAMEWORK_CATALOG: Record<string, FrameworkCatalogEntry> = {
   'iso-42001': {
     slug: 'iso-42001',
     domains: ['AI governance', 'Risk management'],
-    tagline: 'The international management-system standard for responsible AI',
+    tagline: 'The certifiable AI management-system standard for responsible AI',
     overview:
-      'ISO/IEC 42001:2023 defines the requirements for an AI management system covering AI governance, risk and impact assessment, the AI life cycle, data, transparency, human oversight, and third-party AI. Annex A organizes 38 reference controls across nine areas.',
+      'ISO/IEC 42001:2023 defines the requirements for an AI management system covering governance, risk and impact assessment, life-cycle controls, AI data, transparency, human oversight, and third-party AI. Annex A organizes 38 reference controls across nine areas.',
     industries: [
       'AI-native SaaS',
+      'AI infrastructure',
+      'Foundation model providers',
+      'Data platforms',
       'Technology',
       'Finance',
       'Healthcare AI',
       'Public sector',
-      'Professional services using AI',
+      'Regulated AI teams',
     ],
     scope: [
       'AI systems developed, provided, or used by the organization',
+      'AIMS governance processes, interested-party obligations, and AI objectives',
+      'AI risk and impact assessment records',
       'Data, models, prompts, and outputs across the AI life cycle',
       'Third-party AI providers and foundation-model use',
     ],
     benefits: [
-      'First international AIMS standard auditors recognize',
+      'Certifiable framework for responsible AI governance',
       'Demonstrates responsible-AI posture to enterprise procurement',
-      'Maps cleanly onto an existing ISO 27001 ISMS',
+      'Can be layered onto an existing ISO 27001 ISMS',
     ],
     controlDomains: [
       { label: 'AI policies', count: 3 },
