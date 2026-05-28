@@ -1,5 +1,6 @@
 import type { CoursePack } from './types';
 import { ISO_27001_V2 } from './iso-27001-v2';
+import { ISO_42001_V2 } from './iso-42001-v2';
 
 function module(
   id: string,
@@ -38,56 +39,7 @@ function module(
 
 export const COURSE_PACKS: Record<string, CoursePack> = {
   'iso-27001-security-awareness': ISO_27001_V2,
-  'iso-42001-ai-governance-awareness': {
-    slug: 'iso-42001-ai-governance-awareness',
-    version: 1,
-    passThresholdPct: 80,
-    estimatedMinutes: 20,
-    modules: [
-      module(
-        'responsible-ai-use',
-        'Responsible AI Use',
-        'AI systems need clear use boundaries and human accountability.',
-        'ISO 42001 awareness helps teams understand approved AI use cases, prohibited uses, risk escalation, and the difference between assistance and autonomous decision-making.',
-        [
-          'Use approved AI tools and documented workflows.',
-          'Do not paste sensitive data into unapproved AI services.',
-          'Keep humans accountable for high-impact decisions.',
-        ],
-        'Which AI use is safest?',
-        'Use an approved AI workflow with data handling and review controls.',
-        'Use any model that gives the fastest answer.',
-      ),
-      module(
-        'model-risk-signals',
-        'AI Risk Signals',
-        'Teams should recognize when AI output requires extra review.',
-        'AI risks can include hallucination, bias, privacy leakage, prompt injection, inappropriate autonomy, and outdated model cards. Personnel should know when to stop and escalate.',
-        [
-          'Treat unexpected or high-impact outputs as review triggers.',
-          'Report suspected bias, unsafe output, or prompt abuse.',
-          'Check model cards and intended-use boundaries.',
-        ],
-        'When should an AI output be escalated?',
-        'When it affects a customer, legal, financial, health, or security decision.',
-        'Only when the model refuses to answer.',
-      ),
-      module(
-        'ai-evidence',
-        'AI Evidence Discipline',
-        'Responsible AI work leaves reviewable records.',
-        'AI governance needs records such as system inventory entries, model cards, vendor reviews, dataset provenance, approvals, monitoring results, and incident notes.',
-        [
-          'Document the AI system owner and intended use.',
-          'Retain model, dataset, prompt, and monitoring evidence where required.',
-          'Update records when AI systems materially change.',
-        ],
-        'What is the best evidence habit for AI changes?',
-        'Record the change, approval, evaluation result, and rollback plan.',
-        'Rely on chat history if anyone asks later.',
-      ),
-    ],
-  },
+  'iso-42001-ai-governance-awareness': ISO_42001_V2,
   'soc-2-trust-awareness': {
     slug: 'soc-2-trust-awareness',
     version: 1,
