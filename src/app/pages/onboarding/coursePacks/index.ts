@@ -1,4 +1,5 @@
 import type { CoursePack } from './types';
+import { ISO_27001_V2 } from './iso-27001-v2';
 
 function module(
   id: string,
@@ -36,56 +37,7 @@ function module(
 }
 
 export const COURSE_PACKS: Record<string, CoursePack> = {
-  'iso-27001-security-awareness': {
-    slug: 'iso-27001-security-awareness',
-    version: 1,
-    passThresholdPct: 80,
-    estimatedMinutes: 18,
-    modules: [
-      module(
-        'shared-responsibility',
-        'Security Responsibilities',
-        'Every person contributes to the ISMS through daily decisions.',
-        'ISO 27001 awareness should connect policy, real work, and reporting paths. The goal is not memorizing clauses; it is knowing how your actions protect customer data and company systems.',
-        [
-          'Follow approved policies and procedures.',
-          'Use approved systems for company and customer data.',
-          'Report suspected incidents quickly, even when uncertain.',
-        ],
-        'What is the best response when you notice a possible security issue?',
-        'Report it through the approved channel as soon as possible.',
-        'Wait until you are completely certain before telling anyone.',
-      ),
-      module(
-        'access-and-devices',
-        'Access and Device Hygiene',
-        'Strong access habits reduce the most common security failures.',
-        'Secure work depends on unique passwords, MFA, managed devices, least privilege, and prompt updates. These controls work best when everyone treats them as normal operating discipline.',
-        [
-          'Use a password manager and unique credentials.',
-          'Keep MFA enabled and report unexpected prompts.',
-          'Lock, update, and protect your workstation.',
-        ],
-        'Which behaviour best supports secure access?',
-        'Use a password manager, MFA, and company-approved devices.',
-        'Reuse a memorable password across lower-risk tools.',
-      ),
-      module(
-        'data-handling',
-        'Sensitive Data Handling',
-        'Classify, store, and share information according to policy.',
-        'Customer data, credentials, audit evidence, source code, and internal risk records all need deliberate handling. Use approved repositories and only share with people who need access.',
-        [
-          'Check classification before sharing.',
-          'Avoid moving data into personal tools or unmanaged AI tools.',
-          'Escalate if data is sent to the wrong place.',
-        ],
-        'What should you do before sharing customer evidence externally?',
-        'Confirm the recipient, business need, classification, and approved channel.',
-        'Send it quickly if the recipient says it is urgent.',
-      ),
-    ],
-  },
+  'iso-27001-security-awareness': ISO_27001_V2,
   'iso-42001-ai-governance-awareness': {
     slug: 'iso-42001-ai-governance-awareness',
     version: 1,
