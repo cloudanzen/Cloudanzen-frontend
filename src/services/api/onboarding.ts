@@ -57,7 +57,12 @@ export interface TrainingCourse {
 export interface TrainingAttemptPayload {
   kind: 'course_attempt';
   moduleScores: Record<string, number>;
-  quizAnswers: Record<string, string>;
+  /**
+   * v1 — Record<moduleId, choiceId> (stale tabs / legacy callers).
+   * v2 — Record<questionId, choiceId[]> (multi-question modules).
+   * Backend accepts both and normalises v1 → v2 before scoring.
+   */
+  quizAnswers: Record<string, string> | Record<string, string[]>;
   durationSeconds: number;
 }
 
@@ -113,9 +118,7 @@ export const onboardingService = {
   },
 
   /** Admin: get one user's detail */
-  async getUserOnboarding(
-    userId: string,
-  ): Promise<{
+  async getUserOnboarding(userId: string): Promise<{
     success: boolean;
     data: { user: UserOnboardingSummary; onboarding: OnboardingStatus };
   }> {
