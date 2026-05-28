@@ -1,6 +1,7 @@
 import type { CoursePack } from './types';
 import { ISO_27001_V2 } from './iso-27001-v2';
 import { ISO_42001_V2 } from './iso-42001-v2';
+import { SOC_2_V2 } from './soc-2-v2';
 
 function module(
   id: string,
@@ -40,42 +41,7 @@ function module(
 export const COURSE_PACKS: Record<string, CoursePack> = {
   'iso-27001-security-awareness': ISO_27001_V2,
   'iso-42001-ai-governance-awareness': ISO_42001_V2,
-  'soc-2-trust-awareness': {
-    slug: 'soc-2-trust-awareness',
-    version: 1,
-    passThresholdPct: 80,
-    estimatedMinutes: 15,
-    modules: [
-      module(
-        'trust-services',
-        'Trust Services Commitments',
-        'SOC 2 turns operating commitments into audit evidence.',
-        'SOC 2 awareness helps teams understand that security, availability, confidentiality, privacy, and processing integrity are reflected in everyday workflows.',
-        [
-          'Follow the controls that support customer commitments.',
-          'Keep evidence current instead of recreating it during audit season.',
-          'Escalate gaps before they become exceptions.',
-        ],
-        'What makes SOC 2 evidence useful?',
-        'It shows the control operated during the review period.',
-        'It is created at the end of the audit from memory.',
-      ),
-      module(
-        'customer-trust',
-        'Customer Trust Requests',
-        'Security questionnaires and trust center requests need consistent answers.',
-        'SOC 2 evidence often supports customer reviews. Teams should avoid ad hoc promises and route customer security questions through approved trust workflows.',
-        [
-          'Use approved questionnaire answers.',
-          'Share only approved trust documents.',
-          'Route unusual commitments for review.',
-        ],
-        'How should a new customer security commitment be handled?',
-        'Route it for review before promising it to the customer.',
-        'Promise it first and ask compliance later.',
-      ),
-    ],
-  },
+  'soc-2-trust-awareness': SOC_2_V2,
   'hipaa-security-awareness': {
     slug: 'hipaa-security-awareness',
     version: 1,
