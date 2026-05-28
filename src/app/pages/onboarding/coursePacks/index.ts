@@ -2,6 +2,7 @@ import type { CoursePack } from './types';
 import { ISO_27001_V2 } from './iso-27001-v2';
 import { ISO_42001_V2 } from './iso-42001-v2';
 import { SOC_2_V2 } from './soc-2-v2';
+import { HIPAA_V2 } from './hipaa-v2';
 
 function module(
   id: string,
@@ -42,42 +43,7 @@ export const COURSE_PACKS: Record<string, CoursePack> = {
   'iso-27001-security-awareness': ISO_27001_V2,
   'iso-42001-ai-governance-awareness': ISO_42001_V2,
   'soc-2-trust-awareness': SOC_2_V2,
-  'hipaa-security-awareness': {
-    slug: 'hipaa-security-awareness',
-    version: 1,
-    passThresholdPct: 80,
-    estimatedMinutes: 16,
-    modules: [
-      module(
-        'ephi-basics',
-        'ePHI Handling',
-        'HIPAA security awareness focuses on protecting electronic PHI.',
-        'Health data can carry legal, contractual, and patient trust obligations. Workforce members need to understand minimum necessary access, secure storage, and incident reporting.',
-        [
-          'Use approved systems for ePHI.',
-          'Apply minimum necessary access.',
-          'Report suspected PHI exposure immediately.',
-        ],
-        'What is the safest way to handle ePHI?',
-        'Use approved systems and limit access to the minimum necessary.',
-        'Download it locally if that makes analysis easier.',
-      ),
-      module(
-        'hipaa-incidents',
-        'HIPAA Incident Signals',
-        'Potential ePHI incidents need fast escalation.',
-        'Misaddressed emails, lost devices, exposed records, unusual access, and unapproved sharing can all become HIPAA incidents. Early reporting protects patients and the organization.',
-        [
-          'Report suspected exposure even if details are incomplete.',
-          'Do not delete or alter evidence.',
-          'Follow the incident communication process.',
-        ],
-        'What should you do after sending ePHI to the wrong recipient?',
-        'Report it immediately through the incident process.',
-        'Ask the recipient to delete it and move on.',
-      ),
-    ],
-  },
+  'hipaa-security-awareness': HIPAA_V2,
   'nist-csf-cyber-awareness': {
     slug: 'nist-csf-cyber-awareness',
     version: 1,
