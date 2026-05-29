@@ -19,6 +19,7 @@
     "quality:check-staged": "node scripts/check-staged-quality.js",
     "sync:playbook-ids": "node scripts/sync-playbook-ids.js",
     "export:course-pack-manifest": "tsx scripts/export-course-pack-manifest.ts",
+    "export:public-academy-content": "tsx scripts/export-public-academy-content.ts",
     "typecheck": "tsc -p tsconfig.ci.json --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
