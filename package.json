@@ -18,6 +18,7 @@
     "quality:check": "node scripts/check-eslint-disable.js && node scripts/check-suppressed-any.js",
     "quality:check-staged": "node scripts/check-staged-quality.js",
     "sync:playbook-ids": "node scripts/sync-playbook-ids.js",
+    "export:course-pack-manifest": "tsx scripts/export-course-pack-manifest.ts",
     "typecheck": "tsc -p tsconfig.ci.json --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",

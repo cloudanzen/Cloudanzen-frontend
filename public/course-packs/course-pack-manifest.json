@@ -1,0 +1,746 @@
+{
+  "iso-27001-security-awareness@v2": {
+    "slug": "iso-27001-security-awareness",
+    "version": 2,
+    "moduleIds": [
+      "m1-why-isms",
+      "m2-access-identity",
+      "m3-device-hygiene",
+      "m4-data-classification",
+      "m5-phishing",
+      "m6-secure-dev",
+      "m7-vendor-cloud",
+      "m8-incidents",
+      "m9-business-continuity",
+      "m10-audit-your-role"
+    ],
+    "questions": [
+      {
+        "id": "m1-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m1-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m1-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m2-q1",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m2-q2",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m2-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m3-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m3-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m3-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m4-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m4-q2",
+        "kind": "ranking",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m4-q3",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m5-q1",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m5-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m5-q3",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m6-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m6-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m6-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m7-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m7-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m7-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m8-q1",
+        "kind": "ranking",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m8-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m8-q3",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m9-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m9-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m9-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m10-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m10-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m10-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      }
+    ]
+  },
+  "iso-42001-ai-governance-awareness@v2": {
+    "slug": "iso-42001-ai-governance-awareness",
+    "version": 2,
+    "moduleIds": [
+      "m1-ai-policy",
+      "m2-approved-tools",
+      "m3-sensitive-data",
+      "m4-ai-risk-impact",
+      "m5-training-data",
+      "m6-human-oversight",
+      "m7-vendor-foundation",
+      "m8-ai-incidents",
+      "m9-transparency",
+      "m10-model-card"
+    ],
+    "questions": [
+      {
+        "id": "m1-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m1-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m1-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m2-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m2-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m2-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m3-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m3-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m3-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m4-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m4-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m4-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m5-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m5-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m5-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m6-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m6-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m6-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m7-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m7-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m7-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m8-q1",
+        "kind": "ranking",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m8-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m8-q3",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m9-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m9-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m9-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m10-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m10-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m10-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      }
+    ]
+  },
+  "soc-2-trust-awareness@v2": {
+    "slug": "soc-2-trust-awareness",
+    "version": 2,
+    "moduleIds": [
+      "m1-trust-services",
+      "m2-confidentiality",
+      "m3-availability",
+      "m4-processing-integrity",
+      "m5-evidence-habits",
+      "m6-monitoring-oncall",
+      "m7-vendor-subprocessor",
+      "m8-auditor-walkthrough"
+    ],
+    "questions": [
+      {
+        "id": "m1-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m1-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m1-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m2-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m2-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m2-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m3-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m3-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m3-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m4-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m4-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m4-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m5-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m5-q2",
+        "kind": "ranking",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m5-q3",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m6-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m6-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m6-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m7-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m7-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m7-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m8-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m8-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m8-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      }
+    ]
+  },
+  "hipaa-security-awareness@v2": {
+    "slug": "hipaa-security-awareness",
+    "version": 2,
+    "moduleIds": [
+      "m1-phi-ephi",
+      "m2-minimum-necessary",
+      "m3-secure-comm",
+      "m4-workstation",
+      "m5-baa",
+      "m6-breach-notification",
+      "m7-retention-logs",
+      "m8-ocr-enforcement"
+    ],
+    "questions": [
+      {
+        "id": "m1-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m1-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m1-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m2-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m2-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m2-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m3-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m3-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m3-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m4-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m4-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m4-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m5-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m5-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m5-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m6-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m6-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m6-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m7-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m7-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m7-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m8-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m8-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m8-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      }
+    ]
+  },
+  "nist-csf-cyber-awareness@v2": {
+    "slug": "nist-csf-cyber-awareness",
+    "version": 2,
+    "moduleIds": [
+      "m1-govern",
+      "m2-identify",
+      "m3-protect",
+      "m4-detect",
+      "m5-respond",
+      "m6-recover",
+      "m7-supply-chain",
+      "m8-mapping"
+    ],
+    "questions": [
+      {
+        "id": "m1-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m1-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m1-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m2-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m2-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m2-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m3-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m3-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m3-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m4-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m4-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m4-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m5-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m5-q2",
+        "kind": "ranking",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m5-q3",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m6-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m6-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m6-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m7-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m7-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m7-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m8-q1",
+        "kind": "single_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m8-q2",
+        "kind": "multi_choice",
+        "choiceIds": ["a", "b", "c", "d"]
+      },
+      {
+        "id": "m8-q3",
+        "kind": "scenario",
+        "choiceIds": ["a", "b", "c", "d"]
+      }
+    ]
+  }
+}
