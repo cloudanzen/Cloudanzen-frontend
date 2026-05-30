@@ -1,12 +1,22 @@
-import { Search, Settings, HelpCircle, LogOut, User, Menu, Sun, Moon, Sparkles } from "lucide-react";
-import { Input } from "@/app/components/ui/input";
-import { useState, useEffect, useRef, useCallback } from "react";
-import { useNavigate } from "react-router";
-import { authService } from "@/services/api/auth";
-import { useSidebar } from "@/app/components/Layout";
-import { NotificationBell } from "@/app/components/notifications/NotificationBell";
-import { AiAssistantChat } from "@/app/components/AiAssistantChat";
-import { useTranslation } from "react-i18next";
+import {
+  Search,
+  Settings,
+  HelpCircle,
+  LogOut,
+  User,
+  Menu,
+  Sun,
+  Moon,
+  Sparkles,
+} from 'lucide-react';
+import { Input } from '@/app/components/ui/input';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router';
+import { authService } from '@/services/api/auth';
+import { useSidebar } from '@/app/components/Layout';
+import { NotificationBell } from '@/app/components/notifications/NotificationBell';
+import { AiAssistantChat } from '@/app/components/AiAssistantChat';
+import { useTranslation } from 'react-i18next';
 
 interface SearchResult {
   title: string;
@@ -16,61 +26,113 @@ interface SearchResult {
 
 const searchablePages: SearchResult[] = [
   // Main pages
-  { title: "Dashboard", path: "/", category: "Main" },
-  { title: "ToDo", path: "/todo", category: "Main" },
-  { title: "Validations", path: "/validations", category: "Main" },
-  { title: "Progress", path: "/progress", category: "Main" },
-  
+  { title: 'Dashboard', path: '/', category: 'Main' },
+  { title: 'ToDo', path: '/todo', category: 'Main' },
+  { title: 'Validations', path: '/validations', category: 'Main' },
+  { title: 'Progress', path: '/progress', category: 'Main' },
+
   // Compliance
-  { title: "Frameworks", path: "/compliance/frameworks", category: "Compliance" },
-  { title: "Available Frameworks", path: "/compliance/frameworks", category: "Compliance" },
-  { title: "Controls", path: "/compliance/controls", category: "Compliance" },
-  { title: "Policies", path: "/compliance/policies", category: "Compliance" },
-  { title: "Documents", path: "/compliance/documents", category: "Compliance" },
-  { title: "Audits", path: "/compliance/audits", category: "Compliance" },
-  
+  {
+    title: 'Frameworks',
+    path: '/compliance/frameworks',
+    category: 'Compliance',
+  },
+  {
+    title: 'Available Frameworks',
+    path: '/compliance/frameworks',
+    category: 'Compliance',
+  },
+  { title: 'Controls', path: '/compliance/controls', category: 'Compliance' },
+  { title: 'Policies', path: '/compliance/policies', category: 'Compliance' },
+  { title: 'Documents', path: '/compliance/documents', category: 'Compliance' },
+  { title: 'Audits', path: '/compliance/audits', category: 'Compliance' },
+
   // Risk Management
-  { title: "Risk Overview", path: "/risk/overview", category: "Risk" },
-  { title: "Risks", path: "/risk/risks", category: "Risk" },
-  { title: "Risk Library", path: "/risk/library", category: "Risk" },
-  { title: "Remediations", path: "/risk/remediations", category: "Risk" },
-  { title: "Findings", path: "/assets/findings", category: "Risk" },
-  { title: "Risk Snapshot", path: "/risk/snapshot", category: "Risk" },
-  { title: "Risk Engine", path: "/risk/engine", category: "Risk" },
-  
+  { title: 'Risk Overview', path: '/risk/overview', category: 'Risk' },
+  { title: 'Risks', path: '/risk/risks', category: 'Risk' },
+  { title: 'Risk Library', path: '/risk/library', category: 'Risk' },
+  { title: 'Remediations', path: '/risk/remediations', category: 'Risk' },
+  { title: 'Findings', path: '/assets/findings', category: 'Risk' },
+  { title: 'Risk Snapshot', path: '/risk/snapshot', category: 'Risk' },
+  { title: 'Risk Engine', path: '/risk/engine', category: 'Risk' },
+
   // Customer Trust
-  { title: "Trust Overview", path: "/customer-trust/overview", category: "Customer Trust" },
-  { title: "Trust Accounts", path: "/customer-trust/accounts", category: "Customer Trust" },
-  { title: "Trust Center", path: "/customer-trust/trust-center", category: "Customer Trust" },
-  { title: "Commitments", path: "/customer-trust/commitments", category: "Customer Trust" },
-  { title: "Knowledge Base", path: "/customer-trust/knowledge-base", category: "Customer Trust" },
-  
+  {
+    title: 'Trust Overview',
+    path: '/customer-trust/overview',
+    category: 'Customer Trust',
+  },
+  {
+    title: 'Trust Accounts',
+    path: '/customer-trust/accounts',
+    category: 'Customer Trust',
+  },
+  {
+    title: 'Trust Center',
+    path: '/customer-trust/trust-center',
+    category: 'Customer Trust',
+  },
+  {
+    title: 'Commitments',
+    path: '/customer-trust/commitments',
+    category: 'Customer Trust',
+  },
+  {
+    title: 'Knowledge Base',
+    path: '/customer-trust/knowledge-base',
+    category: 'Customer Trust',
+  },
+
   // Personnel
-  { title: "Linked Accounts", path: "/personnel/access", category: "Personnel" },
-  { title: "Access Management", path: "/personnel/access", category: "Personnel" },
-  { title: "Access Reviews", path: "/personnel/access", category: "Personnel" },
-  { title: "Computers", path: "/personnel/computers", category: "Personnel" },
+  {
+    title: 'Linked Accounts',
+    path: '/personnel/access',
+    category: 'Personnel',
+  },
+  {
+    title: 'Access Management',
+    path: '/personnel/access',
+    category: 'Personnel',
+  },
+  { title: 'Access Reviews', path: '/personnel/access', category: 'Personnel' },
+  { title: 'Computers', path: '/personnel/computers', category: 'Personnel' },
 
   // AI
-  { title: "AI Chat Assistant", path: "/ai/chat", category: "AI" },
-  { title: "AI Settings", path: "/settings/ai", category: "Settings" },
-  { title: "Questionnaire AI", path: "/ai/questionnaire-assistant", category: "AI" },
+  { title: 'AI Chat Assistant', path: '/ai/chat', category: 'AI' },
+  { title: 'AI Settings', path: '/settings/ai', category: 'Settings' },
+  {
+    title: 'Questionnaire AI',
+    path: '/ai/questionnaire-assistant',
+    category: 'AI',
+  },
 
   // Other
-  { title: "Vendors", path: "/vendors", category: "Operations" },
-  { title: "Vendor Discovery", path: "/vendors/discovery", category: "Operations" },
-  { title: "Vendor Intake Requests", path: "/vendors/intake-requests", category: "Operations" },
-  { title: "Assets Inventory", path: "/assets/inventory", category: "Assets" },
-  { title: "Merge Review", path: "/assets/merge-review", category: "Assets" },
-  { title: "Code Changes", path: "/assets/code-changes", category: "Assets" },
-  { title: "Vulnerabilities", path: "/assets/vulnerabilities", category: "Assets" },
-  { title: "Integrations", path: "/integrations", category: "Settings" },
-  { title: "Notifications", path: "/notifications", category: "Main" },
+  { title: 'Vendors', path: '/vendors', category: 'Operations' },
+  {
+    title: 'Vendor Discovery',
+    path: '/vendors/discovery',
+    category: 'Operations',
+  },
+  {
+    title: 'Vendor Intake Requests',
+    path: '/vendors/intake-requests',
+    category: 'Operations',
+  },
+  { title: 'Assets Inventory', path: '/assets/inventory', category: 'Assets' },
+  { title: 'Merge Review', path: '/assets/merge-review', category: 'Assets' },
+  { title: 'Code Changes', path: '/assets/code-changes', category: 'Assets' },
+  {
+    title: 'Vulnerabilities',
+    path: '/assets/vulnerabilities',
+    category: 'Assets',
+  },
+  { title: 'Integrations', path: '/integrations', category: 'Settings' },
+  { title: 'Notifications', path: '/notifications', category: 'Main' },
 ];
 
 export function Header() {
   const { t } = useTranslation('common');
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [filteredResults, setFilteredResults] = useState<SearchResult[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const navigate = useNavigate();
@@ -79,29 +141,30 @@ export function Header() {
 
   const [aiChatOpen, setAiChatOpen] = useState(false);
   const [isDark, setIsDark] = useState(() =>
-    document.documentElement.classList.contains("dark")
+    document.documentElement.classList.contains('dark'),
   );
 
   const toggleTheme = useCallback(() => {
     const next = !isDark;
     setIsDark(next);
-    document.documentElement.classList.toggle("dark", next);
-    localStorage.setItem("manzen.theme", next ? "dark" : "light");
+    document.documentElement.classList.toggle('dark', next);
+    localStorage.setItem('manzen.theme', next ? 'dark' : 'light');
   }, [isDark]);
 
   const handleLogout = () => {
     authService.logout();
     authService.clearCachedUser();
-    navigate("/login");
+    navigate('/login');
   };
 
   const cachedUser = authService.getCachedUser();
 
   useEffect(() => {
     if (searchQuery.length >= 2) {
-      const filtered = searchablePages.filter(page =>
-        page.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        page.category.toLowerCase().includes(searchQuery.toLowerCase())
+      const filtered = searchablePages.filter(
+        (page) =>
+          page.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          page.category.toLowerCase().includes(searchQuery.toLowerCase()),
       );
       setFilteredResults(filtered.slice(0, 8)); // Limit to 8 results
       setShowSuggestions(true);
@@ -113,7 +176,10 @@ export function Header() {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
         setShowSuggestions(false);
       }
     };
@@ -124,7 +190,7 @@ export function Header() {
 
   const handleSearch = (path: string) => {
     navigate(path);
-    setSearchQuery("");
+    setSearchQuery('');
     setShowSuggestions(false);
   };
 
@@ -135,8 +201,12 @@ export function Header() {
         <button
           onClick={toggleSidebar}
           className="p-2 text-muted-foreground hover:bg-accent rounded-md flex-shrink-0"
-          aria-label={collapsed ? t('header.expandSidebar') : t('header.collapseSidebar')}
-          title={collapsed ? t('header.expandSidebar') : t('header.collapseSidebar')}
+          aria-label={
+            collapsed ? t('header.expandSidebar') : t('header.collapseSidebar')
+          }
+          title={
+            collapsed ? t('header.expandSidebar') : t('header.collapseSidebar')
+          }
         >
           <Menu className="w-5 h-5" />
         </button>
@@ -157,7 +227,7 @@ export function Header() {
               }}
               className="pl-10 pr-4"
             />
-            
+
             {showSuggestions && filteredResults.length > 0 && (
               <div className="absolute top-full mt-1 w-full bg-card border border-border rounded-md shadow-lg z-50 max-h-96 overflow-y-auto">
                 <div className="py-2">
@@ -202,23 +272,36 @@ export function Header() {
             </span>
           </button>
 
-          <button className="hidden sm:flex relative p-2 text-muted-foreground hover:bg-accent rounded-md" title={t('header.help')}>
+          <a
+            href="https://www.cloudanzen.com/resources"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden sm:flex relative p-2 text-muted-foreground hover:bg-accent rounded-md"
+            title={t('header.help')}
+            aria-label={t('header.help')}
+          >
             <HelpCircle className="w-5 h-5" />
-          </button>
+          </a>
 
           <button
             onClick={toggleTheme}
             className="p-2 text-muted-foreground hover:bg-accent rounded-md"
-            title={isDark ? t('header.switchToLight') : t('header.switchToDark')}
+            title={
+              isDark ? t('header.switchToLight') : t('header.switchToDark')
+            }
             aria-label={t('header.toggleDarkMode')}
           >
-            {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            {isDark ? (
+              <Sun className="w-5 h-5" />
+            ) : (
+              <Moon className="w-5 h-5" />
+            )}
           </button>
 
           <NotificationBell />
 
           <button
-            onClick={() => navigate("/settings/profile")}
+            onClick={() => navigate('/settings/profile')}
             className="hidden sm:flex p-2 text-muted-foreground hover:bg-accent rounded-md"
             title={t('header.settings')}
             aria-label={t('header.openSettings')}
