@@ -398,11 +398,13 @@ export function Sidebar({ collapsed = false }: { collapsed?: boolean }) {
             id: 'customerTrustOverview',
             title: t('nav.customerTrustOverview'),
             href: '/customer-trust/overview',
+            roles: [...ADMIN_ROLES],
           },
           {
             id: 'customerTrustAccounts',
             title: t('nav.customerTrustAccounts'),
             href: '/customer-trust/accounts',
+            roles: [...ADMIN_ROLES],
           },
           {
             id: 'trustCenter',
@@ -413,6 +415,7 @@ export function Sidebar({ collapsed = false }: { collapsed?: boolean }) {
             id: 'customerTrustActivity',
             title: t('nav.customerTrustActivity'),
             href: '/customer-trust/activity',
+            roles: [...ADMIN_ROLES],
           },
           {
             id: 'customerTrust-settings',
