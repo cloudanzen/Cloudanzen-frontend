@@ -157,6 +157,18 @@ const CustomerTrustSettingsPage = lazy(() =>
     default: m.CustomerTrustSettingsPage,
   })),
 );
+const CustomerTrustOverviewPage = lazy(
+  () => import('@/app/pages/customer-trust/OverviewPage'),
+);
+const CustomerTrustAccountsPage = lazy(
+  () => import('@/app/pages/customer-trust/AccountsPage'),
+);
+const CustomerTrustAccountDetailPage = lazy(
+  () => import('@/app/pages/customer-trust/AccountDetailPage'),
+);
+const CustomerTrustActivityPage = lazy(
+  () => import('@/app/pages/customer-trust/ActivityPage'),
+);
 
 // Risk
 const RiskOverviewPage = lazy(() =>
@@ -478,6 +490,22 @@ const tenantRoutes: RouteObject[] = [
       },
 
       // Customer Trust
+      {
+        path: 'customer-trust/overview',
+        Component: CustomerTrustOverviewPage,
+      },
+      {
+        path: 'customer-trust/accounts',
+        Component: CustomerTrustAccountsPage,
+      },
+      {
+        path: 'customer-trust/accounts/:id',
+        Component: CustomerTrustAccountDetailPage,
+      },
+      {
+        path: 'customer-trust/activity',
+        Component: CustomerTrustActivityPage,
+      },
       { path: 'customer-trust/trust-center', Component: TrustCenterPage },
       {
         path: 'customer-trust/settings',

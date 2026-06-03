@@ -395,9 +395,24 @@ export function Sidebar({ collapsed = false }: { collapsed?: boolean }) {
         icon: Users,
         children: [
           {
+            id: 'customerTrustOverview',
+            title: t('nav.customerTrustOverview'),
+            href: '/customer-trust/overview',
+          },
+          {
+            id: 'customerTrustAccounts',
+            title: t('nav.customerTrustAccounts'),
+            href: '/customer-trust/accounts',
+          },
+          {
             id: 'trustCenter',
             title: t('nav.trustCenter'),
             href: '/customer-trust/trust-center',
+          },
+          {
+            id: 'customerTrustActivity',
+            title: t('nav.customerTrustActivity'),
+            href: '/customer-trust/activity',
           },
           {
             id: 'customerTrust-settings',
