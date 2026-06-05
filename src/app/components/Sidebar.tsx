@@ -418,6 +418,12 @@ export function Sidebar({ collapsed = false }: { collapsed?: boolean }) {
             roles: [...ADMIN_ROLES],
           },
           {
+            id: 'customerTrustCommitments',
+            title: t('nav.customerTrustCommitments'),
+            href: '/customer-trust/commitments',
+            roles: [...ADMIN_ROLES],
+          },
+          {
             id: 'customerTrust-settings',
             title: t('nav.settings'),
             href: '/settings/customer-trust',
