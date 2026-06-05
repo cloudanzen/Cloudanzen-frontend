@@ -169,6 +169,12 @@ const CustomerTrustAccountDetailPage = lazy(
 const CustomerTrustActivityPage = lazy(
   () => import('@/app/pages/customer-trust/ActivityPage'),
 );
+const CustomerTrustCommitmentsPage = lazy(
+  () => import('@/app/pages/customer-trust/CommitmentsPage'),
+);
+const CustomerTrustCommitmentDetailPage = lazy(
+  () => import('@/app/pages/customer-trust/CommitmentDetailPage'),
+);
 
 // Risk
 const RiskOverviewPage = lazy(() =>
@@ -505,6 +511,14 @@ const tenantRoutes: RouteObject[] = [
       {
         path: 'customer-trust/activity',
         Component: CustomerTrustActivityPage,
+      },
+      {
+        path: 'customer-trust/commitments',
+        Component: CustomerTrustCommitmentsPage,
+      },
+      {
+        path: 'customer-trust/commitments/:id',
+        Component: CustomerTrustCommitmentDetailPage,
       },
       { path: 'customer-trust/trust-center', Component: TrustCenterPage },
       {

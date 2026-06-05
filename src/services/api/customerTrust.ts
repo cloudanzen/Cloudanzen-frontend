@@ -145,4 +145,131 @@ export const customerTrustApi = {
     const q = windowDays ? `?windowDays=${windowDays}` : '';
     return apiClient.get(`/api/customer-trust/overview/kpis${q}`);
   },
+
+  // ── Phase C — Customer Commitments ──────────────────────────────────────
+  listCommitments(
+    params: { status?: string; accountId?: string; category?: string } = {},
+  ): Promise<ApiOk<TrustCommitmentRow[]>> {
+    const usp = new URLSearchParams();
+    if (params.status) usp.set('status', params.status);
+    if (params.accountId) usp.set('accountId', params.accountId);
+    if (params.category) usp.set('category', params.category);
+    const qs = usp.toString();
+    return apiClient.get(
+      `/api/customer-trust/commitments${qs ? `?${qs}` : ''}`,
+    );
+  },
+  getCommitment(id: string): Promise<ApiOk<TrustCommitmentDetail>> {
+    return apiClient.get(
+      `/api/customer-trust/commitments/${encodeURIComponent(id)}`,
+    );
+  },
+  createCommitment(payload: {
+    accountId?: string | null;
+    title: string;
+    description?: string | null;
+    category: TrustCommitmentCategory;
+    status?: TrustCommitmentStatus;
+    source: TrustCommitmentSource;
+    sourceDocumentUrl?: string | null;
+    effectiveFrom: string;
+    effectiveUntil?: string | null;
+    ownerUserId?: string | null;
+    controlIds?: string[];
+    policyIds?: string[];
+  }): Promise<ApiOk<TrustCommitmentRow>> {
+    return apiClient.post('/api/customer-trust/commitments', payload);
+  },
+  updateCommitment(
+    id: string,
+    payload: Partial<{
+      accountId: string | null;
+      title: string;
+      description: string | null;
+      category: TrustCommitmentCategory;
+      status: TrustCommitmentStatus;
+      source: TrustCommitmentSource;
+      sourceDocumentUrl: string | null;
+      effectiveFrom: string;
+      effectiveUntil: string | null;
+      ownerUserId: string | null;
+      controlIds: string[];
+      policyIds: string[];
+    }>,
+  ): Promise<ApiOk<TrustCommitmentRow>> {
+    return apiClient.patch(
+      `/api/customer-trust/commitments/${encodeURIComponent(id)}`,
+      payload,
+    );
+  },
+  deleteCommitment(id: string): Promise<{ success: boolean }> {
+    return apiClient.delete(
+      `/api/customer-trust/commitments/${encodeURIComponent(id)}`,
+    );
+  },
+  logCommitmentEvent(
+    id: string,
+    payload: {
+      eventType: TrustCommitmentEventType;
+      notes?: string | null;
+      evidenceUrl?: string | null;
+    },
+  ): Promise<ApiOk<TrustCommitmentEvent>> {
+    return apiClient.post(
+      `/api/customer-trust/commitments/${encodeURIComponent(id)}/events`,
+      payload,
+    );
+  },
 };
+
+// ── Phase C types ──────────────────────────────────────────────────────────
+
+export type TrustCommitmentCategory =
+  | 'SLA'
+  | 'SECURITY'
+  | 'PRIVACY'
+  | 'OPERATIONAL';
+export type TrustCommitmentStatus =
+  | 'ACTIVE'
+  | 'AT_RISK'
+  | 'BREACHED'
+  | 'EXPIRED';
+export type TrustCommitmentSource = 'CONTRACT' | 'POLICY' | 'MANUAL';
+export type TrustCommitmentEventType =
+  | 'ATTESTED'
+  | 'BREACHED'
+  | 'REMEDIATED'
+  | 'RENEWED';
+
+export interface TrustCommitmentRow {
+  id: string;
+  accountId: string | null;
+  title: string;
+  category: TrustCommitmentCategory;
+  status: TrustCommitmentStatus;
+  source: TrustCommitmentSource;
+  effectiveFrom: string;
+  effectiveUntil: string | null;
+  ownerUserId: string | null;
+  createdAt: string;
+  updatedAt: string;
+  account?: { id: string; domain: string; companyName: string | null } | null;
+}
+
+export interface TrustCommitmentEvent {
+  id: string;
+  commitmentId: string;
+  eventType: TrustCommitmentEventType;
+  notes: string | null;
+  evidenceUrl: string | null;
+  loggedByUserId: string | null;
+  createdAt: string;
+}
+
+export interface TrustCommitmentDetail extends TrustCommitmentRow {
+  description: string | null;
+  sourceDocumentUrl: string | null;
+  controlIds: string[];
+  policyIds: string[];
+  events: TrustCommitmentEvent[];
+}
