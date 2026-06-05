@@ -11,6 +11,9 @@ import { DocumentsTab } from './trustCenter/DocumentsTab';
 import { AnnouncementsTab } from './trustCenter/AnnouncementsTab';
 import { AccessRequestsTab } from './trustCenter/AccessRequestsTab';
 import { QuestionnairesTab } from './trustCenter/QuestionnairesTab';
+import { NdasTab } from './trustCenter/NdasTab';
+import { AutoApprovalRulesTab } from './trustCenter/AutoApprovalRulesTab';
+import { SubscribersTab } from './trustCenter/SubscribersTab';
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
@@ -67,6 +70,9 @@ export function TrustCenterPage() {
       {activeTab === 'announcements' && <AnnouncementsTab />}
       {activeTab === 'access-requests' && <AccessRequestsTab />}
       {activeTab === 'questionnaires' && <QuestionnairesTab />}
+      {activeTab === 'ndas' && <NdasTab />}
+      {activeTab === 'rules' && <AutoApprovalRulesTab />}
+      {activeTab === 'subscribers' && <SubscribersTab />}
     </PageTemplate>
   );
 }
