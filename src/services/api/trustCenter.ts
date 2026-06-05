@@ -50,6 +50,16 @@ export interface TrustDocument {
   name: string;
   category: TrustDocumentCategory;
   fileUrl: string;
+  // Phase B 4-state visibility. Legacy boolean pair below stays for
+  // backwards compat until the FE swap completes.
+  visibility?: 'PUBLIC' | 'SHAREABLE' | 'REQUESTABLE' | 'PRIVATE';
+  ownerId?: string | null;
+  description?: string | null;
+  expiresAt?: string | null;
+  verifiedAt?: string | null;
+  reviewCadence?: string | null;
+  versionGroupId?: string | null;
+  useForQuestionnaires?: boolean;
   requiresNda: boolean;
   publicVisible: boolean;
   version: string | null;
@@ -325,4 +335,154 @@ export const trustCenterService = {
       payload,
     );
   },
+
+  // ── Phase B ─────────────────────────────────────────────────────────────
+
+  // NDAs
+  listNdas(): Promise<{ success: boolean; data: TrustNda[] }> {
+    return apiClient.get('/api/customer-trust/ndas');
+  },
+  createNda(payload: {
+    name: string;
+    content: string;
+    isDefault?: boolean;
+  }): Promise<{ success: boolean; data: TrustNda }> {
+    return apiClient.post('/api/customer-trust/ndas', payload);
+  },
+  updateNda(
+    id: string,
+    payload: Partial<{ name: string; content: string; isDefault: boolean }>,
+  ): Promise<{ success: boolean; data: TrustNda }> {
+    return apiClient.patch(`/api/customer-trust/ndas/${id}`, payload);
+  },
+  deleteNda(id: string): Promise<{ success: boolean }> {
+    return apiClient.delete(`/api/customer-trust/ndas/${id}`);
+  },
+
+  // Auto-approval rules
+  listAutoApprovalRules(): Promise<{
+    success: boolean;
+    data: TrustAutoApprovalRule[];
+  }> {
+    return apiClient.get('/api/customer-trust/auto-approval-rules');
+  },
+  createAutoApprovalRule(payload: {
+    name: string;
+    matchType: AutoApprovalMatchType;
+    matchValue: string;
+    action: AutoApprovalAction;
+    enabled?: boolean;
+    priority?: number;
+  }): Promise<{
+    success: boolean;
+    data: TrustAutoApprovalRule;
+    warning?: string;
+  }> {
+    return apiClient.post('/api/customer-trust/auto-approval-rules', payload);
+  },
+  updateAutoApprovalRule(
+    id: string,
+    payload: Partial<{
+      name: string;
+      matchType: AutoApprovalMatchType;
+      matchValue: string;
+      action: AutoApprovalAction;
+      enabled: boolean;
+      priority: number;
+    }>,
+  ): Promise<{ success: boolean; data: TrustAutoApprovalRule }> {
+    return apiClient.patch(
+      `/api/customer-trust/auto-approval-rules/${id}`,
+      payload,
+    );
+  },
+  deleteAutoApprovalRule(id: string): Promise<{ success: boolean }> {
+    return apiClient.delete(`/api/customer-trust/auto-approval-rules/${id}`);
+  },
+
+  // Subscribers
+  listSubscribers(): Promise<{
+    success: boolean;
+    data: TrustSubscriber[];
+  }> {
+    return apiClient.get('/api/customer-trust/subscribers');
+  },
+  deleteSubscriber(id: string): Promise<{ success: boolean }> {
+    return apiClient.delete(`/api/customer-trust/subscribers/${id}`);
+  },
+
+  // Knowledge Base + share link
+  setDocumentVisibility(
+    id: string,
+    visibility: TrustResourceVisibility,
+  ): Promise<{ success: boolean; data: TrustDocument }> {
+    return apiClient.patch(`/api/customer-trust/documents/${id}/visibility`, {
+      visibility,
+    });
+  },
+  verifyDocument(
+    id: string,
+  ): Promise<{ success: boolean; data: TrustDocument }> {
+    return apiClient.patch(`/api/customer-trust/documents/${id}/verify`, {});
+  },
+  mintShareLink(
+    id: string,
+    ttlDays?: number,
+  ): Promise<{
+    success: boolean;
+    data: { url: string; token: string; expiresAt: string };
+  }> {
+    return apiClient.post(`/api/customer-trust/documents/${id}/share-link`, {
+      ttlDays,
+    });
+  },
 };
+
+// ── Phase B types ──────────────────────────────────────────────────────────
+
+export type TrustResourceVisibility =
+  | 'PUBLIC'
+  | 'SHAREABLE'
+  | 'REQUESTABLE'
+  | 'PRIVATE';
+
+export type AutoApprovalMatchType =
+  | 'DOMAIN_EXACT'
+  | 'DOMAIN_SUFFIX'
+  | 'CRM_CONTACT_EXISTS'
+  | 'CRM_ACCOUNT_OPP_STAGE';
+
+export type AutoApprovalAction = 'APPROVE' | 'APPROVE_BYPASS_NDA' | 'DENY';
+
+export interface TrustNda {
+  id: string;
+  organizationId: string;
+  name: string;
+  content: string;
+  version: number;
+  isDefault: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TrustAutoApprovalRule {
+  id: string;
+  organizationId: string;
+  name: string;
+  matchType: AutoApprovalMatchType;
+  matchValue: string;
+  action: AutoApprovalAction;
+  enabled: boolean;
+  priority: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TrustSubscriber {
+  id: string;
+  email: string;
+  name: string | null;
+  confirmedAt: string | null;
+  unsubscribedAt: string | null;
+  createdAt: string;
+}
