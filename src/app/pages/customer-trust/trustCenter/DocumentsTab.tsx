@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { TOAST_DURATION_MS } from '@/lib/constants';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import {
   FileText,
@@ -10,10 +10,16 @@ import {
   EyeOff,
   Lock,
   Trash2,
+  Link as LinkIcon,
+  Check,
 } from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
 import { Card } from '@/app/components/ui/card';
-import { trustCenterService, TrustDocument } from '@/services/api/trustCenter';
+import {
+  trustCenterService,
+  TrustDocument,
+  type TrustResourceVisibility,
+} from '@/services/api/trustCenter';
 import { getDocCategoryLabels, fmt } from './helpers';
 import { AddDocumentModal } from './AddDocumentModal';
 import { useConfirmDialog } from '@/app/hooks/useConfirmDialog';
@@ -115,6 +121,7 @@ export function DocumentsTab() {
                     t('customerTrust.documents.columns.version'),
                     t('customerTrust.documents.columns.visibility'),
                     t('customerTrust.documents.columns.nda'),
+                    'State',
                     t('customerTrust.documents.columns.added'),
                     '',
                   ].map((h) => (
@@ -175,16 +182,27 @@ export function DocumentsTab() {
                         <span className="text-xs text-gray-400">—</span>
                       )}
                     </td>
+                    <td className="px-4 py-3">
+                      <VisibilityChip
+                        visibility={doc.visibility ?? null}
+                        docId={doc.id}
+                      />
+                    </td>
                     <td className="px-4 py-3 text-gray-500 text-xs">
                       {fmt(doc.createdAt)}
                     </td>
                     <td className="px-4 py-3">
-                      <button
-                        onClick={() => handleDelete(doc.id)}
-                        className="p-1 rounded hover:bg-red-50 text-gray-400 hover:text-red-500"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      <div className="flex items-center gap-1">
+                        {doc.visibility === 'SHAREABLE' && (
+                          <ShareLinkButton docId={doc.id} />
+                        )}
+                        <button
+                          onClick={() => handleDelete(doc.id)}
+                          className="p-1 rounded hover:bg-red-50 text-gray-400 hover:text-red-500"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -203,5 +221,128 @@ export function DocumentsTab() {
         />
       )}
     </div>
+  );
+}
+
+// ── Phase B helpers ────────────────────────────────────────────────────────
+
+const VISIBILITY_STYLE: Record<TrustResourceVisibility, string> = {
+  PUBLIC: 'bg-emerald-50 text-emerald-700',
+  SHAREABLE: 'bg-sky-50 text-sky-700',
+  REQUESTABLE: 'bg-amber-50 text-amber-800',
+  PRIVATE: 'bg-slate-100 text-slate-600',
+};
+
+function VisibilityChip({
+  visibility,
+  docId,
+}: {
+  visibility: TrustResourceVisibility | null;
+  docId: string;
+}) {
+  const qc = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: (v: TrustResourceVisibility) =>
+      trustCenterService.setDocumentVisibility(docId, v),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['trust-documents'] }),
+  });
+
+  const current = visibility ?? 'PRIVATE';
+  return (
+    <select
+      value={current}
+      disabled={mutation.isPending}
+      onChange={(e) =>
+        mutation.mutate(e.target.value as TrustResourceVisibility)
+      }
+      className={`text-xs font-medium rounded-full px-2 py-0.5 border-0 focus:outline-none focus:ring-2 focus:ring-blue-200 ${VISIBILITY_STYLE[current]}`}
+    >
+      <option value="PUBLIC">PUBLIC</option>
+      <option value="SHAREABLE">SHAREABLE</option>
+      <option value="REQUESTABLE">REQUESTABLE</option>
+      <option value="PRIVATE">PRIVATE</option>
+    </select>
+  );
+}
+
+function ShareLinkButton({ docId }: { docId: string }) {
+  const [open, setOpen] = useState(false);
+  const [url, setUrl] = useState('');
+  const [expiresAt, setExpiresAt] = useState('');
+  const [copied, setCopied] = useState(false);
+
+  const mutation = useMutation({
+    mutationFn: () => trustCenterService.mintShareLink(docId, 365),
+    onSuccess: (res) => {
+      setUrl(res.data.url);
+      setExpiresAt(res.data.expiresAt);
+      setOpen(true);
+    },
+  });
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => mutation.mutate()}
+        disabled={mutation.isPending}
+        className="p-1 rounded hover:bg-blue-50 text-blue-600 disabled:opacity-50"
+        title="Generate share link"
+      >
+        <LinkIcon className="w-4 h-4" />
+      </button>
+      {open && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4"
+          onClick={() => setOpen(false)}
+        >
+          <div
+            className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="font-semibold text-lg">Share link</h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              Anyone with this link can download the document. Treat it like a
+              password.
+            </p>
+            <div className="mt-4 flex items-center gap-2">
+              <input
+                readOnly
+                value={url}
+                className="flex-1 rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-xs font-mono"
+              />
+              <Button
+                size="sm"
+                onClick={async () => {
+                  await navigator.clipboard.writeText(url);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 1500);
+                }}
+              >
+                {copied ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 mr-1" /> Copied
+                  </>
+                ) : (
+                  'Copy'
+                )}
+              </Button>
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Expires {new Date(expiresAt).toLocaleDateString()}
+            </p>
+            <div className="mt-4 flex justify-end">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setOpen(false)}
+              >
+                Close
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

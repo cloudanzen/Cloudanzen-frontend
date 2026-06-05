@@ -8,6 +8,9 @@ import {
   Megaphone,
   Mail,
   FileQuestion,
+  FileCheck,
+  GitBranch,
+  Users,
 } from 'lucide-react';
 import {
   TrustDocumentCategory,
@@ -93,6 +96,21 @@ export function getTabs(t: TFunction<'common'>) {
       key: 'questionnaires',
       label: t('customerTrust.trustCenter.tabs.questionnaires'),
       icon: <FileQuestion className="w-4 h-4" />,
+    },
+    {
+      key: 'ndas',
+      label: 'NDAs',
+      icon: <FileCheck className="w-4 h-4" />,
+    },
+    {
+      key: 'rules',
+      label: 'Auto-approval',
+      icon: <GitBranch className="w-4 h-4" />,
+    },
+    {
+      key: 'subscribers',
+      label: 'Subscribers',
+      icon: <Users className="w-4 h-4" />,
     },
   ] as const;
 }
