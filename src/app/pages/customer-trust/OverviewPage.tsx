@@ -2,10 +2,13 @@ import { useEffect, useState } from 'react';
 import {
   Activity,
   Building2,
+  CircleDollarSign,
   Download,
   Eye,
   FileSearch,
+  PiggyBank,
   TrendingUp,
+  Trophy,
   UserCheck,
   Users,
 } from 'lucide-react';
@@ -115,10 +118,35 @@ export default function CustomerTrustOverviewPage() {
             value={`${kpis.conversionRate}%`}
             hint="Identified viewers / sessions"
           />
+          <Kpi
+            icon={CircleDollarSign}
+            label="Revenue influenced"
+            value={formatUsd(kpis.revenueInfluencedUsd)}
+            hint="Total ARR across CRM accounts active in window"
+          />
+          <Kpi
+            icon={PiggyBank}
+            label="Open pipeline"
+            value={formatUsd(kpis.openPipelineUsd)}
+            hint="Open opportunities on visited accounts"
+          />
+          <Kpi
+            icon={Trophy}
+            label="Closed-won"
+            value={formatUsd(kpis.closedWonUsd)}
+            hint="Closed-won ARR on visited accounts"
+          />
         </div>
       )}
     </div>
   );
+}
+
+function formatUsd(n: number): string {
+  if (!Number.isFinite(n) || n === 0) return '$0';
+  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `$${(n / 1_000).toFixed(1)}k`;
+  return `$${Math.round(n)}`;
 }
 
 function Kpi({
