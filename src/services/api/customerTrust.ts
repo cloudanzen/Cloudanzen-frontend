@@ -72,6 +72,9 @@ export interface TrustOverviewKpis {
   newAccounts: number;
   identifiedViewers: number;
   conversionRate: number;
+  revenueInfluencedUsd: number;
+  openPipelineUsd: number;
+  closedWonUsd: number;
 }
 
 export interface TrustAccountDetail {

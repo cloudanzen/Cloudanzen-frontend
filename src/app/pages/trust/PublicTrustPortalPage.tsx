@@ -4,8 +4,8 @@
  * Fully public page (no auth required).
  * Renders the customer-facing trust center for an organisation.
  */
-import { useState } from 'react';
-import { useParams } from 'react-router';
+import { useEffect, useState } from 'react';
+import { useLocation, useParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import {
@@ -438,6 +438,164 @@ function QuestionnaireModal({
   );
 }
 
+// ── Erasure Modal (Phase D2) ──────────────────────────────────────────────────
+
+function ErasureModal({
+  orgSlug,
+  primaryColor,
+  initialToken,
+  onClose,
+}: {
+  orgSlug: string;
+  primaryColor: string;
+  initialToken?: string | null;
+  onClose: () => void;
+}) {
+  const [stage, setStage] = useState<'request' | 'execute'>(
+    initialToken ? 'execute' : 'request',
+  );
+  const [email, setEmail] = useState('');
+  const [token, setToken] = useState(initialToken ?? '');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [done, setDone] = useState(false);
+
+  const inputCls =
+    'w-full text-sm border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2';
+
+  async function handleRequest() {
+    if (!email.trim() || !email.includes('@')) {
+      return setError('Enter a valid email address');
+    }
+    setError('');
+    setSaving(true);
+    try {
+      await trustCenterService.requestErasure(orgSlug, {
+        email: email.trim(),
+      });
+      // BE always returns 202 — do not confirm match/no-match. Tell the
+      // visitor an email is on its way IF a record exists.
+      setStage('execute');
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Request failed');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleExecute() {
+    if (!token.trim()) return setError('Paste the token from your email');
+    setError('');
+    setSaving(true);
+    try {
+      await trustCenterService.executeErasure(orgSlug, {
+        token: token.trim(),
+      });
+      setDone(true);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Invalid or expired token');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+        {done ? (
+          <div className="p-8 text-center">
+            <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-3" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-1">
+              Your data has been erased
+            </h3>
+            <p className="text-sm text-gray-500 mb-5">
+              Your email and name are removed; IP and device data on visit
+              sessions are scrubbed.
+            </p>
+            <button
+              onClick={onClose}
+              className="px-5 py-2 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-700"
+            >
+              Close
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className="px-6 py-5 border-b border-gray-100">
+              <h3 className="text-base font-semibold text-gray-900">
+                Erase my data
+              </h3>
+              <p className="text-xs text-gray-500 mt-0.5">
+                {stage === 'request'
+                  ? 'Enter your email; if a record exists for this Trust Center, we will email you a one-time confirmation link.'
+                  : 'Paste the token from your email to complete the erasure.'}
+              </p>
+            </div>
+            <div className="px-6 py-5 space-y-3">
+              {error && (
+                <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                  {error}
+                </div>
+              )}
+              {stage === 'request' ? (
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    Email <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    className={inputCls}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@company.com"
+                  />
+                </div>
+              ) : (
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    Confirmation token
+                  </label>
+                  <input
+                    type="text"
+                    className={inputCls}
+                    value={token}
+                    onChange={(e) => setToken(e.target.value)}
+                    placeholder="Paste the token from the email"
+                  />
+                  <p className="text-xs text-gray-500 mt-2">
+                    Check your inbox for an email titled "Confirm erasure of
+                    your Trust Center data". The link is valid for 15 minutes.
+                  </p>
+                </div>
+              )}
+            </div>
+            <div className="flex items-center justify-end gap-2 px-6 py-4 border-t border-gray-100 bg-gray-50 rounded-b-2xl">
+              <button
+                onClick={onClose}
+                className="text-sm text-gray-500 hover:text-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={stage === 'request' ? handleRequest : handleExecute}
+                disabled={saving}
+                className="px-4 py-2 rounded-lg text-white text-sm font-medium disabled:opacity-50"
+                style={{ backgroundColor: primaryColor }}
+              >
+                {saving
+                  ? 'Working…'
+                  : stage === 'request'
+                    ? 'Send confirmation email'
+                    : 'Erase my data'}
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ── Compliance Donut ──────────────────────────────────────────────────────────
 
 function ComplianceDonut({ pct, color }: { pct: number; color: string }) {
@@ -477,7 +635,20 @@ export function PublicTrustPortalPage() {
     PublicTrustDocument | 'general' | null
   >(null);
   const [showQuestModal, setShowQuestModal] = useState(false);
+  const [showErasureModal, setShowErasureModal] = useState(false);
+  const [erasureToken, setErasureToken] = useState<string | null>(null);
   const [expandedAnn, setExpandedAnn] = useState<string | null>(null);
+  const location = useLocation();
+  useEffect(() => {
+    if (location.pathname.endsWith('/erasure/confirm')) {
+      const usp = new URLSearchParams(location.search);
+      const tok = usp.get('token');
+      if (tok) {
+        setErasureToken(tok);
+        setShowErasureModal(true);
+      }
+    }
+  }, [location.pathname, location.search]);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['public-trust', orgSlug],
@@ -919,10 +1090,19 @@ export function PublicTrustPortalPage() {
               org: settings.orgName,
             })}
           </span>
-          <span className="flex items-center gap-1">
-            <Shield className="w-3.5 h-3.5" />{' '}
-            {t('customerTrust.publicPortal.poweredBy')}
-          </span>
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={() => setShowErasureModal(true)}
+              className="text-xs text-gray-500 hover:text-gray-700 underline"
+            >
+              Erase my data
+            </button>
+            <span className="flex items-center gap-1">
+              <Shield className="w-3.5 h-3.5" />{' '}
+              {t('customerTrust.publicPortal.poweredBy')}
+            </span>
+          </div>
         </div>
       </footer>
 
@@ -940,6 +1120,17 @@ export function PublicTrustPortalPage() {
           orgSlug={orgSlug!}
           primaryColor={primaryColor}
           onClose={() => setShowQuestModal(false)}
+        />
+      )}
+      {showErasureModal && (
+        <ErasureModal
+          orgSlug={orgSlug!}
+          primaryColor={primaryColor}
+          initialToken={erasureToken}
+          onClose={() => {
+            setShowErasureModal(false);
+            setErasureToken(null);
+          }}
         />
       )}
     </div>

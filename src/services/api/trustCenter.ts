@@ -26,6 +26,7 @@ export interface TrustCenterSettings {
   primaryColor: string;
   description: string | null;
   securityEmail: string | null;
+  slackApprovalChannelId: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -179,6 +180,7 @@ export interface UpdateSettingsPayload {
   primaryColor?: string;
   description?: string | null;
   securityEmail?: string | null;
+  slackApprovalChannelId?: string | null;
 }
 
 export interface CreateDocumentPayload {
@@ -332,6 +334,26 @@ export const trustCenterService = {
   ): Promise<{ success: boolean; data: { id: string } }> {
     return apiClient.post(
       `/api/trust/public/${orgSlug}/request-questionnaire`,
+      payload,
+    );
+  },
+
+  // Phase D2 — viewer GDPR erasure (public, no auth).
+  requestErasure(
+    orgSlug: string,
+    payload: { email: string },
+  ): Promise<{ status: 'accepted' }> {
+    return apiClient.post(
+      `/api/trust/public/${orgSlug}/erasure/request`,
+      payload,
+    );
+  },
+  executeErasure(
+    orgSlug: string,
+    payload: { token: string },
+  ): Promise<{ success: boolean }> {
+    return apiClient.post(
+      `/api/trust/public/${orgSlug}/erasure/execute`,
       payload,
     );
   },

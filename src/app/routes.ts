@@ -419,6 +419,7 @@ const tenantRoutes: RouteObject[] = [
 
   // Public Trust Center portal (no auth, no app layout)
   { path: '/trust/:orgSlug', Component: PublicTrustPortalPage },
+  { path: '/trust/:orgSlug/erasure/confirm', Component: PublicTrustPortalPage },
 
   // Protected app routes (with layout)
   {
