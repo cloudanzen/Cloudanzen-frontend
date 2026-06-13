@@ -77,6 +77,25 @@ export interface TrustOverviewKpis {
   closedWonUsd: number;
 }
 
+export interface TrustActivityInsights {
+  windowDays: number;
+  summary: string;
+  suggestions: string[];
+  accounts: Array<{
+    accountId: string;
+    domain: string;
+    companyName: string | null;
+    visits: number;
+    downloads: number;
+    accessRequests: number;
+    lastActiveAt: string;
+    narrative: string;
+  }>;
+  generatedAt: string;
+  model: string;
+  cached: boolean;
+}
+
 export interface TrustAccountDetail {
   account: TrustAccountRow & { notes: string | null };
   viewers: TrustViewerRow[];
@@ -147,6 +166,18 @@ export const customerTrustApi = {
   overviewKpis(windowDays?: number): Promise<ApiOk<TrustOverviewKpis>> {
     const q = windowDays ? `?windowDays=${windowDays}` : '';
     return apiClient.get(`/api/customer-trust/overview/kpis${q}`);
+  },
+  activityInsights(
+    windowDays?: number,
+    refresh?: boolean,
+  ): Promise<ApiOk<TrustActivityInsights>> {
+    const usp = new URLSearchParams();
+    if (windowDays) usp.set('windowDays', String(windowDays));
+    if (refresh) usp.set('refresh', '1');
+    const qs = usp.toString();
+    return apiClient.get(
+      `/api/customer-trust/activity/insights${qs ? `?${qs}` : ''}`,
+    );
   },
 
   // ── Phase C — Customer Commitments ──────────────────────────────────────
