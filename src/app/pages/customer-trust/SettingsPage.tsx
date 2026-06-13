@@ -10,6 +10,7 @@ import { Label } from '@/app/components/ui/label';
 import {
   Cloud,
   ExternalLink,
+  FileSignature,
   Hash,
   Image as ImageIcon,
   Layout,
@@ -61,6 +62,8 @@ export function CustomerTrustSettingsPage() {
   >('COMPACT');
   const [headerCoverImageUrl, setHeaderCoverImageUrl] = useState('');
   const [headerTagline, setHeaderTagline] = useState('');
+  // Phase E.3 — NDA delivery mode.
+  const [ndaMode, setNdaMode] = useState<'CLICKWRAP' | 'DOCUSIGN'>('CLICKWRAP');
   const [slugError, setSlugError] = useState('');
 
   const { data, isLoading } = useQuery({
@@ -84,6 +87,7 @@ export function CustomerTrustSettingsPage() {
     setHeaderLayout(settings.headerLayout ?? 'COMPACT');
     setHeaderCoverImageUrl(settings.headerCoverImageUrl ?? '');
     setHeaderTagline(settings.headerTagline ?? '');
+    setNdaMode(settings.ndaMode ?? 'CLICKWRAP');
   }, [settings]);
 
   // Salesforce + Slack channels (Phase D2)
@@ -128,6 +132,7 @@ export function CustomerTrustSettingsPage() {
         headerLayout,
         headerCoverImageUrl: headerCoverImageUrl || null,
         headerTagline: headerTagline || null,
+        ndaMode,
       };
       await trustCenterService.updateSettings(payload);
       qc.invalidateQueries({ queryKey: ['trust-settings'] });
@@ -541,6 +546,35 @@ export function CustomerTrustSettingsPage() {
           </div>
         </Card>
 
+        {/* ── A.4) NDA delivery mode (Phase E.3) ───────────────────────── */}
+        <Card className="p-6">
+          <h2 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <FileSignature className="w-4 h-4 text-indigo-600" /> NDA delivery
+            mode
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <NdaModeOption
+              active={ndaMode === 'CLICKWRAP'}
+              title="Clickwrap"
+              description="Render the NDA in the portal, capture name + email + IP + timestamp on the click. Lowest friction, weakest evidence."
+              onClick={() => setNdaMode('CLICKWRAP')}
+            />
+            <NdaModeOption
+              active={ndaMode === 'DOCUSIGN'}
+              title="DocuSign"
+              description="Send a DocuSign envelope to the requester. Grant issuance waits until the envelope is signed (webhook-driven). Strongest evidence."
+              onClick={() => setNdaMode('DOCUSIGN')}
+            />
+          </div>
+          {ndaMode === 'DOCUSIGN' && (
+            <p className="mt-3 text-xs text-gray-500">
+              DocuSign integration requires the six DOCUSIGN_* environment
+              variables to be configured on the API. Until they are set, the
+              "Send envelope" action on access requests will return a 502.
+            </p>
+          )}
+        </Card>
+
         {/* ── B) Compliance Overview ──────────────────────────────────── */}
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
@@ -604,6 +638,39 @@ export function CustomerTrustSettingsPage() {
         </Card>
       </div>
     </PageTemplate>
+  );
+}
+
+function NdaModeOption({
+  active,
+  title,
+  description,
+  onClick,
+}: {
+  active: boolean;
+  title: string;
+  description: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`text-left rounded-lg border p-4 transition-colors ${
+        active
+          ? 'border-indigo-400 bg-indigo-50'
+          : 'border-slate-300 bg-white hover:bg-slate-50'
+      }`}
+    >
+      <p
+        className={`text-sm font-semibold ${active ? 'text-indigo-700' : 'text-gray-900'}`}
+      >
+        {title}
+      </p>
+      <p className="mt-1 text-xs text-gray-600 leading-relaxed">
+        {description}
+      </p>
+    </button>
   );
 }
 

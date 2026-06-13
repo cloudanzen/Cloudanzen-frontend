@@ -31,6 +31,8 @@ export interface TrustCenterSettings {
   headerCoverImageUrl: string | null;
   headerLayout: 'COMPACT' | 'HERO' | 'GRADIENT';
   headerTagline: string | null;
+  // Phase E.3 — NDA delivery mode.
+  ndaMode: 'CLICKWRAP' | 'DOCUSIGN';
   updatedAt: string;
   createdAt: string;
 }
@@ -193,6 +195,8 @@ export interface UpdateSettingsPayload {
   headerCoverImageUrl?: string | null;
   headerLayout?: 'COMPACT' | 'HERO' | 'GRADIENT';
   headerTagline?: string | null;
+  // Phase E.3 — NDA delivery mode.
+  ndaMode?: 'CLICKWRAP' | 'DOCUSIGN';
 }
 
 export interface CreateDocumentPayload {
@@ -264,6 +268,17 @@ export const trustCenterService = {
     status: 'APPROVED' | 'REJECTED',
   ): Promise<{ success: boolean; data: TrustAccessRequest }> {
     return apiClient.patch(`/api/trust/access-requests/${id}`, { status });
+  },
+  // Phase E.3 — DocuSign mode. Admin triggers when ndaMode='DOCUSIGN' to
+  // mint an envelope for the requester. Webhook updates docusignStatus.
+  sendDocusignEnvelope(id: string): Promise<{
+    success: boolean;
+    data: { envelopeId: string; status: string; acceptanceId: string };
+  }> {
+    return apiClient.post(
+      `/api/trust/access-requests/${id}/send-nda-envelope`,
+      {},
+    );
   },
 
   // Announcements
