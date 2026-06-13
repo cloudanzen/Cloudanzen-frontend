@@ -27,6 +27,10 @@ export interface TrustCenterSettings {
   description: string | null;
   securityEmail: string | null;
   slackApprovalChannelId: string | null;
+  // Phase E.2 — Header designer.
+  headerCoverImageUrl: string | null;
+  headerLayout: 'COMPACT' | 'HERO' | 'GRADIENT';
+  headerTagline: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -159,6 +163,10 @@ export interface PublicTrustData {
     description: string | null;
     securityEmail: string | null;
     orgName: string;
+    // Phase E.2 — Header designer (all nullable; layout defaults to COMPACT).
+    headerCoverImageUrl?: string | null;
+    headerLayout?: 'COMPACT' | 'HERO' | 'GRADIENT';
+    headerTagline?: string | null;
   };
   documents: PublicTrustDocument[];
   announcements: {
@@ -181,6 +189,10 @@ export interface UpdateSettingsPayload {
   description?: string | null;
   securityEmail?: string | null;
   slackApprovalChannelId?: string | null;
+  // Phase E.2 — Header designer.
+  headerCoverImageUrl?: string | null;
+  headerLayout?: 'COMPACT' | 'HERO' | 'GRADIENT';
+  headerTagline?: string | null;
 }
 
 export interface CreateDocumentPayload {

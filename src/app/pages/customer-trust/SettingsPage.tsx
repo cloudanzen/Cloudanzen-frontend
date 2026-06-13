@@ -11,6 +11,8 @@ import {
   Cloud,
   ExternalLink,
   Hash,
+  Image as ImageIcon,
+  Layout,
   RefreshCw,
   Shield,
   Globe,
@@ -53,6 +55,12 @@ export function CustomerTrustSettingsPage() {
   const [slackApprovalChannelId, setSlackApprovalChannelId] = useState<
     string | null
   >(null);
+  // Phase E.2 — Header designer.
+  const [headerLayout, setHeaderLayout] = useState<
+    'COMPACT' | 'HERO' | 'GRADIENT'
+  >('COMPACT');
+  const [headerCoverImageUrl, setHeaderCoverImageUrl] = useState('');
+  const [headerTagline, setHeaderTagline] = useState('');
   const [slugError, setSlugError] = useState('');
 
   const { data, isLoading } = useQuery({
@@ -73,6 +81,9 @@ export function CustomerTrustSettingsPage() {
     setDescription(settings.description ?? '');
     setSecurityEmail(settings.securityEmail ?? '');
     setSlackApprovalChannelId(settings.slackApprovalChannelId ?? null);
+    setHeaderLayout(settings.headerLayout ?? 'COMPACT');
+    setHeaderCoverImageUrl(settings.headerCoverImageUrl ?? '');
+    setHeaderTagline(settings.headerTagline ?? '');
   }, [settings]);
 
   // Salesforce + Slack channels (Phase D2)
@@ -114,6 +125,9 @@ export function CustomerTrustSettingsPage() {
         description: description || null,
         securityEmail: securityEmail || null,
         slackApprovalChannelId: slackApprovalChannelId || null,
+        headerLayout,
+        headerCoverImageUrl: headerCoverImageUrl || null,
+        headerTagline: headerTagline || null,
       };
       await trustCenterService.updateSettings(payload);
       qc.invalidateQueries({ queryKey: ['trust-settings'] });
@@ -451,6 +465,82 @@ export function CustomerTrustSettingsPage() {
           )}
         </Card>
 
+        {/* ── A.3) Header designer (Phase E.2) ────────────────────────── */}
+        <Card className="p-6">
+          <h2 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <Layout className="w-4 h-4 text-pink-600" /> Header designer
+          </h2>
+          <div className="grid gap-5 md:grid-cols-[1fr_minmax(260px,360px)]">
+            <div className="space-y-4">
+              <div>
+                <Label className="block text-xs font-medium text-gray-700 mb-1">
+                  Layout
+                </Label>
+                <div className="grid grid-cols-3 gap-2">
+                  {(['COMPACT', 'HERO', 'GRADIENT'] as const).map((l) => (
+                    <button
+                      key={l}
+                      type="button"
+                      onClick={() => setHeaderLayout(l)}
+                      className={`rounded-md border px-3 py-2 text-sm font-medium transition-colors ${
+                        headerLayout === l
+                          ? 'border-pink-400 bg-pink-50 text-pink-700'
+                          : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
+                      }`}
+                    >
+                      {l[0] + l.slice(1).toLowerCase()}
+                    </button>
+                  ))}
+                </div>
+                <p className="mt-1 text-xs text-gray-500">
+                  COMPACT keeps the existing title-and-shield header.
+                  HERO/GRADIENT add a full-width hero band using the cover image
+                  + tagline.
+                </p>
+              </div>
+              <div>
+                <Label className="block text-xs font-medium text-gray-700 mb-1">
+                  Cover image URL
+                </Label>
+                <div className="flex items-center gap-2">
+                  <ImageIcon className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                  <input
+                    type="url"
+                    className={`${inputCls} flex-1`}
+                    placeholder="https://cdn.example.com/cover.jpg"
+                    value={headerCoverImageUrl}
+                    onChange={(e) => setHeaderCoverImageUrl(e.target.value)}
+                  />
+                </div>
+                <p className="mt-1 text-xs text-gray-500">
+                  Used by HERO + GRADIENT layouts. Recommended ≥ 1600×600.
+                </p>
+              </div>
+              <div>
+                <Label className="block text-xs font-medium text-gray-700 mb-1">
+                  Tagline override (max 280 chars)
+                </Label>
+                <input
+                  type="text"
+                  maxLength={280}
+                  className={inputCls}
+                  placeholder="e.g. Your security posture, in real time."
+                  value={headerTagline}
+                  onChange={(e) => setHeaderTagline(e.target.value)}
+                />
+              </div>
+            </div>
+            <HeaderPreview
+              layout={headerLayout}
+              coverImageUrl={headerCoverImageUrl}
+              tagline={headerTagline}
+              orgName={settings?.orgSlug ?? 'your-company'}
+              primaryColor={primaryColor}
+              logoUrl={logoUrl}
+            />
+          </div>
+        </Card>
+
         {/* ── B) Compliance Overview ──────────────────────────────────── */}
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
@@ -514,6 +604,101 @@ export function CustomerTrustSettingsPage() {
         </Card>
       </div>
     </PageTemplate>
+  );
+}
+
+function HeaderPreview({
+  layout,
+  coverImageUrl,
+  tagline,
+  orgName,
+  primaryColor,
+  logoUrl,
+}: {
+  layout: 'COMPACT' | 'HERO' | 'GRADIENT';
+  coverImageUrl: string;
+  tagline: string;
+  orgName: string;
+  primaryColor: string;
+  logoUrl: string;
+}) {
+  const fallbackTagline = `${orgName}'s Trust Center`;
+  const showCover = !!coverImageUrl;
+
+  if (layout === 'COMPACT') {
+    return (
+      <div className="rounded-lg border border-slate-200 bg-white p-4">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 mb-2">
+          Preview · Compact
+        </p>
+        <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
+          {logoUrl ? (
+            <img
+              src={logoUrl}
+              alt=""
+              className="h-8 w-8 rounded object-cover"
+            />
+          ) : (
+            <div
+              className="h-8 w-8 rounded"
+              style={{ backgroundColor: primaryColor }}
+            />
+          )}
+          <div>
+            <p className="text-sm font-semibold text-gray-900">{orgName}</p>
+            <p className="text-xs text-gray-500">
+              {tagline || fallbackTagline}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (layout === 'HERO') {
+    return (
+      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
+        <p className="px-4 pt-3 text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+          Preview · Hero
+        </p>
+        <div
+          className="relative mt-2 h-32 bg-cover bg-center"
+          style={{
+            backgroundImage: showCover
+              ? `url(${coverImageUrl})`
+              : `linear-gradient(135deg, ${primaryColor}, #1e293b)`,
+          }}
+        >
+          <div className="absolute inset-0 bg-black/40" />
+          <div className="absolute inset-x-0 bottom-0 p-4 text-white">
+            <p className="text-sm font-bold">{orgName}</p>
+            <p className="text-xs opacity-90">{tagline || fallbackTagline}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // GRADIENT
+  return (
+    <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
+      <p className="px-4 pt-3 text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+        Preview · Gradient
+      </p>
+      <div
+        className="relative mt-2 h-32"
+        style={{
+          background: showCover
+            ? `linear-gradient(135deg, ${primaryColor}cc, transparent), url(${coverImageUrl}) center/cover`
+            : `linear-gradient(135deg, ${primaryColor}, #db2777)`,
+        }}
+      >
+        <div className="absolute inset-x-0 bottom-0 p-4 text-white">
+          <p className="text-sm font-bold">{orgName}</p>
+          <p className="text-xs opacity-90">{tagline || fallbackTagline}</p>
+        </div>
+      </div>
+    </div>
   );
 }
 

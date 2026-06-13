@@ -701,12 +701,40 @@ export function PublicTrustPortalPage() {
 
   const publishedAnnouncements = announcements;
 
+  // Phase E.2 — Header designer. COMPACT keeps the existing solid-colour
+  // band. HERO uses the cover image with a dark overlay. GRADIENT layers a
+  // brand-coloured gradient on top of the cover (or a pure gradient if no
+  // cover image is set).
+  const headerLayout: 'COMPACT' | 'HERO' | 'GRADIENT' =
+    settings.headerLayout ?? 'COMPACT';
+  const cover = settings.headerCoverImageUrl ?? null;
+  const taglineOverride = settings.headerTagline ?? null;
+  const subtitleFallback = t('customerTrust.publicPortal.heroSubtitle');
+  const heroStyle: React.CSSProperties =
+    headerLayout === 'HERO' && cover
+      ? {
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url(${cover})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }
+      : headerLayout === 'GRADIENT'
+        ? cover
+          ? {
+              backgroundImage: `linear-gradient(135deg, ${primaryColor}cc, transparent), url(${cover})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }
+          : {
+              background: `linear-gradient(135deg, ${primaryColor}, #db2777)`,
+            }
+        : { backgroundColor: primaryColor };
+
   return (
     <div className="min-h-screen bg-gray-50" style={styleVars}>
       {/* ── Header / Hero ─────────────────────────────────────────────── */}
       <header
-        className="text-white py-12 px-4"
-        style={{ backgroundColor: primaryColor }}
+        className={`text-white px-4 ${headerLayout === 'COMPACT' ? 'py-12' : 'py-20'}`}
+        style={heroStyle}
       >
         <div className="max-w-5xl mx-auto">
           <div className="flex items-center gap-4 mb-6">
@@ -724,7 +752,7 @@ export function PublicTrustPortalPage() {
             <div>
               <h1 className="text-2xl font-bold">{settings.orgName}</h1>
               <p className="text-sm opacity-80">
-                {t('customerTrust.publicPortal.heroSubtitle')}
+                {taglineOverride ?? subtitleFallback}
               </p>
             </div>
           </div>
