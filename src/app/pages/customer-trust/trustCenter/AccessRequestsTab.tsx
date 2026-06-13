@@ -2,7 +2,13 @@ import React, { useState } from 'react';
 import { TOAST_DURATION_MS } from '@/lib/constants';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { Mail, CheckCircle2, XCircle, Clock } from 'lucide-react';
+import {
+  Mail,
+  CheckCircle2,
+  FileSignature,
+  XCircle,
+  Clock,
+} from 'lucide-react';
 import { Card } from '@/app/components/ui/card';
 import { trustCenterService } from '@/services/api/trustCenter';
 import { fmt } from './helpers';
@@ -22,11 +28,34 @@ export function AccessRequestsTab() {
     queryKey: ['trust-access-requests'],
     queryFn: () => trustCenterService.listAccessRequests(),
   });
+  const { data: settingsData } = useQuery({
+    queryKey: ['trust-settings'],
+    queryFn: () => trustCenterService.getSettings(),
+  });
   const requests = data?.data ?? [];
+  const ndaMode = settingsData?.data?.settings?.ndaMode ?? 'CLICKWRAP';
 
   function showToast(type: 'success' | 'error', msg: string) {
     setToast({ type, msg });
     setTimeout(() => setToast(null), TOAST_DURATION_MS);
+  }
+
+  async function handleSendEnvelope(id: string) {
+    setActing(id);
+    try {
+      const res = await trustCenterService.sendDocusignEnvelope(id);
+      showToast(
+        'success',
+        `DocuSign envelope sent (${res.data.envelopeId.slice(0, 8)}…)`,
+      );
+    } catch (e: unknown) {
+      showToast(
+        'error',
+        e instanceof Error ? e.message : 'Failed to send envelope',
+      );
+    } finally {
+      setActing(null);
+    }
   }
 
   async function handleDecision(id: string, status: 'APPROVED' | 'REJECTED') {
@@ -161,7 +190,18 @@ export function AccessRequestsTab() {
                       </td>
                       <td className="px-4 py-3">
                         {req.status === 'PENDING' && (
-                          <div className="flex gap-1">
+                          <div className="flex gap-1 flex-wrap">
+                            {ndaMode === 'DOCUSIGN' && !req.ndaSigned && (
+                              <button
+                                onClick={() => handleSendEnvelope(req.id)}
+                                disabled={acting === req.id}
+                                title="Send DocuSign NDA envelope to requester"
+                                className="inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded-md bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50"
+                              >
+                                <FileSignature className="w-3 h-3" />
+                                Send NDA
+                              </button>
+                            )}
                             <button
                               onClick={() => handleDecision(req.id, 'APPROVED')}
                               disabled={acting === req.id}
