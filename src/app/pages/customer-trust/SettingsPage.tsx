@@ -9,15 +9,18 @@ import { Switch } from '@/app/components/ui/switch';
 import { Label } from '@/app/components/ui/label';
 import {
   Cloud,
+  Copy,
   ExternalLink,
   FileSignature,
   Hash,
   Image as ImageIcon,
   Layout,
+  Link2,
   RefreshCw,
   Shield,
   Globe,
   Mail,
+  Trash2,
 } from 'lucide-react';
 import {
   trustCenterService,
@@ -25,6 +28,7 @@ import {
 } from '@/services/api/trustCenter';
 import { salesforceTrustService } from '@/services/api/salesforceTrust';
 import { slackService } from '@/services/api/slack';
+import { trustCustomDomainService } from '@/services/api/trustCustomDomain';
 
 const BASE_URL = import.meta.env.VITE_APP_URL || 'https://app.cloudanzen.com';
 
@@ -99,6 +103,13 @@ export function CustomerTrustSettingsPage() {
     queryKey: ['slack-channels'],
     queryFn: () => slackService.getChannels(),
   });
+
+  // Custom domain (Phase F)
+  const { data: customDomainState, refetch: refetchCustomDomain } = useQuery({
+    queryKey: ['trust-custom-domain'],
+    queryFn: () => trustCustomDomainService.get(),
+  });
+  const [customDomainInput, setCustomDomainInput] = useState('');
 
   function showToast(type: 'success' | 'error', msg: string) {
     setToast({ type, msg });
@@ -575,6 +586,63 @@ export function CustomerTrustSettingsPage() {
           )}
         </Card>
 
+        {/* ── A.5) Custom domain (Phase F — Enterprise) ────────────────── */}
+        <CustomDomainCard
+          state={customDomainState?.data ?? null}
+          input={customDomainInput}
+          onInputChange={setCustomDomainInput}
+          onAttach={async () => {
+            try {
+              await trustCustomDomainService.attach(
+                customDomainInput.trim().toLowerCase(),
+              );
+              setCustomDomainInput('');
+              await refetchCustomDomain();
+              showToast('success', 'Custom domain attached');
+            } catch (e: unknown) {
+              showToast(
+                'error',
+                e instanceof Error ? e.message : 'Attach failed',
+              );
+            }
+          }}
+          onVerify={async () => {
+            try {
+              const r = await trustCustomDomainService.verify();
+              await refetchCustomDomain();
+              showToast(
+                'success',
+                `Reconciled · status ${r.data.status} · ${r.data.reason ?? 'OK'}`,
+              );
+            } catch (e: unknown) {
+              showToast(
+                'error',
+                e instanceof Error ? e.message : 'Verify failed',
+              );
+            }
+          }}
+          onDetach={async () => {
+            try {
+              await trustCustomDomainService.detach();
+              await refetchCustomDomain();
+              showToast('success', 'Custom domain detached');
+            } catch (e: unknown) {
+              showToast(
+                'error',
+                e instanceof Error ? e.message : 'Detach failed',
+              );
+            }
+          }}
+          onCopy={(text: string) => {
+            try {
+              void navigator.clipboard?.writeText(text);
+              showToast('success', 'Copied');
+            } catch {
+              /* ignore */
+            }
+          }}
+        />
+
         {/* ── B) Compliance Overview ──────────────────────────────────── */}
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
@@ -638,6 +706,211 @@ export function CustomerTrustSettingsPage() {
         </Card>
       </div>
     </PageTemplate>
+  );
+}
+
+interface CustomDomainCardState {
+  configured: boolean;
+  customDomain: string | null;
+  status: 'PENDING_DNS' | 'PENDING_TLS' | 'ACTIVE' | 'FAILED' | null;
+  addedAt: string | null;
+  verifiedAt: string | null;
+  edgeCname: string;
+  dnsRecords: {
+    txt: { name: string; value: string } | null;
+    cname: { name: string; value: string } | null;
+  };
+}
+
+function CustomDomainCard({
+  state,
+  input,
+  onInputChange,
+  onAttach,
+  onVerify,
+  onDetach,
+  onCopy,
+}: {
+  state: CustomDomainCardState | null;
+  input: string;
+  onInputChange: (v: string) => void;
+  onAttach: () => void | Promise<void>;
+  onVerify: () => void | Promise<void>;
+  onDetach: () => void | Promise<void>;
+  onCopy: (text: string) => void;
+}) {
+  const attached = !!state?.customDomain;
+  const inputCls =
+    'w-full text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500';
+
+  const statusBadge = (() => {
+    if (!state?.status) return null;
+    const map: Record<NonNullable<CustomDomainCardState['status']>, string> = {
+      PENDING_DNS: 'bg-amber-50 text-amber-700',
+      PENDING_TLS: 'bg-blue-50 text-blue-700',
+      ACTIVE: 'bg-green-50 text-green-700',
+      FAILED: 'bg-red-50 text-red-700',
+    };
+    return (
+      <span
+        className={`inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-full ${map[state.status]}`}
+      >
+        {state.status.replace('_', ' ')}
+      </span>
+    );
+  })();
+
+  return (
+    <Card className="p-6">
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+          <Link2 className="w-4 h-4 text-emerald-600" /> Custom domain
+        </h2>
+        {statusBadge}
+      </div>
+      <p className="text-xs text-gray-500 mb-4">
+        Serve your Trust Center from your own brand, e.g.{' '}
+        <code className="bg-gray-100 px-1 rounded">trust.acme.com</code>.
+        Enterprise tier. Vercel-managed TLS.
+      </p>
+
+      {state && !state.configured && (
+        <div className="mb-4 rounded-md border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
+          Backend missing <code>VERCEL_API_TOKEN</code> /{' '}
+          <code>VERCEL_PROJECT_ID</code>. Attach will return 503 until those are
+          set on the API service.
+        </div>
+      )}
+
+      {!attached && (
+        <div className="space-y-2">
+          <Label className="block text-xs font-medium text-gray-700">
+            Domain to attach
+          </Label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              className={`${inputCls} flex-1`}
+              placeholder="trust.acme.com"
+              value={input}
+              onChange={(e) => onInputChange(e.target.value)}
+            />
+            <Button onClick={onAttach} disabled={!input.trim()}>
+              Attach
+            </Button>
+          </div>
+          <p className="text-xs text-gray-500">
+            Must be a subdomain you control. After attach you will be shown two
+            DNS records to add to your DNS provider.
+          </p>
+        </div>
+      )}
+
+      {attached && state && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-semibold text-gray-900">
+                {state.customDomain}
+              </p>
+              <p className="text-xs text-gray-500">
+                Added{' '}
+                {state.addedAt ? new Date(state.addedAt).toLocaleString() : '—'}
+                {state.verifiedAt && (
+                  <>
+                    {' · Verified '}
+                    {new Date(state.verifiedAt).toLocaleString()}
+                  </>
+                )}
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={onVerify}>
+                <RefreshCw className="w-3.5 h-3.5 mr-1.5" /> Verify now
+              </Button>
+              <Button variant="outline" size="sm" onClick={onDetach}>
+                <Trash2 className="w-3.5 h-3.5 mr-1.5" /> Detach
+              </Button>
+            </div>
+          </div>
+
+          {(state.dnsRecords.txt || state.dnsRecords.cname) && (
+            <div className="rounded-md border border-slate-200 bg-slate-50 p-3 text-xs">
+              <p className="font-semibold text-gray-700 mb-2">
+                Add these records at your DNS provider:
+              </p>
+              <DnsRow
+                type="TXT"
+                name={state.dnsRecords.txt?.name ?? ''}
+                value={state.dnsRecords.txt?.value ?? ''}
+                onCopy={onCopy}
+                hint="Proves you own the domain."
+              />
+              <DnsRow
+                type="CNAME"
+                name={state.dnsRecords.cname?.name ?? ''}
+                value={state.dnsRecords.cname?.value ?? ''}
+                onCopy={onCopy}
+                hint="Routes traffic to CloudAnzen."
+              />
+              {state.status === 'PENDING_DNS' && (
+                <p className="mt-2 text-gray-500">
+                  Waiting for the TXT record to propagate. Click *Verify now*
+                  once your DNS provider shows it.
+                </p>
+              )}
+              {state.status === 'PENDING_TLS' && (
+                <p className="mt-2 text-gray-500">
+                  DNS verified. Vercel is provisioning the TLS certificate.
+                  Usually under 5 minutes.
+                </p>
+              )}
+              {state.status === 'FAILED' && (
+                <p className="mt-2 text-red-700">
+                  Verification failed. Confirm both records are live in your DNS
+                  provider, then *Verify now*. If the failure persists, detach
+                  and re-attach to start the flow over.
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </Card>
+  );
+}
+
+function DnsRow({
+  type,
+  name,
+  value,
+  onCopy,
+  hint,
+}: {
+  type: 'TXT' | 'CNAME';
+  name: string;
+  value: string;
+  onCopy: (text: string) => void;
+  hint: string;
+}) {
+  return (
+    <div className="grid grid-cols-[60px_1fr_1fr_auto] gap-2 items-center py-2 border-t border-slate-200">
+      <span className="font-mono font-semibold text-gray-700">{type}</span>
+      <div className="font-mono text-gray-900 truncate" title={name}>
+        {name}
+      </div>
+      <div className="font-mono text-gray-900 truncate" title={value}>
+        {value}
+      </div>
+      <button
+        type="button"
+        onClick={() => onCopy(`${name}\n${value}`)}
+        className="text-gray-500 hover:text-gray-900"
+        title={hint}
+      >
+        <Copy className="w-3.5 h-3.5" />
+      </button>
+    </div>
   );
 }
 
