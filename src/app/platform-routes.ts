@@ -75,6 +75,16 @@ const CatalogBatchDetailPage = lazy(() =>
     default: m.BatchDetailPage,
   })),
 );
+// AI TrustOps Phase 1 — platform onboarding wizard. Lives under
+// platformRoutes (NOT the marketing repo). 5-step flow that captures the
+// tenant's org profile (companyType, primaryUseCase, enabledBundles,
+// frameworkIds) and posts to /api/platform/onboarding/setup.
+const PlatformOnboardingSetupPage = lazy(() =>
+  import('@/app/pages/platform/onboarding-setup/PlatformOnboardingSetupPage').then(
+    (m) => ({ default: m.PlatformOnboardingSetupPage }),
+  ),
+);
+
 const CatalogVersionsPage = lazy(() =>
   import('@/app/pages/platform/catalog/VersionsPage').then((m) => ({
     default: m.VersionsPage,
@@ -104,6 +114,10 @@ export const platformRoutes: RouteObject[] = [
       { path: 'catalog/batches', Component: CatalogBatchesPage },
       { path: 'catalog/batches/:id', Component: CatalogBatchDetailPage },
       { path: 'catalog/versions', Component: CatalogVersionsPage },
+      {
+        path: 'onboarding/setup',
+        Component: PlatformOnboardingSetupPage,
+      },
       { path: '*', Component: NotFoundPage },
     ],
   },
