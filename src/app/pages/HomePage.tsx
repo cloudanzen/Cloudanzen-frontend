@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { Card } from '@/app/components/ui/card';
@@ -10,6 +10,7 @@ import {
   DropdownMenuItem,
 } from '@/app/components/ui/dropdown-menu';
 import { useNavigate } from 'react-router';
+import { useOrgProfile } from '@/app/hooks/useOrgProfile';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Shield,
@@ -37,7 +38,12 @@ import { ComplianceLaunchpad } from './ComplianceLaunchpad';
 
 const DASHBOARD_QUERY_KEY = ['dashboard', 'summary'] as const;
 
-const EMPTY_POLICY_STATS = { total: 0, published: 0, draft: 0, review: 0 } as const;
+const EMPTY_POLICY_STATS = {
+  total: 0,
+  published: 0,
+  draft: 0,
+  review: 0,
+} as const;
 
 // Risk severity bars consume flat critical/high/medium/low counts. The
 // /api/dashboard/summary risks payload exposes them via severityBreakdown
@@ -57,6 +63,25 @@ export function HomePage() {
   const { t: tc } = useTranslation('common');
   const navigate = useNavigate();
   const qc = useQueryClient();
+
+  // AI TrustOps Phase 2 — one-shot redirect: AI-native orgs whose primary
+  // use case is AI_TRUST land on /ai-trust instead of the SaaS dashboard.
+  // SAAS / HEALTHCARE / ENTERPRISE_GRC / OTHER tenants stay on /dashboard
+  // (this page) — zero behaviour change.
+  //
+  // Guarded by org.companyType so the redirect only fires for explicitly
+  // AI-native profiles. Phase 1 wizard backfills companyType=SAAS for
+  // existing tenants, so no SaaS tenant ever takes this branch.
+  const { org } = useOrgProfile();
+  useEffect(() => {
+    if (
+      org &&
+      org.companyType === 'AI_NATIVE' &&
+      org.primaryUseCase === 'AI_TRUST'
+    ) {
+      navigate('/ai-trust', { replace: true });
+    }
+  }, [org, navigate]);
 
   // ── Single-roundtrip dashboard summary ───────────────────────────────────────
   // Replaces seven parallel useQuery calls with one /api/dashboard/summary
@@ -151,9 +176,7 @@ export function HomePage() {
     qc.invalidateQueries({ queryKey: DASHBOARD_QUERY_KEY });
   };
 
-  const vendorsAttention = loadingVendors
-    ? null
-    : String(vendorNeedAttention);
+  const vendorsAttention = loadingVendors ? null : String(vendorNeedAttention);
 
   const activeControls = loadingCompliance
     ? null
@@ -227,7 +250,9 @@ export function HomePage() {
               <ChevronDown className="w-3 h-3 opacity-60" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem onSelect={() => navigate('/compliance/policies')}>
+              <DropdownMenuItem
+                onSelect={() => navigate('/compliance/policies')}
+              >
                 <FileText className="w-4 h-4 mr-2" />
                 {t('newPolicy')}
               </DropdownMenuItem>
@@ -285,10 +310,14 @@ export function HomePage() {
                   >
                     <div className="mb-3 flex items-center justify-between">
                       <div className="flex items-center gap-2.5">
-                        <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${stat.bg}`}>
+                        <div
+                          className={`flex h-8 w-8 items-center justify-center rounded-lg ${stat.bg}`}
+                        >
                           <Icon className={`h-4 w-4 ${stat.color}`} />
                         </div>
-                        <h3 className="text-sm font-bold text-foreground">{stat.label}</h3>
+                        <h3 className="text-sm font-bold text-foreground">
+                          {stat.label}
+                        </h3>
                       </div>
                       {isLive ? (
                         <Loader2 className="h-5 w-5 animate-spin text-muted-foreground/50" />
@@ -319,7 +348,9 @@ export function HomePage() {
                       <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-950/40">
                         <ClipboardCheck className="h-4 w-4 text-emerald-600" />
                       </div>
-                      <h3 className="text-sm font-bold text-foreground">{t('tests.title')}</h3>
+                      <h3 className="text-sm font-bold text-foreground">
+                        {t('tests.title')}
+                      </h3>
                     </div>
                     {!loadingTests && testSummary && (
                       <span className="text-2xl font-extrabold tracking-tight text-foreground">
@@ -340,9 +371,21 @@ export function HomePage() {
                         />
                       </div>
                       <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
-                        <StatDot color="bg-emerald-500" label={t('tests.done')} count={testSummary.completed} />
-                        <StatDot color="bg-red-500" label={t('tests.overdue')} count={testSummary.overdue} />
-                        <StatDot color="bg-amber-400" label={t('tests.dueSoon')} count={testSummary.dueSoon} />
+                        <StatDot
+                          color="bg-emerald-500"
+                          label={t('tests.done')}
+                          count={testSummary.completed}
+                        />
+                        <StatDot
+                          color="bg-red-500"
+                          label={t('tests.overdue')}
+                          count={testSummary.overdue}
+                        />
+                        <StatDot
+                          color="bg-amber-400"
+                          label={t('tests.dueSoon')}
+                          count={testSummary.dueSoon}
+                        />
                       </div>
                       <p className="mt-2.5 text-xs font-medium text-muted-foreground/50">
                         {t('tests.total', { count: testSummary.total })}
@@ -361,7 +404,9 @@ export function HomePage() {
                       <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 dark:bg-red-950/40">
                         <TrendingUp className="h-4 w-4 text-red-600" />
                       </div>
-                      <h3 className="text-sm font-bold text-foreground">{t('risks.title')}</h3>
+                      <h3 className="text-sm font-bold text-foreground">
+                        {t('risks.title')}
+                      </h3>
                     </div>
                     {!loadingRisks && riskOverview && (
                       <span className="text-2xl font-extrabold tracking-tight text-foreground">
@@ -378,21 +423,60 @@ export function HomePage() {
                       <div className="mb-3 flex h-2.5 w-full overflow-hidden rounded-full bg-muted">
                         {riskOverview.total > 0 && (
                           <>
-                            <div className="h-2.5 bg-red-500" style={{ width: `${(riskOverview.critical / riskOverview.total) * 100}%` }} />
-                            <div className="h-2.5 bg-orange-500" style={{ width: `${(riskOverview.high / riskOverview.total) * 100}%` }} />
-                            <div className="h-2.5 bg-yellow-400" style={{ width: `${(riskOverview.medium / riskOverview.total) * 100}%` }} />
-                            <div className="h-2.5 bg-green-500" style={{ width: `${(riskOverview.low / riskOverview.total) * 100}%` }} />
+                            <div
+                              className="h-2.5 bg-red-500"
+                              style={{
+                                width: `${(riskOverview.critical / riskOverview.total) * 100}%`,
+                              }}
+                            />
+                            <div
+                              className="h-2.5 bg-orange-500"
+                              style={{
+                                width: `${(riskOverview.high / riskOverview.total) * 100}%`,
+                              }}
+                            />
+                            <div
+                              className="h-2.5 bg-yellow-400"
+                              style={{
+                                width: `${(riskOverview.medium / riskOverview.total) * 100}%`,
+                              }}
+                            />
+                            <div
+                              className="h-2.5 bg-green-500"
+                              style={{
+                                width: `${(riskOverview.low / riskOverview.total) * 100}%`,
+                              }}
+                            />
                           </>
                         )}
                       </div>
                       <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
-                        <StatDot color="bg-red-500" label={t('risks.critical')} count={riskOverview.critical} />
-                        <StatDot color="bg-orange-500" label={t('risks.high')} count={riskOverview.high} />
-                        <StatDot color="bg-yellow-400" label={t('risks.medium')} count={riskOverview.medium} />
-                        <StatDot color="bg-green-500" label={t('risks.low')} count={riskOverview.low} />
+                        <StatDot
+                          color="bg-red-500"
+                          label={t('risks.critical')}
+                          count={riskOverview.critical}
+                        />
+                        <StatDot
+                          color="bg-orange-500"
+                          label={t('risks.high')}
+                          count={riskOverview.high}
+                        />
+                        <StatDot
+                          color="bg-yellow-400"
+                          label={t('risks.medium')}
+                          count={riskOverview.medium}
+                        />
+                        <StatDot
+                          color="bg-green-500"
+                          label={t('risks.low')}
+                          count={riskOverview.low}
+                        />
                       </div>
                       <p className="mt-2.5 text-xs font-medium text-muted-foreground/50">
-                        {t('risks.openMitigated', { open: riskOverview.open, mitigated: riskOverview.mitigated })}
+                        {t('risks.openMitigated', {
+                          open: riskOverview.open,
+                          mitigated: riskOverview.mitigated,
+                        })}
                       </p>
                     </>
                   )}
@@ -408,11 +492,16 @@ export function HomePage() {
                       <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-950/40">
                         <FileText className="h-4 w-4 text-blue-600" />
                       </div>
-                      <h3 className="text-sm font-bold text-foreground">{t('policies.title')}</h3>
+                      <h3 className="text-sm font-bold text-foreground">
+                        {t('policies.title')}
+                      </h3>
                     </div>
                     {!loadingPolicies && policyStats.total > 0 && (
                       <span className="text-2xl font-extrabold tracking-tight text-foreground">
-                        {Math.round((policyStats.published / policyStats.total) * 100)}%
+                        {Math.round(
+                          (policyStats.published / policyStats.total) * 100,
+                        )}
+                        %
                       </span>
                     )}
                   </div>
@@ -425,13 +514,27 @@ export function HomePage() {
                       <div className="mb-3 h-2.5 w-full rounded-full bg-muted">
                         <div
                           className="h-2.5 rounded-full bg-blue-500 transition-all"
-                          style={{ width: `${Math.round((policyStats.published / policyStats.total) * 100)}%` }}
+                          style={{
+                            width: `${Math.round((policyStats.published / policyStats.total) * 100)}%`,
+                          }}
                         />
                       </div>
                       <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
-                        <StatDot color="bg-blue-500" label={t('policies.published')} count={policyStats.published} />
-                        <StatDot color="bg-gray-400" label={t('policies.draft')} count={policyStats.draft} />
-                        <StatDot color="bg-amber-500" label={t('policies.review')} count={policyStats.review} />
+                        <StatDot
+                          color="bg-blue-500"
+                          label={t('policies.published')}
+                          count={policyStats.published}
+                        />
+                        <StatDot
+                          color="bg-gray-400"
+                          label={t('policies.draft')}
+                          count={policyStats.draft}
+                        />
+                        <StatDot
+                          color="bg-amber-500"
+                          label={t('policies.review')}
+                          count={policyStats.review}
+                        />
                       </div>
                       <p className="mt-2.5 text-xs font-medium text-muted-foreground/50">
                         {t('policies.total', { count: policyStats.total })}
@@ -450,7 +553,9 @@ export function HomePage() {
                       <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-50 dark:bg-violet-950/40">
                         <FileCheck className="h-4 w-4 text-violet-600" />
                       </div>
-                      <h3 className="text-sm font-bold text-foreground">{t('documents.title')}</h3>
+                      <h3 className="text-sm font-bold text-foreground">
+                        {t('documents.title')}
+                      </h3>
                     </div>
                     {!loadingDocs && docStats && docStats.total > 0 && (
                       <span className="text-2xl font-extrabold tracking-tight text-foreground">
@@ -467,13 +572,27 @@ export function HomePage() {
                       <div className="mb-3 h-2.5 w-full rounded-full bg-muted">
                         <div
                           className="h-2.5 rounded-full bg-violet-500 transition-all"
-                          style={{ width: `${Math.round((docStats.current / docStats.total) * 100)}%` }}
+                          style={{
+                            width: `${Math.round((docStats.current / docStats.total) * 100)}%`,
+                          }}
                         />
                       </div>
                       <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
-                        <StatDot color="bg-violet-500" label={t('documents.current')} count={docStats.current} />
-                        <StatDot color="bg-gray-400" label={t('documents.pending')} count={docStats.pending} />
-                        <StatDot color="bg-amber-500" label={t('documents.review')} count={docStats.needsReview} />
+                        <StatDot
+                          color="bg-violet-500"
+                          label={t('documents.current')}
+                          count={docStats.current}
+                        />
+                        <StatDot
+                          color="bg-gray-400"
+                          label={t('documents.pending')}
+                          count={docStats.pending}
+                        />
+                        <StatDot
+                          color="bg-amber-500"
+                          label={t('documents.review')}
+                          count={docStats.needsReview}
+                        />
                       </div>
                       <p className="mt-2.5 text-xs font-medium text-muted-foreground/50">
                         {t('documents.total', { count: docStats.total })}
@@ -499,15 +618,20 @@ export function HomePage() {
                   {readiness.map((fw) => {
                     const pct = fw.controlCoveragePct ?? 0;
                     const barColor =
-                      pct >= 80 ? 'bg-emerald-500' :
-                      pct >= 50 ? 'bg-blue-500' :
-                      pct >= 25 ? 'bg-amber-500' :
-                      'bg-red-500';
+                      pct >= 80
+                        ? 'bg-emerald-500'
+                        : pct >= 50
+                          ? 'bg-blue-500'
+                          : pct >= 25
+                            ? 'bg-amber-500'
+                            : 'bg-red-500';
                     return (
                       <Card
                         key={fw.slug}
                         className="cursor-pointer p-5 transition-shadow duration-200 hover:shadow-md"
-                        onClick={() => navigate(`/compliance/frameworks/${fw.slug}`)}
+                        onClick={() =>
+                          navigate(`/compliance/frameworks/${fw.slug}`)
+                        }
                       >
                         <div className="mb-3 flex items-center justify-between">
                           <div className="flex min-w-0 items-center gap-2.5">
@@ -530,10 +654,15 @@ export function HomePage() {
                         </div>
                         <div className="flex justify-between text-xs">
                           <span className="text-muted-foreground">
-                            {t('framework.openGaps', { count: fw.openGaps ?? 0 })}
+                            {t('framework.openGaps', {
+                              count: fw.openGaps ?? 0,
+                            })}
                           </span>
                           <span className="text-muted-foreground">
-                            {t('framework.covered', { covered: fw.covered ?? 0, applicable: fw.applicable ?? 0 })}
+                            {t('framework.covered', {
+                              covered: fw.covered ?? 0,
+                              applicable: fw.applicable ?? 0,
+                            })}
                           </span>
                         </div>
                       </Card>
@@ -551,7 +680,15 @@ export function HomePage() {
 
 // ── Shared micro-components ──────────────────────────────────────────────────
 
-function StatDot({ color, label, count }: { color: string; label: string; count: number }) {
+function StatDot({
+  color,
+  label,
+  count,
+}: {
+  color: string;
+  label: string;
+  count: number;
+}) {
   return (
     <span className="flex items-center gap-1 text-muted-foreground">
       <span className={`w-2 h-2 rounded-full ${color}`} />
@@ -570,6 +707,8 @@ function LoadingSkeleton() {
 
 function EmptyState({ label }: { label: string }) {
   return (
-    <p className="text-xs font-medium text-muted-foreground/50 py-6 text-center">{label}</p>
+    <p className="text-xs font-medium text-muted-foreground/50 py-6 text-center">
+      {label}
+    </p>
   );
 }

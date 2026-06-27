@@ -582,22 +582,54 @@ const tenantRoutes: RouteObject[] = [
         loader: () => redirect('/settings/personnel'),
       },
 
-      // AI
+      // AI TrustOps Phase 2 — /ai-trust index. Lands on /ai-trust/chat
+      // until Phase 3 ships the actual AI Trust Dashboard at this path.
       {
-        path: 'ai/chat',
+        path: 'ai-trust',
+        loader: () => redirect('/ai-trust/chat'),
+      },
+
+      // AI TrustOps Phase 2 — canonical /ai-trust/* paths. The existing
+      // /ai/* paths below remain as compatibility redirects for one
+      // release window so existing bookmarks and in-app links keep
+      // working.
+      {
+        path: 'ai-trust/chat',
         Component: AiChatPage,
       },
       {
-        path: 'ai/questionnaire-assistant',
+        path: 'ai-trust/questionnaire-assistant',
         Component: QuestionnaireAssistantPage,
       },
       {
-        path: 'ai/knowledge-base',
+        path: 'ai-trust/knowledge-base',
         Component: AiDocumentsPage,
       },
       {
-        path: 'ai/models',
+        path: 'ai-trust/models',
         Component: AiModelsPage,
+      },
+
+      // Legacy /ai/* → /ai-trust/* compatibility redirects (loader-based,
+      // SPA-internal). Not true HTTP 301s — purely for existing bookmarks
+      // during the rebrand window. Phase 3 lands the AI Trust Dashboard
+      // at /ai-trust so /ai will also redirect to that landing once the
+      // dashboard exists.
+      {
+        path: 'ai/chat',
+        loader: () => redirect('/ai-trust/chat'),
+      },
+      {
+        path: 'ai/questionnaire-assistant',
+        loader: () => redirect('/ai-trust/questionnaire-assistant'),
+      },
+      {
+        path: 'ai/knowledge-base',
+        loader: () => redirect('/ai-trust/knowledge-base'),
+      },
+      {
+        path: 'ai/models',
+        loader: () => redirect('/ai-trust/models'),
       },
 
       // Platform Admin (SUPER_ADMIN)
