@@ -520,8 +520,43 @@ export interface ImpersonationContext {
   effectiveRole: string;
 }
 
+// AI TrustOps Phase 2 — org profile returned by /api/auth/me so the FE
+// shell can drive adaptive routing + sidebar gating from one round-trip.
+export type CompanyType =
+  | 'AI_NATIVE'
+  | 'SAAS'
+  | 'HEALTHCARE'
+  | 'ENTERPRISE_GRC'
+  | 'OTHER';
+
+export type PrimaryUseCase =
+  | 'AI_TRUST'
+  | 'SOC2'
+  | 'ISO27001'
+  | 'ISO42001'
+  | 'TRUST_CENTER'
+  | 'QUESTIONNAIRES'
+  | 'VENDOR_RISK';
+
+export type KnownBundle =
+  | 'AI_GOVERNANCE'
+  | 'COMPLIANCE_AUTOMATION'
+  | 'CUSTOMER_TRUST'
+  | 'VENDOR_RISK'
+  | 'DEDICATED_CLOUD';
+
+export interface OrgProfile {
+  id: string;
+  name: string;
+  companyType: CompanyType;
+  primaryUseCase: PrimaryUseCase;
+  enabledBundles: KnownBundle[];
+  bundlesVersion: number;
+}
+
 export interface CurrentUser {
   user: User;
+  org?: OrgProfile | null;
   impersonation?: ImpersonationContext | null;
 }
 

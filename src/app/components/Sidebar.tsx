@@ -25,6 +25,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/app/components/ui/utils';
 import { authService } from '@/services/api/auth';
+import { useOrgProfile, hasBundles } from '@/app/hooks/useOrgProfile';
+import type { KnownBundle } from '@/services/api/types';
 import { useSidebar } from '@/app/components/Layout';
 
 type AppRole =
@@ -40,6 +42,9 @@ interface NavChild {
   title: string;
   href: string;
   roles?: AppRole[];
+  // AI TrustOps Phase 2 — every required bundle must be in the org's
+  // enabledBundles for this item to render. Empty / undefined = visible.
+  bundles?: KnownBundle[];
 }
 
 interface NavItem {
@@ -48,6 +53,8 @@ interface NavItem {
   href?: string;
   icon: any;
   roles?: AppRole[];
+  // AI TrustOps Phase 2 — see NavChild.bundles.
+  bundles?: KnownBundle[];
   children?: NavChild[];
 }
 
@@ -363,23 +370,27 @@ export function Sidebar({ collapsed = false }: { collapsed?: boolean }) {
         title: t('nav.aiAssistant'),
         icon: Sparkles,
         roles: [...ADMIN_ROLES],
+        // AI TrustOps Phase 2 — surface gated on the AI_GOVERNANCE bundle.
+        // SaaS / Healthcare / Enterprise GRC tenants don't see this section
+        // unless they explicitly enable AI_GOVERNANCE during onboarding.
+        bundles: ['AI_GOVERNANCE'] as KnownBundle[],
         children: [
-          { id: 'aiChat', title: t('nav.aiChat'), href: '/ai/chat' },
+          { id: 'aiChat', title: t('nav.aiChat'), href: '/ai-trust/chat' },
           {
             id: 'questionnaireAi',
             title: t('nav.questionnaireAi'),
-            href: '/ai/questionnaire-assistant',
+            href: '/ai-trust/questionnaire-assistant',
           },
           {
             id: 'knowledgeBase',
             title: t('nav.knowledgeBase'),
-            href: '/ai/knowledge-base',
+            href: '/ai-trust/knowledge-base',
           },
           {
             // T-102: ISO/IEC 42001 AI model registry.
             id: 'aiModels',
             title: t('nav.aiModels'),
-            href: '/ai/models',
+            href: '/ai-trust/models',
           },
           {
             id: 'aiSettings',
@@ -485,9 +496,16 @@ export function Sidebar({ collapsed = false }: { collapsed?: boolean }) {
   const initials = getInitials(user?.name, user?.email);
   const roleLabel = formatRole(user?.role);
 
-  const canSee = (roles?: AppRole[]) => {
-    if (!roles || roles.length === 0) return true;
-    return roles.includes(userRole);
+  // AI TrustOps Phase 2 — drives bundle gating for NavItems that opt in
+  // via the `bundles` field. Legacy items without `bundles` set are
+  // unaffected and continue to render based on role alone.
+  const { org } = useOrgProfile();
+
+  const canSee = (roles?: AppRole[], bundles?: KnownBundle[]) => {
+    if (roles && roles.length > 0 && !roles.includes(userRole)) return false;
+    if (bundles && bundles.length > 0 && !hasBundles(org, bundles))
+      return false;
+    return true;
   };
 
   const toggleExpanded = (id: string) => {
@@ -548,14 +566,14 @@ export function Sidebar({ collapsed = false }: { collapsed?: boolean }) {
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto overflow-x-visible p-3 space-y-1">
         {navigation.map((item) => {
-          if (!canSee(item.roles)) return null;
+          if (!canSee(item.roles, item.bundles)) return null;
 
           const Icon = item.icon;
           const hasChildren = item.children && item.children.length > 0;
           const isExpanded = expandedItems.includes(item.id);
 
           const visibleChildren = hasChildren
-            ? item.children!.filter((c) => canSee(c.roles))
+            ? item.children!.filter((c) => canSee(c.roles, c.bundles))
             : [];
 
           const parentActive =
