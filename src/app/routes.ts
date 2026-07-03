@@ -320,6 +320,12 @@ const AiTrustDashboardPage = lazy(() =>
     default: m.AiTrustDashboardPage,
   })),
 );
+// AI TrustOps Phase 4 (slice 1): AI Systems Registry.
+const AiSystemsPage = lazy(() =>
+  import('@/app/pages/ai/AiSystemsPage').then((m) => ({
+    default: m.AiSystemsPage,
+  })),
+);
 
 // Other
 const IntegrationsPage = lazy(() =>
@@ -593,6 +599,11 @@ const tenantRoutes: RouteObject[] = [
       {
         path: 'ai-trust',
         Component: AiTrustDashboardPage,
+      },
+      // AI TrustOps Phase 4 (slice 1): AI Systems Registry.
+      {
+        path: 'ai-trust/systems',
+        Component: AiSystemsPage,
       },
 
       // AI TrustOps Phase 2 — canonical /ai-trust/* paths. The existing
