@@ -10,8 +10,9 @@
  */
 
 import { useState } from 'react';
+import { Link } from 'react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Loader2, Plus, Trash2, Edit3, Boxes } from 'lucide-react';
+import { Loader2, Plus, Trash2, Edit3, Boxes, Upload } from 'lucide-react';
 
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { Card } from '@/app/components/ui/card';
@@ -47,6 +48,7 @@ import {
   type AiRiskTier,
   type AiHumanOversight,
   type AiDataExposure,
+  type ImportAiSystemRow,
 } from '@/services/api/aiSystems';
 
 const RISK_TIER_COLORS: Record<AiRiskTier, string> = {
@@ -357,9 +359,188 @@ function SystemDialog({
   );
 }
 
+// ── CSV import ──────────────────────────────────────────────────────────────
+
+// Minimal CSV parser: handles double-quoted fields (with escaped "" and
+// embedded commas/newlines). Good enough for a paste-in import; we validate
+// server-side per row.
+function parseCsv(text: string): string[][] {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let field = '';
+  let inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (text[i + 1] === '"') {
+          field += '"';
+          i++;
+        } else inQuotes = false;
+      } else field += c;
+    } else if (c === '"') {
+      inQuotes = true;
+    } else if (c === ',') {
+      row.push(field);
+      field = '';
+    } else if (c === '\n' || c === '\r') {
+      if (c === '\r' && text[i + 1] === '\n') i++;
+      row.push(field);
+      field = '';
+      if (row.some((f) => f.trim() !== '')) rows.push(row);
+      row = [];
+    } else field += c;
+  }
+  if (field !== '' || row.length > 0) {
+    row.push(field);
+    if (row.some((f) => f.trim() !== '')) rows.push(row);
+  }
+  return rows;
+}
+
+const truthy = (v: string) =>
+  ['true', '1', 'yes', 'y'].includes(v.trim().toLowerCase());
+
+// Maps parsed CSV (header row + data) into upsert rows. externalId + name
+// are required; unknown columns are ignored. Enum values pass through and are
+// validated by the backend.
+function rowsToPayload(csv: string[][]): {
+  rows: ImportAiSystemRow[];
+  error: string | null;
+} {
+  const [headerRow, ...dataRows] = csv;
+  if (!headerRow || dataRows.length === 0) {
+    return { rows: [], error: 'Need a header row and at least one data row.' };
+  }
+  const header = headerRow.map((h) => h.trim());
+  const idx = (name: string) => header.indexOf(name);
+  if (idx('externalId') === -1 || idx('name') === -1) {
+    return {
+      rows: [],
+      error: 'Header must include externalId and name columns.',
+    };
+  }
+  const cell = (r: string[], name: string) => {
+    const i = idx(name);
+    return i === -1 ? '' : (r[i] ?? '').trim();
+  };
+  const rows: ImportAiSystemRow[] = [];
+  for (const r of dataRows) {
+    const externalId = cell(r, 'externalId');
+    const name = cell(r, 'name');
+    if (!externalId || !name) {
+      return {
+        rows: [],
+        error: `Row missing externalId or name: "${r.join(',')}"`,
+      };
+    }
+    const row: ImportAiSystemRow = { externalId, name };
+    const bag = row as unknown as Record<string, unknown>;
+    const set = (k: string, col: string) => {
+      const v = cell(r, col);
+      if (v) bag[k] = v;
+    };
+    set('description', 'description');
+    set('productArea', 'productArea');
+    set('modelProvider', 'modelProvider');
+    set('lifecycleStage', 'lifecycleStage');
+    set('riskTier', 'riskTier');
+    set('humanOversight', 'humanOversight');
+    set('customerDataExposure', 'customerDataExposure');
+    if (cell(r, 'customerFacing'))
+      row.customerFacing = truthy(cell(r, 'customerFacing'));
+    if (cell(r, 'ragUsage')) row.ragUsage = truthy(cell(r, 'ragUsage'));
+    if (cell(r, 'fineTuned')) row.fineTuned = truthy(cell(r, 'fineTuned'));
+    rows.push(row);
+  }
+  return { rows, error: null };
+}
+
+const CSV_TEMPLATE =
+  'externalId,name,productArea,lifecycleStage,riskTier,customerFacing,modelProvider\n' +
+  'sys-001,Support Copilot,Support,PRODUCTION,HIGH,true,OpenAI';
+
+function ImportDialog({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const qc = useQueryClient();
+  const [text, setText] = useState('');
+  const parsed = text.trim()
+    ? rowsToPayload(parseCsv(text))
+    : { rows: [], error: null };
+
+  const mutation = useMutation({
+    mutationFn: () => aiSystemsService.importCsv(parsed.rows),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['aiSystems'] });
+      qc.invalidateQueries({ queryKey: ['ai-trust', 'dashboard'] });
+      onOpenChange(false);
+    },
+  });
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Import AI systems from CSV</DialogTitle>
+          <DialogDescription>
+            Paste CSV with a header row. externalId + name are required; rows
+            upsert by externalId, so re-importing updates in place.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3">
+          <Textarea
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder={CSV_TEMPLATE}
+            className="font-mono text-xs min-h-[180px]"
+          />
+          {parsed.error ? (
+            <p className="text-sm text-amber-700">{parsed.error}</p>
+          ) : parsed.rows.length > 0 ? (
+            <p className="text-sm text-muted-foreground">
+              {parsed.rows.length} row{parsed.rows.length === 1 ? '' : 's'}{' '}
+              ready to import.
+            </p>
+          ) : null}
+          {mutation.isError ? (
+            <p className="text-sm text-red-600">
+              {(mutation.error as Error)?.message ?? 'Import failed'}
+            </p>
+          ) : null}
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button
+            onClick={() => mutation.mutate()}
+            disabled={
+              parsed.rows.length === 0 ||
+              parsed.error !== null ||
+              mutation.isPending
+            }
+          >
+            {mutation.isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              `Import ${parsed.rows.length || ''}`.trim()
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export function AiSystemsPage() {
   const qc = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [initialForm, setInitialForm] = useState<FormState>(emptyForm());
 
@@ -393,10 +574,16 @@ export function AiSystemsPage() {
       title="AI Systems Registry"
       description="Every AI feature or product you run, with its risk tier, data exposure, and human oversight on record."
       actions={
-        <Button onClick={openCreate}>
-          <Plus className="h-4 w-4 mr-2" />
-          Register AI system
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => setImportOpen(true)}>
+            <Upload className="h-4 w-4 mr-2" />
+            Import CSV
+          </Button>
+          <Button onClick={openCreate}>
+            <Plus className="h-4 w-4 mr-2" />
+            Register AI system
+          </Button>
+        </div>
       }
     >
       {isLoading ? (
@@ -426,7 +613,12 @@ export function AiSystemsPage() {
               >
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-medium truncate">{s.name}</p>
+                    <Link
+                      to={`/ai-trust/systems/${s.id}`}
+                      className="text-sm font-medium truncate hover:underline"
+                    >
+                      {s.name}
+                    </Link>
                     <Badge
                       variant="outline"
                       className={RISK_TIER_COLORS[s.riskTier]}
@@ -481,6 +673,9 @@ export function AiSystemsPage() {
           systemId={editingId}
           onOpenChange={setDialogOpen}
         />
+      ) : null}
+      {importOpen ? (
+        <ImportDialog open={importOpen} onOpenChange={setImportOpen} />
       ) : null}
     </PageTemplate>
   );

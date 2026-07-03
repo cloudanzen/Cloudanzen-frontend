@@ -102,6 +102,26 @@ export interface CreateAiSystemInput {
 
 export type UpdateAiSystemInput = Partial<CreateAiSystemInput>;
 
+export interface CreateAiUseCaseInput {
+  name: string;
+  description?: string;
+  purpose?: string;
+  riskTier?: AiRiskTier;
+  status?: AiUseCaseStatus;
+}
+
+export interface ImportSummary {
+  created: number;
+  updated: number;
+  total: number;
+}
+
+// One CSV row → an upsert. externalId is the idempotency key (required so a
+// re-import updates in place instead of duplicating).
+export interface ImportAiSystemRow extends CreateAiSystemInput {
+  externalId: string;
+}
+
 interface ListResponse {
   success: boolean;
   data: AiSystem[];
@@ -109,6 +129,18 @@ interface ListResponse {
 interface SingleResponse {
   success: boolean;
   data: AiSystem;
+}
+interface UseCaseListResponse {
+  success: boolean;
+  data: AiUseCase[];
+}
+interface UseCaseSingleResponse {
+  success: boolean;
+  data: AiUseCase;
+}
+interface ImportResponse {
+  success: boolean;
+  data: ImportSummary;
 }
 
 export const aiSystemsService = {
@@ -133,5 +165,30 @@ export const aiSystemsService = {
   },
   async remove(id: string): Promise<void> {
     await apiClient.delete(`/api/ai/systems/${id}`);
+  },
+  async importCsv(rows: ImportAiSystemRow[]): Promise<ImportSummary> {
+    const res = await apiClient.post<ImportResponse>('/api/ai/systems/import', {
+      rows,
+    });
+    return res.data;
+  },
+  async listUseCases(systemId: string): Promise<AiUseCase[]> {
+    const res = await apiClient.get<UseCaseListResponse>(
+      `/api/ai/systems/${systemId}/use-cases`,
+    );
+    return res.data;
+  },
+  async createUseCase(
+    systemId: string,
+    input: CreateAiUseCaseInput,
+  ): Promise<AiUseCase> {
+    const res = await apiClient.post<UseCaseSingleResponse>(
+      `/api/ai/systems/${systemId}/use-cases`,
+      input,
+    );
+    return res.data;
+  },
+  async removeUseCase(useCaseId: string): Promise<void> {
+    await apiClient.delete(`/api/ai/systems/use-cases/${useCaseId}`);
   },
 };
