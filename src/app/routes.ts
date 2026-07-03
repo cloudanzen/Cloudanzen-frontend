@@ -314,6 +314,12 @@ const AiModelsPage = lazy(() =>
     default: m.AiModelsPage,
   })),
 );
+// AI TrustOps Phase 3: readiness dashboard at /ai-trust.
+const AiTrustDashboardPage = lazy(() =>
+  import('@/app/pages/ai/AiTrustDashboardPage').then((m) => ({
+    default: m.AiTrustDashboardPage,
+  })),
+);
 
 // Other
 const IntegrationsPage = lazy(() =>
@@ -582,11 +588,11 @@ const tenantRoutes: RouteObject[] = [
         loader: () => redirect('/settings/personnel'),
       },
 
-      // AI TrustOps Phase 2 — /ai-trust index. Lands on /ai-trust/chat
-      // until Phase 3 ships the actual AI Trust Dashboard at this path.
+      // AI TrustOps Phase 3 — the AI Trust Dashboard now lands at the
+      // /ai-trust index (replaces the Phase 2 redirect to /ai-trust/chat).
       {
         path: 'ai-trust',
-        loader: () => redirect('/ai-trust/chat'),
+        Component: AiTrustDashboardPage,
       },
 
       // AI TrustOps Phase 2 — canonical /ai-trust/* paths. The existing
