@@ -299,6 +299,7 @@ export interface Risk {
   riskScore: number;
   status: RiskStatus;
   assetId: string;
+  isAiRisk?: boolean;
   createdAt: string;
   asset?: Asset;
   treatments?: RiskTreatment[];
@@ -575,6 +576,8 @@ export interface CreateRiskRequest {
   impact: RiskLevel;
   likelihood: RiskLevel;
   assetId: string;
+  // AI TrustOps Phase 5: flag AI-related risks for the AI Trust dashboard.
+  isAiRisk?: boolean;
 }
 
 export interface UpdateRiskRequest {

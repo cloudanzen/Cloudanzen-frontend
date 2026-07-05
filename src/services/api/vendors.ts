@@ -57,6 +57,8 @@ export interface VendorRecord {
     | null;
   lastIncidentAt?: string | null;
   notes?: string | null;
+  // AI TrustOps Phase 5: flag AI/model providers.
+  isAiProvider?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -88,6 +90,8 @@ export interface UpdateVendorInput {
   dataClass?: DataClass;
   contractEndDate?: string | null;
   notes?: string | null;
+  // AI TrustOps Phase 5: flag AI/model providers.
+  isAiProvider?: boolean;
 }
 
 export interface VendorListParams {
