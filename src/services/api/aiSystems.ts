@@ -57,9 +57,14 @@ export interface AiUseCase {
   purpose: string | null;
   riskTier: AiRiskTier;
   status: AiUseCaseStatus;
+  reviewedByUserId: string | null;
+  reviewedAt: string | null;
+  decisionReason: string | null;
   createdAt: string;
   updatedAt: string;
 }
+
+export type UseCaseDecision = 'APPROVED' | 'REJECTED';
 
 export interface AiSystem {
   id: string;
@@ -190,5 +195,15 @@ export const aiSystemsService = {
   },
   async removeUseCase(useCaseId: string): Promise<void> {
     await apiClient.delete(`/api/ai/systems/use-cases/${useCaseId}`);
+  },
+  async decideUseCase(
+    useCaseId: string,
+    decision: UseCaseDecision,
+    reason?: string,
+  ): Promise<void> {
+    await apiClient.post(`/api/ai/systems/use-cases/${useCaseId}/decision`, {
+      decision,
+      reason,
+    });
   },
 };

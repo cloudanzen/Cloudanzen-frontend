@@ -84,6 +84,15 @@ describe('aiSystemsService', () => {
     await aiSystemsService.removeUseCase('uc1');
     expect(del).toHaveBeenCalledWith('/api/ai/systems/use-cases/uc1');
   });
+
+  it('decideUseCase posts decision + reason to the decision path', async () => {
+    post.mockResolvedValue(undefined);
+    await aiSystemsService.decideUseCase('uc1', 'REJECTED', 'too risky');
+    expect(post).toHaveBeenCalledWith(
+      '/api/ai/systems/use-cases/uc1/decision',
+      { decision: 'REJECTED', reason: 'too risky' },
+    );
+  });
 });
 
 describe('aiTrustService', () => {
