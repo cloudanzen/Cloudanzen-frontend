@@ -19,6 +19,7 @@ import {
   CardTitle,
 } from '@/app/components/ui/card';
 import { Input } from '@/app/components/ui/input';
+import { Switch } from '@/app/components/ui/switch';
 import {
   Dialog,
   DialogContent,
@@ -856,6 +857,7 @@ interface EditVendorDialogProps {
     website?: string | null;
     trustCenterUrl?: string | null;
     subprocessorsListUrl?: string | null;
+    isAiProvider?: boolean;
   };
   onSave: (patch: UpdateVendorInput) => Promise<unknown>;
   saving: boolean;
@@ -878,6 +880,9 @@ function EditVendorDialog({
   const [subprocessorsListUrl, setSubprocessorsListUrl] = useState(
     vendor.subprocessorsListUrl ?? '',
   );
+  const [isAiProvider, setIsAiProvider] = useState(
+    vendor.isAiProvider ?? false,
+  );
 
   // Re-seed inputs when the dialog opens (covers the user-closes-without-
   // saving-then-reopens path; otherwise the form would show stale values).
@@ -888,6 +893,7 @@ function EditVendorDialog({
       setWebsite(vendor.website ?? '');
       setTrustCenterUrl(vendor.trustCenterUrl ?? '');
       setSubprocessorsListUrl(vendor.subprocessorsListUrl ?? '');
+      setIsAiProvider(vendor.isAiProvider ?? false);
     }
   }, [open, vendor]);
 
@@ -898,6 +904,7 @@ function EditVendorDialog({
       website: website.trim() || null,
       trustCenterUrl: trustCenterUrl.trim() || null,
       subprocessorsListUrl: subprocessorsListUrl.trim() || null,
+      isAiProvider,
     });
     onOpenChange(false);
   };
@@ -954,6 +961,10 @@ function EditVendorDialog({
               placeholder="https://example.com/subprocessors"
             />
           </div>
+          <label className="flex items-center gap-2 text-sm">
+            <Switch checked={isAiProvider} onCheckedChange={setIsAiProvider} />
+            AI / model provider
+          </label>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
