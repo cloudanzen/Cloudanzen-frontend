@@ -10,8 +10,9 @@
  */
 
 import { useState } from 'react';
+import { Link } from 'react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Loader2, Plus, Trash2, Edit3, Boxes } from 'lucide-react';
+import { Loader2, Plus, Trash2, Edit3, Boxes, Upload } from 'lucide-react';
 
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { Card } from '@/app/components/ui/card';
@@ -48,6 +49,7 @@ import {
   type AiHumanOversight,
   type AiDataExposure,
 } from '@/services/api/aiSystems';
+import { parseCsv, rowsToPayload, CSV_TEMPLATE } from './aiSystemsCsv';
 
 const RISK_TIER_COLORS: Record<AiRiskTier, string> = {
   MINIMAL: 'bg-gray-50 text-gray-600 border-gray-200',
@@ -357,9 +359,87 @@ function SystemDialog({
   );
 }
 
+function ImportDialog({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const qc = useQueryClient();
+  const [text, setText] = useState('');
+  const parsed = text.trim()
+    ? rowsToPayload(parseCsv(text))
+    : { rows: [], error: null };
+
+  const mutation = useMutation({
+    mutationFn: () => aiSystemsService.importCsv(parsed.rows),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['aiSystems'] });
+      qc.invalidateQueries({ queryKey: ['ai-trust', 'dashboard'] });
+      onOpenChange(false);
+    },
+  });
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Import AI systems from CSV</DialogTitle>
+          <DialogDescription>
+            Paste CSV with a header row. externalId + name are required; rows
+            upsert by externalId, so re-importing updates in place.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3">
+          <Textarea
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder={CSV_TEMPLATE}
+            className="font-mono text-xs min-h-[180px]"
+          />
+          {parsed.error ? (
+            <p className="text-sm text-amber-700">{parsed.error}</p>
+          ) : parsed.rows.length > 0 ? (
+            <p className="text-sm text-muted-foreground">
+              {parsed.rows.length} row{parsed.rows.length === 1 ? '' : 's'}{' '}
+              ready to import.
+            </p>
+          ) : null}
+          {mutation.isError ? (
+            <p className="text-sm text-red-600">
+              {(mutation.error as Error)?.message ?? 'Import failed'}
+            </p>
+          ) : null}
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button
+            onClick={() => mutation.mutate()}
+            disabled={
+              parsed.rows.length === 0 ||
+              parsed.error !== null ||
+              mutation.isPending
+            }
+          >
+            {mutation.isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              `Import ${parsed.rows.length || ''}`.trim()
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export function AiSystemsPage() {
   const qc = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [initialForm, setInitialForm] = useState<FormState>(emptyForm());
 
@@ -393,10 +473,16 @@ export function AiSystemsPage() {
       title="AI Systems Registry"
       description="Every AI feature or product you run, with its risk tier, data exposure, and human oversight on record."
       actions={
-        <Button onClick={openCreate}>
-          <Plus className="h-4 w-4 mr-2" />
-          Register AI system
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => setImportOpen(true)}>
+            <Upload className="h-4 w-4 mr-2" />
+            Import CSV
+          </Button>
+          <Button onClick={openCreate}>
+            <Plus className="h-4 w-4 mr-2" />
+            Register AI system
+          </Button>
+        </div>
       }
     >
       {isLoading ? (
@@ -426,7 +512,12 @@ export function AiSystemsPage() {
               >
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-medium truncate">{s.name}</p>
+                    <Link
+                      to={`/ai-trust/systems/${s.id}`}
+                      className="text-sm font-medium truncate hover:underline"
+                    >
+                      {s.name}
+                    </Link>
                     <Badge
                       variant="outline"
                       className={RISK_TIER_COLORS[s.riskTier]}
@@ -481,6 +572,9 @@ export function AiSystemsPage() {
           systemId={editingId}
           onOpenChange={setDialogOpen}
         />
+      ) : null}
+      {importOpen ? (
+        <ImportDialog open={importOpen} onOpenChange={setImportOpen} />
       ) : null}
     </PageTemplate>
   );
