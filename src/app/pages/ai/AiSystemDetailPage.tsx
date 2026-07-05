@@ -9,7 +9,7 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Loader2, Plus, Trash2, ArrowLeft } from 'lucide-react';
+import { Loader2, Plus, Trash2, ArrowLeft, Check, X } from 'lucide-react';
 
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { Card } from '@/app/components/ui/card';
@@ -203,10 +203,31 @@ export function AiSystemDetailPage() {
     enabled: id.length > 0,
   });
 
+  const [rejecting, setRejecting] = useState<string | null>(null);
+  const [rejectReason, setRejectReason] = useState('');
+
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ['aiSystem', id] });
+    qc.invalidateQueries({ queryKey: ['ai-trust', 'dashboard'] });
+  };
+
   const deleteUseCase = useMutation({
     mutationFn: (useCaseId: string) =>
       aiSystemsService.removeUseCase(useCaseId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['aiSystem', id] }),
+    onSuccess: invalidate,
+  });
+
+  const decide = useMutation({
+    mutationFn: (v: {
+      useCaseId: string;
+      decision: 'APPROVED' | 'REJECTED';
+      reason?: string;
+    }) => aiSystemsService.decideUseCase(v.useCaseId, v.decision, v.reason),
+    onSuccess: () => {
+      invalidate();
+      setRejecting(null);
+      setRejectReason('');
+    },
   });
 
   return (
@@ -310,15 +331,50 @@ export function AiSystemDetailPage() {
                             {uc.purpose}
                           </p>
                         ) : null}
+                        {uc.status !== 'PROPOSED' && uc.decisionReason ? (
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {titleCase(uc.status)}: {uc.decisionReason}
+                          </p>
+                        ) : null}
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => deleteUseCase.mutate(uc.id)}
-                        aria-label="Delete use case"
-                      >
-                        <Trash2 className="h-4 w-4 text-rose-600" />
-                      </Button>
+                      <div className="flex items-center gap-1 shrink-0">
+                        {uc.status === 'PROPOSED' ? (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-emerald-700"
+                              disabled={decide.isPending}
+                              onClick={() =>
+                                decide.mutate({
+                                  useCaseId: uc.id,
+                                  decision: 'APPROVED',
+                                })
+                              }
+                            >
+                              <Check className="h-4 w-4 mr-1" />
+                              Approve
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-rose-700"
+                              onClick={() => setRejecting(uc.id)}
+                            >
+                              <X className="h-4 w-4 mr-1" />
+                              Reject
+                            </Button>
+                          </>
+                        ) : null}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => deleteUseCase.mutate(uc.id)}
+                          aria-label="Delete use case"
+                        >
+                          <Trash2 className="h-4 w-4 text-rose-600" />
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -335,6 +391,60 @@ export function AiSystemDetailPage() {
           onOpenChange={setUcDialogOpen}
         />
       ) : null}
+
+      <Dialog
+        open={rejecting !== null}
+        onOpenChange={(o) => {
+          if (!o) {
+            setRejecting(null);
+            setRejectReason('');
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reject use case</DialogTitle>
+            <DialogDescription>
+              Record why this use case is rejected. The reason is stored on the
+              audit trail.
+            </DialogDescription>
+          </DialogHeader>
+          <Textarea
+            value={rejectReason}
+            onChange={(e) => setRejectReason(e.target.value)}
+            placeholder="Reason for rejection"
+          />
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setRejecting(null);
+                setRejectReason('');
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="bg-rose-600 hover:bg-rose-700"
+              disabled={decide.isPending}
+              onClick={() =>
+                rejecting &&
+                decide.mutate({
+                  useCaseId: rejecting,
+                  decision: 'REJECTED',
+                  reason: rejectReason.trim() || undefined,
+                })
+              }
+            >
+              {decide.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                'Reject'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </PageTemplate>
   );
 }
