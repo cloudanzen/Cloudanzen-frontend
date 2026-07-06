@@ -78,6 +78,13 @@ function scoreColor(score: number): string {
   return 'text-rose-600';
 }
 
+const TONE_COLORS: Record<string, string> = {
+  positive: 'text-emerald-600',
+  warning: 'text-amber-600',
+  critical: 'text-rose-600',
+  neutral: 'text-muted-foreground',
+};
+
 function MetricCard({
   meta,
   card,
@@ -87,6 +94,7 @@ function MetricCard({
 }) {
   const Icon = meta.icon;
   const comingSoon = card?.status === 'coming_soon';
+  const hasLabel = !comingSoon && typeof card?.label === 'string';
   return (
     <Card
       className={`p-4 flex flex-col gap-2 ${comingSoon ? 'opacity-60' : ''}`}
@@ -107,9 +115,17 @@ function MetricCard({
           </Badge>
         ) : null}
       </div>
-      <div className="text-2xl font-semibold">
-        {comingSoon ? '—' : (card?.value ?? 0)}
-      </div>
+      {hasLabel ? (
+        <div
+          className={`text-2xl font-semibold ${TONE_COLORS[card?.tone ?? 'neutral']}`}
+        >
+          {card?.label}
+        </div>
+      ) : (
+        <div className="text-2xl font-semibold">
+          {comingSoon ? '—' : (card?.value ?? 0)}
+        </div>
+      )}
       <div className="text-sm text-muted-foreground">{meta.label}</div>
     </Card>
   );

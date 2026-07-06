@@ -12,6 +12,7 @@ vi.mock('@/services/api/client', () => ({
 import { apiClient } from '@/services/api/client';
 import { aiSystemsService } from '@/services/api/aiSystems';
 import { aiTrustService } from '@/services/api/aiTrust';
+import { aiRuntimeService } from '@/services/api/aiRuntime';
 
 const get = apiClient.get as unknown as ReturnType<typeof vi.fn>;
 const post = apiClient.post as unknown as ReturnType<typeof vi.fn>;
@@ -104,5 +105,38 @@ describe('aiTrustService', () => {
     const d = await aiTrustService.getDashboard();
     expect(d.readinessScore).toBe(42);
     expect(get).toHaveBeenCalledWith('/api/ai/trust/dashboard');
+  });
+});
+
+describe('aiRuntimeService', () => {
+  it('eval-run + finding endpoints hit the right paths', async () => {
+    get.mockResolvedValue({ success: true, data: [] });
+    await aiRuntimeService.listEvalRuns();
+    expect(get).toHaveBeenCalledWith('/api/ai/runtime/eval-runs');
+    await aiRuntimeService.listFindings();
+    expect(get).toHaveBeenCalledWith('/api/ai/runtime/findings');
+
+    post.mockResolvedValue({ success: true, data: { id: 'e1' } });
+    await aiRuntimeService.createEvalRun({ name: 'nightly' });
+    expect(post).toHaveBeenCalledWith('/api/ai/runtime/eval-runs', {
+      name: 'nightly',
+    });
+    await aiRuntimeService.createFinding({ title: 'drift' });
+    expect(post).toHaveBeenCalledWith('/api/ai/runtime/findings', {
+      title: 'drift',
+    });
+
+    post.mockResolvedValue(undefined);
+    await aiRuntimeService.resolveFinding('f1');
+    expect(post).toHaveBeenCalledWith(
+      '/api/ai/runtime/findings/f1/resolve',
+      {},
+    );
+
+    del.mockResolvedValue(undefined);
+    await aiRuntimeService.removeEvalRun('e1');
+    expect(del).toHaveBeenCalledWith('/api/ai/runtime/eval-runs/e1');
+    await aiRuntimeService.removeFinding('f1');
+    expect(del).toHaveBeenCalledWith('/api/ai/runtime/findings/f1');
   });
 });

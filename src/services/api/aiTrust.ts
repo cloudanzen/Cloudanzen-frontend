@@ -10,10 +10,16 @@ import { apiClient } from './client';
 
 export type CardStatus = 'ok' | 'empty' | 'coming_soon';
 
+export type CardTone = 'positive' | 'warning' | 'critical' | 'neutral';
+
 export interface DashboardCard {
   value: number | null;
   status: CardStatus;
   proxy?: boolean;
+  // Status-style cards (e.g. latest eval PASS/FAIL) carry a label + tone
+  // instead of a numeric value.
+  label?: string;
+  tone?: CardTone;
 }
 
 export interface ChecklistItem {
