@@ -13,6 +13,7 @@ import { apiClient } from '@/services/api/client';
 import { aiSystemsService } from '@/services/api/aiSystems';
 import { aiTrustService } from '@/services/api/aiTrust';
 import { aiRuntimeService } from '@/services/api/aiRuntime';
+import { aiAgentTrailsService } from '@/services/api/aiAgentTrails';
 
 const get = apiClient.get as unknown as ReturnType<typeof vi.fn>;
 const post = apiClient.post as unknown as ReturnType<typeof vi.fn>;
@@ -185,5 +186,33 @@ describe('aiRuntimeService', () => {
     del.mockResolvedValue(undefined);
     await aiRuntimeService.removeThreshold('t1');
     expect(del).toHaveBeenCalledWith('/api/ai/runtime/thresholds/t1');
+  });
+});
+
+describe('aiAgentTrailsService', () => {
+  it('trace + step endpoints hit the right paths', async () => {
+    get.mockResolvedValue({ success: true, data: [] });
+    await aiAgentTrailsService.listTraces();
+    expect(get).toHaveBeenCalledWith('/api/ai/agent-trails/traces');
+    get.mockResolvedValue({ success: true, data: { id: 't1' } });
+    await aiAgentTrailsService.getTrace('t1');
+    expect(get).toHaveBeenCalledWith('/api/ai/agent-trails/traces/t1');
+
+    post.mockResolvedValue({ success: true, data: { id: 't2' } });
+    await aiAgentTrailsService.createTrace({ sessionRef: 's', agentName: 'a' });
+    expect(post).toHaveBeenCalledWith('/api/ai/agent-trails/traces', {
+      sessionRef: 's',
+      agentName: 'a',
+    });
+    await aiAgentTrailsService.addStep('t1', { title: 'call' });
+    expect(post).toHaveBeenCalledWith('/api/ai/agent-trails/traces/t1/steps', {
+      title: 'call',
+    });
+
+    del.mockResolvedValue(undefined);
+    await aiAgentTrailsService.removeTrace('t1');
+    expect(del).toHaveBeenCalledWith('/api/ai/agent-trails/traces/t1');
+    await aiAgentTrailsService.removeStep('st1');
+    expect(del).toHaveBeenCalledWith('/api/ai/agent-trails/steps/st1');
   });
 });
