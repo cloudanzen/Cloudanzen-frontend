@@ -338,6 +338,17 @@ const AiRuntimePage = lazy(() =>
     default: m.AiRuntimePage,
   })),
 );
+// AI TrustOps Agent Trails.
+const AiAgentTrailsPage = lazy(() =>
+  import('@/app/pages/ai/AiAgentTrailsPage').then((m) => ({
+    default: m.AiAgentTrailsPage,
+  })),
+);
+const AiTraceDetailPage = lazy(() =>
+  import('@/app/pages/ai/AiTraceDetailPage').then((m) => ({
+    default: m.AiTraceDetailPage,
+  })),
+);
 
 // Other
 const IntegrationsPage = lazy(() =>
@@ -626,6 +637,15 @@ const tenantRoutes: RouteObject[] = [
       {
         path: 'ai-trust/runtime',
         Component: AiRuntimePage,
+      },
+      // AI TrustOps Agent Trails.
+      {
+        path: 'ai-trust/agent-trails',
+        Component: AiAgentTrailsPage,
+      },
+      {
+        path: 'ai-trust/agent-trails/:id',
+        Component: AiTraceDetailPage,
       },
 
       // AI TrustOps Phase 2 — canonical /ai-trust/* paths. The existing
