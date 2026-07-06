@@ -332,6 +332,12 @@ const AiSystemDetailPage = lazy(() =>
     default: m.AiSystemDetailPage,
   })),
 );
+// AI TrustOps Runtime Risk Monitor.
+const AiRuntimePage = lazy(() =>
+  import('@/app/pages/ai/AiRuntimePage').then((m) => ({
+    default: m.AiRuntimePage,
+  })),
+);
 
 // Other
 const IntegrationsPage = lazy(() =>
@@ -615,6 +621,11 @@ const tenantRoutes: RouteObject[] = [
       {
         path: 'ai-trust/systems/:id',
         Component: AiSystemDetailPage,
+      },
+      // AI TrustOps Runtime Risk Monitor.
+      {
+        path: 'ai-trust/runtime',
+        Component: AiRuntimePage,
       },
 
       // AI TrustOps Phase 2 — canonical /ai-trust/* paths. The existing
