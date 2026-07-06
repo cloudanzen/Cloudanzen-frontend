@@ -41,6 +41,18 @@ export type AiFindingSeverity = (typeof AI_FINDING_SEVERITIES)[number];
 
 export type AiFindingStatus = 'OPEN' | 'RESOLVED';
 
+export const AI_THRESHOLD_COMPARATORS = ['GT', 'GTE', 'LT', 'LTE'] as const;
+export type AiThresholdComparator = (typeof AI_THRESHOLD_COMPARATORS)[number];
+
+export const AI_MODEL_CHANGE_TYPES = [
+  'DEPLOY',
+  'ROLLBACK',
+  'CONFIG',
+  'RETRAIN',
+  'OTHER',
+] as const;
+export type AiModelChangeType = (typeof AI_MODEL_CHANGE_TYPES)[number];
+
 export interface AiEvalRun {
   id: string;
   aiSystemId: string | null;
@@ -83,6 +95,64 @@ export interface CreateFindingInput {
   findingType?: AiRuntimeFindingType;
   severity?: AiFindingSeverity;
   description?: string;
+}
+
+export interface AiRuntimeMetric {
+  id: string;
+  aiSystemId: string | null;
+  metricKey: string;
+  value: number;
+  unit: string | null;
+  environment: string | null;
+  recordedAt: string;
+}
+
+export interface CreateMetricInput {
+  metricKey: string;
+  value: number;
+  unit?: string;
+  environment?: string;
+}
+
+export interface AiRiskThreshold {
+  id: string;
+  aiSystemId: string | null;
+  metricKey: string;
+  comparator: AiThresholdComparator;
+  thresholdValue: number;
+  severity: AiFindingSeverity;
+  enabled: boolean;
+  description: string | null;
+}
+
+export interface CreateThresholdInput {
+  metricKey: string;
+  thresholdValue: number;
+  comparator?: AiThresholdComparator;
+  severity?: AiFindingSeverity;
+  enabled?: boolean;
+  description?: string;
+}
+
+export interface AiModelVersionEvent {
+  id: string;
+  aiSystemId: string | null;
+  modelName: string;
+  fromVersion: string | null;
+  toVersion: string;
+  provider: string | null;
+  changeType: AiModelChangeType;
+  notes: string | null;
+  occurredAt: string;
+}
+
+export interface CreateModelEventInput {
+  modelName: string;
+  toVersion: string;
+  fromVersion?: string;
+  provider?: string;
+  changeType?: AiModelChangeType;
+  notes?: string;
 }
 
 interface EvalListResponse {
@@ -137,5 +207,70 @@ export const aiRuntimeService = {
   },
   async removeFinding(id: string): Promise<void> {
     await apiClient.delete(`/api/ai/runtime/findings/${id}`);
+  },
+  // Metrics
+  async listMetrics(): Promise<AiRuntimeMetric[]> {
+    const res = await apiClient.get<{
+      success: boolean;
+      data: AiRuntimeMetric[];
+    }>('/api/ai/runtime/metrics');
+    return res.data;
+  },
+  async createMetric(
+    input: CreateMetricInput,
+  ): Promise<{ metric: AiRuntimeMetric; findingsCreated: number }> {
+    const res = await apiClient.post<{
+      success: boolean;
+      data: AiRuntimeMetric;
+      findingsCreated: number;
+    }>('/api/ai/runtime/metrics', input);
+    return { metric: res.data, findingsCreated: res.findingsCreated };
+  },
+  async removeMetric(id: string): Promise<void> {
+    await apiClient.delete(`/api/ai/runtime/metrics/${id}`);
+  },
+  // Thresholds
+  async listThresholds(): Promise<AiRiskThreshold[]> {
+    const res = await apiClient.get<{
+      success: boolean;
+      data: AiRiskThreshold[];
+    }>('/api/ai/runtime/thresholds');
+    return res.data;
+  },
+  async createThreshold(input: CreateThresholdInput): Promise<AiRiskThreshold> {
+    const res = await apiClient.post<{
+      success: boolean;
+      data: AiRiskThreshold;
+    }>('/api/ai/runtime/thresholds', input);
+    return res.data;
+  },
+  async updateThreshold(
+    id: string,
+    input: Partial<CreateThresholdInput>,
+  ): Promise<void> {
+    await apiClient.patch(`/api/ai/runtime/thresholds/${id}`, input);
+  },
+  async removeThreshold(id: string): Promise<void> {
+    await apiClient.delete(`/api/ai/runtime/thresholds/${id}`);
+  },
+  // Model version events
+  async listModelEvents(): Promise<AiModelVersionEvent[]> {
+    const res = await apiClient.get<{
+      success: boolean;
+      data: AiModelVersionEvent[];
+    }>('/api/ai/runtime/model-events');
+    return res.data;
+  },
+  async createModelEvent(
+    input: CreateModelEventInput,
+  ): Promise<AiModelVersionEvent> {
+    const res = await apiClient.post<{
+      success: boolean;
+      data: AiModelVersionEvent;
+    }>('/api/ai/runtime/model-events', input);
+    return res.data;
+  },
+  async removeModelEvent(id: string): Promise<void> {
+    await apiClient.delete(`/api/ai/runtime/model-events/${id}`);
   },
 };

@@ -54,6 +54,11 @@ import {
   type AiRuntimeFindingType,
   type AiFindingSeverity,
 } from '@/services/api/aiRuntime';
+import {
+  MetricsSection,
+  ThresholdsSection,
+  ModelEventsSection,
+} from './AiRuntimeConfigSections';
 
 const titleCase = (s: string) =>
   s.charAt(0) + s.slice(1).toLowerCase().replace(/_/g, ' ');
@@ -513,6 +518,10 @@ export function AiRuntimePage() {
             </Card>
           )}
         </section>
+
+        <MetricsSection />
+        <ThresholdsSection />
+        <ModelEventsSection />
       </div>
 
       {evalDialog ? (

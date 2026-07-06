@@ -139,4 +139,51 @@ describe('aiRuntimeService', () => {
     await aiRuntimeService.removeFinding('f1');
     expect(del).toHaveBeenCalledWith('/api/ai/runtime/findings/f1');
   });
+
+  it('slice 2: metrics / thresholds / model-events hit the right paths', async () => {
+    post.mockResolvedValue({
+      success: true,
+      data: { id: 'm1' },
+      findingsCreated: 2,
+    });
+    const r = await aiRuntimeService.createMetric({
+      metricKey: 'k',
+      value: 1,
+    });
+    expect(r.findingsCreated).toBe(2);
+    expect(post).toHaveBeenCalledWith('/api/ai/runtime/metrics', {
+      metricKey: 'k',
+      value: 1,
+    });
+
+    post.mockResolvedValue({ success: true, data: { id: 't1' } });
+    await aiRuntimeService.createThreshold({
+      metricKey: 'k',
+      thresholdValue: 5,
+    });
+    expect(post).toHaveBeenCalledWith('/api/ai/runtime/thresholds', {
+      metricKey: 'k',
+      thresholdValue: 5,
+    });
+
+    patch.mockResolvedValue(undefined);
+    await aiRuntimeService.updateThreshold('t1', { enabled: false });
+    expect(patch).toHaveBeenCalledWith('/api/ai/runtime/thresholds/t1', {
+      enabled: false,
+    });
+
+    post.mockResolvedValue({ success: true, data: { id: 'ev1' } });
+    await aiRuntimeService.createModelEvent({
+      modelName: 'm',
+      toVersion: 'v2',
+    });
+    expect(post).toHaveBeenCalledWith('/api/ai/runtime/model-events', {
+      modelName: 'm',
+      toVersion: 'v2',
+    });
+
+    del.mockResolvedValue(undefined);
+    await aiRuntimeService.removeThreshold('t1');
+    expect(del).toHaveBeenCalledWith('/api/ai/runtime/thresholds/t1');
+  });
 });
