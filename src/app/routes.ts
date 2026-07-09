@@ -349,6 +349,12 @@ const AiTraceDetailPage = lazy(() =>
     default: m.AiTraceDetailPage,
   })),
 );
+// AI TrustOps RAG + Data Pipeline Audit.
+const AiRagAuditPage = lazy(() =>
+  import('@/app/pages/ai/AiRagAuditPage').then((m) => ({
+    default: m.AiRagAuditPage,
+  })),
+);
 
 // Other
 const IntegrationsPage = lazy(() =>
@@ -646,6 +652,11 @@ const tenantRoutes: RouteObject[] = [
       {
         path: 'ai-trust/agent-trails/:id',
         Component: AiTraceDetailPage,
+      },
+      // AI TrustOps RAG + Data Pipeline Audit.
+      {
+        path: 'ai-trust/rag-audit',
+        Component: AiRagAuditPage,
       },
 
       // AI TrustOps Phase 2 — canonical /ai-trust/* paths. The existing
