@@ -90,7 +90,11 @@ export interface RiskSnapshotModel {
   riskBySeverity: Array<{ label: RiskLevel; count: number }>;
   riskByCategory: Array<{ label: RiskCategory; count: number }>;
   riskAging: Array<{ label: string; count: number }>;
-  topAssets: Array<{ assetName: string; count: number; criticality: RiskLevel }>;
+  topAssets: Array<{
+    assetName: string;
+    count: number;
+    criticality: RiskLevel;
+  }>;
   auditReadiness: Array<{ label: string; value: number }>;
 }
 
@@ -106,8 +110,18 @@ export interface RiskLibraryItem {
 }
 
 export interface RiskSettingsModel {
-  notifications: Array<{ id: string; label: string; enabled: boolean; description: string }>;
-  automations: Array<{ id: string; label: string; status: string; description: string }>;
+  notifications: Array<{
+    id: string;
+    label: string;
+    enabled: boolean;
+    description: string;
+  }>;
+  automations: Array<{
+    id: string;
+    label: string;
+    status: string;
+    description: string;
+  }>;
   scoringFactors: Array<{ label: string; weight: number }>;
   lifecycle: string[];
 }
@@ -123,7 +137,14 @@ export interface RiskDetailEvidenceItem {
 
 export interface RiskDetailActivityItem {
   id: string;
-  type: 'DETECTED' | 'ASSIGNED' | 'EVIDENCE' | 'REMEDIATION' | 'ACCEPTED' | 'UPDATED' | 'STAKEHOLDER_CHANGED';
+  type:
+    | 'DETECTED'
+    | 'ASSIGNED'
+    | 'EVIDENCE'
+    | 'REMEDIATION'
+    | 'ACCEPTED'
+    | 'UPDATED'
+    | 'STAKEHOLDER_CHANGED';
   title: string;
   timestamp: string;
   actor: string;
@@ -199,6 +220,7 @@ export interface RiskDetailModel {
     ownerId: string | null;
     ownerName: string | null;
     reviewDueAt: string | null;
+    isAiRisk?: boolean;
   };
   summary: {
     inherentRisk: number;

@@ -29,6 +29,8 @@ export interface RiskRegisterEntryDto {
   sourceType: string | null;
   sourceRef: string | null;
   findingCount: number | null;
+  // AI TrustOps: flags an AI-related risk for the AI Trust dashboard.
+  isAiRisk?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -42,11 +44,15 @@ export interface RiskRegisterStats {
   closed: number;
 }
 
-export interface RiskLibraryListResponse extends ApiResponse<RiskLibraryItemDto[]> {
+export interface RiskLibraryListResponse extends ApiResponse<
+  RiskLibraryItemDto[]
+> {
   categories: string[];
 }
 
-export interface RiskRegisterListResponse extends ApiResponse<RiskRegisterEntryDto[]> {
+export interface RiskRegisterListResponse extends ApiResponse<
+  RiskRegisterEntryDto[]
+> {
   stats: RiskRegisterStats;
 }
 
@@ -99,6 +105,7 @@ export interface UpdateRegisterEntryRequest {
   ownerId?: string | null;
   reviewDueAt?: string | null;
   description?: string;
+  isAiRisk?: boolean;
 }
 
 export interface RiskMappedControl {
@@ -128,7 +135,12 @@ export const riskLibraryService = {
     return apiClient.get<RiskLibraryListResponse>('/api/risk-library');
   },
 
-  listRegister(params?: { status?: string; category?: string; search?: string; source_type?: string }) {
+  listRegister(params?: {
+    status?: string;
+    category?: string;
+    search?: string;
+    source_type?: string;
+  }) {
     const qs = new URLSearchParams();
     if (params?.status) qs.set('status', params.status);
     if (params?.category) qs.set('category', params.category);
@@ -141,11 +153,15 @@ export const riskLibraryService = {
   },
 
   getRegisterOverview() {
-    return apiClient.get<ApiResponse<RiskRegisterOverview>>('/api/risk-library/register/overview');
+    return apiClient.get<ApiResponse<RiskRegisterOverview>>(
+      '/api/risk-library/register/overview',
+    );
   },
 
   getRegisterEntry(id: string) {
-    return apiClient.get<ApiResponse<RiskRegisterEntryDto>>(`/api/risk-library/register/${id}`);
+    return apiClient.get<ApiResponse<RiskRegisterEntryDto>>(
+      `/api/risk-library/register/${id}`,
+    );
   },
 
   addToRegister(data: AddToRegisterRequest) {
@@ -204,15 +220,22 @@ export const riskLibraryService = {
   // These hit the new /api/risks/:id/policies endpoints (risks module), separate
   // from the /api/risk-library/* endpoints used for control/framework linking.
   listTreatmentPolicies(riskId: string) {
-    return apiClient.get<ApiResponse<RiskTreatmentPolicyLink[]>>(`/api/risks/${riskId}/policies`);
+    return apiClient.get<ApiResponse<RiskTreatmentPolicyLink[]>>(
+      `/api/risks/${riskId}/policies`,
+    );
   },
 
   linkTreatmentPolicy(riskId: string, policyId: string, notes?: string) {
-    return apiClient.post<ApiResponse<RiskTreatmentPolicyLink>>(`/api/risks/${riskId}/policies`, { policyId, notes });
+    return apiClient.post<ApiResponse<RiskTreatmentPolicyLink>>(
+      `/api/risks/${riskId}/policies`,
+      { policyId, notes },
+    );
   },
 
   unlinkTreatmentPolicy(riskId: string, policyId: string) {
-    return apiClient.delete<ApiResponse>(`/api/risks/${riskId}/policies/${policyId}`);
+    return apiClient.delete<ApiResponse>(
+      `/api/risks/${riskId}/policies/${policyId}`,
+    );
   },
 };
 
