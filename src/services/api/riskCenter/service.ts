@@ -29,7 +29,9 @@ function mapImpactLevel(value: string): RiskLevel {
   return RiskLevel.LOW;
 }
 
-function mapStatus(entry: RiskRegisterEntryDto): EnterpriseRiskRecord['status'] {
+function mapStatus(
+  entry: RiskRegisterEntryDto,
+): EnterpriseRiskRecord['status'] {
   if (entry.treatment === 'ACCEPT') return RiskStatus.ACCEPTED;
   if (entry.treatment === 'TRANSFER') return RiskStatus.TRANSFERRED;
   switch (entry.status) {
@@ -87,8 +89,7 @@ function toEnterpriseRisk(entry: RiskRegisterEntryDto): EnterpriseRiskRecord {
     frameworks: [],
     controls: [],
     evidenceCount: entry.findingCount ?? 0,
-    treatment:
-      entry.treatmentNotes ?? entry.treatment ?? '—',
+    treatment: entry.treatmentNotes ?? entry.treatment ?? '—',
     trend: 'flat' as TrendDirection,
   };
 }
@@ -107,9 +108,8 @@ export const riskCenterService = {
     const risks = entries.map(toEnterpriseRisk);
 
     const getSevCount = (level: string) =>
-      ov.severityBreakdown?.find(
-        (s) => s.label.toUpperCase() === level,
-      )?.count ?? 0;
+      ov.severityBreakdown?.find((s) => s.label.toUpperCase() === level)
+        ?.count ?? 0;
 
     const recentRisks = [...risks]
       .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
@@ -180,15 +180,14 @@ export const riskCenterService = {
           ownerId: entry.ownerId,
           ownerName: entry.ownerName,
           reviewDueAt: entry.reviewDueAt,
+          isAiRisk: entry.isAiRisk ?? false,
         },
         summary: {
           inherentRisk: entry.inherentScore ?? 0,
           residualRisk: entry.residualScore ?? 0,
           blastRadius: '—',
           exceptionStatus:
-            entry.treatment === 'ACCEPT'
-              ? 'Accepted'
-              : 'No active exception',
+            entry.treatment === 'ACCEPT' ? 'Accepted' : 'No active exception',
         },
         evidence: [],
         activities: [
@@ -394,8 +393,7 @@ export const riskCenterService = {
           id: 'critical-risk',
           label: 'Critical risk alerting',
           enabled: true,
-          description:
-            'Send notifications when critical risks are created.',
+          description: 'Send notifications when critical risks are created.',
         },
         {
           id: 'sla-breach',

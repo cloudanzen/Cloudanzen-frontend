@@ -4,6 +4,7 @@ import { PageTemplate } from '@/app/components/PageTemplate';
 import { Card } from '@/app/components/ui/card';
 import { Badge } from '@/app/components/ui/badge';
 import { Button } from '@/app/components/ui/button';
+import { Switch } from '@/app/components/ui/switch';
 import {
   Tabs,
   TabsContent,
@@ -65,7 +66,13 @@ import { TestDetailPanel } from '@/app/pages/tests/TestDetailPanel';
 
 const IMPACT_LEVELS = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] as const;
 const LIKELIHOOD_LEVELS = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] as const;
-const STATUS_OPTIONS = ['IDENTIFIED', 'ASSESSING', 'TREATING', 'MONITORING', 'CLOSED'] as const;
+const STATUS_OPTIONS = [
+  'IDENTIFIED',
+  'ASSESSING',
+  'TREATING',
+  'MONITORING',
+  'CLOSED',
+] as const;
 const TREATMENT_OPTIONS = [
   { value: '', label: 'Not set' },
   { value: 'MITIGATE', label: 'Mitigate' },
@@ -74,7 +81,12 @@ const TREATMENT_OPTIONS = [
   { value: 'AVOID', label: 'Avoid' },
 ] as const;
 
-const SCORE_WEIGHTS: Record<string, number> = { LOW: 1, MEDIUM: 2, HIGH: 3, CRITICAL: 4 };
+const SCORE_WEIGHTS: Record<string, number> = {
+  LOW: 1,
+  MEDIUM: 2,
+  HIGH: 3,
+  CRITICAL: 4,
+};
 
 function calcScore(impact: string, likelihood: string): number {
   return (SCORE_WEIGHTS[impact] ?? 2) * (SCORE_WEIGHTS[likelihood] ?? 2);
@@ -99,7 +111,7 @@ function scoreBgColor(score: number): string {
 }
 
 function statusLabel(s: string): string {
-  return s.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  return s.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 // ─── Inline select component ─────────────────────────────────────────────────
@@ -117,16 +129,20 @@ function InlineSelect({
   disabled?: boolean;
   className?: string;
 }) {
-  const opts = options.map(o => typeof o === 'string' ? { value: o, label: statusLabel(o) } : o);
+  const opts = options.map((o) =>
+    typeof o === 'string' ? { value: o, label: statusLabel(o) } : o,
+  );
   return (
     <select
       value={value}
-      onChange={e => onChange(e.target.value)}
+      onChange={(e) => onChange(e.target.value)}
       disabled={disabled}
       className={`rounded-md border border-border bg-card px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 ${className}`}
     >
-      {opts.map(o => (
-        <option key={o.value} value={o.value}>{o.label}</option>
+      {opts.map((o) => (
+        <option key={o.value} value={o.value}>
+          {o.label}
+        </option>
       ))}
     </select>
   );
@@ -177,8 +193,7 @@ function EditStakeholdersDialog({
       qc.invalidateQueries({ queryKey: QK.activityLog() });
       onClose();
     },
-    onError: () =>
-      setError(t('detail.stakeholders.editDialog.saveFailed')),
+    onError: () => setError(t('detail.stakeholders.editDialog.saveFailed')),
   });
 
   function updateRole(
@@ -250,7 +265,9 @@ function EditStakeholdersDialog({
                   onChange={(e) => selectUser(index, e.target.value)}
                   className="w-full rounded-md border border-border bg-card px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="">{t('detail.stakeholders.editDialog.selectUser')}</option>
+                  <option value="">
+                    {t('detail.stakeholders.editDialog.selectUser')}
+                  </option>
                   {usersData.map((u) => (
                     <option key={u.id} value={u.id}>
                       {u.name ?? u.email}
@@ -308,7 +325,9 @@ function EditStakeholdersDialog({
               mutation.isPending || draft.some((s) => !s.name || !s.team)
             }
           >
-            {mutation.isPending ? t('detail.stakeholders.editDialog.saving') : t('detail.stakeholders.editDialog.saveChanges')}
+            {mutation.isPending
+              ? t('detail.stakeholders.editDialog.saving')
+              : t('detail.stakeholders.editDialog.saveChanges')}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -347,7 +366,9 @@ export function RiskDetailPage() {
   const qc = useQueryClient();
   const [stakeholderDialogOpen, setStakeholderDialogOpen] = useState(false);
   const [selectedTestId, setSelectedTestId] = useState<string | null>(null);
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>(
+    'idle',
+  );
 
   const { data, isLoading } = useQuery({
     queryKey: QK.riskDetail(riskId),
@@ -418,7 +439,8 @@ export function RiskDetailPage() {
   const [showFrameworkPicker, setShowFrameworkPicker] = useState(false);
 
   const linkControlMut = useMutation({
-    mutationFn: (controlId: string) => riskLibraryService.linkControl(riskId, controlId),
+    mutationFn: (controlId: string) =>
+      riskLibraryService.linkControl(riskId, controlId),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: QK.riskMappings(riskId) });
       setShowControlPicker(false);
@@ -426,12 +448,15 @@ export function RiskDetailPage() {
   });
 
   const unlinkControlMut = useMutation({
-    mutationFn: (controlId: string) => riskLibraryService.unlinkControl(riskId, controlId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: QK.riskMappings(riskId) }),
+    mutationFn: (controlId: string) =>
+      riskLibraryService.unlinkControl(riskId, controlId),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: QK.riskMappings(riskId) }),
   });
 
   const linkFrameworkMut = useMutation({
-    mutationFn: (frameworkId: string) => riskLibraryService.linkFramework(riskId, frameworkId),
+    mutationFn: (frameworkId: string) =>
+      riskLibraryService.linkFramework(riskId, frameworkId),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: QK.riskMappings(riskId) });
       setShowFrameworkPicker(false);
@@ -439,8 +464,10 @@ export function RiskDetailPage() {
   });
 
   const unlinkFrameworkMut = useMutation({
-    mutationFn: (frameworkId: string) => riskLibraryService.unlinkFramework(riskId, frameworkId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: QK.riskMappings(riskId) }),
+    mutationFn: (frameworkId: string) =>
+      riskLibraryService.unlinkFramework(riskId, frameworkId),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: QK.riskMappings(riskId) }),
   });
 
   // R3a — Risk ↔ Policy treatment linkage
@@ -464,36 +491,52 @@ export function RiskDetailPage() {
   const [showPolicyPicker, setShowPolicyPicker] = useState(false);
 
   const linkPolicyMut = useMutation({
-    mutationFn: (policyId: string) => riskLibraryService.linkTreatmentPolicy(riskId, policyId),
+    mutationFn: (policyId: string) =>
+      riskLibraryService.linkTreatmentPolicy(riskId, policyId),
     onSuccess: (response) => {
       const policy = response.data?.policy;
       toast.success(`${policy?.name ?? 'Policy'} linked as a treatment`);
       qc.invalidateQueries({ queryKey: QK.riskTreatmentPolicies(riskId) });
       if (response.data?.policyId) {
-        qc.invalidateQueries({ queryKey: QK.policyTreatmentRisks(response.data.policyId) });
+        qc.invalidateQueries({
+          queryKey: QK.policyTreatmentRisks(response.data.policyId),
+        });
       }
       setShowPolicyPicker(false);
     },
-    onError: (error) => toast.error(errorMessage(error, 'Failed to link treatment policy')),
+    onError: (error) =>
+      toast.error(errorMessage(error, 'Failed to link treatment policy')),
   });
 
   const unlinkPolicyMut = useMutation({
-    mutationFn: (policyId: string) => riskLibraryService.unlinkTreatmentPolicy(riskId, policyId),
+    mutationFn: (policyId: string) =>
+      riskLibraryService.unlinkTreatmentPolicy(riskId, policyId),
     onSuccess: (_, policyId) => {
-      const removed = treatmentPolicies.find((link) => link.policyId === policyId);
-      toast.success(`${removed?.policy.name ?? 'Policy'} removed from treatments`);
+      const removed = treatmentPolicies.find(
+        (link) => link.policyId === policyId,
+      );
+      toast.success(
+        `${removed?.policy.name ?? 'Policy'} removed from treatments`,
+      );
       qc.invalidateQueries({ queryKey: QK.riskTreatmentPolicies(riskId) });
       qc.invalidateQueries({ queryKey: QK.policyTreatmentRisks(policyId) });
     },
-    onError: (error) => toast.error(errorMessage(error, 'Failed to remove treatment policy')),
+    onError: (error) =>
+      toast.error(errorMessage(error, 'Failed to remove treatment policy')),
   });
 
   const linkedPolicyIds = new Set(treatmentPolicies.map((p) => p.policyId));
-  const availablePolicies = (allPolicies ?? []).filter((p) => !linkedPolicyIds.has(p.id));
+  const availablePolicies = (allPolicies ?? []).filter(
+    (p) => !linkedPolicyIds.has(p.id),
+  );
 
   // Compute which controls/frameworks are already linked (to exclude from pickers)
-  const linkedControlIds = new Set(mappingsData?.controls?.map(c => c.controlId) ?? []);
-  const linkedFrameworkIds = new Set(mappingsData?.frameworks?.map(f => f.frameworkId) ?? []);
+  const linkedControlIds = new Set(
+    mappingsData?.controls?.map((c) => c.controlId) ?? [],
+  );
+  const linkedFrameworkIds = new Set(
+    mappingsData?.frameworks?.map((f) => f.frameworkId) ?? [],
+  );
 
   // ── Draft state for editable fields ──
   const reg = data?.registerEntry;
@@ -534,6 +577,8 @@ export function RiskDetailPage() {
       riskLibraryService.updateRegisterEntry(riskId, payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: QK.riskDetail(riskId) });
+      // AI-risk toggle feeds the AI Trust dashboard openAiRisks card.
+      qc.invalidateQueries({ queryKey: ['ai-trust', 'dashboard'] });
       setSaveStatus('saved');
       setTimeout(() => setSaveStatus('idle'), 2000);
     },
@@ -545,8 +590,14 @@ export function RiskDetailPage() {
   }
 
   // Computed scores
-  const inherentScore = calcScore(draft.inherentImpact || 'MEDIUM', draft.inherentLikelihood || 'MEDIUM');
-  const residualScore = calcScore(draft.residualImpact || 'MEDIUM', draft.residualLikelihood || 'MEDIUM');
+  const inherentScore = calcScore(
+    draft.inherentImpact || 'MEDIUM',
+    draft.inherentLikelihood || 'MEDIUM',
+  );
+  const residualScore = calcScore(
+    draft.residualImpact || 'MEDIUM',
+    draft.residualLikelihood || 'MEDIUM',
+  );
 
   return (
     <PageTemplate
@@ -556,7 +607,8 @@ export function RiskDetailPage() {
         <div className="flex items-center gap-3">
           {saveStatus === 'saving' && (
             <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
-              <Loader2 className="h-3.5 w-3.5 animate-spin" /> {t('detail.saving')}
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />{' '}
+              {t('detail.saving')}
             </span>
           )}
           {saveStatus === 'saved' && (
@@ -602,7 +654,9 @@ export function RiskDetailPage() {
                 {/* Editable description */}
                 <textarea
                   value={draft.description}
-                  onChange={e => setDraft(d => ({ ...d, description: e.target.value }))}
+                  onChange={(e) =>
+                    setDraft((d) => ({ ...d, description: e.target.value }))
+                  }
                   onBlur={() => {
                     if (draft.description !== (reg?.description ?? '')) {
                       saveField({ description: draft.description });
@@ -612,23 +666,39 @@ export function RiskDetailPage() {
                   className="mt-2 w-full resize-none rounded-md border border-transparent bg-transparent px-0 py-1 text-sm leading-6 text-muted-foreground hover:border-border focus:border-border focus:outline-none focus:ring-1 focus:ring-blue-500"
                   placeholder={t('detail.descriptionPlaceholder')}
                 />
+                {/* AI TrustOps: tag as an AI-related risk */}
+                <label className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+                  <Switch
+                    checked={reg?.isAiRisk ?? false}
+                    onCheckedChange={(v) => saveField({ isAiRisk: v })}
+                  />
+                  AI-related risk
+                </label>
               </div>
 
               {/* Score cards */}
               <div className="grid min-w-[220px] gap-3 sm:grid-cols-2">
-                <div className={`rounded-xl border p-4 ${scoreBgColor(inherentScore)}`}>
+                <div
+                  className={`rounded-xl border p-4 ${scoreBgColor(inherentScore)}`}
+                >
                   <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                     {t('detail.inherent')}
                   </p>
-                  <p className={`mt-1 text-3xl font-bold ${scoreColor(inherentScore)}`}>
+                  <p
+                    className={`mt-1 text-3xl font-bold ${scoreColor(inherentScore)}`}
+                  >
                     {inherentScore}
                   </p>
                 </div>
-                <div className={`rounded-xl border p-4 ${scoreBgColor(residualScore)}`}>
+                <div
+                  className={`rounded-xl border p-4 ${scoreBgColor(residualScore)}`}
+                >
                   <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                     {t('detail.residual')}
                   </p>
-                  <p className={`mt-1 text-3xl font-bold ${scoreColor(residualScore)}`}>
+                  <p
+                    className={`mt-1 text-3xl font-bold ${scoreColor(residualScore)}`}
+                  >
                     {residualScore}
                   </p>
                 </div>
@@ -643,83 +713,145 @@ export function RiskDetailPage() {
               <Card className="p-6">
                 <div className="flex items-center gap-2 text-foreground">
                   <Target className="h-4 w-4" />
-                  <h3 className="text-base font-semibold">{t('detail.assessment.title')}</h3>
+                  <h3 className="text-base font-semibold">
+                    {t('detail.assessment.title')}
+                  </h3>
                 </div>
 
                 <div className="mt-5 grid gap-6 sm:grid-cols-2">
                   {/* Inherent Risk */}
                   <div className="space-y-3">
-                    <p className="text-sm font-medium text-foreground">{t('detail.assessment.inherentRisk')}</p>
+                    <p className="text-sm font-medium text-foreground">
+                      {t('detail.assessment.inherentRisk')}
+                    </p>
                     <p className="text-xs text-muted-foreground">
                       {t('detail.assessment.inherentDesc')}
                     </p>
                     <div className="space-y-2">
                       <div>
-                        <label className="mb-1 block text-xs text-muted-foreground">{t('detail.assessment.impact')}</label>
+                        <label className="mb-1 block text-xs text-muted-foreground">
+                          {t('detail.assessment.impact')}
+                        </label>
                         <InlineSelect
                           value={draft.inherentImpact}
-                          options={IMPACT_LEVELS.map(v => ({ value: v, label: t(`impact.${v}`) }))}
-                          onChange={val => {
-                            setDraft(d => ({ ...d, inherentImpact: val }));
-                            saveField({ inherentImpact: val, inherentLikelihood: draft.inherentLikelihood || undefined });
+                          options={IMPACT_LEVELS.map((v) => ({
+                            value: v,
+                            label: t(`impact.${v}`),
+                          }))}
+                          onChange={(val) => {
+                            setDraft((d) => ({ ...d, inherentImpact: val }));
+                            saveField({
+                              inherentImpact: val,
+                              inherentLikelihood:
+                                draft.inherentLikelihood || undefined,
+                            });
                           }}
                           className="w-full"
                         />
                       </div>
                       <div>
-                        <label className="mb-1 block text-xs text-muted-foreground">{t('detail.assessment.likelihood')}</label>
+                        <label className="mb-1 block text-xs text-muted-foreground">
+                          {t('detail.assessment.likelihood')}
+                        </label>
                         <InlineSelect
                           value={draft.inherentLikelihood}
-                          options={LIKELIHOOD_LEVELS.map(v => ({ value: v, label: t(`impact.${v}`) }))}
-                          onChange={val => {
-                            setDraft(d => ({ ...d, inherentLikelihood: val }));
-                            saveField({ inherentLikelihood: val, inherentImpact: draft.inherentImpact || undefined });
+                          options={LIKELIHOOD_LEVELS.map((v) => ({
+                            value: v,
+                            label: t(`impact.${v}`),
+                          }))}
+                          onChange={(val) => {
+                            setDraft((d) => ({
+                              ...d,
+                              inherentLikelihood: val,
+                            }));
+                            saveField({
+                              inherentLikelihood: val,
+                              inherentImpact: draft.inherentImpact || undefined,
+                            });
                           }}
                           className="w-full"
                         />
                       </div>
                     </div>
-                    <div className={`rounded-lg border px-3 py-2 text-center ${scoreBgColor(inherentScore)}`}>
-                      <span className="text-xs text-muted-foreground">{t('detail.assessment.score')} </span>
-                      <span className={`text-lg font-bold ${scoreColor(inherentScore)}`}>{inherentScore}</span>
+                    <div
+                      className={`rounded-lg border px-3 py-2 text-center ${scoreBgColor(inherentScore)}`}
+                    >
+                      <span className="text-xs text-muted-foreground">
+                        {t('detail.assessment.score')}{' '}
+                      </span>
+                      <span
+                        className={`text-lg font-bold ${scoreColor(inherentScore)}`}
+                      >
+                        {inherentScore}
+                      </span>
                     </div>
                   </div>
 
                   {/* Residual Risk */}
                   <div className="space-y-3">
-                    <p className="text-sm font-medium text-foreground">{t('detail.assessment.residualRisk')}</p>
+                    <p className="text-sm font-medium text-foreground">
+                      {t('detail.assessment.residualRisk')}
+                    </p>
                     <p className="text-xs text-muted-foreground">
                       {t('detail.assessment.residualDesc')}
                     </p>
                     <div className="space-y-2">
                       <div>
-                        <label className="mb-1 block text-xs text-muted-foreground">{t('detail.assessment.impact')}</label>
+                        <label className="mb-1 block text-xs text-muted-foreground">
+                          {t('detail.assessment.impact')}
+                        </label>
                         <InlineSelect
                           value={draft.residualImpact}
-                          options={IMPACT_LEVELS.map(v => ({ value: v, label: t(`impact.${v}`) }))}
-                          onChange={val => {
-                            setDraft(d => ({ ...d, residualImpact: val }));
-                            saveField({ residualImpact: val, residualLikelihood: draft.residualLikelihood || undefined });
+                          options={IMPACT_LEVELS.map((v) => ({
+                            value: v,
+                            label: t(`impact.${v}`),
+                          }))}
+                          onChange={(val) => {
+                            setDraft((d) => ({ ...d, residualImpact: val }));
+                            saveField({
+                              residualImpact: val,
+                              residualLikelihood:
+                                draft.residualLikelihood || undefined,
+                            });
                           }}
                           className="w-full"
                         />
                       </div>
                       <div>
-                        <label className="mb-1 block text-xs text-muted-foreground">{t('detail.assessment.likelihood')}</label>
+                        <label className="mb-1 block text-xs text-muted-foreground">
+                          {t('detail.assessment.likelihood')}
+                        </label>
                         <InlineSelect
                           value={draft.residualLikelihood}
-                          options={LIKELIHOOD_LEVELS.map(v => ({ value: v, label: t(`impact.${v}`) }))}
-                          onChange={val => {
-                            setDraft(d => ({ ...d, residualLikelihood: val }));
-                            saveField({ residualLikelihood: val, residualImpact: draft.residualImpact || undefined });
+                          options={LIKELIHOOD_LEVELS.map((v) => ({
+                            value: v,
+                            label: t(`impact.${v}`),
+                          }))}
+                          onChange={(val) => {
+                            setDraft((d) => ({
+                              ...d,
+                              residualLikelihood: val,
+                            }));
+                            saveField({
+                              residualLikelihood: val,
+                              residualImpact: draft.residualImpact || undefined,
+                            });
                           }}
                           className="w-full"
                         />
                       </div>
                     </div>
-                    <div className={`rounded-lg border px-3 py-2 text-center ${scoreBgColor(residualScore)}`}>
-                      <span className="text-xs text-muted-foreground">{t('detail.assessment.score')} </span>
-                      <span className={`text-lg font-bold ${scoreColor(residualScore)}`}>{residualScore}</span>
+                    <div
+                      className={`rounded-lg border px-3 py-2 text-center ${scoreBgColor(residualScore)}`}
+                    >
+                      <span className="text-xs text-muted-foreground">
+                        {t('detail.assessment.score')}{' '}
+                      </span>
+                      <span
+                        className={`text-lg font-bold ${scoreColor(residualScore)}`}
+                      >
+                        {residualScore}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -729,19 +861,23 @@ export function RiskDetailPage() {
               <Card className="p-6">
                 <div className="flex items-center gap-2 text-foreground">
                   <Shield className="h-4 w-4" />
-                  <h3 className="text-base font-semibold">{t('detail.treatmentPlan.title')}</h3>
+                  <h3 className="text-base font-semibold">
+                    {t('detail.treatmentPlan.title')}
+                  </h3>
                 </div>
 
                 <div className="mt-5 space-y-4">
                   <div>
-                    <label className="mb-1.5 block text-sm font-medium text-foreground">{t('detail.treatmentPlan.strategy')}</label>
+                    <label className="mb-1.5 block text-sm font-medium text-foreground">
+                      {t('detail.treatmentPlan.strategy')}
+                    </label>
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                      {TREATMENT_OPTIONS.filter(o => o.value).map(opt => (
+                      {TREATMENT_OPTIONS.filter((o) => o.value).map((opt) => (
                         <button
                           key={opt.value}
                           type="button"
                           onClick={() => {
-                            setDraft(d => ({ ...d, treatment: opt.value }));
+                            setDraft((d) => ({ ...d, treatment: opt.value }));
                             saveField({ treatment: opt.value });
                           }}
                           className={`rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors ${
@@ -757,12 +893,21 @@ export function RiskDetailPage() {
                   </div>
 
                   <div>
-                    <label className="mb-1.5 block text-sm font-medium text-foreground">{t('detail.treatmentPlan.notes')}</label>
+                    <label className="mb-1.5 block text-sm font-medium text-foreground">
+                      {t('detail.treatmentPlan.notes')}
+                    </label>
                     <textarea
                       value={draft.treatmentNotes}
-                      onChange={e => setDraft(d => ({ ...d, treatmentNotes: e.target.value }))}
+                      onChange={(e) =>
+                        setDraft((d) => ({
+                          ...d,
+                          treatmentNotes: e.target.value,
+                        }))
+                      }
                       onBlur={() => {
-                        if (draft.treatmentNotes !== (reg?.treatmentNotes ?? '')) {
+                        if (
+                          draft.treatmentNotes !== (reg?.treatmentNotes ?? '')
+                        ) {
                           saveField({ treatmentNotes: draft.treatmentNotes });
                         }
                       }}
@@ -806,7 +951,8 @@ export function RiskDetailPage() {
                           <select
                             defaultValue=""
                             onChange={(e) => {
-                              if (e.target.value) linkPolicyMut.mutate(e.target.value);
+                              if (e.target.value)
+                                linkPolicyMut.mutate(e.target.value);
                             }}
                             disabled={linkPolicyMut.isPending}
                             className="w-full rounded-md border border-border bg-card px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -820,7 +966,9 @@ export function RiskDetailPage() {
                           </select>
                         )}
                         {linkPolicyMut.isPending && (
-                          <p className="mt-1.5 text-xs text-muted-foreground">Linking…</p>
+                          <p className="mt-1.5 text-xs text-muted-foreground">
+                            Linking…
+                          </p>
                         )}
                       </div>
                     )}
@@ -837,13 +985,18 @@ export function RiskDetailPage() {
                                 {link.policy.name}
                               </p>
                               <p className="truncate text-xs text-muted-foreground">
-                                v{link.policy.versionNumber} · {link.policy.status}
-                                {link.policy.owner ? ` · ${link.policy.owner.name ?? link.policy.owner.email}` : ''}
+                                v{link.policy.versionNumber} ·{' '}
+                                {link.policy.status}
+                                {link.policy.owner
+                                  ? ` · ${link.policy.owner.name ?? link.policy.owner.email}`
+                                  : ''}
                               </p>
                             </div>
                             <button
                               type="button"
-                              onClick={() => unlinkPolicyMut.mutate(link.policyId)}
+                              onClick={() =>
+                                unlinkPolicyMut.mutate(link.policyId)
+                              }
                               disabled={unlinkPolicyMut.isPending}
                               className="ml-2 shrink-0 rounded p-1 text-muted-foreground hover:bg-red-50 hover:text-red-600"
                               title="Remove policy"
@@ -853,7 +1006,9 @@ export function RiskDetailPage() {
                           </div>
                         ))
                       ) : (
-                        <p className="text-sm text-muted-foreground">No treatment policies linked.</p>
+                        <p className="text-sm text-muted-foreground">
+                          No treatment policies linked.
+                        </p>
                       )}
                     </div>
                   </div>
@@ -879,7 +1034,7 @@ export function RiskDetailPage() {
                         variant="ghost"
                         size="sm"
                         className="h-7 text-xs"
-                        onClick={() => setShowControlPicker(p => !p)}
+                        onClick={() => setShowControlPicker((p) => !p)}
                       >
                         <Plus className="mr-1 h-3 w-3" />
                         {t('detail.mapping.add')}
@@ -890,23 +1045,28 @@ export function RiskDetailPage() {
                       <div className="mt-2 rounded-lg border border-border bg-card p-3">
                         <select
                           defaultValue=""
-                          onChange={e => {
-                            if (e.target.value) linkControlMut.mutate(e.target.value);
+                          onChange={(e) => {
+                            if (e.target.value)
+                              linkControlMut.mutate(e.target.value);
                           }}
                           disabled={linkControlMut.isPending}
                           className="w-full rounded-md border border-border bg-card px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
-                          <option value="">{t('detail.mapping.selectControl')}</option>
+                          <option value="">
+                            {t('detail.mapping.selectControl')}
+                          </option>
                           {allControls
-                            ?.filter(c => !linkedControlIds.has(c.id))
-                            .map(c => (
+                            ?.filter((c) => !linkedControlIds.has(c.id))
+                            .map((c) => (
                               <option key={c.id} value={c.id}>
                                 {c.isoReference} — {c.title}
                               </option>
                             ))}
                         </select>
                         {linkControlMut.isPending && (
-                          <p className="mt-1.5 text-xs text-muted-foreground">{t('detail.mapping.linking')}</p>
+                          <p className="mt-1.5 text-xs text-muted-foreground">
+                            {t('detail.mapping.linking')}
+                          </p>
                         )}
                       </div>
                     )}
@@ -920,7 +1080,8 @@ export function RiskDetailPage() {
                           >
                             <div className="min-w-0">
                               <p className="text-sm font-medium text-foreground">
-                                {ctrl.isoReference ?? t('detail.mapping.control')}
+                                {ctrl.isoReference ??
+                                  t('detail.mapping.control')}
                               </p>
                               <p className="truncate text-xs text-muted-foreground">
                                 {ctrl.controlTitle ?? ctrl.controlId}
@@ -928,7 +1089,9 @@ export function RiskDetailPage() {
                             </div>
                             <button
                               type="button"
-                              onClick={() => unlinkControlMut.mutate(ctrl.controlId)}
+                              onClick={() =>
+                                unlinkControlMut.mutate(ctrl.controlId)
+                              }
                               disabled={unlinkControlMut.isPending}
                               className="ml-2 shrink-0 rounded p-1 text-muted-foreground hover:bg-red-50 hover:text-red-600"
                               title={t('detail.mapping.removeControl')}
@@ -938,7 +1101,9 @@ export function RiskDetailPage() {
                           </div>
                         ))
                       ) : (
-                        <p className="text-sm text-muted-foreground">{t('detail.mapping.noControls')}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {t('detail.mapping.noControls')}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -953,7 +1118,7 @@ export function RiskDetailPage() {
                         variant="ghost"
                         size="sm"
                         className="h-7 text-xs"
-                        onClick={() => setShowFrameworkPicker(p => !p)}
+                        onClick={() => setShowFrameworkPicker((p) => !p)}
                       >
                         <Plus className="mr-1 h-3 w-3" />
                         {t('detail.mapping.add')}
@@ -964,23 +1129,28 @@ export function RiskDetailPage() {
                       <div className="mt-2 rounded-lg border border-border bg-card p-3">
                         <select
                           defaultValue=""
-                          onChange={e => {
-                            if (e.target.value) linkFrameworkMut.mutate(e.target.value);
+                          onChange={(e) => {
+                            if (e.target.value)
+                              linkFrameworkMut.mutate(e.target.value);
                           }}
                           disabled={linkFrameworkMut.isPending}
                           className="w-full rounded-md border border-border bg-card px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
-                          <option value="">{t('detail.mapping.selectFramework')}</option>
+                          <option value="">
+                            {t('detail.mapping.selectFramework')}
+                          </option>
                           {allFrameworks
-                            ?.filter(f => !linkedFrameworkIds.has(f.id))
-                            .map(f => (
+                            ?.filter((f) => !linkedFrameworkIds.has(f.id))
+                            .map((f) => (
                               <option key={f.id} value={f.id}>
                                 {f.name} ({f.version})
                               </option>
                             ))}
                         </select>
                         {linkFrameworkMut.isPending && (
-                          <p className="mt-1.5 text-xs text-muted-foreground">{t('detail.mapping.linking')}</p>
+                          <p className="mt-1.5 text-xs text-muted-foreground">
+                            {t('detail.mapping.linking')}
+                          </p>
                         )}
                       </div>
                     )}
@@ -1002,7 +1172,9 @@ export function RiskDetailPage() {
                             </div>
                             <button
                               type="button"
-                              onClick={() => unlinkFrameworkMut.mutate(fw.frameworkId)}
+                              onClick={() =>
+                                unlinkFrameworkMut.mutate(fw.frameworkId)
+                              }
                               disabled={unlinkFrameworkMut.isPending}
                               className="ml-2 shrink-0 rounded p-1 text-muted-foreground hover:bg-red-50 hover:text-red-600"
                               title={t('detail.mapping.removeFramework')}
@@ -1012,7 +1184,9 @@ export function RiskDetailPage() {
                           </div>
                         ))
                       ) : (
-                        <p className="text-sm text-muted-foreground">{t('detail.mapping.noFrameworks')}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {t('detail.mapping.noFrameworks')}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -1024,16 +1198,23 @@ export function RiskDetailPage() {
             <div className="space-y-6">
               {/* Details card */}
               <Card className="p-5">
-                <h3 className="text-sm font-semibold text-foreground">{t('detail.details.title')}</h3>
+                <h3 className="text-sm font-semibold text-foreground">
+                  {t('detail.details.title')}
+                </h3>
                 <div className="mt-4 space-y-4">
                   {/* Status */}
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-muted-foreground">{t('detail.details.status')}</label>
+                    <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                      {t('detail.details.status')}
+                    </label>
                     <InlineSelect
                       value={draft.status}
-                      options={STATUS_OPTIONS.map(s => ({ value: s, label: t(`status.${s}`) }))}
-                      onChange={val => {
-                        setDraft(d => ({ ...d, status: val }));
+                      options={STATUS_OPTIONS.map((s) => ({
+                        value: s,
+                        label: t(`status.${s}`),
+                      }))}
+                      onChange={(val) => {
+                        setDraft((d) => ({ ...d, status: val }));
                         saveField({ status: val });
                       }}
                       className="w-full"
@@ -1042,18 +1223,20 @@ export function RiskDetailPage() {
 
                   {/* Owner */}
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-muted-foreground">{t('detail.details.owner')}</label>
+                    <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                      {t('detail.details.owner')}
+                    </label>
                     <select
                       value={draft.ownerId ?? ''}
-                      onChange={e => {
+                      onChange={(e) => {
                         const val = e.target.value || null;
-                        setDraft(d => ({ ...d, ownerId: val }));
+                        setDraft((d) => ({ ...d, ownerId: val }));
                         saveField({ ownerId: val });
                       }}
                       className="w-full rounded-md border border-border bg-card px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                       <option value="">{t('detail.details.unassigned')}</option>
-                      {usersData?.map(u => (
+                      {usersData?.map((u) => (
                         <option key={u.id} value={u.id}>
                           {u.name ?? u.email}
                         </option>
@@ -1063,12 +1246,17 @@ export function RiskDetailPage() {
 
                   {/* Review Due Date */}
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-muted-foreground">{t('detail.details.reviewDueDate')}</label>
+                    <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                      {t('detail.details.reviewDueDate')}
+                    </label>
                     <input
                       type="date"
                       value={draft.reviewDueAt}
-                      onChange={e => {
-                        setDraft(d => ({ ...d, reviewDueAt: e.target.value }));
+                      onChange={(e) => {
+                        setDraft((d) => ({
+                          ...d,
+                          reviewDueAt: e.target.value,
+                        }));
                         saveField({ reviewDueAt: e.target.value || null });
                       }}
                       className="w-full rounded-md border border-border bg-card px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -1077,19 +1265,29 @@ export function RiskDetailPage() {
 
                   {/* Category */}
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-muted-foreground">{t('detail.details.category')}</label>
-                    <p className="text-sm text-foreground">{data.risk.category}</p>
+                    <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                      {t('detail.details.category')}
+                    </label>
+                    <p className="text-sm text-foreground">
+                      {data.risk.category}
+                    </p>
                   </div>
 
                   {/* Source */}
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-muted-foreground">{t('detail.details.source')}</label>
-                    <p className="text-sm text-foreground">{data.risk.source}</p>
+                    <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                      {t('detail.details.source')}
+                    </label>
+                    <p className="text-sm text-foreground">
+                      {data.risk.source}
+                    </p>
                   </div>
 
                   {/* Created */}
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-muted-foreground">{t('detail.details.created')}</label>
+                    <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                      {t('detail.details.created')}
+                    </label>
                     <p className="text-sm text-foreground">
                       {new Date(data.risk.createdAt).toLocaleDateString()}
                     </p>
@@ -1100,7 +1298,9 @@ export function RiskDetailPage() {
               {/* Stakeholders card */}
               <Card className="p-5">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold text-foreground">{t('detail.stakeholders.title')}</h3>
+                  <h3 className="text-sm font-semibold text-foreground">
+                    {t('detail.stakeholders.title')}
+                  </h3>
                   {isAdmin && (
                     <Button
                       variant="ghost"
@@ -1116,7 +1316,10 @@ export function RiskDetailPage() {
                 <div className="mt-3 space-y-3">
                   {data.stakeholders.length > 0 ? (
                     data.stakeholders.map((person) => (
-                      <div key={person.role} className="rounded-lg bg-muted px-3 py-2.5">
+                      <div
+                        key={person.role}
+                        className="rounded-lg bg-muted px-3 py-2.5"
+                      >
                         <p className="text-xs uppercase tracking-wide text-muted-foreground">
                           {person.role}
                         </p>
@@ -1124,12 +1327,16 @@ export function RiskDetailPage() {
                           {person.name}
                         </p>
                         {person.team && (
-                          <p className="text-xs text-muted-foreground">{person.team}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {person.team}
+                          </p>
                         )}
                       </div>
                     ))
                   ) : (
-                    <p className="text-sm text-muted-foreground">{t('detail.stakeholders.noStakeholders')}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {t('detail.stakeholders.noStakeholders')}
+                    </p>
                   )}
                 </div>
               </Card>
@@ -1140,11 +1347,18 @@ export function RiskDetailPage() {
           <Tabs defaultValue="findings" className="gap-4">
             <TabsList>
               <TabsTrigger value="findings">
-                {t('detail.tabs.findings')}{findingsData?.meta ? ` (${findingsData.meta.open})` : ''}
+                {t('detail.tabs.findings')}
+                {findingsData?.meta ? ` (${findingsData.meta.open})` : ''}
               </TabsTrigger>
-              <TabsTrigger value="evidence">{t('detail.tabs.evidence')}</TabsTrigger>
-              <TabsTrigger value="activity">{t('detail.tabs.activity')}</TabsTrigger>
-              <TabsTrigger value="remediation">{t('detail.tabs.remediation')}</TabsTrigger>
+              <TabsTrigger value="evidence">
+                {t('detail.tabs.evidence')}
+              </TabsTrigger>
+              <TabsTrigger value="activity">
+                {t('detail.tabs.activity')}
+              </TabsTrigger>
+              <TabsTrigger value="remediation">
+                {t('detail.tabs.remediation')}
+              </TabsTrigger>
             </TabsList>
 
             {/* ── Findings tab ─────────────────────────────────────────── */}
@@ -1157,7 +1371,10 @@ export function RiskDetailPage() {
                   </h3>
                   {findingsData?.meta && (
                     <Badge variant="outline">
-                      {t('detail.findings.openTotal', { open: findingsData.meta.open, total: findingsData.meta.total })}
+                      {t('detail.findings.openTotal', {
+                        open: findingsData.meta.open,
+                        total: findingsData.meta.total,
+                      })}
                     </Badge>
                   )}
                 </div>
@@ -1196,13 +1413,23 @@ export function RiskDetailPage() {
                       </div>
                       <div className="mt-2 flex gap-4 text-xs text-muted-foreground">
                         <span>
-                          {t('detail.findings.firstSeen', { date: new Date(finding.firstSeenAt).toLocaleDateString() })}
+                          {t('detail.findings.firstSeen', {
+                            date: new Date(
+                              finding.firstSeenAt,
+                            ).toLocaleDateString(),
+                          })}
                         </span>
                         <span>
-                          {t('detail.findings.lastSeen', { date: new Date(finding.lastSeenAt).toLocaleDateString() })}
+                          {t('detail.findings.lastSeen', {
+                            date: new Date(
+                              finding.lastSeenAt,
+                            ).toLocaleDateString(),
+                          })}
                         </span>
                         <span>
-                          {t('detail.findings.source', { source: finding.sourceType?.replace(/_/g, ' ') })}
+                          {t('detail.findings.source', {
+                            source: finding.sourceType?.replace(/_/g, ' '),
+                          })}
                         </span>
                       </div>
                     </div>
@@ -1216,11 +1443,15 @@ export function RiskDetailPage() {
               <Card className="p-6">
                 <div className="flex items-center gap-2 text-foreground">
                   <FileText className="h-4 w-4" />
-                  <h3 className="text-base font-semibold">{t('detail.evidence.title')}</h3>
+                  <h3 className="text-base font-semibold">
+                    {t('detail.evidence.title')}
+                  </h3>
                 </div>
                 <div className="mt-5 space-y-4">
                   {data.evidence.length === 0 && (
-                    <p className="text-sm text-muted-foreground">{t('detail.evidence.noEvidence')}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {t('detail.evidence.noEvidence')}
+                    </p>
                   )}
                   {data.evidence.map((item) => (
                     <div
@@ -1240,7 +1471,9 @@ export function RiskDetailPage() {
                       </div>
                       <div className="mt-3 flex flex-wrap gap-5 text-xs text-muted-foreground">
                         <span>
-                          {t('detail.evidence.captured', { date: new Date(item.capturedAt).toLocaleString() })}
+                          {t('detail.evidence.captured', {
+                            date: new Date(item.capturedAt).toLocaleString(),
+                          })}
                         </span>
                         <span>{item.hash}</span>
                       </div>
@@ -1255,11 +1488,15 @@ export function RiskDetailPage() {
               <Card className="p-6">
                 <div className="flex items-center gap-2 text-foreground">
                   <Clock3 className="h-4 w-4" />
-                  <h3 className="text-base font-semibold">{t('detail.activity.title')}</h3>
+                  <h3 className="text-base font-semibold">
+                    {t('detail.activity.title')}
+                  </h3>
                 </div>
                 <div className="mt-5 space-y-4">
                   {data.activities.length === 0 && (
-                    <p className="text-sm text-muted-foreground">{t('detail.activity.noActivity')}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {t('detail.activity.noActivity')}
+                    </p>
                   )}
                   {data.activities.map((item) => (
                     <div
@@ -1313,7 +1550,9 @@ export function RiskDetailPage() {
                   <Card className="p-6">
                     <div className="flex items-center gap-2 text-foreground">
                       <Link2 className="h-4 w-4" />
-                      <h3 className="text-base font-semibold">{t('detail.remediation.generatedFrom')}</h3>
+                      <h3 className="text-base font-semibold">
+                        {t('detail.remediation.generatedFrom')}
+                      </h3>
                     </div>
                     <p className="mt-1 text-sm text-muted-foreground">
                       {t('detail.remediation.generatedDesc')}
@@ -1398,13 +1637,17 @@ export function RiskDetailPage() {
                                 {step.linkedTestId && (
                                   <span className="flex items-center gap-1">
                                     <ShieldCheck className="h-3 w-3" />
-                                    {t('detail.remediation.testLink', { id: step.linkedTestId })}
+                                    {t('detail.remediation.testLink', {
+                                      id: step.linkedTestId,
+                                    })}
                                   </span>
                                 )}
                                 {step.linkedControlName && (
                                   <span className="flex items-center gap-1">
                                     <ShieldCheck className="h-3 w-3" />
-                                    {t('detail.remediation.controlLink', { name: step.linkedControlName })}
+                                    {t('detail.remediation.controlLink', {
+                                      name: step.linkedControlName,
+                                    })}
                                   </span>
                                 )}
                               </div>
@@ -1428,13 +1671,17 @@ export function RiskDetailPage() {
 
                             {step.recommendedFix && (
                               <p className="text-xs text-muted-foreground">
-                                {t('detail.remediation.recommended', { fix: step.recommendedFix })}
+                                {t('detail.remediation.recommended', {
+                                  fix: step.recommendedFix,
+                                })}
                               </p>
                             )}
 
                             {step.evidenceSummary && (
                               <div className="rounded-lg bg-muted px-3 py-2 text-xs text-muted-foreground">
-                                <span className="font-medium">{t('detail.remediation.evidenceLabel')}</span>{' '}
+                                <span className="font-medium">
+                                  {t('detail.remediation.evidenceLabel')}
+                                </span>{' '}
                                 {step.evidenceSummary}
                               </div>
                             )}
