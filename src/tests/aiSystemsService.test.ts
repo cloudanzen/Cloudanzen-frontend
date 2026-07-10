@@ -14,6 +14,7 @@ import { aiSystemsService } from '@/services/api/aiSystems';
 import { aiTrustService } from '@/services/api/aiTrust';
 import { aiRuntimeService } from '@/services/api/aiRuntime';
 import { aiAgentTrailsService } from '@/services/api/aiAgentTrails';
+import { aiRagService } from '@/services/api/aiRag';
 
 const get = apiClient.get as unknown as ReturnType<typeof vi.fn>;
 const post = apiClient.post as unknown as ReturnType<typeof vi.fn>;
@@ -214,5 +215,37 @@ describe('aiAgentTrailsService', () => {
     expect(del).toHaveBeenCalledWith('/api/ai/agent-trails/traces/t1');
     await aiAgentTrailsService.removeStep('st1');
     expect(del).toHaveBeenCalledWith('/api/ai/agent-trails/steps/st1');
+  });
+});
+
+describe('aiRagService', () => {
+  it('source + finding endpoints hit the right paths', async () => {
+    get.mockResolvedValue({ success: true, data: [] });
+    await aiRagService.listSources();
+    expect(get).toHaveBeenCalledWith('/api/ai/rag/sources');
+    await aiRagService.listFindings();
+    expect(get).toHaveBeenCalledWith('/api/ai/rag/findings');
+
+    post.mockResolvedValue({ success: true, data: { id: 's1' } });
+    await aiRagService.createSource({ name: 'docs' });
+    expect(post).toHaveBeenCalledWith('/api/ai/rag/sources', { name: 'docs' });
+    await aiRagService.createFinding({ title: 'pii' });
+    expect(post).toHaveBeenCalledWith('/api/ai/rag/findings', { title: 'pii' });
+
+    patch.mockResolvedValue({ success: true, data: { id: 's1' } });
+    await aiRagService.updateSource('s1', { piiScanStatus: 'CLEAN' });
+    expect(patch).toHaveBeenCalledWith('/api/ai/rag/sources/s1', {
+      piiScanStatus: 'CLEAN',
+    });
+
+    post.mockResolvedValue(undefined);
+    await aiRagService.resolveFinding('f1');
+    expect(post).toHaveBeenCalledWith('/api/ai/rag/findings/f1/resolve', {});
+
+    del.mockResolvedValue(undefined);
+    await aiRagService.removeSource('s1');
+    expect(del).toHaveBeenCalledWith('/api/ai/rag/sources/s1');
+    await aiRagService.removeFinding('f1');
+    expect(del).toHaveBeenCalledWith('/api/ai/rag/findings/f1');
   });
 });
