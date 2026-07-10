@@ -1,3 +1,12 @@
+/**
+ * client.ts — the single backend HTTP client.
+ *
+ * `apiClient` is the ONLY way the app talks to the backend — never raw fetch().
+ * It resolves the base URL from VITE_API_URL, attaches the JWT (+ impersonation
+ * session), unwraps the `{ success, data }` envelope, and normalizes failures
+ * into `ApiError`. Domain service files (services/api/*.ts) call these methods
+ * and return `res.data`. See AI_CONTEXT.md §4.
+ */
 import {
   clearAuthSession,
   getAuthToken,

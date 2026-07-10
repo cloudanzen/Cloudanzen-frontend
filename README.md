@@ -6,6 +6,18 @@ React/Vite web application for CloudAnzen, an AI-assisted governance, risk, comp
 - Backend API: `https://api.cloudanzen.com`
 - Backend repo: `https://github.com/vinmnit159/isms-backend`
 
+## Documentation
+
+New here? Read in this order:
+
+| Doc                                                              | What it covers                                               |
+| ---------------------------------------------------------------- | ------------------------------------------------------------ |
+| [AI_CONTEXT.md](AI_CONTEXT.md)                                   | **Start here** — conventions, patterns, constraints, gotchas |
+| [ARCHITECTURE.md](ARCHITECTURE.md)                               | Boundary, component/request/data-flow + sequence diagrams    |
+| [docs/REPOSITORY_WALKTHROUGH.md](docs/REPOSITORY_WALKTHROUGH.md) | Directory tour + dependency graph                            |
+| [docs/DEVELOPER_SETUP.md](docs/DEVELOPER_SETUP.md)               | Prerequisites, install, run, test, debug, build              |
+| [CLAUDE.md](CLAUDE.md)                                           | Repo rules                                                   |
+
 ## What Runs Here
 
 This repo builds a browser-only SPA. It talks to the backend API for auth, data, AI workflows, integrations, and file operations.
