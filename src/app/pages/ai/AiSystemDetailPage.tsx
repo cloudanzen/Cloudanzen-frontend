@@ -40,16 +40,8 @@ import {
   type AiRiskTier,
   type AiUseCaseStatus,
 } from '@/services/api/aiSystems';
-
-const RISK_TIER_COLORS: Record<AiRiskTier, string> = {
-  MINIMAL: 'bg-gray-50 text-gray-600 border-gray-200',
-  LIMITED: 'bg-blue-50 text-blue-700 border-blue-200',
-  HIGH: 'bg-amber-50 text-amber-700 border-amber-200',
-  UNACCEPTABLE: 'bg-rose-50 text-rose-700 border-rose-200',
-};
-
-const titleCase = (s: string) =>
-  s.charAt(0) + s.slice(1).toLowerCase().replace(/_/g, ' ');
+import { titleCase } from '@/lib/format';
+import { RISK_TIER_COLORS } from '@/lib/statusColors';
 
 function Attr({ label, value }: { label: string; value: string }) {
   return (

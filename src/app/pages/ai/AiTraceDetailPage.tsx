@@ -42,9 +42,7 @@ import {
   type AiTraceStepType,
   type AiStepOutcome,
 } from '@/services/api/aiAgentTrails';
-
-const titleCase = (s: string) =>
-  s.charAt(0) + s.slice(1).toLowerCase().replace(/_/g, ' ');
+import { titleCase } from '@/lib/format';
 
 const OUTCOME_COLORS: Record<AiStepOutcome, string> = {
   NA: 'bg-gray-50 text-gray-600 border-gray-200',
