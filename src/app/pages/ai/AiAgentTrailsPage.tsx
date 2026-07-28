@@ -38,9 +38,7 @@ import {
   type AiAgentTrace,
   type AiTraceStatus,
 } from '@/services/api/aiAgentTrails';
-
-const titleCase = (s: string) =>
-  s.charAt(0) + s.slice(1).toLowerCase().replace(/_/g, ' ');
+import { titleCase } from '@/lib/format';
 
 const STATUS_COLORS: Record<AiTraceStatus, string> = {
   OPEN: 'bg-blue-50 text-blue-700 border-blue-200',

@@ -59,21 +59,13 @@ import {
   ThresholdsSection,
   ModelEventsSection,
 } from './AiRuntimeConfigSections';
-
-const titleCase = (s: string) =>
-  s.charAt(0) + s.slice(1).toLowerCase().replace(/_/g, ' ');
+import { titleCase } from '@/lib/format';
+import { SEVERITY_COLORS } from '@/lib/statusColors';
 
 const EVAL_STATUS_COLORS: Record<AiEvalStatus, string> = {
   PASSED: 'bg-emerald-50 text-emerald-700 border-emerald-200',
   WARN: 'bg-amber-50 text-amber-700 border-amber-200',
   FAILED: 'bg-rose-50 text-rose-700 border-rose-200',
-};
-
-const SEVERITY_COLORS: Record<AiFindingSeverity, string> = {
-  LOW: 'bg-gray-50 text-gray-600 border-gray-200',
-  MEDIUM: 'bg-blue-50 text-blue-700 border-blue-200',
-  HIGH: 'bg-amber-50 text-amber-700 border-amber-200',
-  CRITICAL: 'bg-rose-50 text-rose-700 border-rose-200',
 };
 
 function EvalRunDialog({
