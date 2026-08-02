@@ -59,28 +59,35 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'text-summary', 'json-summary', 'html', 'lcov'],
+      // Whole logic layer, not a per-file allowlist. Page components are
+      // excluded: 269 files / ~90k lines of largely untested UI would swamp
+      // the denominator and make the ratchet unmovable. Covering those needs
+      // component tests, which is a separate effort.
       include: [
-        'src/app/features/security-quest/lib/**',
-        'src/lib/rbac/**',
-        'src/lib/queryKeys.ts',
-        'src/hooks/useCurrentUser.ts',
-        'src/app/components/rbac/**',
-        'src/app/features/notifications/notificationHelpers.ts',
-        'src/server/frameworks/coverageEngine.ts',
-        'src/server/middleware/**',
-        'src/server/tests/**',
-        'src/server/integrations/**',
-        'src/services/api/**',
+        'src/lib/**',
+        'src/hooks/**',
+        'src/services/**',
+        'src/app/features/**',
+        'src/app/components/**',
       ],
       // Ratchet — raise these as coverage lands, never lower them.
-      // 2026-08-02: 17/14/20/17 -> 24/18/30/25 after the service
-      // query-param tests. Actuals at the time: 25.71 stmts, 31.35 branches,
-      // 18.6 funcs, 25.09 lines.
+      //
+      // The numbers dropped on 2026-08-02 when `include` was widened from a
+      // 9-path allowlist to the whole logic layer. That is a re-baseline
+      // against a ~2x larger denominator (1933 -> 3722 statements), NOT a
+      // relaxation: the previous gate could not see new code added outside
+      // its allowlist, and this one can.
+      //
+      // History (statements/branches/functions/lines):
+      //   17/20/14/17  original, narrow allowlist
+      //   25/30/18/24  after the service query-param tests, same allowlist
+      //   16/14/12/16  same tests, widened include — actuals 16.79/14.62/
+      //                13.09/16.54
       thresholds: {
-        lines: 24,
-        functions: 18,
-        branches: 30,
-        statements: 25,
+        lines: 16,
+        functions: 12,
+        branches: 14,
+        statements: 16,
       },
     },
   },
