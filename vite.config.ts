@@ -72,11 +72,15 @@ export default defineConfig({
         'src/server/integrations/**',
         'src/services/api/**',
       ],
+      // Ratchet — raise these as coverage lands, never lower them.
+      // 2026-08-02: 17/14/20/17 -> 24/18/30/25 after the service
+      // query-param tests. Actuals at the time: 25.71 stmts, 31.35 branches,
+      // 18.6 funcs, 25.09 lines.
       thresholds: {
-        lines: 17,
-        functions: 14,
-        branches: 20,
-        statements: 17,
+        lines: 24,
+        functions: 18,
+        branches: 30,
+        statements: 25,
       },
     },
   },
