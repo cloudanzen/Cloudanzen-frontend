@@ -1,0 +1,265 @@
+{
+  "$comment": "Cross-repo parity contract for the course-scoring engine. An identical copy lives in the backend at tests/fixtures/course-scoring-golden.json. Both repos run their own implementation against this file, so a change to either scoring implementation that is not mirrored in the other fails CI on the side that drifted. Add cases here first, then make both sides pass. Pure JSON on purpose: no imports, no repo-specific types.",
+  "version": 1,
+  "cases": [
+    {
+      "name": "single_choice — correct option",
+      "answerKeys": [
+        { "questionId": "q1", "kind": "single_choice", "correctIds": ["a"] }
+      ],
+      "answers": { "q1": ["a"] },
+      "expectedPerQuestion": { "q1": 1 },
+      "expectedCoursePct": 100
+    },
+    {
+      "name": "single_choice — wrong option",
+      "answerKeys": [
+        { "questionId": "q1", "kind": "single_choice", "correctIds": ["a"] }
+      ],
+      "answers": { "q1": ["b"] },
+      "expectedPerQuestion": { "q1": 0 },
+      "expectedCoursePct": 0
+    },
+    {
+      "name": "single_choice — selecting everything does not pass",
+      "answerKeys": [
+        { "questionId": "q1", "kind": "single_choice", "correctIds": ["a"] }
+      ],
+      "answers": { "q1": ["a", "b"] },
+      "expectedPerQuestion": { "q1": 0 },
+      "expectedCoursePct": 0
+    },
+    {
+      "name": "unanswered question scores zero",
+      "answerKeys": [
+        { "questionId": "q1", "kind": "single_choice", "correctIds": ["a"] }
+      ],
+      "answers": {},
+      "expectedPerQuestion": { "q1": 0 },
+      "expectedCoursePct": 0
+    },
+    {
+      "name": "empty answer array scores zero",
+      "answerKeys": [
+        { "questionId": "q1", "kind": "single_choice", "correctIds": ["a"] }
+      ],
+      "answers": { "q1": [] },
+      "expectedPerQuestion": { "q1": 0 },
+      "expectedCoursePct": 0
+    },
+    {
+      "name": "multi_choice — exact set match, order irrelevant",
+      "answerKeys": [
+        { "questionId": "q1", "kind": "multi_choice", "correctIds": ["a", "b"] }
+      ],
+      "answers": { "q1": ["b", "a"] },
+      "expectedPerQuestion": { "q1": 1 },
+      "expectedCoursePct": 100
+    },
+    {
+      "name": "multi_choice — subset earns no partial credit",
+      "answerKeys": [
+        {
+          "questionId": "q1",
+          "kind": "multi_choice",
+          "correctIds": ["a", "b", "c"]
+        }
+      ],
+      "answers": { "q1": ["a", "b"] },
+      "expectedPerQuestion": { "q1": 0 },
+      "expectedCoursePct": 0
+    },
+    {
+      "name": "multi_choice — superset fails",
+      "answerKeys": [
+        { "questionId": "q1", "kind": "multi_choice", "correctIds": ["a"] }
+      ],
+      "answers": { "q1": ["a", "b"] },
+      "expectedPerQuestion": { "q1": 0 },
+      "expectedCoursePct": 0
+    },
+    {
+      "name": "multi_choice — right count, wrong members",
+      "answerKeys": [
+        { "questionId": "q1", "kind": "multi_choice", "correctIds": ["a", "b"] }
+      ],
+      "answers": { "q1": ["a", "c"] },
+      "expectedPerQuestion": { "q1": 0 },
+      "expectedCoursePct": 0
+    },
+    {
+      "name": "multi_choice — duplicate selections collapse to a set",
+      "answerKeys": [
+        { "questionId": "q1", "kind": "multi_choice", "correctIds": ["a", "b"] }
+      ],
+      "answers": { "q1": ["a", "b", "b"] },
+      "expectedPerQuestion": { "q1": 1 },
+      "expectedCoursePct": 100
+    },
+    {
+      "name": "scenario with selectionMode single follows single rules",
+      "answerKeys": [
+        {
+          "questionId": "q1",
+          "kind": "scenario",
+          "selectionMode": "single",
+          "correctIds": ["a"]
+        }
+      ],
+      "answers": { "q1": ["a", "b"] },
+      "expectedPerQuestion": { "q1": 0 },
+      "expectedCoursePct": 0
+    },
+    {
+      "name": "scenario without selectionMode follows multi rules",
+      "answerKeys": [
+        {
+          "questionId": "q1",
+          "kind": "scenario",
+          "correctIds": ["a", "b"]
+        }
+      ],
+      "answers": { "q1": ["a", "b"] },
+      "expectedPerQuestion": { "q1": 1 },
+      "expectedCoursePct": 100
+    },
+    {
+      "name": "ranking — exact order passes",
+      "answerKeys": [
+        {
+          "questionId": "q1",
+          "kind": "ranking",
+          "rankOrder": ["a", "b", "c"]
+        }
+      ],
+      "answers": { "q1": ["a", "b", "c"] },
+      "expectedPerQuestion": { "q1": 1 },
+      "expectedCoursePct": 100
+    },
+    {
+      "name": "ranking — right members, wrong order fails",
+      "answerKeys": [
+        {
+          "questionId": "q1",
+          "kind": "ranking",
+          "rankOrder": ["a", "b", "c"]
+        }
+      ],
+      "answers": { "q1": ["b", "a", "c"] },
+      "expectedPerQuestion": { "q1": 0 },
+      "expectedCoursePct": 0
+    },
+    {
+      "name": "ranking — incomplete ordering fails",
+      "answerKeys": [
+        {
+          "questionId": "q1",
+          "kind": "ranking",
+          "rankOrder": ["a", "b", "c"]
+        }
+      ],
+      "answers": { "q1": ["a", "b"] },
+      "expectedPerQuestion": { "q1": 0 },
+      "expectedCoursePct": 0
+    },
+    {
+      "name": "weight defaults to 1 — one of two correct is 50",
+      "answerKeys": [
+        { "questionId": "q1", "kind": "single_choice", "correctIds": ["a"] },
+        { "questionId": "q2", "kind": "single_choice", "correctIds": ["b"] }
+      ],
+      "answers": { "q1": ["a"] },
+      "expectedPerQuestion": { "q1": 1, "q2": 0 },
+      "expectedCoursePct": 50
+    },
+    {
+      "name": "weights bind high-stakes questions tighter",
+      "answerKeys": [
+        {
+          "questionId": "q1",
+          "kind": "single_choice",
+          "correctIds": ["a"],
+          "weight": 3
+        },
+        {
+          "questionId": "q2",
+          "kind": "single_choice",
+          "correctIds": ["b"],
+          "weight": 1
+        }
+      ],
+      "answers": { "q1": ["a"], "q2": ["z"] },
+      "expectedPerQuestion": { "q1": 1, "q2": 0 },
+      "expectedCoursePct": 75
+    },
+    {
+      "name": "two of three rounds to 67",
+      "answerKeys": [
+        { "questionId": "q1", "kind": "single_choice", "correctIds": ["a"] },
+        { "questionId": "q2", "kind": "single_choice", "correctIds": ["b"] },
+        { "questionId": "q3", "kind": "single_choice", "correctIds": ["c"] }
+      ],
+      "answers": { "q1": ["a"], "q2": ["b"], "q3": ["z"] },
+      "expectedPerQuestion": { "q1": 1, "q2": 1, "q3": 0 },
+      "expectedCoursePct": 67
+    },
+    {
+      "name": "one of three rounds to 33",
+      "answerKeys": [
+        { "questionId": "q1", "kind": "single_choice", "correctIds": ["a"] },
+        { "questionId": "q2", "kind": "single_choice", "correctIds": ["b"] },
+        { "questionId": "q3", "kind": "single_choice", "correctIds": ["c"] }
+      ],
+      "answers": { "q1": ["a"] },
+      "expectedPerQuestion": { "q1": 1, "q2": 0, "q3": 0 },
+      "expectedCoursePct": 33
+    },
+    {
+      "name": "empty answer key scores 0, never accidentally passes",
+      "answerKeys": [],
+      "answers": {},
+      "expectedPerQuestion": {},
+      "expectedCoursePct": 0
+    },
+    {
+      "name": "all weights zero scores 0 rather than dividing by zero",
+      "answerKeys": [
+        {
+          "questionId": "q1",
+          "kind": "single_choice",
+          "correctIds": ["a"],
+          "weight": 0
+        }
+      ],
+      "answers": { "q1": ["a"] },
+      "expectedPerQuestion": { "q1": 1 },
+      "expectedCoursePct": 0
+    },
+    {
+      "name": "mixed kinds in one course",
+      "answerKeys": [
+        { "questionId": "q1", "kind": "single_choice", "correctIds": ["a"] },
+        {
+          "questionId": "q2",
+          "kind": "multi_choice",
+          "correctIds": ["a", "b"]
+        },
+        { "questionId": "q3", "kind": "ranking", "rankOrder": ["x", "y"] },
+        {
+          "questionId": "q4",
+          "kind": "scenario",
+          "selectionMode": "single",
+          "correctIds": ["c"]
+        }
+      ],
+      "answers": {
+        "q1": ["a"],
+        "q2": ["b", "a"],
+        "q3": ["y", "x"],
+        "q4": ["c"]
+      },
+      "expectedPerQuestion": { "q1": 1, "q2": 1, "q3": 0, "q4": 1 },
+      "expectedCoursePct": 75
+    }
+  ]
+}
