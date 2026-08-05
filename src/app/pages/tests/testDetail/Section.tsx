@@ -26,8 +26,14 @@ export function Section({
           {title}
         </span>
         <div className="flex items-center gap-2">
-          {actions && <span onClick={(e) => e.stopPropagation()}>{actions}</span>}
-          {open ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+          {actions && (
+            <span onClick={(e) => e.stopPropagation()}>{actions}</span>
+          )}
+          {open ? (
+            <ChevronUp className="w-4 h-4 text-gray-400" />
+          ) : (
+            <ChevronDown className="w-4 h-4 text-gray-400" />
+          )}
         </div>
       </button>
       {open && <div className="p-4">{children}</div>}
@@ -44,15 +50,18 @@ export function DetailStatCard({
   value: React.ReactNode;
   tone?: 'default' | 'attention' | 'success';
 }) {
-  const toneClass = tone === 'attention'
-    ? 'border-amber-200 bg-amber-50'
-    : tone === 'success'
-      ? 'border-green-200 bg-green-50'
-      : 'border-gray-200 bg-gray-50';
+  const toneClass =
+    tone === 'attention'
+      ? 'border-amber-200 bg-amber-50'
+      : tone === 'success'
+        ? 'border-green-200 bg-green-50'
+        : 'border-gray-200 bg-gray-50';
 
   return (
     <div className={`rounded-2xl border p-4 ${toneClass}`}>
-      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">{label}</p>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">
+        {label}
+      </p>
       <div className="mt-2 text-sm font-semibold text-gray-900">{value}</div>
     </div>
   );
