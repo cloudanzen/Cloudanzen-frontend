@@ -1,69 +1,163 @@
-import React from 'react';
+/**
+ * frameworkDetail/shared.tsx — badge renderers, requirement-progress helpers
+ * and the filter type used across the framework detail sections.
+ *
+ * Extracted verbatim from FrameworkDetailPage.tsx during the Phase 4 split.
+ */
 
-import { Card, CardContent } from '@/app/components/ui/card';
-import { Badge } from '@/app/components/ui/badge';
 import type { TFunction } from 'i18next';
+import { Badge } from '@/app/components/ui/badge';
+import { type RequirementDetailRow } from '@/services/api/frameworks';
 
-// ── Badge helpers ─────────────────────────────────────────────────────────────
+export type FilterMode = 'all' | 'gaps' | 'excluded';
 
-export function applicabilityBadge(status: string, t: TFunction) {
-  if (status === 'not_applicable') return <Badge variant="outline" className="text-gray-400 border-gray-200 text-xs">{t('frameworkTabs.shared.na')}</Badge>;
-  return <Badge variant="outline" className="text-blue-600 border-blue-200 text-xs">{t('frameworkTabs.shared.applicable')}</Badge>;
+export function controlStatusBadge(status: string, t: TFunction) {
+  if (status === 'IMPLEMENTED')
+    return (
+      <Badge className="bg-green-100 text-green-700 border-green-200 text-[11px]">
+        {t('frameworkDetail.badge.implemented')}
+      </Badge>
+    );
+  if (status === 'PARTIALLY_IMPLEMENTED')
+    return (
+      <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-[11px]">
+        {t('frameworkDetail.badge.partial')}
+      </Badge>
+    );
+  return (
+    <Badge variant="outline" className="text-gray-400 text-[11px]">
+      {t('frameworkDetail.badge.notImplemented')}
+    </Badge>
+  );
 }
 
-export function reviewBadge(status: string, t: TFunction) {
-  if (status === 'accepted') return <Badge className="bg-green-100 text-green-700 border-green-200 text-xs">{t('frameworkTabs.shared.accepted')}</Badge>;
-  if (status === 'in_review') return <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-xs">{t('frameworkTabs.shared.inReview')}</Badge>;
-  return <Badge variant="outline" className="text-gray-400 text-xs">{t('frameworkTabs.shared.notStarted')}</Badge>;
+export function testStatusBadge(status: string, t: TFunction) {
+  if (status === 'OK')
+    return (
+      <Badge className="bg-green-100 text-green-700 border-green-200 text-[11px]">
+        {t('frameworkDetail.badge.ok')}
+      </Badge>
+    );
+  if (status === 'Overdue')
+    return (
+      <Badge className="bg-red-100 text-red-700 border-red-200 text-[11px]">
+        {t('frameworkDetail.badge.overdue')}
+      </Badge>
+    );
+  if (status === 'Due_soon')
+    return (
+      <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-[11px]">
+        {t('frameworkDetail.badge.dueSoon')}
+      </Badge>
+    );
+  if (status === 'Needs_remediation')
+    return (
+      <Badge className="bg-orange-100 text-orange-700 border-orange-200 text-[11px]">
+        {t('frameworkDetail.badge.needsRemediation')}
+      </Badge>
+    );
+  return (
+    <Badge variant="outline" className="text-gray-400 text-[11px]">
+      {status.replace(/_/g, ' ')}
+    </Badge>
+  );
+}
+
+export function policyStatusBadge(status: string, t: TFunction) {
+  if (status === 'PUBLISHED')
+    return (
+      <Badge className="bg-green-100 text-green-700 border-green-200 text-[11px]">
+        {t('frameworkDetail.badge.published')}
+      </Badge>
+    );
+  if (status === 'DRAFT')
+    return (
+      <Badge variant="outline" className="text-gray-400 text-[11px]">
+        {t('frameworkDetail.badge.draft')}
+      </Badge>
+    );
+  return (
+    <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-[11px]">
+      {status}
+    </Badge>
+  );
+}
+
+export function riskLevelBadge(level: string | null, t: TFunction) {
+  if (level === 'CRITICAL')
+    return (
+      <Badge className="bg-red-100 text-red-700 border-red-200 text-[11px]">
+        {t('frameworkDetail.badge.critical')}
+      </Badge>
+    );
+  if (level === 'HIGH')
+    return (
+      <Badge className="bg-orange-100 text-orange-700 border-orange-200 text-[11px]">
+        {t('frameworkDetail.badge.high')}
+      </Badge>
+    );
+  if (level === 'MEDIUM')
+    return (
+      <Badge className="bg-yellow-100 text-yellow-700 border-yellow-200 text-[11px]">
+        {t('frameworkDetail.badge.medium')}
+      </Badge>
+    );
+  if (level === 'LOW')
+    return (
+      <Badge className="bg-green-100 text-green-700 border-green-200 text-[11px]">
+        {t('frameworkDetail.badge.low')}
+      </Badge>
+    );
+  return null;
+}
+
+export function getRequirementProgress(req: RequirementDetailRow) {
+  const completedControls = req.controls.filter(
+    (control) => control.controlStatus === 'IMPLEMENTED',
+  ).length;
+  const completedTests = req.tests.filter(
+    (test) => test.testStatus === 'OK',
+  ).length;
+  const completedPolicies = req.policies.filter(
+    (policy) => policy.policyStatus === 'PUBLISHED',
+  ).length;
+  const total = req.controls.length + req.tests.length + req.policies.length;
+
+  return {
+    completed: completedControls + completedTests + completedPolicies,
+    total,
+  };
+}
+
+export function requirementProgressLabel(
+  req: RequirementDetailRow,
+  t: TFunction,
+) {
+  const progress = getRequirementProgress(req);
+  if (progress.total === 0) {
+    return t('frameworkDetail.requirement.noMappedItems');
+  }
+  return t('frameworkDetail.requirement.progress', progress);
 }
 
 export function mappingTypeBadge(type: string, t: TFunction) {
-  if (type === 'direct')    return <Badge className="bg-green-100 text-green-700 border-green-200 text-xs">{t('frameworkTabs.shared.confirmed')}</Badge>;
-  if (type === 'inherited') return <Badge className="bg-blue-100 text-blue-700 border-blue-200 text-xs">{t('frameworkTabs.shared.inherited')}</Badge>;
-  return <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-xs">{t('frameworkTabs.shared.suggested')}</Badge>;
-}
-
-// ── Coverage Ring ─────────────────────────────────────────────────────────────
-
-export function CoverageRing({ pct, label, color }: { pct: number; label: string; color: string }) {
-  const r = 38;
-  const circ = 2 * Math.PI * r;
-  const dash = (pct / 100) * circ;
+  if (type === 'direct')
+    return (
+      <Badge className="bg-green-100 text-green-700 border-green-200 text-[10px] px-1.5">
+        {t('frameworkDetail.badge.confirmed')}
+      </Badge>
+    );
+  if (type === 'inherited')
+    return (
+      <Badge className="bg-blue-100 text-blue-700 border-blue-200 text-[10px] px-1.5">
+        {t('frameworkDetail.badge.inherited')}
+      </Badge>
+    );
   return (
-    <div className="flex flex-col items-center gap-2">
-      <div className="relative w-24 h-24">
-        <svg width="96" height="96" viewBox="0 0 96 96" className="-rotate-90">
-          <circle cx="48" cy="48" r={r} fill="none" stroke="#f3f4f6" strokeWidth="10" />
-          <circle
-            cx="48" cy="48" r={r} fill="none"
-            stroke={color} strokeWidth="10"
-            strokeDasharray={`${dash} ${circ}`}
-            strokeLinecap="round"
-          />
-        </svg>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <p className="text-2xl font-bold text-gray-900">{pct}%</p>
-        </div>
-      </div>
-      <p className="text-xs text-gray-500 font-medium">{label}</p>
-    </div>
+    <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-[10px] px-1.5">
+      {t('frameworkDetail.badge.suggested')}
+    </Badge>
   );
 }
 
-// ── Tab Placeholder ───────────────────────────────────────────────────────────
-
-export function TabPlaceholder({ icon: Icon, text, sub }: {
-  icon: React.ElementType;
-  text: string;
-  sub?: string;
-}) {
-  return (
-    <Card className="border-dashed border-gray-200 bg-gray-50">
-      <CardContent className="py-16 text-center">
-        <Icon className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-        <p className="text-sm font-medium text-gray-500">{text}</p>
-        {sub && <p className="text-xs text-gray-400 mt-1">{sub}</p>}
-      </CardContent>
-    </Card>
-  );
-}
+// ── Coverage Tiles ───────────────────────────────────────────────────────────
