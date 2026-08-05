@@ -256,8 +256,14 @@ export function PolicyLinkedTestLifecycle({
             disabled={isRunning}
             className="inline-flex items-center gap-1.5 rounded-full border border-violet-300 bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700 hover:bg-violet-100 disabled:opacity-50"
           >
-            <RefreshCw className={`h-3.5 w-3.5 ${isRunning ? 'animate-spin' : ''}`} />
-            {isRunning ? t('testDetail.overview.running') : t('testDetail.policyLifecycle.rerunCheck', { defaultValue: 'Re-run check' })}
+            <RefreshCw
+              className={`h-3.5 w-3.5 ${isRunning ? 'animate-spin' : ''}`}
+            />
+            {isRunning
+              ? t('testDetail.overview.running')
+              : t('testDetail.policyLifecycle.rerunCheck', {
+                  defaultValue: 'Re-run check',
+                })}
           </button>
         ) : null}
       </div>
