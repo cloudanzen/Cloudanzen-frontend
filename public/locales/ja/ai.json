@@ -147,5 +147,81 @@
       "PRODUCTION": "本番",
       "RETIRED": "廃止"
     }
+  },
+  "systems": {
+    "title": "AIシステムレジストリ",
+    "description": "運用中のすべてのAI機能・製品を、リスク階層、データ露出、人的監督とともに記録します。",
+    "empty": "登録済みのAIシステムはまだありません",
+    "registerFirst": "最初のシステムを登録",
+    "register": "登録",
+    "registerSystem": "AIシステムを登録",
+    "editSystem": "AIシステムを編集",
+    "saveChanges": "変更を保存",
+    "saveFailed": "保存に失敗しました",
+    "importFailed": "インポートに失敗しました",
+    "importTitle": "CSVからAIシステムをインポート",
+    "importCsv": "CSVをインポート",
+    "cancel": "キャンセル",
+    "edit": "編集",
+    "delete": "削除",
+    "customerFacing": "顧客向け",
+    "fields": {
+      "name": "名称",
+      "description": "説明",
+      "productArea": "製品領域",
+      "modelProvider": "モデルプロバイダー",
+      "lifecycleStage": "ライフサイクル段階",
+      "riskTier": "リスク階層",
+      "humanOversight": "人的監督",
+      "customerDataExposure": "顧客データの露出",
+      "customerFacing": "顧客向け",
+      "usesRag": "RAGを使用",
+      "fineTuned": "ファインチューニング済み"
+    },
+    "placeholders": {
+      "name": "例：サポートトリアージコパイロット",
+      "description": "システムの機能と実行環境。",
+      "productArea": "サポート、営業、…",
+      "modelProvider": "OpenAI、Anthropic、セルフホスト"
+    },
+    "humanOversight": {
+      "NONE": "監督なし",
+      "HUMAN_IN_LOOP": "ヒューマン・イン・ザ・ループ",
+      "HUMAN_ON_LOOP": "ヒューマン・オン・ザ・ループ",
+      "HUMAN_OVER_LOOP": "ヒューマン・オーバー・ザ・ループ"
+    },
+    "dataExposure": {
+      "NONE": "顧客データなし",
+      "INTERNAL": "社内データ",
+      "CUSTOMER_PII": "顧客の個人情報",
+      "SENSITIVE": "機微データ"
+    }
+  },
+  "systemDetail": {
+    "fallbackTitle": "AIシステム",
+    "description": "AIシステムの詳細とそのユースケース。",
+    "backToRegistry": "レジストリに戻る",
+    "customerFacing": "顧客向け",
+    "useCases": "ユースケース",
+    "addUseCase": "ユースケースを追加",
+    "emptyUseCases": "ユースケースはまだありません。このシステムの具体的な用途を追加してください。",
+    "deleteUseCase": "ユースケースを削除",
+    "approve": "承認",
+    "reject": "却下",
+    "rejectUseCase": "ユースケースを却下",
+    "cancel": "キャンセル",
+    "saveFailed": "保存に失敗しました",
+    "fields": {
+      "name": "名称",
+      "purpose": "目的",
+      "description": "説明",
+      "riskTier": "リスク階層",
+      "status": "ステータス"
+    },
+    "placeholders": {
+      "name": "例：サポート返信の自動下書き",
+      "purpose": "このユースケースが存在する理由",
+      "rejectReason": "却下の理由"
+    }
   }
 }
