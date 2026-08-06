@@ -21,6 +21,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 
+import { useTranslation } from 'react-i18next';
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { Card } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
@@ -75,6 +76,7 @@ function EvalRunDialog({
   open: boolean;
   onOpenChange: (o: boolean) => void;
 }) {
+  const { t } = useTranslation('ai');
   const qc = useQueryClient();
   const [name, setName] = useState('');
   const [evalType, setEvalType] = useState<AiEvalType>('QUALITY');
@@ -102,24 +104,24 @@ function EvalRunDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add eval run</DialogTitle>
+          <DialogTitle>{t('runtime.addEvalRun')}</DialogTitle>
           <DialogDescription>
             Record the outcome of an evaluation run for an AI system.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-3">
           <div>
-            <Label htmlFor="er-name">Name</Label>
+            <Label htmlFor="er-name">{t('runtime.fields.name')}</Label>
             <Input
               id="er-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Nightly hallucination suite"
+              placeholder={t('runtime.placeholders.name')}
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>Type</Label>
+              <Label>{t('runtime.fields.type')}</Label>
               <Select
                 value={evalType}
                 onValueChange={(v) => setEvalType(v as AiEvalType)}
@@ -128,16 +130,16 @@ function EvalRunDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {AI_EVAL_TYPES.map((t) => (
-                    <SelectItem key={t} value={t}>
-                      {titleCase(t)}
+                  {AI_EVAL_TYPES.map((item) => (
+                    <SelectItem key={item} value={item}>
+                      {titleCase(item)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Label>Status</Label>
+              <Label>{t('runtime.fields.status')}</Label>
               <Select
                 value={status}
                 onValueChange={(v) => setStatus(v as AiEvalStatus)}
@@ -156,16 +158,16 @@ function EvalRunDialog({
             </div>
           </div>
           <div>
-            <Label htmlFor="er-env">Environment</Label>
+            <Label htmlFor="er-env">{t('runtime.fields.environment')}</Label>
             <Input
               id="er-env"
               value={environment}
               onChange={(e) => setEnvironment(e.target.value)}
-              placeholder="production"
+              placeholder={t('runtime.placeholders.environment')}
             />
           </div>
           <div>
-            <Label htmlFor="er-notes">Notes</Label>
+            <Label htmlFor="er-notes">{t('runtime.fields.notes')}</Label>
             <Textarea
               id="er-notes"
               value={notes}
@@ -174,7 +176,7 @@ function EvalRunDialog({
           </div>
           {mutation.isError ? (
             <p className="text-sm text-red-600">
-              {(mutation.error as Error)?.message ?? 'Save failed'}
+              {(mutation.error as Error)?.message ?? t('runtime.saveFailed')}
             </p>
           ) : null}
         </div>
@@ -205,6 +207,7 @@ function FindingDialog({
   open: boolean;
   onOpenChange: (o: boolean) => void;
 }) {
+  const { t } = useTranslation('ai');
   const qc = useQueryClient();
   const [title, setTitle] = useState('');
   const [findingType, setFindingType] = useState<AiRuntimeFindingType>(
@@ -232,7 +235,7 @@ function FindingDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add runtime finding</DialogTitle>
+          <DialogTitle>{t('runtime.addRuntimeFinding')}</DialogTitle>
           <DialogDescription>
             A threshold violation, drift, injection, or override observed at
             runtime.
@@ -240,17 +243,17 @@ function FindingDialog({
         </DialogHeader>
         <div className="space-y-3">
           <div>
-            <Label htmlFor="f-title">Title</Label>
+            <Label htmlFor="f-title">{t('runtime.fields.title')}</Label>
             <Input
               id="f-title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Hallucination rate above 5% threshold"
+              placeholder={t('runtime.placeholders.findingTitle')}
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>Type</Label>
+              <Label>{t('runtime.fields.type')}</Label>
               <Select
                 value={findingType}
                 onValueChange={(v) => setFindingType(v as AiRuntimeFindingType)}
@@ -259,16 +262,16 @@ function FindingDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {AI_FINDING_TYPES.map((t) => (
-                    <SelectItem key={t} value={t}>
-                      {titleCase(t)}
+                  {AI_FINDING_TYPES.map((item) => (
+                    <SelectItem key={item} value={item}>
+                      {titleCase(item)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Label>Severity</Label>
+              <Label>{t('runtime.fields.severity')}</Label>
               <Select
                 value={severity}
                 onValueChange={(v) => setSeverity(v as AiFindingSeverity)}
@@ -287,7 +290,7 @@ function FindingDialog({
             </div>
           </div>
           <div>
-            <Label htmlFor="f-desc">Description</Label>
+            <Label htmlFor="f-desc">{t('runtime.fields.description')}</Label>
             <Textarea
               id="f-desc"
               value={description}
@@ -296,7 +299,7 @@ function FindingDialog({
           </div>
           {mutation.isError ? (
             <p className="text-sm text-red-600">
-              {(mutation.error as Error)?.message ?? 'Save failed'}
+              {(mutation.error as Error)?.message ?? t('runtime.saveFailed')}
             </p>
           ) : null}
         </div>
@@ -321,6 +324,7 @@ function FindingDialog({
 }
 
 export function AiRuntimePage() {
+  const { t } = useTranslation('ai');
   const qc = useQueryClient();
   const [evalDialog, setEvalDialog] = useState(false);
   const [findingDialog, setFindingDialog] = useState(false);
@@ -361,8 +365,8 @@ export function AiRuntimePage() {
 
   return (
     <PageTemplate
-      title="Runtime Risk Monitor"
-      description="Eval results and runtime findings for your AI systems — connect an eval source or add results manually."
+      title={t('runtime.title')}
+      description={t('runtime.description')}
     >
       <div className="space-y-6">
         {/* Eval runs */}
@@ -417,7 +421,7 @@ export function AiRuntimePage() {
                       variant="ghost"
                       size="sm"
                       onClick={() => deleteEval.mutate(r.id)}
-                      aria-label="Delete eval run"
+                      aria-label={t('runtime.deleteEvalRun')}
                     >
                       <Trash2 className="h-4 w-4 text-rose-600" />
                     </Button>
@@ -499,7 +503,7 @@ export function AiRuntimePage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => deleteFinding.mutate(f.id)}
-                        aria-label="Delete finding"
+                        aria-label={t('runtime.deleteFinding')}
                       >
                         <Trash2 className="h-4 w-4 text-rose-600" />
                       </Button>

@@ -7,6 +7,7 @@
  * raises a finding server-side, so posting a metric can surface a new finding.
  */
 
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -67,6 +68,8 @@ function SectionHeader({
   title: string;
   onAdd: () => void;
 }) {
+  const { t } = useTranslation('ai');
+
   return (
     <div className="flex items-center justify-between mb-2">
       <h2 className="text-lg font-semibold flex items-center gap-2">
@@ -75,7 +78,7 @@ function SectionHeader({
       </h2>
       <Button size="sm" onClick={onAdd}>
         <Plus className="h-4 w-4 mr-2" />
-        Add
+        {t('runtimeConfig.add')}
       </Button>
     </div>
   );
@@ -90,6 +93,7 @@ function MetricDialog({
   open: boolean;
   onOpenChange: (o: boolean) => void;
 }) {
+  const { t } = useTranslation('ai');
   const qc = useQueryClient();
   const [metricKey, setMetricKey] = useState('');
   const [value, setValue] = useState('');
@@ -120,7 +124,7 @@ function MetricDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Record metric</DialogTitle>
+          <DialogTitle>{t('runtimeConfig.recordMetric')}</DialogTitle>
           <DialogDescription>
             A runtime metric point. If it breaches an enabled threshold, a
             finding is raised automatically.
@@ -128,27 +132,29 @@ function MetricDialog({
         </DialogHeader>
         <div className="space-y-3">
           <div>
-            <Label htmlFor="m-key">Metric key</Label>
+            <Label htmlFor="m-key">{t('runtimeConfig.fields.metricKey')}</Label>
             <Input
               id="m-key"
               value={metricKey}
               onChange={(e) => setMetricKey(e.target.value)}
-              placeholder="hallucination_rate"
+              placeholder={t('runtimeConfig.placeholders.metricKey')}
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="m-value">Value</Label>
+              <Label htmlFor="m-value">{t('runtimeConfig.fields.value')}</Label>
               <Input
                 id="m-value"
                 type="number"
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
-                placeholder="0.09"
+                placeholder={t('runtimeConfig.placeholders.value')}
               />
             </div>
             <div>
-              <Label htmlFor="m-env">Environment</Label>
+              <Label htmlFor="m-env">
+                {t('runtimeConfig.fields.environment')}
+              </Label>
               <Input
                 id="m-env"
                 value={environment}
@@ -158,7 +164,8 @@ function MetricDialog({
           </div>
           {mutation.isError ? (
             <p className="text-sm text-red-600">
-              {(mutation.error as Error)?.message ?? 'Save failed'}
+              {(mutation.error as Error)?.message ??
+                t('runtimeConfig.saveFailed')}
             </p>
           ) : null}
         </div>
@@ -173,7 +180,7 @@ function MetricDialog({
             {mutation.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              'Record'
+              t('runtimeConfig.record')
             )}
           </Button>
         </DialogFooter>
@@ -183,6 +190,7 @@ function MetricDialog({
 }
 
 export function MetricsSection() {
+  const { t } = useTranslation('ai');
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const { data, isLoading } = useQuery({
@@ -196,7 +204,11 @@ export function MetricsSection() {
 
   return (
     <section>
-      <SectionHeader icon={Gauge} title="Metrics" onAdd={() => setOpen(true)} />
+      <SectionHeader
+        icon={Gauge}
+        title={t('runtimeConfig.metrics')}
+        onAdd={() => setOpen(true)}
+      />
       {isLoading ? (
         <div className="flex justify-center py-8">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -229,7 +241,7 @@ export function MetricsSection() {
                   variant="ghost"
                   size="sm"
                   onClick={() => del.mutate(m.id)}
-                  aria-label="Delete metric"
+                  aria-label={t('runtimeConfig.deleteMetric')}
                 >
                   <Trash2 className="h-4 w-4 text-rose-600" />
                 </Button>
@@ -252,6 +264,7 @@ function ThresholdDialog({
   open: boolean;
   onOpenChange: (o: boolean) => void;
 }) {
+  const { t } = useTranslation('ai');
   const qc = useQueryClient();
   const [metricKey, setMetricKey] = useState('');
   const [comparator, setComparator] = useState<AiThresholdComparator>('GT');
@@ -281,7 +294,7 @@ function ThresholdDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add threshold</DialogTitle>
+          <DialogTitle>{t('runtimeConfig.addThreshold')}</DialogTitle>
           <DialogDescription>
             When a metric with this key breaches the value, a finding is raised
             at the given severity.
@@ -289,17 +302,17 @@ function ThresholdDialog({
         </DialogHeader>
         <div className="space-y-3">
           <div>
-            <Label htmlFor="t-key">Metric key</Label>
+            <Label htmlFor="t-key">{t('runtimeConfig.fields.metricKey')}</Label>
             <Input
               id="t-key"
               value={metricKey}
               onChange={(e) => setMetricKey(e.target.value)}
-              placeholder="hallucination_rate"
+              placeholder={t('runtimeConfig.placeholders.metricKey')}
             />
           </div>
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <Label>Comparator</Label>
+              <Label>{t('runtimeConfig.fields.comparator')}</Label>
               <Select
                 value={comparator}
                 onValueChange={(v) => setComparator(v as AiThresholdComparator)}
@@ -317,17 +330,17 @@ function ThresholdDialog({
               </Select>
             </div>
             <div>
-              <Label htmlFor="t-val">Value</Label>
+              <Label htmlFor="t-val">{t('runtimeConfig.fields.value')}</Label>
               <Input
                 id="t-val"
                 type="number"
                 value={thresholdValue}
                 onChange={(e) => setThresholdValue(e.target.value)}
-                placeholder="0.05"
+                placeholder={t('runtimeConfig.placeholders.threshold')}
               />
             </div>
             <div>
-              <Label>Severity</Label>
+              <Label>{t('runtimeConfig.fields.severity')}</Label>
               <Select
                 value={severity}
                 onValueChange={(v) => setSeverity(v as AiFindingSeverity)}
@@ -347,7 +360,8 @@ function ThresholdDialog({
           </div>
           {mutation.isError ? (
             <p className="text-sm text-red-600">
-              {(mutation.error as Error)?.message ?? 'Save failed'}
+              {(mutation.error as Error)?.message ??
+                t('runtimeConfig.saveFailed')}
             </p>
           ) : null}
         </div>
@@ -372,6 +386,7 @@ function ThresholdDialog({
 }
 
 export function ThresholdsSection() {
+  const { t } = useTranslation('ai');
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const { data, isLoading } = useQuery({
@@ -394,7 +409,7 @@ export function ThresholdsSection() {
     <section>
       <SectionHeader
         icon={SlidersHorizontal}
-        title="Thresholds"
+        title={t('runtimeConfig.thresholds')}
         onAdd={() => setOpen(true)}
       />
       {isLoading ? (
@@ -409,42 +424,43 @@ export function ThresholdsSection() {
       ) : (
         <Card>
           <div className="divide-y">
-            {(data ?? []).map((t) => (
+            {(data ?? []).map((item) => (
               <div
-                key={t.id}
+                key={item.id}
                 className="flex items-center justify-between px-4 py-3 gap-4"
               >
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-medium truncate">
-                      {t.metricKey}{' '}
+                      {item.metricKey}{' '}
                       <span className="font-mono">
-                        {COMPARATOR_LABEL[t.comparator]} {t.thresholdValue}
+                        {COMPARATOR_LABEL[item.comparator]}{' '}
+                        {item.thresholdValue}
                       </span>
                     </p>
                     <Badge
                       variant="outline"
-                      className={SEVERITY_COLORS[t.severity]}
+                      className={SEVERITY_COLORS[item.severity]}
                     >
-                      {titleCase(t.severity)}
+                      {titleCase(item.severity)}
                     </Badge>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
                   <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
                     <Switch
-                      checked={t.enabled}
+                      checked={item.enabled}
                       onCheckedChange={(v) =>
-                        toggle.mutate({ id: t.id, enabled: v })
+                        toggle.mutate({ id: item.id, enabled: v })
                       }
                     />
-                    {t.enabled ? 'On' : 'Off'}
+                    {item.enabled ? 'On' : 'Off'}
                   </label>
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => del.mutate(t.id)}
-                    aria-label="Delete threshold"
+                    onClick={() => del.mutate(item.id)}
+                    aria-label={t('runtimeConfig.deleteThreshold')}
                   >
                     <Trash2 className="h-4 w-4 text-rose-600" />
                   </Button>
@@ -468,6 +484,7 @@ function ModelEventDialog({
   open: boolean;
   onOpenChange: (o: boolean) => void;
 }) {
+  const { t } = useTranslation('ai');
   const qc = useQueryClient();
   const [modelName, setModelName] = useState('');
   const [toVersion, setToVersion] = useState('');
@@ -494,43 +511,49 @@ function ModelEventDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Log model change</DialogTitle>
+          <DialogTitle>{t('runtimeConfig.logModelChange')}</DialogTitle>
           <DialogDescription>
             Record a model or version change for the audit trail.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-3">
           <div>
-            <Label htmlFor="mv-name">Model name</Label>
+            <Label htmlFor="mv-name">
+              {t('runtimeConfig.fields.modelName')}
+            </Label>
             <Input
               id="mv-name"
               value={modelName}
               onChange={(e) => setModelName(e.target.value)}
-              placeholder="support-copilot"
+              placeholder={t('runtimeConfig.placeholders.modelName')}
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="mv-from">From version</Label>
+              <Label htmlFor="mv-from">
+                {t('runtimeConfig.fields.fromVersion')}
+              </Label>
               <Input
                 id="mv-from"
                 value={fromVersion}
                 onChange={(e) => setFromVersion(e.target.value)}
-                placeholder="gpt-4o-2024"
+                placeholder={t('runtimeConfig.placeholders.fromVersion')}
               />
             </div>
             <div>
-              <Label htmlFor="mv-to">To version</Label>
+              <Label htmlFor="mv-to">
+                {t('runtimeConfig.fields.toVersion')}
+              </Label>
               <Input
                 id="mv-to"
                 value={toVersion}
                 onChange={(e) => setToVersion(e.target.value)}
-                placeholder="gpt-4o-2025"
+                placeholder={t('runtimeConfig.placeholders.toVersion')}
               />
             </div>
           </div>
           <div>
-            <Label>Change type</Label>
+            <Label>{t('runtimeConfig.fields.changeType')}</Label>
             <Select
               value={changeType}
               onValueChange={(v) => setChangeType(v as AiModelChangeType)}
@@ -549,7 +572,8 @@ function ModelEventDialog({
           </div>
           {mutation.isError ? (
             <p className="text-sm text-red-600">
-              {(mutation.error as Error)?.message ?? 'Save failed'}
+              {(mutation.error as Error)?.message ??
+                t('runtimeConfig.saveFailed')}
             </p>
           ) : null}
         </div>
@@ -564,7 +588,7 @@ function ModelEventDialog({
             {mutation.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              'Log change'
+              t('runtimeConfig.logChange')
             )}
           </Button>
         </DialogFooter>
@@ -574,6 +598,7 @@ function ModelEventDialog({
 }
 
 export function ModelEventsSection() {
+  const { t } = useTranslation('ai');
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const { data, isLoading } = useQuery({
@@ -589,7 +614,7 @@ export function ModelEventsSection() {
     <section>
       <SectionHeader
         icon={GitCommit}
-        title="Model changes"
+        title={t('runtimeConfig.modelChanges')}
         onAdd={() => setOpen(true)}
       />
       {isLoading ? (
@@ -630,7 +655,7 @@ export function ModelEventsSection() {
                   variant="ghost"
                   size="sm"
                   onClick={() => del.mutate(e.id)}
-                  aria-label="Delete model event"
+                  aria-label={t('runtimeConfig.deleteModelEvent')}
                 >
                   <Trash2 className="h-4 w-4 text-rose-600" />
                 </Button>
