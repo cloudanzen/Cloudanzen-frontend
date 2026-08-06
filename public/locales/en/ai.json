@@ -147,5 +147,81 @@
       "PRODUCTION": "Production",
       "RETIRED": "Retired"
     }
+  },
+  "systems": {
+    "title": "AI Systems Registry",
+    "description": "Every AI feature or product you run, with its risk tier, data exposure, and human oversight on record.",
+    "empty": "No AI systems registered yet",
+    "registerFirst": "Register first system",
+    "register": "Register",
+    "registerSystem": "Register AI system",
+    "editSystem": "Edit AI system",
+    "saveChanges": "Save changes",
+    "saveFailed": "Save failed",
+    "importFailed": "Import failed",
+    "importTitle": "Import AI systems from CSV",
+    "importCsv": "Import CSV",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "customerFacing": "Customer-facing",
+    "fields": {
+      "name": "Name",
+      "description": "Description",
+      "productArea": "Product area",
+      "modelProvider": "Model provider",
+      "lifecycleStage": "Lifecycle stage",
+      "riskTier": "Risk tier",
+      "humanOversight": "Human oversight",
+      "customerDataExposure": "Customer data exposure",
+      "customerFacing": "Customer-facing",
+      "usesRag": "Uses RAG",
+      "fineTuned": "Fine-tuned"
+    },
+    "placeholders": {
+      "name": "e.g. Support Triage Copilot",
+      "description": "What the system does and where it runs.",
+      "productArea": "Support, Sales, ...",
+      "modelProvider": "OpenAI, Anthropic, self-hosted"
+    },
+    "humanOversight": {
+      "NONE": "No oversight",
+      "HUMAN_IN_LOOP": "Human in the loop",
+      "HUMAN_ON_LOOP": "Human on the loop",
+      "HUMAN_OVER_LOOP": "Human over the loop"
+    },
+    "dataExposure": {
+      "NONE": "No customer data",
+      "INTERNAL": "Internal data",
+      "CUSTOMER_PII": "Customer PII",
+      "SENSITIVE": "Sensitive data"
+    }
+  },
+  "systemDetail": {
+    "fallbackTitle": "AI system",
+    "description": "AI system detail and its use cases.",
+    "backToRegistry": "Back to registry",
+    "customerFacing": "Customer-facing",
+    "useCases": "Use cases",
+    "addUseCase": "Add use case",
+    "emptyUseCases": "No use cases yet. Add the specific applications of this system.",
+    "deleteUseCase": "Delete use case",
+    "approve": "Approve",
+    "reject": "Reject",
+    "rejectUseCase": "Reject use case",
+    "cancel": "Cancel",
+    "saveFailed": "Save failed",
+    "fields": {
+      "name": "Name",
+      "purpose": "Purpose",
+      "description": "Description",
+      "riskTier": "Risk tier",
+      "status": "Status"
+    },
+    "placeholders": {
+      "name": "e.g. Auto-draft support replies",
+      "purpose": "Why this use case exists",
+      "rejectReason": "Reason for rejection"
+    }
   }
 }

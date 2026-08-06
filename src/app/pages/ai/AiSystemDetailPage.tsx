@@ -11,6 +11,7 @@ import { useParams, Link } from 'react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader2, Plus, Trash2, ArrowLeft, Check, X } from 'lucide-react';
 
+import { useTranslation } from 'react-i18next';
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { Card } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
@@ -61,6 +62,7 @@ function UseCaseDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const { t } = useTranslation('ai');
   const qc = useQueryClient();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -87,7 +89,7 @@ function UseCaseDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add use case</DialogTitle>
+          <DialogTitle>{t('systemDetail.addUseCase')}</DialogTitle>
           <DialogDescription>
             A specific application of this AI system, with its own risk tier and
             approval status.
@@ -95,25 +97,29 @@ function UseCaseDialog({
         </DialogHeader>
         <div className="space-y-3">
           <div>
-            <Label htmlFor="uc-name">Name</Label>
+            <Label htmlFor="uc-name">{t('systemDetail.fields.name')}</Label>
             <Input
               id="uc-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Auto-draft support replies"
+              placeholder={t('systemDetail.placeholders.name')}
             />
           </div>
           <div>
-            <Label htmlFor="uc-purpose">Purpose</Label>
+            <Label htmlFor="uc-purpose">
+              {t('systemDetail.fields.purpose')}
+            </Label>
             <Input
               id="uc-purpose"
               value={purpose}
               onChange={(e) => setPurpose(e.target.value)}
-              placeholder="Why this use case exists"
+              placeholder={t('systemDetail.placeholders.purpose')}
             />
           </div>
           <div>
-            <Label htmlFor="uc-desc">Description</Label>
+            <Label htmlFor="uc-desc">
+              {t('systemDetail.fields.description')}
+            </Label>
             <Textarea
               id="uc-desc"
               value={description}
@@ -122,7 +128,7 @@ function UseCaseDialog({
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>Risk tier</Label>
+              <Label>{t('systemDetail.fields.riskTier')}</Label>
               <Select
                 value={riskTier}
                 onValueChange={(v) => setRiskTier(v as AiRiskTier)}
@@ -140,7 +146,7 @@ function UseCaseDialog({
               </Select>
             </div>
             <div>
-              <Label>Status</Label>
+              <Label>{t('systemDetail.fields.status')}</Label>
               <Select
                 value={status}
                 onValueChange={(v) => setStatus(v as AiUseCaseStatus)}
@@ -160,7 +166,8 @@ function UseCaseDialog({
           </div>
           {mutation.isError ? (
             <p className="text-sm text-red-600">
-              {(mutation.error as Error)?.message ?? 'Save failed'}
+              {(mutation.error as Error)?.message ??
+                t('systemDetail.saveFailed')}
             </p>
           ) : null}
         </div>
@@ -175,7 +182,7 @@ function UseCaseDialog({
             {mutation.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              'Add use case'
+              t('systemDetail.addUseCase')
             )}
           </Button>
         </DialogFooter>
@@ -185,6 +192,7 @@ function UseCaseDialog({
 }
 
 export function AiSystemDetailPage() {
+  const { t } = useTranslation('ai');
   const { id = '' } = useParams();
   const qc = useQueryClient();
   const [ucDialogOpen, setUcDialogOpen] = useState(false);
@@ -224,8 +232,8 @@ export function AiSystemDetailPage() {
 
   return (
     <PageTemplate
-      title={system?.name ?? 'AI system'}
-      description="AI system detail and its use cases."
+      title={system?.name ?? t('systemDetail.fallbackTitle')}
+      description={t('systemDetail.description')}
       actions={
         <Button asChild variant="outline">
           <Link to="/ai-trust/systems">
@@ -253,7 +261,9 @@ export function AiSystemDetailPage() {
                 {titleCase(system.lifecycleStage)}
               </Badge>
               {system.customerFacing ? (
-                <Badge variant="outline">Customer-facing</Badge>
+                <Badge variant="outline">
+                  {t('systemDetail.customerFacing')}
+                </Badge>
               ) : null}
             </div>
             {system.description ? (
@@ -285,10 +295,12 @@ export function AiSystemDetailPage() {
 
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h2 className="text-lg font-semibold">Use cases</h2>
+              <h2 className="text-lg font-semibold">
+                {t('systemDetail.useCases')}
+              </h2>
               <Button size="sm" onClick={() => setUcDialogOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
-                Add use case
+                {t('systemDetail.addUseCase')}
               </Button>
             </div>
             {(system.useCases ?? []).length === 0 ? (
@@ -354,7 +366,7 @@ export function AiSystemDetailPage() {
                               onClick={() => setRejecting(uc.id)}
                             >
                               <X className="h-4 w-4 mr-1" />
-                              Reject
+                              {t('systemDetail.reject')}
                             </Button>
                           </>
                         ) : null}
@@ -362,7 +374,7 @@ export function AiSystemDetailPage() {
                           variant="ghost"
                           size="sm"
                           onClick={() => deleteUseCase.mutate(uc.id)}
-                          aria-label="Delete use case"
+                          aria-label={t('systemDetail.deleteUseCase')}
                         >
                           <Trash2 className="h-4 w-4 text-rose-600" />
                         </Button>
@@ -395,7 +407,7 @@ export function AiSystemDetailPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Reject use case</DialogTitle>
+            <DialogTitle>{t('systemDetail.rejectUseCase')}</DialogTitle>
             <DialogDescription>
               Record why this use case is rejected. The reason is stored on the
               audit trail.
@@ -404,7 +416,7 @@ export function AiSystemDetailPage() {
           <Textarea
             value={rejectReason}
             onChange={(e) => setRejectReason(e.target.value)}
-            placeholder="Reason for rejection"
+            placeholder={t('systemDetail.placeholders.rejectReason')}
           />
           <DialogFooter>
             <Button

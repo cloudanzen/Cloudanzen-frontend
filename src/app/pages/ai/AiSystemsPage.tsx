@@ -14,6 +14,7 @@ import { Link } from 'react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader2, Plus, Trash2, Edit3, Boxes, Upload } from 'lucide-react';
 
+import { useTranslation } from 'react-i18next';
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { Card } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
@@ -53,19 +54,8 @@ import { parseCsv, rowsToPayload, CSV_TEMPLATE } from './aiSystemsCsv';
 import { titleCase } from '@/lib/format';
 import { RISK_TIER_COLORS } from '@/lib/statusColors';
 
-const HUMAN_OVERSIGHT_LABELS: Record<AiHumanOversight, string> = {
-  NONE: 'No oversight',
-  HUMAN_IN_LOOP: 'Human in the loop',
-  HUMAN_ON_LOOP: 'Human on the loop',
-  HUMAN_OVER_LOOP: 'Human over the loop',
-};
-
-const DATA_EXPOSURE_LABELS: Record<AiDataExposure, string> = {
-  NONE: 'No customer data',
-  INTERNAL: 'Internal data',
-  CUSTOMER_PII: 'Customer PII',
-  SENSITIVE: 'Sensitive data',
-};
+/** Oversight + data-exposure labels live under `systems.humanOversight.*`
+ * and `systems.dataExposure.*`; resolve with t() at render time. */
 
 interface FormState {
   name: string;
@@ -124,6 +114,7 @@ function SystemDialog({
   systemId: string | null;
   onOpenChange: (open: boolean) => void;
 }) {
+  const { t } = useTranslation('ai');
   const qc = useQueryClient();
   const [form, setForm] = useState<FormState>(initial);
   const isEdit = systemId !== null;
@@ -159,7 +150,7 @@ function SystemDialog({
       <DialogContent className="max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {isEdit ? 'Edit AI system' : 'Register AI system'}
+            {isEdit ? t('systems.editSystem') : t('systems.registerSystem')}
           </DialogTitle>
           <DialogDescription>
             Inventory an AI feature or product so its risk posture, data
@@ -169,52 +160,56 @@ function SystemDialog({
 
         <div className="space-y-3">
           <div>
-            <Label htmlFor="sys-name">Name</Label>
+            <Label htmlFor="sys-name">{t('systems.fields.name')}</Label>
             <Input
               id="sys-name"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              placeholder="e.g. Support Triage Copilot"
+              placeholder={t('systems.placeholders.name')}
             />
           </div>
           <div>
-            <Label htmlFor="sys-desc">Description</Label>
+            <Label htmlFor="sys-desc">{t('systems.fields.description')}</Label>
             <Textarea
               id="sys-desc"
               value={form.description}
               onChange={(e) =>
                 setForm({ ...form, description: e.target.value })
               }
-              placeholder="What the system does and where it runs."
+              placeholder={t('systems.placeholders.description')}
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="sys-area">Product area</Label>
+              <Label htmlFor="sys-area">
+                {t('systems.fields.productArea')}
+              </Label>
               <Input
                 id="sys-area"
                 value={form.productArea}
                 onChange={(e) =>
                   setForm({ ...form, productArea: e.target.value })
                 }
-                placeholder="Support, Sales, ..."
+                placeholder={t('systems.placeholders.productArea')}
               />
             </div>
             <div>
-              <Label htmlFor="sys-provider">Model provider</Label>
+              <Label htmlFor="sys-provider">
+                {t('systems.fields.modelProvider')}
+              </Label>
               <Input
                 id="sys-provider"
                 value={form.modelProvider}
                 onChange={(e) =>
                   setForm({ ...form, modelProvider: e.target.value })
                 }
-                placeholder="OpenAI, Anthropic, self-hosted"
+                placeholder={t('systems.placeholders.modelProvider')}
               />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>Lifecycle stage</Label>
+              <Label>{t('systems.fields.lifecycleStage')}</Label>
               <Select
                 value={form.lifecycleStage}
                 onValueChange={(v) =>
@@ -234,7 +229,7 @@ function SystemDialog({
               </Select>
             </div>
             <div>
-              <Label>Risk tier</Label>
+              <Label>{t('systems.fields.riskTier')}</Label>
               <Select
                 value={form.riskTier}
                 onValueChange={(v) =>
@@ -256,7 +251,7 @@ function SystemDialog({
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>Human oversight</Label>
+              <Label>{t('systems.fields.humanOversight')}</Label>
               <Select
                 value={form.humanOversight}
                 onValueChange={(v) =>
@@ -269,14 +264,14 @@ function SystemDialog({
                 <SelectContent>
                   {AI_HUMAN_OVERSIGHTS.map((o) => (
                     <SelectItem key={o} value={o}>
-                      {HUMAN_OVERSIGHT_LABELS[o]}
+                      {t(`systems.humanOversight.${o}`)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Label>Customer data exposure</Label>
+              <Label>{t('systems.fields.customerDataExposure')}</Label>
               <Select
                 value={form.customerDataExposure}
                 onValueChange={(v) =>
@@ -292,7 +287,7 @@ function SystemDialog({
                 <SelectContent>
                   {AI_DATA_EXPOSURES.map((d) => (
                     <SelectItem key={d} value={d}>
-                      {DATA_EXPOSURE_LABELS[d]}
+                      {t(`systems.dataExposure.${d}`)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -324,7 +319,7 @@ function SystemDialog({
           </div>
           {mutation.isError ? (
             <p className="text-sm text-red-600">
-              {(mutation.error as Error)?.message ?? 'Save failed'}
+              {(mutation.error as Error)?.message ?? t('systems.saveFailed')}
             </p>
           ) : null}
         </div>
@@ -340,9 +335,9 @@ function SystemDialog({
             {mutation.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : isEdit ? (
-              'Save changes'
+              t('systems.saveChanges')
             ) : (
-              'Register'
+              t('systems.register')
             )}
           </Button>
         </DialogFooter>
@@ -358,6 +353,7 @@ function ImportDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const { t } = useTranslation('ai');
   const qc = useQueryClient();
   const [text, setText] = useState('');
   const parsed = text.trim()
@@ -377,7 +373,7 @@ function ImportDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Import AI systems from CSV</DialogTitle>
+          <DialogTitle>{t('systems.importTitle')}</DialogTitle>
           <DialogDescription>
             Paste CSV with a header row. externalId + name are required; rows
             upsert by externalId, so re-importing updates in place.
@@ -400,7 +396,7 @@ function ImportDialog({
           ) : null}
           {mutation.isError ? (
             <p className="text-sm text-red-600">
-              {(mutation.error as Error)?.message ?? 'Import failed'}
+              {(mutation.error as Error)?.message ?? t('systems.importFailed')}
             </p>
           ) : null}
         </div>
@@ -429,6 +425,7 @@ function ImportDialog({
 }
 
 export function AiSystemsPage() {
+  const { t } = useTranslation('ai');
   const qc = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
@@ -462,8 +459,8 @@ export function AiSystemsPage() {
 
   return (
     <PageTemplate
-      title="AI Systems Registry"
-      description="Every AI feature or product you run, with its risk tier, data exposure, and human oversight on record."
+      title={t('systems.title')}
+      description={t('systems.description')}
       actions={
         <div className="flex items-center gap-2">
           <Button variant="outline" onClick={() => setImportOpen(true)}>
@@ -484,7 +481,7 @@ export function AiSystemsPage() {
       ) : (systems ?? []).length === 0 ? (
         <Card className="p-8 text-center">
           <Boxes className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-          <p className="text-sm font-medium">No AI systems registered yet</p>
+          <p className="text-sm font-medium">{t('systems.empty')}</p>
           <p className="text-xs text-muted-foreground mt-1">
             Register each AI feature so its risk posture and data handling are
             documented for buyers and auditors.
@@ -527,7 +524,7 @@ export function AiSystemsPage() {
                       titleCase(s.lifecycleStage),
                       s.productArea,
                       s.modelProvider,
-                      DATA_EXPOSURE_LABELS[s.customerDataExposure],
+                      t(`systems.dataExposure.${s.customerDataExposure}`),
                     ]
                       .filter(Boolean)
                       .join(' · ')}
@@ -538,7 +535,7 @@ export function AiSystemsPage() {
                     variant="ghost"
                     size="sm"
                     onClick={() => openEdit(s)}
-                    aria-label="Edit"
+                    aria-label={t('systems.edit')}
                   >
                     <Edit3 className="h-4 w-4" />
                   </Button>
@@ -546,7 +543,7 @@ export function AiSystemsPage() {
                     variant="ghost"
                     size="sm"
                     onClick={() => deleteMutation.mutate(s.id)}
-                    aria-label="Delete"
+                    aria-label={t('systems.delete')}
                   >
                     <Trash2 className="h-4 w-4 text-rose-600" />
                   </Button>
