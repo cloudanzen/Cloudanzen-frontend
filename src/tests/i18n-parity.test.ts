@@ -30,6 +30,13 @@ describe('i18n locale parity', () => {
     expect(jaKeys).toEqual(enKeys);
   });
 
+  it('keeps ai keys in sync between English and Japanese', () => {
+    const enKeys = flattenKeys(readLocale('en', 'ai')).sort();
+    const jaKeys = flattenKeys(readLocale('ja', 'ai')).sort();
+
+    expect(jaKeys).toEqual(enKeys);
+  });
+
   it('keeps tests keys in sync between English and Japanese', () => {
     const enKeys = flattenKeys(readLocale('en', 'tests')).sort();
     const jaKeys = flattenKeys(readLocale('ja', 'tests')).sort();

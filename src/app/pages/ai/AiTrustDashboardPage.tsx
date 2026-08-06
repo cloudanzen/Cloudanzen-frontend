@@ -12,6 +12,7 @@
  */
 
 import { useQuery } from '@tanstack/react-query';
+import { Trans, useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import {
   AlertTriangle,
@@ -41,34 +42,32 @@ import {
 } from '@/services/api/aiTrust';
 
 interface CardMeta {
-  label: string;
+  /** i18n key under `trustDashboard.cards`. */
+  labelKey: string;
   icon: LucideIcon;
 }
 
 // Ordered — drives the grid layout. Keys must match the BE `cards` map.
 const CARD_META: Array<[string, CardMeta]> = [
-  ['aiSystems', { label: 'AI systems registered', icon: Boxes }],
-  ['aiVendors', { label: 'AI vendors reviewed', icon: Store }],
-  ['modelsWithCards', { label: 'Models with model cards', icon: FileText }],
-  ['runtimeRisk', { label: 'Runtime risk status', icon: Activity }],
-  [
-    'driftThreshold',
-    { label: 'Drift / threshold status', icon: AlertTriangle },
-  ],
-  ['agentTraceCoverage', { label: 'Agent trace coverage', icon: RouteIcon }],
-  ['ragHygiene', { label: 'RAG / pipeline hygiene', icon: Workflow }],
-  ['openAiRisks', { label: 'Open AI risks', icon: ShieldCheck }],
+  ['aiSystems', { labelKey: 'aiSystems', icon: Boxes }],
+  ['aiVendors', { labelKey: 'aiVendors', icon: Store }],
+  ['modelsWithCards', { labelKey: 'modelsWithCards', icon: FileText }],
+  ['runtimeRisk', { labelKey: 'runtimeRisk', icon: Activity }],
+  ['driftThreshold', { labelKey: 'driftThreshold', icon: AlertTriangle }],
+  ['agentTraceCoverage', { labelKey: 'agentTraceCoverage', icon: RouteIcon }],
+  ['ragHygiene', { labelKey: 'ragHygiene', icon: Workflow }],
+  ['openAiRisks', { labelKey: 'openAiRisks', icon: ShieldCheck }],
   [
     'openUseCaseApprovals',
-    { label: 'Open use-case approvals', icon: GitBranch },
+    { labelKey: 'openUseCaseApprovals', icon: GitBranch },
   ],
   [
     'trustCenterReadiness',
-    { label: 'Trust Center readiness', icon: ShieldCheck },
+    { labelKey: 'trustCenterReadiness', icon: ShieldCheck },
   ],
   [
     'questionnaireCoverage',
-    { label: 'Questionnaire coverage', icon: Sparkles },
+    { labelKey: 'questionnaireCoverage', icon: Sparkles },
   ],
 ];
 
@@ -92,6 +91,7 @@ function MetricCard({
   meta: CardMeta;
   card: DashboardCard | undefined;
 }) {
+  const { t } = useTranslation('ai');
   const Icon = meta.icon;
   const comingSoon = card?.status === 'coming_soon';
   const hasLabel = !comingSoon && typeof card?.label === 'string';
@@ -103,15 +103,15 @@ function MetricCard({
         <Icon className="h-5 w-5 text-muted-foreground" />
         {comingSoon ? (
           <Badge variant="outline" className="text-xs">
-            Coming soon
+            {t('trustDashboard.comingSoon')}
           </Badge>
         ) : card?.proxy ? (
           <Badge
             variant="outline"
             className="text-xs"
-            title="Derived from a general register until a dedicated AI source is connected"
+            title={t('trustDashboard.proxyTooltip')}
           >
-            Proxy
+            {t('trustDashboard.proxy')}
           </Badge>
         ) : null}
       </div>
@@ -126,15 +126,21 @@ function MetricCard({
           {comingSoon ? '—' : (card?.value ?? 0)}
         </div>
       )}
-      <div className="text-sm text-muted-foreground">{meta.label}</div>
+      <div className="text-sm text-muted-foreground">
+        {t(`trustDashboard.cards.${meta.labelKey}`)}
+      </div>
     </Card>
   );
 }
 
 function Checklist({ items }: { items: TrustDashboard['checklist'] }) {
+  const { t } = useTranslation('ai');
+
   return (
     <Card className="p-4">
-      <h2 className="text-lg font-semibold mb-3">Getting started</h2>
+      <h2 className="text-lg font-semibold mb-3">
+        {t('trustDashboard.gettingStarted')}
+      </h2>
       <ul className="divide-y">
         {items.map((item) => (
           <li
@@ -157,11 +163,11 @@ function Checklist({ items }: { items: TrustDashboard['checklist'] }) {
             </div>
             {item.comingSoon ? (
               <Badge variant="outline" className="text-xs">
-                Soon
+                {t('trustDashboard.soon')}
               </Badge>
             ) : item.done ? null : (
               <Button asChild variant="ghost" size="sm">
-                <Link to={item.href}>Start</Link>
+                <Link to={item.href}>{t('trustDashboard.start')}</Link>
               </Button>
             )}
           </li>
@@ -172,6 +178,7 @@ function Checklist({ items }: { items: TrustDashboard['checklist'] }) {
 }
 
 export function AiTrustDashboardPage() {
+  const { t } = useTranslation('ai');
   const { data, isLoading, isError } = useQuery({
     queryKey: ['ai-trust', 'dashboard'],
     queryFn: () => aiTrustService.getDashboard(),
@@ -179,8 +186,8 @@ export function AiTrustDashboardPage() {
 
   return (
     <PageTemplate
-      title="AI TrustOps"
-      description="Your AI trust posture at a glance — readiness, evidence, and what to connect next."
+      title={t('trustDashboard.title')}
+      description={t('trustDashboard.description')}
     >
       {isLoading ? (
         <div className="flex items-center justify-center py-16 text-muted-foreground">
@@ -188,8 +195,7 @@ export function AiTrustDashboardPage() {
         </div>
       ) : isError || !data ? (
         <Card className="p-6 text-center text-muted-foreground">
-          Could not load the AI TrustOps dashboard. Retry shortly, or confirm
-          your organisation has the AI Governance bundle enabled.
+          {t('trustDashboard.loadError')}
         </Card>
       ) : (
         <div className="space-y-6">
@@ -202,13 +208,15 @@ export function AiTrustDashboardPage() {
                 <span className="text-2xl">%</span>
               </span>
               <span className="text-sm text-muted-foreground mt-1">
-                AI Trust Readiness
+                {t('trustDashboard.readiness')}
               </span>
             </div>
             <p className="text-sm text-muted-foreground max-w-xl">
-              Weighted across the trust tasks you can complete today. Cards
-              marked <em>Coming soon</em> unlock as runtime, agent-trace, and
-              RAG telemetry sources land.
+              <Trans
+                i18nKey="trustDashboard.readinessNote"
+                ns="ai"
+                components={[<em key="0" />]}
+              />
             </p>
           </Card>
 

@@ -11,6 +11,7 @@ import { Link } from 'react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader2, Plus, Trash2, Route as RouteIcon } from 'lucide-react';
 
+import { useTranslation } from 'react-i18next';
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { Card } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
@@ -54,6 +55,7 @@ function TraceDialog({
   open: boolean;
   onOpenChange: (o: boolean) => void;
 }) {
+  const { t } = useTranslation('ai');
   const qc = useQueryClient();
   const [sessionRef, setSessionRef] = useState('');
   const [agentName, setAgentName] = useState('');
@@ -85,7 +87,7 @@ function TraceDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>New agent trace</DialogTitle>
+          <DialogTitle>{t('agentTrails.newAgentTrace')}</DialogTitle>
           <DialogDescription>
             A sanitized record of an agent session for review — not raw
             chain-of-thought.
@@ -94,47 +96,53 @@ function TraceDialog({
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="t-session">Session ref</Label>
+              <Label htmlFor="t-session">
+                {t('agentTrails.fields.sessionRef')}
+              </Label>
               <Input
                 id="t-session"
                 value={sessionRef}
                 onChange={(e) => setSessionRef(e.target.value)}
-                placeholder="sess_2026_07_06_123"
+                placeholder={t('agentTrails.placeholders.sessionRef')}
               />
             </div>
             <div>
-              <Label htmlFor="t-agent">Agent name</Label>
+              <Label htmlFor="t-agent">
+                {t('agentTrails.fields.agentName')}
+              </Label>
               <Input
                 id="t-agent"
                 value={agentName}
                 onChange={(e) => setAgentName(e.target.value)}
-                placeholder="support-copilot"
+                placeholder={t('agentTrails.placeholders.agentName')}
               />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="t-user">User identity</Label>
+              <Label htmlFor="t-user">
+                {t('agentTrails.fields.userIdentity')}
+              </Label>
               <Input
                 id="t-user"
                 value={userIdentity}
                 onChange={(e) => setUserIdentity(e.target.value)}
-                placeholder="user_ab12 (pseudonymous)"
+                placeholder={t('agentTrails.placeholders.userIdentity')}
               />
             </div>
             <div>
-              <Label htmlFor="t-model">Model</Label>
+              <Label htmlFor="t-model">{t('agentTrails.fields.model')}</Label>
               <Input
                 id="t-model"
                 value={model}
                 onChange={(e) => setModel(e.target.value)}
-                placeholder="gpt-4o"
+                placeholder={t('agentTrails.placeholders.model')}
               />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>Status</Label>
+              <Label>{t('agentTrails.fields.status')}</Label>
               <Select
                 value={status}
                 onValueChange={(v) => setStatus(v as AiTraceStatus)}
@@ -152,18 +160,21 @@ function TraceDialog({
               </Select>
             </div>
             <div>
-              <Label htmlFor="t-final">Final action</Label>
+              <Label htmlFor="t-final">
+                {t('agentTrails.fields.finalAction')}
+              </Label>
               <Input
                 id="t-final"
                 value={finalAction}
                 onChange={(e) => setFinalAction(e.target.value)}
-                placeholder="Sent refund email"
+                placeholder={t('agentTrails.placeholders.finalAction')}
               />
             </div>
           </div>
           {mutation.isError ? (
             <p className="text-sm text-red-600">
-              {(mutation.error as Error)?.message ?? 'Save failed'}
+              {(mutation.error as Error)?.message ??
+                t('agentTrails.saveFailed')}
             </p>
           ) : null}
         </div>
@@ -188,6 +199,7 @@ function TraceDialog({
 }
 
 export function AiAgentTrailsPage() {
+  const { t } = useTranslation('ai');
   const qc = useQueryClient();
   const [dialog, setDialog] = useState(false);
 
@@ -205,8 +217,8 @@ export function AiAgentTrailsPage() {
 
   return (
     <PageTemplate
-      title="Agent Trails"
-      description="Sanitized agent execution and decision traces for review and incident investigation."
+      title={t('agentTrails.title')}
+      description={t('agentTrails.description')}
       actions={
         <Button onClick={() => setDialog(true)}>
           <Plus className="h-4 w-4 mr-2" />
@@ -221,7 +233,7 @@ export function AiAgentTrailsPage() {
       ) : (data ?? []).length === 0 ? (
         <Card className="p-8 text-center">
           <RouteIcon className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-          <p className="text-sm font-medium">No agent traces yet</p>
+          <p className="text-sm font-medium">{t('agentTrails.empty')}</p>
           <p className="text-xs text-muted-foreground mt-1">
             Send agent execution traces via the API, or create a trace summary
             for a reviewed incident.
@@ -234,31 +246,31 @@ export function AiAgentTrailsPage() {
       ) : (
         <Card>
           <div className="divide-y">
-            {(data ?? []).map((t: AiAgentTrace) => (
+            {(data ?? []).map((trace: AiAgentTrace) => (
               <div
-                key={t.id}
+                key={trace.id}
                 className="flex items-center justify-between px-4 py-3 gap-4"
               >
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
                     <Link
-                      to={`/ai-trust/agent-trails/${t.id}`}
+                      to={`/ai-trust/agent-trails/${trace.id}`}
                       className="text-sm font-medium truncate hover:underline"
                     >
-                      {t.agentName}
+                      {trace.agentName}
                     </Link>
                     <Badge
                       variant="outline"
-                      className={STATUS_COLORS[t.status]}
+                      className={STATUS_COLORS[trace.status]}
                     >
-                      {titleCase(t.status)}
+                      {titleCase(trace.status)}
                     </Badge>
                     <Badge variant="outline" className="text-xs">
-                      {t._count?.steps ?? 0} steps
+                      {trace._count?.steps ?? 0} steps
                     </Badge>
                   </div>
                   <p className="text-xs text-muted-foreground truncate mt-0.5">
-                    {[t.sessionRef, t.userIdentity, t.model]
+                    {[trace.sessionRef, trace.userIdentity, trace.model]
                       .filter(Boolean)
                       .join(' · ')}
                   </p>
@@ -266,8 +278,8 @@ export function AiAgentTrailsPage() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => del.mutate(t.id)}
-                  aria-label="Delete trace"
+                  onClick={() => del.mutate(trace.id)}
+                  aria-label={t('agentTrails.deleteTrace')}
                 >
                   <Trash2 className="h-4 w-4 text-rose-600" />
                 </Button>

@@ -38,5 +38,57 @@
     "uploadDocument": "Upload Document",
     "searchPlaceholder": "Search knowledge base...",
     "noDocuments": "No documents in knowledge base"
+  },
+  "trustDashboard": {
+    "title": "AI TrustOps",
+    "description": "Your AI trust posture at a glance — readiness, evidence, and what to connect next.",
+    "loadError": "Could not load the AI TrustOps dashboard. Retry shortly, or confirm your organisation has the AI Governance bundle enabled.",
+    "readiness": "AI Trust Readiness",
+    "readinessNote": "Weighted across the trust tasks you can complete today. Cards marked <1>Coming soon</1> unlock as runtime, agent-trace, and RAG telemetry sources land.",
+    "comingSoon": "Coming soon",
+    "proxy": "Proxy",
+    "proxyTooltip": "Derived from a general register until a dedicated AI source is connected",
+    "gettingStarted": "Getting started",
+    "soon": "Soon",
+    "start": "Start",
+    "cards": {
+      "aiSystems": "AI systems registered",
+      "aiVendors": "AI vendors reviewed",
+      "modelsWithCards": "Models with model cards",
+      "runtimeRisk": "Runtime risk status",
+      "driftThreshold": "Drift / threshold status",
+      "agentTraceCoverage": "Agent trace coverage",
+      "ragHygiene": "RAG / pipeline hygiene",
+      "openAiRisks": "Open AI risks",
+      "openUseCaseApprovals": "Open use-case approvals",
+      "trustCenterReadiness": "Trust Center readiness",
+      "questionnaireCoverage": "Questionnaire coverage"
+    }
+  },
+  "agentTrails": {
+    "title": "Agent Trails",
+    "description": "Sanitized agent execution and decision traces for review and incident investigation.",
+    "newTrace": "New trace",
+    "newAgentTrace": "New agent trace",
+    "empty": "No agent traces yet",
+    "cancel": "Cancel",
+    "create": "Create",
+    "saveFailed": "Save failed",
+    "deleteTrace": "Delete trace",
+    "fields": {
+      "sessionRef": "Session ref",
+      "agentName": "Agent name",
+      "userIdentity": "User identity",
+      "model": "Model",
+      "status": "Status",
+      "finalAction": "Final action"
+    },
+    "placeholders": {
+      "sessionRef": "sess_2026_07_06_123",
+      "agentName": "support-copilot",
+      "userIdentity": "user_ab12 (pseudonymous)",
+      "model": "gpt-4o",
+      "finalAction": "Sent refund email"
+    }
   }
 }
