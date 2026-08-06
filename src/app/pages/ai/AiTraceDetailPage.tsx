@@ -12,6 +12,7 @@ import { useParams, Link } from 'react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader2, Plus, Trash2, ArrowLeft, ShieldAlert } from 'lucide-react';
 
+import { useTranslation } from 'react-i18next';
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { Card } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
@@ -72,6 +73,7 @@ function StepDialog({
   open: boolean;
   onOpenChange: (o: boolean) => void;
 }) {
+  const { t } = useTranslation('ai');
   const qc = useQueryClient();
   const [title, setTitle] = useState('');
   const [stepType, setStepType] = useState<AiTraceStepType>('TOOL_CALL');
@@ -100,24 +102,24 @@ function StepDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add step</DialogTitle>
+          <DialogTitle>{t('traceDetail.addStep')}</DialogTitle>
           <DialogDescription>
             A tool call, policy decision, human approval, retrieval, or action.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-3">
           <div>
-            <Label htmlFor="s-title">Title</Label>
+            <Label htmlFor="s-title">{t('traceDetail.fields.title')}</Label>
             <Input
               id="s-title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Called refund_tool"
+              placeholder={t('traceDetail.placeholders.title')}
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>Type</Label>
+              <Label>{t('traceDetail.fields.type')}</Label>
               <Select
                 value={stepType}
                 onValueChange={(v) => setStepType(v as AiTraceStepType)}
@@ -135,7 +137,7 @@ function StepDialog({
               </Select>
             </div>
             <div>
-              <Label>Outcome</Label>
+              <Label>{t('traceDetail.fields.outcome')}</Label>
               <Select
                 value={outcome}
                 onValueChange={(v) => setOutcome(v as AiStepOutcome)}
@@ -154,21 +156,21 @@ function StepDialog({
             </div>
           </div>
           <div>
-            <Label htmlFor="s-tool">Tool name (optional)</Label>
+            <Label htmlFor="s-tool">{t('traceDetail.fields.toolName')}</Label>
             <Input
               id="s-tool"
               value={toolName}
               onChange={(e) => setToolName(e.target.value)}
-              placeholder="refund_tool"
+              placeholder={t('traceDetail.placeholders.toolName')}
             />
           </div>
           <div>
-            <Label htmlFor="s-summary">Summary</Label>
+            <Label htmlFor="s-summary">{t('traceDetail.fields.summary')}</Label>
             <Textarea
               id="s-summary"
               value={summary}
               onChange={(e) => setSummary(e.target.value)}
-              placeholder="Sanitized review note — no chain-of-thought."
+              placeholder={t('traceDetail.placeholders.summary')}
             />
           </div>
           <label className="flex items-center gap-2 text-sm">
@@ -177,7 +179,8 @@ function StepDialog({
           </label>
           {mutation.isError ? (
             <p className="text-sm text-red-600">
-              {(mutation.error as Error)?.message ?? 'Save failed'}
+              {(mutation.error as Error)?.message ??
+                t('traceDetail.saveFailed')}
             </p>
           ) : null}
         </div>
@@ -192,7 +195,7 @@ function StepDialog({
             {mutation.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              'Add step'
+              t('traceDetail.addStep')
             )}
           </Button>
         </DialogFooter>
@@ -202,6 +205,7 @@ function StepDialog({
 }
 
 export function AiTraceDetailPage() {
+  const { t } = useTranslation('ai');
   const { id = '' } = useParams();
   const qc = useQueryClient();
   const [stepDialog, setStepDialog] = useState(false);
@@ -219,8 +223,8 @@ export function AiTraceDetailPage() {
 
   return (
     <PageTemplate
-      title={trace?.agentName ?? 'Agent trace'}
-      description="Sanitized execution and decision trace."
+      title={trace?.agentName ?? t('traceDetail.fallbackTitle')}
+      description={t('traceDetail.description')}
       actions={
         <Button asChild variant="outline">
           <Link to="/ai-trust/agent-trails">
@@ -260,10 +264,12 @@ export function AiTraceDetailPage() {
 
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h2 className="text-lg font-semibold">Steps</h2>
+              <h2 className="text-lg font-semibold">
+                {t('traceDetail.steps')}
+              </h2>
               <Button size="sm" onClick={() => setStepDialog(true)}>
                 <Plus className="h-4 w-4 mr-2" />
-                Add step
+                {t('traceDetail.addStep')}
               </Button>
             </div>
             {(trace.steps ?? []).length === 0 ? (
@@ -321,7 +327,7 @@ export function AiTraceDetailPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => delStep.mutate(s.id)}
-                        aria-label="Delete step"
+                        aria-label={t('traceDetail.deleteStep')}
                       >
                         <Trash2 className="h-4 w-4 text-rose-600" />
                       </Button>

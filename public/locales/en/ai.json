@@ -90,5 +90,62 @@
       "model": "gpt-4o",
       "finalAction": "Sent refund email"
     }
+  },
+  "traceDetail": {
+    "fallbackTitle": "Agent trace",
+    "description": "Sanitized execution and decision trace.",
+    "backToTrails": "Back to trails",
+    "steps": "Steps",
+    "addStep": "Add step",
+    "addStepHint": "A tool call, policy decision, human approval, retrieval, or action.",
+    "sensitive": "Sensitive",
+    "deleteStep": "Delete step",
+    "cancel": "Cancel",
+    "saveFailed": "Save failed",
+    "fields": {
+      "title": "Title",
+      "type": "Type",
+      "outcome": "Outcome",
+      "toolName": "Tool name (optional)",
+      "summary": "Summary",
+      "accessedSensitiveData": "Accessed sensitive data"
+    },
+    "placeholders": {
+      "title": "Called refund_tool",
+      "toolName": "refund_tool",
+      "summary": "Sanitized review note — no chain-of-thought."
+    }
+  },
+  "models": {
+    "title": "AI Model Registry",
+    "description": "Production AI systems registered for ISO/IEC 42001. Each PRODUCTION model needs a model card and a review within the past 12 months.",
+    "empty": "No AI models registered yet",
+    "registerFirst": "Register first model",
+    "register": "Register",
+    "registerModel": "Register AI model",
+    "editModel": "Edit AI model",
+    "saveChanges": "Save changes",
+    "cancel": "Cancel",
+    "saveFailed": "Save failed",
+    "edit": "Edit",
+    "delete": "Delete",
+    "noModelCard": "Model card not attached — evaluator will fail.",
+    "fields": {
+      "name": "Name",
+      "vendor": "Vendor",
+      "version": "Version",
+      "classification": "Classification"
+    },
+    "placeholders": {
+      "name": "e.g. Support Triage Assistant",
+      "vendor": "OpenAI, Anthropic, ...",
+      "version": "gpt-4o, claude-3-5-sonnet, ..."
+    },
+    "classification": {
+      "DEVELOPMENT": "Development",
+      "TESTING": "Testing",
+      "PRODUCTION": "Production",
+      "RETIRED": "Retired"
+    }
   }
 }
