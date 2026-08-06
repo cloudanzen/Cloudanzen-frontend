@@ -90,5 +90,62 @@
       "model": "gpt-4o",
       "finalAction": "返金メールを送信"
     }
+  },
+  "traceDetail": {
+    "fallbackTitle": "エージェントトレース",
+    "description": "サニタイズ済みの実行・判断トレース。",
+    "backToTrails": "トレイル一覧に戻る",
+    "steps": "ステップ",
+    "addStep": "ステップを追加",
+    "addStepHint": "ツール呼び出し、ポリシー判断、人による承認、検索、またはアクション。",
+    "sensitive": "機微情報",
+    "deleteStep": "ステップを削除",
+    "cancel": "キャンセル",
+    "saveFailed": "保存に失敗しました",
+    "fields": {
+      "title": "タイトル",
+      "type": "種別",
+      "outcome": "結果",
+      "toolName": "ツール名（任意）",
+      "summary": "概要",
+      "accessedSensitiveData": "機微データにアクセス"
+    },
+    "placeholders": {
+      "title": "refund_tool を呼び出し",
+      "toolName": "refund_tool",
+      "summary": "サニタイズ済みのレビューメモ — 思考過程は含めないでください。"
+    }
+  },
+  "models": {
+    "title": "AIモデルレジストリ",
+    "description": "ISO/IEC 42001向けに登録された本番AIシステム。PRODUCTIONの各モデルにはモデルカードと過去12か月以内のレビューが必要です。",
+    "empty": "登録済みのAIモデルはまだありません",
+    "registerFirst": "最初のモデルを登録",
+    "register": "登録",
+    "registerModel": "AIモデルを登録",
+    "editModel": "AIモデルを編集",
+    "saveChanges": "変更を保存",
+    "cancel": "キャンセル",
+    "saveFailed": "保存に失敗しました",
+    "edit": "編集",
+    "delete": "削除",
+    "noModelCard": "モデルカードが添付されていません — 評価は失敗します。",
+    "fields": {
+      "name": "名称",
+      "vendor": "ベンダー",
+      "version": "バージョン",
+      "classification": "分類"
+    },
+    "placeholders": {
+      "name": "例：サポートトリアージアシスタント",
+      "vendor": "OpenAI、Anthropic、…",
+      "version": "gpt-4o、claude-3-5-sonnet、…"
+    },
+    "classification": {
+      "DEVELOPMENT": "開発",
+      "TESTING": "テスト",
+      "PRODUCTION": "本番",
+      "RETIRED": "廃止"
+    }
   }
 }

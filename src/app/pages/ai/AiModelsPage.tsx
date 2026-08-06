@@ -13,6 +13,7 @@ import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader2, Plus, Trash2, Edit3, Brain } from 'lucide-react';
 
+import { useTranslation } from 'react-i18next';
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { Card } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
@@ -41,12 +42,8 @@ import {
   aiModelsService,
 } from '@/services/api/aiModels';
 
-const CLASSIFICATION_LABELS: Record<AiModelClassification, string> = {
-  DEVELOPMENT: 'Development',
-  TESTING: 'Testing',
-  PRODUCTION: 'Production',
-  RETIRED: 'Retired',
-};
+/** Classification labels live in the `ai` namespace under
+ * `models.classification.<ENUM>`; resolve with t() at render time. */
 
 const CLASSIFICATION_COLORS: Record<AiModelClassification, string> = {
   DEVELOPMENT: 'bg-blue-50 text-blue-700 border-blue-200',
@@ -91,6 +88,7 @@ function ModelDialog({
   modelId: string | null;
   onOpenChange: (open: boolean) => void;
 }) {
+  const { t } = useTranslation('ai');
   const qc = useQueryClient();
   const [form, setForm] = useState<ModelFormState>(initial);
   const isEdit = modelId !== null;
@@ -118,7 +116,7 @@ function ModelDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {isEdit ? 'Edit AI model' : 'Register AI model'}
+            {isEdit ? t('models.editModel') : t('models.registerModel')}
           </DialogTitle>
           <DialogDescription>
             Track production AI systems so model-card and review-cadence
@@ -128,36 +126,42 @@ function ModelDialog({
 
         <div className="space-y-3">
           <div>
-            <Label htmlFor="ai-model-name">Name</Label>
+            <Label htmlFor="ai-model-name">{t('models.fields.name')}</Label>
             <Input
               id="ai-model-name"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              placeholder="e.g. Support Triage Assistant"
+              placeholder={t('models.placeholders.name')}
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="ai-model-vendor">Vendor</Label>
+              <Label htmlFor="ai-model-vendor">
+                {t('models.fields.vendor')}
+              </Label>
               <Input
                 id="ai-model-vendor"
                 value={form.vendor}
                 onChange={(e) => setForm({ ...form, vendor: e.target.value })}
-                placeholder="OpenAI, Anthropic, ..."
+                placeholder={t('models.placeholders.vendor')}
               />
             </div>
             <div>
-              <Label htmlFor="ai-model-version">Version</Label>
+              <Label htmlFor="ai-model-version">
+                {t('models.fields.version')}
+              </Label>
               <Input
                 id="ai-model-version"
                 value={form.version}
                 onChange={(e) => setForm({ ...form, version: e.target.value })}
-                placeholder="gpt-4o, claude-3-5-sonnet, ..."
+                placeholder={t('models.placeholders.version')}
               />
             </div>
           </div>
           <div>
-            <Label htmlFor="ai-model-class">Classification</Label>
+            <Label htmlFor="ai-model-class">
+              {t('models.fields.classification')}
+            </Label>
             <Select
               value={form.classification}
               onValueChange={(v) =>
@@ -170,7 +174,7 @@ function ModelDialog({
               <SelectContent>
                 {AI_MODEL_CLASSIFICATIONS.map((c) => (
                   <SelectItem key={c} value={c}>
-                    {CLASSIFICATION_LABELS[c]}
+                    {t(`models.classification.${c}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -178,7 +182,7 @@ function ModelDialog({
           </div>
           {mutation.isError ? (
             <p className="text-sm text-red-600">
-              {(mutation.error as Error)?.message ?? 'Save failed'}
+              {(mutation.error as Error)?.message ?? t('models.saveFailed')}
             </p>
           ) : null}
         </div>
@@ -194,9 +198,9 @@ function ModelDialog({
             {mutation.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : isEdit ? (
-              'Save changes'
+              t('models.saveChanges')
             ) : (
-              'Register'
+              t('models.register')
             )}
           </Button>
         </DialogFooter>
@@ -206,6 +210,7 @@ function ModelDialog({
 }
 
 export function AiModelsPage() {
+  const { t } = useTranslation('ai');
   const qc = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -246,8 +251,8 @@ export function AiModelsPage() {
 
   return (
     <PageTemplate
-      title="AI Model Registry"
-      description="Production AI systems registered for ISO/IEC 42001. Each PRODUCTION model needs a model card and a review within the past 12 months."
+      title={t('models.title')}
+      description={t('models.description')}
       actions={
         <Button onClick={openCreate}>
           <Plus className="h-4 w-4 mr-2" />
@@ -262,7 +267,7 @@ export function AiModelsPage() {
       ) : (models ?? []).length === 0 ? (
         <Card className="p-8 text-center">
           <Brain className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-          <p className="text-sm font-medium">No AI models registered yet</p>
+          <p className="text-sm font-medium">{t('models.empty')}</p>
           <p className="text-xs text-muted-foreground mt-1">
             Register every production AI system so the model-registry evaluator
             and the model-card control have something to check.
@@ -282,7 +287,7 @@ export function AiModelsPage() {
                 <div key={cls} className="space-y-2">
                   <div className="flex items-center gap-2">
                     <h3 className="text-sm font-semibold">
-                      {CLASSIFICATION_LABELS[cls]}
+                      {t(`models.classification.${cls}`)}
                     </h3>
                     <Badge
                       variant="outline"
@@ -319,7 +324,7 @@ export function AiModelsPage() {
                               variant="ghost"
                               size="sm"
                               onClick={() => openEdit(m)}
-                              aria-label="Edit"
+                              aria-label={t('models.edit')}
                             >
                               <Edit3 className="h-4 w-4" />
                             </Button>
@@ -335,7 +340,7 @@ export function AiModelsPage() {
                                   deleteMutation.mutate(m.id);
                                 }
                               }}
-                              aria-label="Delete"
+                              aria-label={t('models.delete')}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
