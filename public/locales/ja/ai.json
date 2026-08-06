@@ -38,5 +38,57 @@
     "uploadDocument": "ドキュメントをアップロード",
     "searchPlaceholder": "ナレッジベースを検索...",
     "noDocuments": "ナレッジベースにドキュメントなし"
+  },
+  "trustDashboard": {
+    "title": "AI TrustOps",
+    "description": "AIの信頼性態勢を一目で把握 — 準備状況、証跡、次に接続すべき項目。",
+    "loadError": "AI TrustOpsダッシュボードを読み込めませんでした。しばらくしてから再試行するか、組織でAIガバナンスバンドルが有効になっているか確認してください。",
+    "readiness": "AI信頼性準備度",
+    "readinessNote": "本日完了できる信頼性タスク全体を加重評価しています。<1>近日公開</1>のカードは、ランタイム、エージェントトレース、RAGのテレメトリソースが利用可能になると解放されます。",
+    "comingSoon": "近日公開",
+    "proxy": "代替値",
+    "proxyTooltip": "専用のAIソースが接続されるまで、汎用レジスタから導出しています",
+    "gettingStarted": "はじめに",
+    "soon": "近日",
+    "start": "開始",
+    "cards": {
+      "aiSystems": "登録済みAIシステム",
+      "aiVendors": "レビュー済みAIベンダー",
+      "modelsWithCards": "モデルカードのあるモデル",
+      "runtimeRisk": "ランタイムリスク状況",
+      "driftThreshold": "ドリフト／しきい値の状況",
+      "agentTraceCoverage": "エージェントトレース網羅率",
+      "ragHygiene": "RAG／パイプラインの健全性",
+      "openAiRisks": "未対応のAIリスク",
+      "openUseCaseApprovals": "未承認のユースケース",
+      "trustCenterReadiness": "トラストセンター準備度",
+      "questionnaireCoverage": "アンケート網羅率"
+    }
+  },
+  "agentTrails": {
+    "title": "エージェントトレイル",
+    "description": "レビューおよびインシデント調査のための、サニタイズ済みエージェント実行・判断トレース。",
+    "newTrace": "新規トレース",
+    "newAgentTrace": "新規エージェントトレース",
+    "empty": "エージェントトレースはまだありません",
+    "cancel": "キャンセル",
+    "create": "作成",
+    "saveFailed": "保存に失敗しました",
+    "deleteTrace": "トレースを削除",
+    "fields": {
+      "sessionRef": "セッション参照",
+      "agentName": "エージェント名",
+      "userIdentity": "ユーザー識別子",
+      "model": "モデル",
+      "status": "ステータス",
+      "finalAction": "最終アクション"
+    },
+    "placeholders": {
+      "sessionRef": "sess_2026_07_06_123",
+      "agentName": "support-copilot",
+      "userIdentity": "user_ab12（仮名化）",
+      "model": "gpt-4o",
+      "finalAction": "返金メールを送信"
+    }
   }
 }
