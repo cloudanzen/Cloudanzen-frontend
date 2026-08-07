@@ -194,6 +194,66 @@
         "riskScore": "リスクスコア",
         "detectedAt": "検出日"
       }
+    },
+    "evidenceSynthesis": {
+      "suggest": "AIで管理策マッピングを提案",
+      "title": "AIによる証跡の統合",
+      "humanReview": "出力は変更を加える前に人によるレビューが必要です",
+      "failed": "解析に失敗しました。もう一度お試しください。",
+      "suggestedMappings": "AIが提案した管理策マッピング",
+      "pendingReview": "レビュー待ち",
+      "dismissed": "提案を却下しました。",
+      "summaryPlaceholder": "この所見に含まれる証跡を記述してください（例：「GitHubのブランチ保護チェックが失敗 — 既定ブランチに必須レビュアーが未設定」）"
+    },
+    "remediation": {
+      "title": "自動修復",
+      "loading": "読み込み中...",
+      "viewDiff": "変更差分を表示",
+      "before": "変更前",
+      "after": "変更後",
+      "waitingApproval": "承認待ち",
+      "runDryRun": "ドライランを実行",
+      "requestApproval": "承認を依頼",
+      "fixNow": "今すぐ修正",
+      "approveAndFix": "承認して修正",
+      "reject": "却下",
+      "execute": "実行",
+      "rollback": "ロールバック"
+    },
+    "findingDetail": {
+      "overdue": "期限超過",
+      "slaBreached": "この所見は修復SLAに違反しています。",
+      "youAreOwner": "あなたがこの所見の現在の修復担当者です。",
+      "unmappedControl": "未マッピングの管理策",
+      "noDescription": "説明はありません。",
+      "workflowMetadata": "ワークフローのメタデータ",
+      "remediationOwner": "修復担当者",
+      "saveMetadata": "メタデータを保存",
+      "remediationLog": "修復ログ",
+      "noUpdates": "修復の更新はまだありません。",
+      "addNote": "修復メモを追加",
+      "actions": "アクション",
+      "startRemediation": "修復を開始",
+      "submitForReview": "レビューに提出",
+      "close": "クローズ",
+      "reopen": "再オープン",
+      "fields": {
+        "description": "説明",
+        "asset": "資産",
+        "risk": "リスク",
+        "relatedPolicy": "関連ポリシー",
+        "created": "作成日",
+        "dueDate": "期限",
+        "owner": "担当者",
+        "age": "経過日数",
+        "latestRun": "直近のトリガー実行",
+        "executed": "実行日時",
+        "source": "ソース"
+      },
+      "placeholders": {
+        "ownerId": "ユーザーIDまたはメールアドレス",
+        "note": "修復の更新を追加..."
+      }
     }
   },
   "vulnerabilities": {

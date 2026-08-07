@@ -3,6 +3,7 @@
  * in Phase 4. Component body is unchanged.
  */
 
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import {
   CheckCircle2,
@@ -41,6 +42,7 @@ export function ConfidenceBadge({
 }
 
 export function EvidenceSynthesisPanel({ findingId }: { findingId: string }) {
+  const { t } = useTranslation('assets');
   const [summaryInput, setSummaryInput] = useState('');
   const [result, setResult] = useState<EvidenceSynthesisResult | null>(null);
   const [showInput, setShowInput] = useState(false);
@@ -102,7 +104,7 @@ export function EvidenceSynthesisPanel({ findingId }: { findingId: string }) {
         </div>
         <textarea
           className="w-full min-h-[80px] rounded-lg border border-blue-200 bg-white p-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
-          placeholder="Describe what evidence this finding contains (e.g. 'GitHub branch protection check failed — no required reviewers on default branch')"
+          placeholder={t('findings.evidenceSynthesis.summaryPlaceholder')}
           value={summaryInput}
           onChange={(e) => setSummaryInput(e.target.value)}
         />
@@ -239,7 +241,9 @@ export function EvidenceSynthesisPanel({ findingId }: { findingId: string }) {
           </p>
         )}
         {isDismissed && (
-          <p className="text-xs text-gray-500">Suggestion dismissed.</p>
+          <p className="text-xs text-gray-500">
+            {t('findings.evidenceSynthesis.dismissed')}
+          </p>
         )}
       </div>
     );

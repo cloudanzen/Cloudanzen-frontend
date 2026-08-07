@@ -194,6 +194,66 @@
         "riskScore": "Risk Score",
         "detectedAt": "Detected"
       }
+    },
+    "evidenceSynthesis": {
+      "suggest": "Suggest control mappings with AI",
+      "title": "AI evidence synthesis",
+      "humanReview": "Output requires human review before any change is made",
+      "failed": "Analysis failed. Please try again.",
+      "suggestedMappings": "AI-suggested control mappings",
+      "pendingReview": "Pending your review",
+      "dismissed": "Suggestion dismissed.",
+      "summaryPlaceholder": "Describe what evidence this finding contains (e.g. 'GitHub branch protection check failed — no required reviewers on default branch')"
+    },
+    "remediation": {
+      "title": "Automated Remediation",
+      "loading": "Loading...",
+      "viewDiff": "View change diff",
+      "before": "Before",
+      "after": "After",
+      "waitingApproval": "Waiting for approval",
+      "runDryRun": "Run Dry Run",
+      "requestApproval": "Request Approval",
+      "fixNow": "Fix Now",
+      "approveAndFix": "Approve & Fix",
+      "reject": "Reject",
+      "execute": "Execute",
+      "rollback": "Rollback"
+    },
+    "findingDetail": {
+      "overdue": "Overdue",
+      "slaBreached": "This finding has breached its remediation SLA.",
+      "youAreOwner": "You are the current remediation owner for this finding.",
+      "unmappedControl": "Unmapped control",
+      "noDescription": "No description provided.",
+      "workflowMetadata": "Workflow metadata",
+      "remediationOwner": "Remediation owner",
+      "saveMetadata": "Save Metadata",
+      "remediationLog": "Remediation Log",
+      "noUpdates": "No remediation updates yet.",
+      "addNote": "Add Remediation Note",
+      "actions": "Actions",
+      "startRemediation": "Start Remediation",
+      "submitForReview": "Submit for Review",
+      "close": "Close",
+      "reopen": "Reopen",
+      "fields": {
+        "description": "Description",
+        "asset": "Asset",
+        "risk": "Risk",
+        "relatedPolicy": "Related policy",
+        "created": "Created",
+        "dueDate": "Due date",
+        "owner": "Owner",
+        "age": "Age",
+        "latestRun": "Latest triggering run",
+        "executed": "Executed",
+        "source": "Source"
+      },
+      "placeholders": {
+        "ownerId": "User id or email",
+        "note": "Add a remediation update..."
+      }
     }
   },
   "vulnerabilities": {

@@ -3,6 +3,7 @@
  * in Phase 4. Component body is unchanged.
  */
 
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { AlertTriangle, ArrowRight, CheckCircle2, X } from 'lucide-react';
@@ -27,6 +28,7 @@ export function FindingDetailPanel({
   onClose: () => void;
   onUpdated: (finding: FindingRecord) => void;
 }) {
+  const { t } = useTranslation('assets');
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
   const canAudit = useCanAudit();
@@ -79,7 +81,8 @@ export function FindingDetailPanel({
             </h2>
             <p className="text-xs font-medium text-gray-500">
               {finding.control?.isoReference ?? '—'} -{' '}
-              {finding.control?.title ?? 'Unmapped control'}
+              {finding.control?.title ??
+                t('findings.findingDetail.unmappedControl')}
             </p>
           </div>
           <button onClick={onClose} className="rounded p-1 hover:bg-gray-100">
@@ -93,21 +96,27 @@ export function FindingDetailPanel({
               Description
             </p>
             <p className="text-sm text-gray-700">
-              {finding.description ?? 'No description provided.'}
+              {finding.description ?? t('findings.findingDetail.noDescription')}
             </p>
           </div>
 
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div>
-              <p className="text-xs text-gray-500">Asset</p>
+              <p className="text-xs text-gray-500">
+                {t('findings.findingDetail.fields.asset')}
+              </p>
               <p className="font-medium">{finding.asset?.name ?? '—'}</p>
             </div>
             <div>
-              <p className="text-xs text-gray-500">Risk</p>
+              <p className="text-xs text-gray-500">
+                {t('findings.findingDetail.fields.risk')}
+              </p>
               <p className="font-medium">{finding.risk?.title ?? '—'}</p>
             </div>
             <div>
-              <p className="text-xs text-gray-500">Related policy</p>
+              <p className="text-xs text-gray-500">
+                {t('findings.findingDetail.fields.relatedPolicy')}
+              </p>
               {finding.policy ? (
                 <button
                   type="button"
@@ -123,11 +132,15 @@ export function FindingDetailPanel({
               )}
             </div>
             <div>
-              <p className="text-xs text-gray-500">Created</p>
+              <p className="text-xs text-gray-500">
+                {t('findings.findingDetail.fields.created')}
+              </p>
               <p className="font-medium">{fmt(finding.createdAt)}</p>
             </div>
             <div>
-              <p className="text-xs text-gray-500">Due date</p>
+              <p className="text-xs text-gray-500">
+                {t('findings.findingDetail.fields.dueDate')}
+              </p>
               <p
                 className={`font-medium ${isOverdue(finding) ? 'text-red-600' : ''}`}
               >
@@ -135,11 +148,15 @@ export function FindingDetailPanel({
               </p>
             </div>
             <div>
-              <p className="text-xs text-gray-500">Owner</p>
+              <p className="text-xs text-gray-500">
+                {t('findings.findingDetail.fields.owner')}
+              </p>
               <p className="font-medium">{finding.remediationOwner ?? '—'}</p>
             </div>
             <div>
-              <p className="text-xs text-gray-500">Age</p>
+              <p className="text-xs text-gray-500">
+                {t('findings.findingDetail.fields.age')}
+              </p>
               <p className="font-medium">{finding.ageInDays ?? 0} days</p>
             </div>
           </div>
@@ -151,13 +168,17 @@ export function FindingDetailPanel({
               </p>
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div>
-                  <p className="text-xs text-gray-500">Executed</p>
+                  <p className="text-xs text-gray-500">
+                    {t('findings.findingDetail.fields.executed')}
+                  </p>
                   <p className="font-medium">
                     {fmt(finding.testRun.executedAt)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Source</p>
+                  <p className="text-xs text-gray-500">
+                    {t('findings.findingDetail.fields.source')}
+                  </p>
                   <p className="font-medium">
                     {finding.testRun.executionSource ?? '—'}
                   </p>
@@ -188,7 +209,9 @@ export function FindingDetailPanel({
                     onChange={(event) =>
                       setRemediationOwner(event.target.value)
                     }
-                    placeholder="User id or email"
+                    placeholder={t(
+                      'findings.findingDetail.placeholders.ownerId',
+                    )}
                   />
                 </label>
                 <label className="text-sm text-gray-700">
@@ -238,7 +261,7 @@ export function FindingDetailPanel({
               rows={3}
               value={note}
               onChange={(event) => setNote(event.target.value)}
-              placeholder="Add a remediation update..."
+              placeholder={t('findings.findingDetail.placeholders.note')}
             />
             <Button
               size="sm"
