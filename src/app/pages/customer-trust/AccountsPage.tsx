@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { Building2, Search } from 'lucide-react';
@@ -7,6 +8,7 @@ import {
 } from '@/services/api/customerTrust';
 
 export default function CustomerTrustAccountsPage() {
+  const { t } = useTranslation('customerTrust');
   const [rows, setRows] = useState<TrustAccountRow[]>([]);
   const [filter, setFilter] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -21,7 +23,9 @@ export default function CustomerTrustAccountsPage() {
       })
       .catch((err: unknown) => {
         if (!cancelled)
-          setError(err instanceof Error ? err.message : 'Failed to load');
+          setError(
+            err instanceof Error ? err.message : t('common.failedToLoad'),
+          );
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -29,7 +33,7 @@ export default function CustomerTrustAccountsPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [t]);
 
   const visible = filter
     ? rows.filter((r) => {
@@ -44,7 +48,9 @@ export default function CustomerTrustAccountsPage() {
   return (
     <div className="space-y-6 p-6">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Accounts</h1>
+        <h1 className="text-2xl font-bold text-foreground">
+          {t('accounts.title')}
+        </h1>
         <p className="text-sm text-muted-foreground">
           Every company that has interacted with your Trust Center.
         </p>
@@ -56,12 +62,14 @@ export default function CustomerTrustAccountsPage() {
           type="text"
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          placeholder="Filter by domain or company"
+          placeholder={t('accounts.filterPlaceholder')}
           className="w-full rounded-md border border-slate-300 bg-card py-2 pl-9 pr-3 text-sm focus:border-fuchsia-400 focus:outline-none focus:ring-2 focus:ring-fuchsia-200"
         />
       </div>
 
-      {loading && <p className="text-sm text-muted-foreground">Loading…</p>}
+      {loading && (
+        <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
+      )}
       {error && (
         <div className="rounded-md border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
           {error}
@@ -72,12 +80,12 @@ export default function CustomerTrustAccountsPage() {
         <table className="min-w-full divide-y divide-slate-200 text-sm">
           <thead className="bg-slate-50">
             <tr>
-              <Th>Name</Th>
-              <Th>Auto-approval</Th>
-              <Th>NDA bypass</Th>
-              <Th>Active viewers</Th>
-              <Th>Events</Th>
-              <Th>Last active</Th>
+              <Th>{t('accounts.columns.name')}</Th>
+              <Th>{t('accounts.columns.autoApproval')}</Th>
+              <Th>{t('accounts.columns.ndaBypass')}</Th>
+              <Th>{t('accounts.columns.activeViewers')}</Th>
+              <Th>{t('accounts.columns.events')}</Th>
+              <Th>{t('accounts.columns.lastActive')}</Th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -148,13 +156,14 @@ function Td({ children }: { children: React.ReactNode }) {
 }
 
 function Pill({ on }: { on: boolean }) {
+  const { t } = useTranslation('customerTrust');
   return on ? (
     <span className="inline-flex rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
-      On
+      {t('accounts.on')}
     </span>
   ) : (
     <span className="inline-flex rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
-      Off
+      {t('accounts.off')}
     </span>
   );
 }

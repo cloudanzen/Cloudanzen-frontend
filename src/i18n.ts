@@ -23,6 +23,7 @@ i18n
       'assets',
       'tests',
       'onboarding',
+      'customerTrust',
     ],
     defaultNS: 'common',
     backend: {

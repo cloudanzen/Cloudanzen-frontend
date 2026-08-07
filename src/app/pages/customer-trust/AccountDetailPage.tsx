@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { ArrowLeft, Building2 } from 'lucide-react';
@@ -8,6 +9,7 @@ import {
 } from '@/services/api/customerTrust';
 
 export default function CustomerTrustAccountDetailPage() {
+  const { t } = useTranslation('customerTrust');
   const { id } = useParams<{ id: string }>();
   const [detail, setDetail] = useState<TrustAccountDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -23,12 +25,14 @@ export default function CustomerTrustAccountDetailPage() {
       })
       .catch((err: unknown) => {
         if (!cancelled)
-          setError(err instanceof Error ? err.message : 'Failed to load');
+          setError(
+            err instanceof Error ? err.message : t('common.failedToLoad'),
+          );
       });
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, [id, t]);
 
   async function togglePatch(
     key: 'bypassNda' | 'autoApproveAll',
@@ -48,7 +52,7 @@ export default function CustomerTrustAccountDetailPage() {
           : prev,
       );
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Save failed');
+      setError(err instanceof Error ? err.message : t('common.saveFailed'));
     } finally {
       setSaving(false);
     }
@@ -64,7 +68,11 @@ export default function CustomerTrustAccountDetailPage() {
     );
   }
   if (!detail) {
-    return <div className="p-6 text-sm text-muted-foreground">Loading…</div>;
+    return (
+      <div className="p-6 text-sm text-muted-foreground">
+        {t('common.loading')}
+      </div>
+    );
   }
 
   const { account, viewers, recentEvents } = detail;
@@ -96,15 +104,14 @@ export default function CustomerTrustAccountDetailPage() {
 
       <div className="rounded-xl border border-slate-200 bg-card p-5">
         <h2 className="text-base font-semibold text-foreground">
-          Access overrides
+          {t('accountDetail.accessOverrides')}
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Per-account toggles take effect once Phase B ships the auto-approval
-          evaluator.
+          {t('accountDetail.overridesNote')}
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
           <ToggleButton
-            label="Auto-approve all access requests"
+            label={t('accountDetail.autoApproveAll')}
             on={account.autoApproveAll}
             disabled={saving}
             onClick={() =>
@@ -112,7 +119,7 @@ export default function CustomerTrustAccountDetailPage() {
             }
           />
           <ToggleButton
-            label="Bypass NDA"
+            label={t('accountDetail.bypassNda')}
             on={account.bypassNda}
             disabled={saving}
             onClick={() => togglePatch('bypassNda', !account.bypassNda)}
@@ -129,10 +136,10 @@ export default function CustomerTrustAccountDetailPage() {
         <table className="min-w-full divide-y divide-slate-200 text-sm">
           <thead className="bg-slate-50">
             <tr>
-              <Th>Email</Th>
-              <Th>Name</Th>
-              <Th>Identified via</Th>
-              <Th>Last active</Th>
+              <Th>{t('accountDetail.columns.email')}</Th>
+              <Th>{t('accountDetail.columns.name')}</Th>
+              <Th>{t('accountDetail.columns.identifiedVia')}</Th>
+              <Th>{t('accountDetail.columns.lastActive')}</Th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -171,9 +178,9 @@ export default function CustomerTrustAccountDetailPage() {
         <table className="min-w-full divide-y divide-slate-200 text-sm">
           <thead className="bg-slate-50">
             <tr>
-              <Th>Action</Th>
-              <Th>Resource</Th>
-              <Th>When</Th>
+              <Th>{t('accountDetail.columns.action')}</Th>
+              <Th>{t('accountDetail.columns.resource')}</Th>
+              <Th>{t('accountDetail.columns.when')}</Th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">

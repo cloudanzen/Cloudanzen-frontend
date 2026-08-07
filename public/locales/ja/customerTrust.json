@@ -1,0 +1,57 @@
+{
+  "common": {
+    "loading": "読み込み中…",
+    "failedToLoad": "読み込みに失敗しました",
+    "saveFailed": "保存に失敗しました"
+  },
+  "overview": {
+    "title": "カスタマートラスト概要",
+    "kpi": {
+      "pageViews": "ページビュー",
+      "sessions": "セッション",
+      "downloads": "ダウンロード",
+      "accessRequests": "アクセス要求",
+      "activeAccounts": "アクティブなアカウント",
+      "newAccounts": "新規アカウント",
+      "identifiedViewers": "特定された閲覧者",
+      "conversionRate": "コンバージョン率",
+      "revenueInfluenced": "影響を受けた収益",
+      "openPipeline": "進行中のパイプライン",
+      "closedWon": "受注済み"
+    }
+  },
+  "accounts": {
+    "title": "アカウント",
+    "description": "トラストセンターを利用したすべての企業。",
+    "filterPlaceholder": "ドメインまたは会社名で絞り込み",
+    "off": "オフ",
+    "columns": {
+      "name": "名称",
+      "autoApproval": "自動承認",
+      "ndaBypass": "NDA免除",
+      "activeViewers": "アクティブな閲覧者",
+      "events": "イベント",
+      "lastActive": "最終アクティブ"
+    },
+    "on": "オン"
+  },
+  "accountDetail": {
+    "allAccounts": "すべてのアカウント",
+    "accessOverrides": "アクセスの個別設定",
+    "overridesNote": "アカウント単位の設定は、フェーズBで自動承認エバリュエーターが提供され次第有効になります。",
+    "autoApproveAll": "すべてのアクセス要求を自動承認",
+    "bypassNda": "NDAを免除",
+    "noViewers": "特定された閲覧者はまだいません。",
+    "recentActivity": "最近のアクティビティ",
+    "noEvents": "イベントはまだありません。",
+    "columns": {
+      "email": "メールアドレス",
+      "name": "名称",
+      "identifiedVia": "識別方法",
+      "lastActive": "最終アクティブ",
+      "action": "アクション",
+      "resource": "リソース",
+      "when": "日時"
+    }
+  }
+}
