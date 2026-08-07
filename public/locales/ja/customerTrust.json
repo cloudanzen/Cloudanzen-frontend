@@ -121,5 +121,101 @@
       "APPROVE_BYPASS_NDA": "承認＋NDA免除",
       "DENY": "拒否"
     }
+  },
+  "commitments": {
+    "title": "コミットメント",
+    "new": "新規コミットメント",
+    "loading": "コミットメントを読み込み中…",
+    "global": "全体",
+    "save": "コミットメントを保存",
+    "cancel": "キャンセル",
+    "saveFailed": "保存に失敗しました",
+    "kpi": {
+      "active": "有効",
+      "atRisk": "リスクあり",
+      "breached": "違反",
+      "expired": "期限切れ"
+    },
+    "columns": {
+      "title": "タイトル",
+      "category": "カテゴリ",
+      "status": "ステータス",
+      "account": "アカウント",
+      "effectiveUntil": "有効期限",
+      "source": "出典"
+    },
+    "fields": {
+      "description": "説明（任意）",
+      "effectiveFrom": "有効開始日",
+      "effectiveUntil": "有効期限（任意）"
+    },
+    "placeholders": {
+      "title": "稼働率99.9%"
+    },
+    "category": {
+      "SLA": "SLA",
+      "SECURITY": "セキュリティ",
+      "PRIVACY": "プライバシー",
+      "OPERATIONAL": "運用"
+    },
+    "source": {
+      "CONTRACT": "契約",
+      "POLICY": "ポリシー",
+      "MANUAL": "手動"
+    }
+  },
+  "commitmentDetail": {
+    "allCommitments": "すべてのコミットメント",
+    "viewSource": "出典文書を表示 →",
+    "globalCommitment": "全体コミットメント",
+    "timeline": "タイムライン",
+    "logEvent": "イベントを記録",
+    "evidence": "証跡 →",
+    "cancel": "キャンセル",
+    "labels": {
+      "source": "出典",
+      "account": "アカウント",
+      "effectiveWindow": "有効期間",
+      "linkedControls": "関連する管理策",
+      "linkedPolicies": "関連するポリシー"
+    },
+    "placeholders": {
+      "notes": "メモ（任意）",
+      "evidenceUrl": "https://…（証跡リンク、任意）"
+    }
+  },
+  "activity": {
+    "title": "アクティビティ",
+    "publicView": "公開ビュー",
+    "refresh": "更新",
+    "generatingInsights": "インサイトを生成中…",
+    "suggestedActions": "推奨アクション",
+    "narrative": "説明",
+    "loadMore": "さらに読み込む",
+    "loadMoreFailed": "追加の読み込みに失敗しました",
+    "insightsFailed": "インサイトの読み込みに失敗しました",
+    "tabs": {
+      "events": "イベント",
+      "aiInsights": "AIインサイト"
+    },
+    "columns": {
+      "viewer": "閲覧者",
+      "location": "場所",
+      "action": "アクション",
+      "resource": "リソース",
+      "when": "日時",
+      "account": "アカウント",
+      "visits": "訪問",
+      "downloads": "ダウンロード"
+    },
+    "actions": {
+      "all": "すべてのアクション",
+      "PAGE_VIEW": "ページビュー",
+      "DOC_DOWNLOAD": "ダウンロード",
+      "ACCESS_REQUEST": "アクセス要求",
+      "QUESTIONNAIRE_REQUEST": "アンケート",
+      "SUBSCRIBE": "購読",
+      "NDA_ACCEPTED": "NDA承諾"
+    }
   }
 }

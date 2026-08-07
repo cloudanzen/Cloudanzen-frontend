@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -34,6 +35,7 @@ const EVENT_STYLE: Record<
 };
 
 export default function CommitmentDetailPage() {
+  const { t } = useTranslation('customerTrust');
   const { id } = useParams<{ id: string }>();
   const qc = useQueryClient();
   const [logging, setLogging] = useState(false);
@@ -46,13 +48,17 @@ export default function CommitmentDetailPage() {
 
   if (!id) return null;
   if (isLoading) {
-    return <div className="p-6 text-sm text-muted-foreground">Loading…</div>;
+    return (
+      <div className="p-6 text-sm text-muted-foreground">
+        {t('common.loading')}
+      </div>
+    );
   }
   if (error) {
     return (
       <div className="p-6">
         <div className="rounded-md border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
-          {error instanceof Error ? error.message : 'Failed to load'}
+          {error instanceof Error ? error.message : t('common.failedToLoad')}
         </div>
       </div>
     );
@@ -87,7 +93,7 @@ export default function CommitmentDetailPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card label="Source">
+        <Card label={t('commitmentDetail.labels.source')}>
           <span className="text-foreground">{c.source.toLowerCase()}</span>
           {c.sourceDocumentUrl && (
             <a
@@ -100,7 +106,7 @@ export default function CommitmentDetailPage() {
             </a>
           )}
         </Card>
-        <Card label="Account">
+        <Card label={t('commitmentDetail.labels.account')}>
           {c.account ? (
             <Link
               to={`/customer-trust/accounts/${c.account.id}`}
@@ -109,10 +115,12 @@ export default function CommitmentDetailPage() {
               {c.account.companyName ?? c.account.domain}
             </Link>
           ) : (
-            <span className="text-muted-foreground">Global commitment</span>
+            <span className="text-muted-foreground">
+              {t('commitmentDetail.globalCommitment')}
+            </span>
           )}
         </Card>
-        <Card label="Effective window">
+        <Card label={t('commitmentDetail.labels.effectiveWindow')}>
           {new Date(c.effectiveFrom).toLocaleDateString()}{' '}
           {c.effectiveUntil
             ? `→ ${new Date(c.effectiveUntil).toLocaleDateString()}`
@@ -122,7 +130,9 @@ export default function CommitmentDetailPage() {
 
       <div className="rounded-xl border border-slate-200 bg-card">
         <div className="flex items-center justify-between border-b border-slate-200 px-5 py-3">
-          <h2 className="text-base font-semibold text-foreground">Timeline</h2>
+          <h2 className="text-base font-semibold text-foreground">
+            {t('commitmentDetail.timeline')}
+          </h2>
           <Button size="sm" onClick={() => setLogging(true)}>
             Log event
           </Button>
@@ -185,7 +195,7 @@ export default function CommitmentDetailPage() {
       {(c.controlIds.length > 0 || c.policyIds.length > 0) && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {c.controlIds.length > 0 && (
-            <Card label="Linked controls">
+            <Card label={t('commitmentDetail.labels.linkedControls')}>
               <ul className="text-xs space-y-0.5">
                 {c.controlIds.map((cid) => (
                   <li key={cid} className="font-mono text-muted-foreground">
@@ -196,7 +206,7 @@ export default function CommitmentDetailPage() {
             </Card>
           )}
           {c.policyIds.length > 0 && (
-            <Card label="Linked policies">
+            <Card label={t('commitmentDetail.labels.linkedPolicies')}>
               <ul className="text-xs space-y-0.5">
                 {c.policyIds.map((pid) => (
                   <li key={pid} className="font-mono text-muted-foreground">
@@ -238,6 +248,7 @@ function EventLogger({
   onCancel: () => void;
   onSaved: () => void;
 }) {
+  const { t } = useTranslation('customerTrust');
   const [eventType, setEventType] =
     useState<TrustCommitmentEventType>('ATTESTED');
   const [notes, setNotes] = useState('');
@@ -286,14 +297,14 @@ function EventLogger({
         onChange={(e) => setNotes(e.target.value)}
         rows={3}
         maxLength={2000}
-        placeholder="Notes (optional)"
+        placeholder={t('commitmentDetail.placeholders.notes')}
         className="w-full rounded-md border border-input bg-input-background px-3 py-2 text-sm"
       />
       <input
         type="url"
         value={evidenceUrl}
         onChange={(e) => setEvidenceUrl(e.target.value)}
-        placeholder="https://… (evidence link, optional)"
+        placeholder={t('commitmentDetail.placeholders.evidenceUrl')}
         className="w-full rounded-md border border-input bg-input-background px-3 py-2 text-sm"
       />
       <div className="flex justify-end gap-2">

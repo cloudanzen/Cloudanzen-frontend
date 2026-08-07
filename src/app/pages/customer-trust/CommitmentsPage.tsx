@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -34,6 +35,7 @@ const STATUS_ICON: Record<TrustCommitmentStatus, React.ElementType> = {
 };
 
 export default function CustomerTrustCommitmentsPage() {
+  const { t } = useTranslation('customerTrust');
   const qc = useQueryClient();
   const [filter, setFilter] = useState<TrustCommitmentStatus | 'ALL'>('ALL');
   const [creating, setCreating] = useState(false);
@@ -62,7 +64,9 @@ export default function CustomerTrustCommitmentsPage() {
     <div className="space-y-6 p-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Commitments</h1>
+          <h1 className="text-2xl font-bold text-foreground">
+            {t('commitments.title')}
+          </h1>
           <p className="text-sm text-muted-foreground">
             Per-customer SLAs and contractual promises. Log breach + remediation
             events to keep the timeline auditor-ready.
@@ -75,28 +79,28 @@ export default function CustomerTrustCommitmentsPage() {
 
       <div className="grid grid-cols-4 gap-3 text-sm">
         <StatusFilter
-          label="Active"
+          label={t('commitments.kpi.active')}
           count={counts.ACTIVE}
           active={filter === 'ACTIVE'}
           tone="emerald"
           onClick={() => setFilter(filter === 'ACTIVE' ? 'ALL' : 'ACTIVE')}
         />
         <StatusFilter
-          label="At risk"
+          label={t('commitments.kpi.atRisk')}
           count={counts.AT_RISK}
           active={filter === 'AT_RISK'}
           tone="amber"
           onClick={() => setFilter(filter === 'AT_RISK' ? 'ALL' : 'AT_RISK')}
         />
         <StatusFilter
-          label="Breached"
+          label={t('commitments.kpi.breached')}
           count={counts.BREACHED}
           active={filter === 'BREACHED'}
           tone="rose"
           onClick={() => setFilter(filter === 'BREACHED' ? 'ALL' : 'BREACHED')}
         />
         <StatusFilter
-          label="Expired"
+          label={t('commitments.kpi.expired')}
           count={counts.EXPIRED}
           active={filter === 'EXPIRED'}
           tone="slate"
@@ -115,19 +119,21 @@ export default function CustomerTrustCommitmentsPage() {
       )}
 
       {isLoading && (
-        <p className="text-sm text-muted-foreground">Loading commitments…</p>
+        <p className="text-sm text-muted-foreground">
+          {t('commitments.loading')}
+        </p>
       )}
 
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-card">
         <table className="min-w-full divide-y divide-slate-200 text-sm">
           <thead className="bg-slate-50">
             <tr>
-              <Th>Title</Th>
-              <Th>Category</Th>
-              <Th>Status</Th>
-              <Th>Account</Th>
-              <Th>Effective until</Th>
-              <Th>Source</Th>
+              <Th>{t('commitments.columns.title')}</Th>
+              <Th>{t('commitments.columns.category')}</Th>
+              <Th>{t('commitments.columns.status')}</Th>
+              <Th>{t('commitments.columns.account')}</Th>
+              <Th>{t('commitments.columns.effectiveUntil')}</Th>
+              <Th>{t('commitments.columns.source')}</Th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -153,6 +159,7 @@ export default function CustomerTrustCommitmentsPage() {
 }
 
 function CommitmentRow({ row }: { row: TrustCommitmentRow }) {
+  const { t } = useTranslation('customerTrust');
   const Icon = STATUS_ICON[row.status];
   return (
     <tr className="hover:bg-slate-50">
@@ -186,7 +193,9 @@ function CommitmentRow({ row }: { row: TrustCommitmentRow }) {
             {row.account.companyName ?? row.account.domain}
           </Link>
         ) : (
-          <span className="text-xs text-muted-foreground">Global</span>
+          <span className="text-xs text-muted-foreground">
+            {t('commitments.global')}
+          </span>
         )}
       </Td>
       <Td>
@@ -246,6 +255,7 @@ function CommitmentEditor({
   onCancel: () => void;
   onSaved: () => void;
 }) {
+  const { t } = useTranslation('customerTrust');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState<TrustCommitmentCategory>('SLA');
@@ -270,25 +280,27 @@ function CommitmentEditor({
       }),
     onSuccess: onSaved,
     onError: (err: unknown) =>
-      setError(err instanceof Error ? err.message : 'Save failed'),
+      setError(
+        err instanceof Error ? err.message : t('commitments.saveFailed'),
+      ),
   });
 
   return (
     <div className="rounded-xl border border-slate-200 bg-card p-5 space-y-3">
-      <h3 className="font-semibold">New commitment</h3>
+      <h3 className="font-semibold">{t('commitments.new')}</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div className="space-y-1.5 md:col-span-2">
-          <Label htmlFor="c-title">Title</Label>
+          <Label htmlFor="c-title">{t('commitments.columns.title')}</Label>
           <Input
             id="c-title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="99.9% uptime"
+            placeholder={t('commitments.placeholders.title')}
             maxLength={200}
           />
         </div>
         <div className="space-y-1.5 md:col-span-2">
-          <Label htmlFor="c-desc">Description (optional)</Label>
+          <Label htmlFor="c-desc">{t('commitments.fields.description')}</Label>
           <textarea
             id="c-desc"
             value={description}
@@ -299,7 +311,7 @@ function CommitmentEditor({
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="c-cat">Category</Label>
+          <Label htmlFor="c-cat">{t('commitments.columns.category')}</Label>
           <select
             id="c-cat"
             value={category}
@@ -308,27 +320,33 @@ function CommitmentEditor({
             }
             className="w-full rounded-md border border-input bg-input-background px-3 py-2 text-sm"
           >
-            <option>SLA</option>
-            <option>SECURITY</option>
-            <option>PRIVACY</option>
-            <option>OPERATIONAL</option>
+            <option value="SLA">{t('commitments.category.SLA')}</option>
+            <option value="SECURITY">
+              {t('commitments.category.SECURITY')}
+            </option>
+            <option value="PRIVACY">{t('commitments.category.PRIVACY')}</option>
+            <option value="OPERATIONAL">
+              {t('commitments.category.OPERATIONAL')}
+            </option>
           </select>
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="c-src">Source</Label>
+          <Label htmlFor="c-src">{t('commitments.columns.source')}</Label>
           <select
             id="c-src"
             value={source}
             onChange={(e) => setSource(e.target.value as TrustCommitmentSource)}
             className="w-full rounded-md border border-input bg-input-background px-3 py-2 text-sm"
           >
-            <option>CONTRACT</option>
-            <option>POLICY</option>
-            <option>MANUAL</option>
+            <option value="CONTRACT">{t('commitments.source.CONTRACT')}</option>
+            <option value="POLICY">{t('commitments.source.POLICY')}</option>
+            <option value="MANUAL">{t('commitments.source.MANUAL')}</option>
           </select>
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="c-from">Effective from</Label>
+          <Label htmlFor="c-from">
+            {t('commitments.fields.effectiveFrom')}
+          </Label>
           <Input
             id="c-from"
             type="date"
@@ -337,7 +355,9 @@ function CommitmentEditor({
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="c-until">Effective until (optional)</Label>
+          <Label htmlFor="c-until">
+            {t('commitments.fields.effectiveUntil')}
+          </Label>
           <Input
             id="c-until"
             type="date"
@@ -360,7 +380,7 @@ function CommitmentEditor({
           onClick={() => mutation.mutate()}
           disabled={mutation.isPending || !title.trim()}
         >
-          {mutation.isPending ? 'Saving…' : 'Save commitment'}
+          {mutation.isPending ? 'Saving…' : t('commitments.save')}
         </Button>
       </div>
     </div>
