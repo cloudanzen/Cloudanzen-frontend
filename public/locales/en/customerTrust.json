@@ -1,0 +1,57 @@
+{
+  "common": {
+    "loading": "Loading…",
+    "failedToLoad": "Failed to load",
+    "saveFailed": "Save failed"
+  },
+  "overview": {
+    "title": "Customer Trust Overview",
+    "kpi": {
+      "pageViews": "Page views",
+      "sessions": "Sessions",
+      "downloads": "Downloads",
+      "accessRequests": "Access requests",
+      "activeAccounts": "Active accounts",
+      "newAccounts": "New accounts",
+      "identifiedViewers": "Identified viewers",
+      "conversionRate": "Conversion rate",
+      "revenueInfluenced": "Revenue influenced",
+      "openPipeline": "Open pipeline",
+      "closedWon": "Closed-won"
+    }
+  },
+  "accounts": {
+    "title": "Accounts",
+    "description": "Every company that has interacted with your Trust Center.",
+    "filterPlaceholder": "Filter by domain or company",
+    "off": "Off",
+    "columns": {
+      "name": "Name",
+      "autoApproval": "Auto-approval",
+      "ndaBypass": "NDA bypass",
+      "activeViewers": "Active viewers",
+      "events": "Events",
+      "lastActive": "Last active"
+    },
+    "on": "On"
+  },
+  "accountDetail": {
+    "allAccounts": "All accounts",
+    "accessOverrides": "Access overrides",
+    "overridesNote": "Per-account toggles take effect once Phase B ships the auto-approval evaluator.",
+    "autoApproveAll": "Auto-approve all access requests",
+    "bypassNda": "Bypass NDA",
+    "noViewers": "No identified viewers yet.",
+    "recentActivity": "Recent activity",
+    "noEvents": "No events yet.",
+    "columns": {
+      "email": "Email",
+      "name": "Name",
+      "identifiedVia": "Identified via",
+      "lastActive": "Last active",
+      "action": "Action",
+      "resource": "Resource",
+      "when": "When"
+    }
+  }
+}

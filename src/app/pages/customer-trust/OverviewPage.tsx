@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import {
   Activity,
@@ -24,6 +25,7 @@ const WINDOW_OPTIONS = [
 ];
 
 export default function CustomerTrustOverviewPage() {
+  const { t } = useTranslation('customerTrust');
   const [windowDays, setWindowDays] = useState(30);
   const [kpis, setKpis] = useState<TrustOverviewKpis | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -41,7 +43,7 @@ export default function CustomerTrustOverviewPage() {
       })
       .catch((err: unknown) => {
         if (cancelled) return;
-        setError(err instanceof Error ? err.message : 'Failed to load');
+        setError(err instanceof Error ? err.message : t('common.failedToLoad'));
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -49,7 +51,7 @@ export default function CustomerTrustOverviewPage() {
     return () => {
       cancelled = true;
     };
-  }, [windowDays]);
+  }, [windowDays, t]);
 
   return (
     <div className="space-y-6 p-6">
@@ -80,7 +82,9 @@ export default function CustomerTrustOverviewPage() {
         </div>
       </div>
 
-      {loading && <p className="text-sm text-muted-foreground">Loading…</p>}
+      {loading && (
+        <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
+      )}
       {error && (
         <div className="rounded-md border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
           {error}
@@ -89,50 +93,62 @@ export default function CustomerTrustOverviewPage() {
 
       {kpis && (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Kpi icon={Eye} label="Page views" value={kpis.pageViews} />
-          <Kpi icon={Activity} label="Sessions" value={kpis.sessions} />
-          <Kpi icon={Download} label="Downloads" value={kpis.downloads} />
+          <Kpi
+            icon={Eye}
+            label={t('overview.kpi.pageViews')}
+            value={kpis.pageViews}
+          />
+          <Kpi
+            icon={Activity}
+            label={t('overview.kpi.sessions')}
+            value={kpis.sessions}
+          />
+          <Kpi
+            icon={Download}
+            label={t('overview.kpi.downloads')}
+            value={kpis.downloads}
+          />
           <Kpi
             icon={FileSearch}
-            label="Access requests"
+            label={t('overview.kpi.accessRequests')}
             value={kpis.accessRequests}
           />
           <Kpi
             icon={Building2}
-            label="Active accounts"
+            label={t('overview.kpi.activeAccounts')}
             value={kpis.activeAccounts}
           />
           <Kpi
             icon={TrendingUp}
-            label="New accounts"
+            label={t('overview.kpi.newAccounts')}
             value={kpis.newAccounts}
           />
           <Kpi
             icon={Users}
-            label="Identified viewers"
+            label={t('overview.kpi.identifiedViewers')}
             value={kpis.identifiedViewers}
           />
           <Kpi
             icon={UserCheck}
-            label="Conversion rate"
+            label={t('overview.kpi.conversionRate')}
             value={`${kpis.conversionRate}%`}
             hint="Identified viewers / sessions"
           />
           <Kpi
             icon={CircleDollarSign}
-            label="Revenue influenced"
+            label={t('overview.kpi.revenueInfluenced')}
             value={formatUsd(kpis.revenueInfluencedUsd)}
             hint="Total ARR across CRM accounts active in window"
           />
           <Kpi
             icon={PiggyBank}
-            label="Open pipeline"
+            label={t('overview.kpi.openPipeline')}
             value={formatUsd(kpis.openPipelineUsd)}
             hint="Open opportunities on visited accounts"
           />
           <Kpi
             icon={Trophy}
-            label="Closed-won"
+            label={t('overview.kpi.closedWon')}
             value={formatUsd(kpis.closedWonUsd)}
             hint="Closed-won ARR on visited accounts"
           />
