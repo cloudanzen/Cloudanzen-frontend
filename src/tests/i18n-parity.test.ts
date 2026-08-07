@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
@@ -11,43 +11,48 @@ function flattenKeys(value: unknown, prefix = ''): string[] {
   );
 }
 
-function readLocale(locale: 'en' | 'ja', namespace: string) {
-  const path = resolve(
-    process.cwd(),
-    'public',
-    'locales',
-    locale,
-    `${namespace}.json`,
-  );
-  return JSON.parse(readFileSync(path, 'utf8')) as unknown;
+function localeDir(locale: 'en' | 'ja') {
+  return resolve(process.cwd(), 'public', 'locales', locale);
 }
 
+function readLocale(locale: 'en' | 'ja', namespace: string) {
+  return JSON.parse(
+    readFileSync(resolve(localeDir(locale), `${namespace}.json`), 'utf8'),
+  ) as unknown;
+}
+
+const namespaces = readdirSync(localeDir('en'))
+  .filter((f) => f.endsWith('.json'))
+  .map((f) => f.replace(/\.json$/, ''))
+  .sort();
+
+/**
+ * Every namespace is checked, discovered from the filesystem rather than
+ * listed here. A new locale file is therefore gated the moment it is added —
+ * previously only four of sixteen namespaces were covered, and `ai` had
+ * existed for months before anything checked it.
+ */
 describe('i18n locale parity', () => {
-  it('keeps compliance keys in sync between English and Japanese', () => {
-    const enKeys = flattenKeys(readLocale('en', 'compliance')).sort();
-    const jaKeys = flattenKeys(readLocale('ja', 'compliance')).sort();
-
-    expect(jaKeys).toEqual(enKeys);
+  it('finds namespaces to check', () => {
+    expect(namespaces.length).toBeGreaterThan(10);
   });
 
-  it('keeps ai keys in sync between English and Japanese', () => {
-    const enKeys = flattenKeys(readLocale('en', 'ai')).sort();
-    const jaKeys = flattenKeys(readLocale('ja', 'ai')).sort();
+  it('ships the same namespace files for both locales', () => {
+    const ja = readdirSync(localeDir('ja'))
+      .filter((f) => f.endsWith('.json'))
+      .map((f) => f.replace(/\.json$/, ''))
+      .sort();
 
-    expect(jaKeys).toEqual(enKeys);
+    expect(ja).toEqual(namespaces);
   });
 
-  it('keeps customerTrust keys in sync between English and Japanese', () => {
-    const enKeys = flattenKeys(readLocale('en', 'customerTrust')).sort();
-    const jaKeys = flattenKeys(readLocale('ja', 'customerTrust')).sort();
+  it.each(namespaces)(
+    'keeps %s keys in sync between English and Japanese',
+    (ns) => {
+      const enKeys = flattenKeys(readLocale('en', ns)).sort();
+      const jaKeys = flattenKeys(readLocale('ja', ns)).sort();
 
-    expect(jaKeys).toEqual(enKeys);
-  });
-
-  it('keeps tests keys in sync between English and Japanese', () => {
-    const enKeys = flattenKeys(readLocale('en', 'tests')).sort();
-    const jaKeys = flattenKeys(readLocale('ja', 'tests')).sort();
-
-    expect(jaKeys).toEqual(enKeys);
-  });
+      expect(jaKeys).toEqual(enKeys);
+    },
+  );
 });

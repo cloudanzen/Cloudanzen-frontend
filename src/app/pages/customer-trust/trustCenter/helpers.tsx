@@ -99,17 +99,17 @@ export function getTabs(t: TFunction<'common'>) {
     },
     {
       key: 'ndas',
-      label: 'NDAs',
+      label: t('customerTrust.trustCenter.tabs.ndas'),
       icon: <FileCheck className="w-4 h-4" />,
     },
     {
       key: 'rules',
-      label: 'Auto-approval',
+      label: t('customerTrust.trustCenter.tabs.rules'),
       icon: <GitBranch className="w-4 h-4" />,
     },
     {
       key: 'subscribers',
-      label: 'Subscribers',
+      label: t('customerTrust.trustCenter.tabs.subscribers'),
       icon: <Users className="w-4 h-4" />,
     },
   ] as const;

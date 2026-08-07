@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Trash2, MailCheck, MailX, Mail } from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
 import { trustCenterService } from '@/services/api/trustCenter';
 
 export function SubscribersTab() {
+  const { t } = useTranslation('customerTrust');
   const qc = useQueryClient();
   const { data, isLoading } = useQuery({
     queryKey: ['trust-subscribers'],
@@ -23,7 +25,9 @@ export function SubscribersTab() {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-base font-semibold text-foreground">Subscribers</h3>
+        <h3 className="text-base font-semibold text-foreground">
+          {t('subscribers.title')}
+        </h3>
         <p className="text-sm text-muted-foreground">
           Visitors who opted in to announcement emails from your Trust Center.
           Confirmed subscribers receive every published announcement.
@@ -31,27 +35,37 @@ export function SubscribersTab() {
       </div>
 
       <div className="grid grid-cols-3 gap-3 text-sm">
-        <KpiCard label="Confirmed" value={confirmed.length} tone="emerald" />
-        <KpiCard label="Pending confirm" value={pending.length} tone="amber" />
         <KpiCard
-          label="Unsubscribed"
+          label={t('subscribers.status.confirmed')}
+          value={confirmed.length}
+          tone="emerald"
+        />
+        <KpiCard
+          label={t('subscribers.status.pending')}
+          value={pending.length}
+          tone="amber"
+        />
+        <KpiCard
+          label={t('subscribers.status.unsubscribed')}
           value={unsubscribed.length}
           tone="slate"
         />
       </div>
 
       {isLoading && (
-        <p className="text-sm text-muted-foreground">Loading subscribers…</p>
+        <p className="text-sm text-muted-foreground">
+          {t('subscribers.loading')}
+        </p>
       )}
 
       <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
         <table className="min-w-full divide-y divide-slate-200 text-sm">
           <thead className="bg-slate-50">
             <tr>
-              <Th>Email</Th>
-              <Th>Name</Th>
-              <Th>Status</Th>
-              <Th>Added</Th>
+              <Th>{t('subscribers.columns.email')}</Th>
+              <Th>{t('subscribers.columns.name')}</Th>
+              <Th>{t('subscribers.columns.status')}</Th>
+              <Th>{t('subscribers.columns.added')}</Th>
               <Th>&nbsp;</Th>
             </tr>
           </thead>

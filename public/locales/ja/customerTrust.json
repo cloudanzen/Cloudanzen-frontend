@@ -53,5 +53,73 @@
       "resource": "リソース",
       "when": "日時"
     }
+  },
+  "subscribers": {
+    "title": "購読者",
+    "loading": "購読者を読み込み中…",
+    "columns": {
+      "email": "メールアドレス",
+      "name": "名称",
+      "status": "ステータス",
+      "added": "追加日"
+    },
+    "status": {
+      "unsubscribed": "購読解除",
+      "confirmed": "確認済み",
+      "pending": "確認待ち"
+    }
+  },
+  "ndas": {
+    "title": "NDA文書",
+    "new": "新規NDA",
+    "loading": "NDAを読み込み中…",
+    "default": "既定",
+    "setDefault": "既定に設定",
+    "setAsDefault": "既定として設定",
+    "view": "表示",
+    "hide": "非表示",
+    "save": "NDAを保存",
+    "cancel": "キャンセル",
+    "saveFailed": "保存に失敗しました",
+    "defaultName": "相互NDA",
+    "fields": {
+      "name": "名称",
+      "content": "本文（Markdown）"
+    },
+    "placeholders": {
+      "content": "## 相互NDA\\n\\n両当事者は次のとおり合意します..."
+    }
+  },
+  "rules": {
+    "title": "自動承認ルール",
+    "new": "新規ルール",
+    "loading": "ルールを読み込み中…",
+    "empty": "ルールはまだありません。すべてのアクセス要求は手動レビュー待ちになります。",
+    "enabled": "有効",
+    "save": "ルールを保存",
+    "cancel": "キャンセル",
+    "saveFailed": "保存に失敗しました",
+    "fields": {
+      "name": "名称",
+      "priority": "優先度（小さいほど先）",
+      "matchType": "一致タイプ",
+      "matchValue": "一致する値",
+      "action": "アクション"
+    },
+    "placeholders": {
+      "name": "Acme Corp を承認",
+      "matchValue": "acme.com"
+    },
+    "matchType": {
+      "DOMAIN_EXACT": "ドメイン完全一致",
+      "DOMAIN_SUFFIX": "ドメイン後方一致",
+      "CRM_CONTACT_EXISTS": "CRMに連絡先が存在（フェーズD）",
+      "CRM_ACCOUNT_OPP_STAGE": "CRMアカウントの商談ステージ（フェーズD）"
+    },
+    "action": {
+      "APPROVE": "承認",
+      "APPROVE_BYPASS_NDA": "承認＋NDA免除",
+      "DENY": "拒否"
+    }
   }
 }

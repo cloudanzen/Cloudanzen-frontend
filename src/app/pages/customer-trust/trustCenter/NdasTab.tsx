@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2, FileCheck, Star } from 'lucide-react';
@@ -7,6 +8,7 @@ import { Label } from '@/app/components/ui/label';
 import { trustCenterService, type TrustNda } from '@/services/api/trustCenter';
 
 export function NdasTab() {
+  const { t } = useTranslation('customerTrust');
   const qc = useQueryClient();
   const [creating, setCreating] = useState(false);
 
@@ -32,7 +34,9 @@ export function NdasTab() {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-base font-semibold text-foreground">NDA texts</h3>
+          <h3 className="text-base font-semibold text-foreground">
+            {t('ndas.title')}
+          </h3>
           <p className="text-sm text-muted-foreground">
             Clickwrap NDA shown when a viewer requests access to a REQUESTABLE
             document. One default per organization.
@@ -54,7 +58,7 @@ export function NdasTab() {
       )}
 
       {isLoading && (
-        <p className="text-sm text-muted-foreground">Loading NDAs…</p>
+        <p className="text-sm text-muted-foreground">{t('ndas.loading')}</p>
       )}
 
       <div className="space-y-2">
@@ -86,6 +90,7 @@ function NdaRow({
   onDelete: () => void;
   onSetDefault: () => void;
 }) {
+  const { t } = useTranslation('customerTrust');
   const [expanded, setExpanded] = useState(false);
   return (
     <div className="rounded-lg border border-slate-200 bg-white">
@@ -118,7 +123,7 @@ function NdaRow({
             size="sm"
             onClick={() => setExpanded((v) => !v)}
           >
-            {expanded ? 'Hide' : 'View'}
+            {expanded ? t('ndas.hide') : t('ndas.view')}
           </Button>
           <Button
             variant="outline"
@@ -147,7 +152,8 @@ function NdaEditor({
   onCancel: () => void;
   onSaved: () => void;
 }) {
-  const [name, setName] = useState('Mutual NDA');
+  const { t } = useTranslation('customerTrust');
+  const [name, setName] = useState(t('ndas.defaultName'));
   const [content, setContent] = useState('');
   const [isDefault, setIsDefault] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -156,14 +162,14 @@ function NdaEditor({
       trustCenterService.createNda({ name, content, isDefault }),
     onSuccess: onSaved,
     onError: (err: unknown) =>
-      setError(err instanceof Error ? err.message : 'Save failed'),
+      setError(err instanceof Error ? err.message : t('ndas.saveFailed')),
   });
 
   return (
     <div className="rounded-lg border border-slate-200 bg-white p-5 space-y-3">
-      <h4 className="font-semibold">New NDA</h4>
+      <h4 className="font-semibold">{t('ndas.new')}</h4>
       <div className="space-y-1.5">
-        <Label htmlFor="nda-name">Name</Label>
+        <Label htmlFor="nda-name">{t('ndas.fields.name')}</Label>
         <Input
           id="nda-name"
           value={name}
@@ -172,7 +178,7 @@ function NdaEditor({
         />
       </div>
       <div className="space-y-1.5">
-        <Label htmlFor="nda-content">Content (markdown)</Label>
+        <Label htmlFor="nda-content">{t('ndas.fields.content')}</Label>
         <textarea
           id="nda-content"
           value={content}
@@ -180,7 +186,7 @@ function NdaEditor({
           rows={10}
           maxLength={50_000}
           className="w-full rounded-md border border-input bg-input-background px-3 py-2 text-sm font-mono focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/50"
-          placeholder="## Mutual NDA\n\nThe parties agree that..."
+          placeholder={t('ndas.placeholders.content')}
         />
       </div>
       <label className="flex items-center gap-2 text-sm">
@@ -205,7 +211,7 @@ function NdaEditor({
           onClick={() => mutation.mutate()}
           disabled={mutation.isPending || !name.trim() || !content.trim()}
         >
-          {mutation.isPending ? 'Saving…' : 'Save NDA'}
+          {mutation.isPending ? 'Saving…' : t('ndas.save')}
         </Button>
       </div>
     </div>
