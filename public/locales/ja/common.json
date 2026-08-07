@@ -526,7 +526,10 @@
         "documents": "ドキュメント",
         "announcements": "お知らせ",
         "accessRequests": "アクセス申請",
-        "questionnaires": "アンケート"
+        "questionnaires": "アンケート",
+        "ndas": "NDA",
+        "rules": "自動承認",
+        "subscribers": "購読者"
       }
     },
     "accessRequests": {

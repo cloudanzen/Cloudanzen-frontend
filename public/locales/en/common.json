@@ -526,7 +526,10 @@
         "documents": "Documents",
         "announcements": "Announcements",
         "accessRequests": "Access Requests",
-        "questionnaires": "Questionnaires"
+        "questionnaires": "Questionnaires",
+        "ndas": "NDAs",
+        "rules": "Auto-approval",
+        "subscribers": "Subscribers"
       }
     },
     "accessRequests": {

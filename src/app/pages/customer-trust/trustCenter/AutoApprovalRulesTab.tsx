@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2, GitBranch, AlertTriangle } from 'lucide-react';
@@ -11,20 +12,22 @@ import {
   type TrustAutoApprovalRule,
 } from '@/services/api/trustCenter';
 
-const MATCH_LABEL: Record<AutoApprovalMatchType, string> = {
-  DOMAIN_EXACT: 'Domain exact match',
-  DOMAIN_SUFFIX: 'Domain suffix match',
-  CRM_CONTACT_EXISTS: 'CRM contact exists (Phase D)',
-  CRM_ACCOUNT_OPP_STAGE: 'CRM account opportunity stage (Phase D)',
-};
+/** Match-type and action labels live under `rules.matchType.*` and
+ * `rules.action.*`; resolve with t() at render time.
+ *
+ * These arrays also drive the select options — the label maps they replaced
+ * were doubling as the enum enumeration via Object.keys(). */
+const MATCH_TYPES: AutoApprovalMatchType[] = [
+  'DOMAIN_EXACT',
+  'DOMAIN_SUFFIX',
+  'CRM_CONTACT_EXISTS',
+  'CRM_ACCOUNT_OPP_STAGE',
+];
 
-const ACTION_LABEL: Record<AutoApprovalAction, string> = {
-  APPROVE: 'Approve',
-  APPROVE_BYPASS_NDA: 'Approve + bypass NDA',
-  DENY: 'Deny',
-};
+const ACTIONS: AutoApprovalAction[] = ['APPROVE', 'APPROVE_BYPASS_NDA', 'DENY'];
 
 export function AutoApprovalRulesTab() {
+  const { t } = useTranslation('customerTrust');
   const qc = useQueryClient();
   const [creating, setCreating] = useState(false);
   const [warning, setWarning] = useState<string | null>(null);
@@ -92,7 +95,7 @@ export function AutoApprovalRulesTab() {
       )}
 
       {isLoading && (
-        <p className="text-sm text-muted-foreground">Loading rules…</p>
+        <p className="text-sm text-muted-foreground">{t('rules.loading')}</p>
       )}
 
       <div className="space-y-2">
@@ -125,6 +128,7 @@ function RuleRow({
   onDelete: () => void;
   onToggle: (enabled: boolean) => void;
 }) {
+  const { t } = useTranslation('customerTrust');
   const isCrm = rule.matchType.startsWith('CRM_');
   return (
     <div className="rounded-lg border border-slate-200 bg-white px-4 py-3 flex items-center justify-between gap-3">
@@ -138,7 +142,7 @@ function RuleRow({
             </span>
           </p>
           <p className="text-xs text-muted-foreground">
-            {MATCH_LABEL[rule.matchType]} · {rule.matchValue} →{' '}
+            {t(`rules.matchType.${rule.matchType}`)} · {rule.matchValue} →{' '}
             <span
               className={
                 rule.action === 'DENY'
@@ -146,7 +150,7 @@ function RuleRow({
                   : 'text-emerald-700 font-medium'
               }
             >
-              {ACTION_LABEL[rule.action]}
+              {t(`rules.action.${rule.action}`)}
             </span>
             {isCrm && (
               <span className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] text-amber-800">
@@ -186,6 +190,7 @@ function RuleEditor({
   onCancel: () => void;
   onSaved: (warning?: string) => void;
 }) {
+  const { t } = useTranslation('customerTrust');
   const [name, setName] = useState('');
   const [matchType, setMatchType] =
     useState<AutoApprovalMatchType>('DOMAIN_EXACT');
@@ -206,24 +211,24 @@ function RuleEditor({
       }),
     onSuccess: (res) => onSaved(res.warning),
     onError: (err: unknown) =>
-      setError(err instanceof Error ? err.message : 'Save failed'),
+      setError(err instanceof Error ? err.message : t('rules.saveFailed')),
   });
 
   return (
     <div className="rounded-lg border border-slate-200 bg-white p-5 space-y-3">
-      <h4 className="font-semibold">New rule</h4>
+      <h4 className="font-semibold">{t('rules.new')}</h4>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div className="space-y-1.5">
-          <Label htmlFor="rule-name">Name</Label>
+          <Label htmlFor="rule-name">{t('rules.fields.name')}</Label>
           <Input
             id="rule-name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Approve Acme Corp"
+            placeholder={t('rules.placeholders.name')}
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="rule-priority">Priority (lower = earlier)</Label>
+          <Label htmlFor="rule-priority">{t('rules.fields.priority')}</Label>
           <Input
             id="rule-priority"
             type="number"
@@ -234,7 +239,7 @@ function RuleEditor({
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="rule-match-type">Match type</Label>
+          <Label htmlFor="rule-match-type">{t('rules.fields.matchType')}</Label>
           <select
             id="rule-match-type"
             value={matchType}
@@ -243,33 +248,35 @@ function RuleEditor({
             }
             className="w-full rounded-md border border-input bg-input-background px-3 py-2 text-sm"
           >
-            {(Object.keys(MATCH_LABEL) as AutoApprovalMatchType[]).map((m) => (
+            {MATCH_TYPES.map((m) => (
               <option key={m} value={m}>
-                {MATCH_LABEL[m]}
+                {t(`rules.matchType.${m}`)}
               </option>
             ))}
           </select>
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="rule-match-value">Match value</Label>
+          <Label htmlFor="rule-match-value">
+            {t('rules.fields.matchValue')}
+          </Label>
           <Input
             id="rule-match-value"
             value={matchValue}
             onChange={(e) => setMatchValue(e.target.value)}
-            placeholder="acme.com"
+            placeholder={t('rules.placeholders.matchValue')}
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="rule-action">Action</Label>
+          <Label htmlFor="rule-action">{t('rules.fields.action')}</Label>
           <select
             id="rule-action"
             value={action}
             onChange={(e) => setAction(e.target.value as AutoApprovalAction)}
             className="w-full rounded-md border border-input bg-input-background px-3 py-2 text-sm"
           >
-            {(Object.keys(ACTION_LABEL) as AutoApprovalAction[]).map((a) => (
+            {ACTIONS.map((a) => (
               <option key={a} value={a}>
-                {ACTION_LABEL[a]}
+                {t(`rules.action.${a}`)}
               </option>
             ))}
           </select>
@@ -289,7 +296,7 @@ function RuleEditor({
           onClick={() => mutation.mutate()}
           disabled={mutation.isPending || !name.trim() || !matchValue.trim()}
         >
-          {mutation.isPending ? 'Saving…' : 'Save rule'}
+          {mutation.isPending ? 'Saving…' : t('rules.save')}
         </Button>
       </div>
     </div>

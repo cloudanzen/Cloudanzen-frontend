@@ -53,5 +53,73 @@
       "resource": "Resource",
       "when": "When"
     }
+  },
+  "subscribers": {
+    "title": "Subscribers",
+    "loading": "Loading subscribers…",
+    "columns": {
+      "email": "Email",
+      "name": "Name",
+      "status": "Status",
+      "added": "Added"
+    },
+    "status": {
+      "unsubscribed": "Unsubscribed",
+      "confirmed": "Confirmed",
+      "pending": "Pending confirm"
+    }
+  },
+  "ndas": {
+    "title": "NDA texts",
+    "new": "New NDA",
+    "loading": "Loading NDAs…",
+    "default": "Default",
+    "setDefault": "Set default",
+    "setAsDefault": "Set as default",
+    "view": "View",
+    "hide": "Hide",
+    "save": "Save NDA",
+    "cancel": "Cancel",
+    "saveFailed": "Save failed",
+    "defaultName": "Mutual NDA",
+    "fields": {
+      "name": "Name",
+      "content": "Content (markdown)"
+    },
+    "placeholders": {
+      "content": "## Mutual NDA\\n\\nThe parties agree that..."
+    }
+  },
+  "rules": {
+    "title": "Auto-approval rules",
+    "new": "New rule",
+    "loading": "Loading rules…",
+    "empty": "No rules yet. Every access request is queued for manual review.",
+    "enabled": "Enabled",
+    "save": "Save rule",
+    "cancel": "Cancel",
+    "saveFailed": "Save failed",
+    "fields": {
+      "name": "Name",
+      "priority": "Priority (lower = earlier)",
+      "matchType": "Match type",
+      "matchValue": "Match value",
+      "action": "Action"
+    },
+    "placeholders": {
+      "name": "Approve Acme Corp",
+      "matchValue": "acme.com"
+    },
+    "matchType": {
+      "DOMAIN_EXACT": "Domain exact match",
+      "DOMAIN_SUFFIX": "Domain suffix match",
+      "CRM_CONTACT_EXISTS": "CRM contact exists (Phase D)",
+      "CRM_ACCOUNT_OPP_STAGE": "CRM account opportunity stage (Phase D)"
+    },
+    "action": {
+      "APPROVE": "Approve",
+      "APPROVE_BYPASS_NDA": "Approve + bypass NDA",
+      "DENY": "Deny"
+    }
   }
 }
