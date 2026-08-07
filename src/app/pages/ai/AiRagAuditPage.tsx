@@ -18,6 +18,7 @@ import {
   ShieldAlert,
 } from 'lucide-react';
 
+import { useTranslation } from 'react-i18next';
 import { PageTemplate } from '@/app/components/PageTemplate';
 import { Card } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
@@ -77,6 +78,7 @@ function SourceDialog({
   open: boolean;
   onOpenChange: (o: boolean) => void;
 }) {
+  const { t } = useTranslation('ai');
   const qc = useQueryClient();
   const [name, setName] = useState('');
   const [sourceType, setSourceType] = useState<AiRagSourceType>('DOCUMENT');
@@ -136,7 +138,7 @@ function SourceDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add RAG source</DialogTitle>
+          <DialogTitle>{t('ragAudit.addRagSource')}</DialogTitle>
           <DialogDescription>
             A document, dataset, or index feeding retrieval — with its license,
             PII-scan, and retention status.
@@ -144,30 +146,37 @@ function SourceDialog({
         </DialogHeader>
         <div className="space-y-3">
           <div>
-            <Label htmlFor="rs-name">Name</Label>
+            <Label htmlFor="rs-name">{t('ragAudit.fields.name')}</Label>
             <Input
               id="rs-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Support KB corpus"
+              placeholder={t('ragAudit.placeholders.name')}
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             {sel('Type', sourceType, AI_RAG_SOURCE_TYPES, setSourceType)}
             <div>
-              <Label htmlFor="rs-pipeline">Pipeline / index</Label>
+              <Label htmlFor="rs-pipeline">
+                {t('ragAudit.fields.pipelineIndex')}
+              </Label>
               <Input
                 id="rs-pipeline"
                 value={pipelineName}
                 onChange={(e) => setPipelineName(e.target.value)}
-                placeholder="support-index"
+                placeholder={t('ragAudit.placeholders.pipelineIndex')}
               />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            {sel('Data class', dataClass, AI_DATA_EXPOSURES, setDataClass)}
+            {sel(
+              t('ragAudit.fields.dataClass'),
+              dataClass,
+              AI_DATA_EXPOSURES,
+              setDataClass,
+            )}
             <div>
-              <Label htmlFor="rs-owner">Owner</Label>
+              <Label htmlFor="rs-owner">{t('ragAudit.fields.owner')}</Label>
               <Input
                 id="rs-owner"
                 value={owner}
@@ -177,19 +186,19 @@ function SourceDialog({
           </div>
           <div className="grid grid-cols-3 gap-3">
             {sel(
-              'License',
+              t('ragAudit.fields.license'),
               licenseStatus,
               AI_LICENSE_STATUSES,
               setLicenseStatus,
             )}
             {sel(
-              'PII scan',
+              t('ragAudit.fields.piiScan'),
               piiScanStatus,
               AI_PII_SCAN_STATUSES,
               setPiiScanStatus,
             )}
             {sel(
-              'Retention',
+              t('ragAudit.fields.retention'),
               retentionStatus,
               AI_RETENTION_STATUSES,
               setRetentionStatus,
@@ -197,7 +206,7 @@ function SourceDialog({
           </div>
           {mutation.isError ? (
             <p className="text-sm text-red-600">
-              {(mutation.error as Error)?.message ?? 'Save failed'}
+              {(mutation.error as Error)?.message ?? t('ragAudit.saveFailed')}
             </p>
           ) : null}
         </div>
@@ -232,6 +241,7 @@ function FindingDialog({
   open: boolean;
   onOpenChange: (o: boolean) => void;
 }) {
+  const { t } = useTranslation('ai');
   const qc = useQueryClient();
   const [title, setTitle] = useState('');
   const [findingType, setFindingType] =
@@ -260,7 +270,7 @@ function FindingDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add data-hygiene finding</DialogTitle>
+          <DialogTitle>{t('ragAudit.addHygieneFinding')}</DialogTitle>
           <DialogDescription>
             A PII/secrets exposure, license issue, poisoning, or IP-leakage
             concern on a RAG source.
@@ -268,17 +278,17 @@ function FindingDialog({
         </DialogHeader>
         <div className="space-y-3">
           <div>
-            <Label htmlFor="hf-title">Title</Label>
+            <Label htmlFor="hf-title">{t('ragAudit.fields.title')}</Label>
             <Input
               id="hf-title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="PII found in support KB export"
+              placeholder={t('ragAudit.placeholders.findingTitle')}
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>Type</Label>
+              <Label>{t('ragAudit.fields.type')}</Label>
               <Select
                 value={findingType}
                 onValueChange={(v) => setFindingType(v as AiHygieneFindingType)}
@@ -287,16 +297,16 @@ function FindingDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {AI_HYGIENE_FINDING_TYPES.map((t) => (
-                    <SelectItem key={t} value={t}>
-                      {titleCase(t)}
+                  {AI_HYGIENE_FINDING_TYPES.map((item) => (
+                    <SelectItem key={item} value={item}>
+                      {titleCase(item)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Label>Severity</Label>
+              <Label>{t('ragAudit.fields.severity')}</Label>
               <Select
                 value={severity}
                 onValueChange={(v) => setSeverity(v as AiFindingSeverity)}
@@ -315,13 +325,13 @@ function FindingDialog({
             </div>
           </div>
           <div>
-            <Label>Source (optional)</Label>
+            <Label>{t('ragAudit.fields.sourceOptional')}</Label>
             <Select value={ragSourceId} onValueChange={setRagSourceId}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">None</SelectItem>
+                <SelectItem value="none">{t('ragAudit.none')}</SelectItem>
                 {sources.map((s) => (
                   <SelectItem key={s.id} value={s.id}>
                     {s.name}
@@ -331,7 +341,7 @@ function FindingDialog({
             </Select>
           </div>
           <div>
-            <Label htmlFor="hf-desc">Description</Label>
+            <Label htmlFor="hf-desc">{t('ragAudit.fields.description')}</Label>
             <Textarea
               id="hf-desc"
               value={description}
@@ -340,7 +350,7 @@ function FindingDialog({
           </div>
           {mutation.isError ? (
             <p className="text-sm text-red-600">
-              {(mutation.error as Error)?.message ?? 'Save failed'}
+              {(mutation.error as Error)?.message ?? t('ragAudit.saveFailed')}
             </p>
           ) : null}
         </div>
@@ -365,6 +375,7 @@ function FindingDialog({
 }
 
 export function AiRagAuditPage() {
+  const { t } = useTranslation('ai');
   const qc = useQueryClient();
   const [sourceDialog, setSourceDialog] = useState(false);
   const [findingDialog, setFindingDialog] = useState(false);
@@ -405,8 +416,8 @@ export function AiRagAuditPage() {
 
   return (
     <PageTemplate
-      title="RAG / Data Pipeline Audit"
-      description="Map your RAG sources and track data-hygiene findings — license, PII/secrets, poisoning, and retention."
+      title={t('ragAudit.title')}
+      description={t('ragAudit.description')}
     >
       <div className="space-y-6">
         {/* Sources */}
@@ -465,7 +476,7 @@ export function AiRagAuditPage() {
                       variant="ghost"
                       size="sm"
                       onClick={() => delSource.mutate(s.id)}
-                      aria-label="Delete source"
+                      aria-label={t('ragAudit.deleteSource')}
                     >
                       <Trash2 className="h-4 w-4 text-rose-600" />
                     </Button>
@@ -547,7 +558,7 @@ export function AiRagAuditPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => delFinding.mutate(f.id)}
-                        aria-label="Delete finding"
+                        aria-label={t('ragAudit.deleteFinding')}
                       >
                         <Trash2 className="h-4 w-4 text-rose-600" />
                       </Button>

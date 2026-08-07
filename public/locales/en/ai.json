@@ -223,5 +223,109 @@
       "purpose": "Why this use case exists",
       "rejectReason": "Reason for rejection"
     }
+  },
+  "runtime": {
+    "title": "Runtime Risk Monitor",
+    "description": "Eval results and runtime findings for your AI systems — connect an eval source or add results manually.",
+    "evalRuns": "Eval runs",
+    "addEvalRun": "Add eval run",
+    "addEvalRunHint": "Record the outcome of an evaluation run for an AI system.",
+    "runtimeFindings": "Runtime findings",
+    "addFinding": "Add finding",
+    "addRuntimeFinding": "Add runtime finding",
+    "resolve": "Resolve",
+    "resolved": "Resolved",
+    "cancel": "Cancel",
+    "saveFailed": "Save failed",
+    "deleteEvalRun": "Delete eval run",
+    "deleteFinding": "Delete finding",
+    "fields": {
+      "name": "Name",
+      "type": "Type",
+      "status": "Status",
+      "environment": "Environment",
+      "notes": "Notes",
+      "title": "Title",
+      "severity": "Severity",
+      "description": "Description"
+    },
+    "placeholders": {
+      "name": "e.g. Nightly hallucination suite",
+      "environment": "production",
+      "findingTitle": "e.g. Hallucination rate above 5% threshold"
+    }
+  },
+  "runtimeConfig": {
+    "metrics": "Metrics",
+    "thresholds": "Thresholds",
+    "modelChanges": "Model changes",
+    "add": "Add",
+    "record": "Record",
+    "recordMetric": "Record metric",
+    "addThreshold": "Add threshold",
+    "logChange": "Log change",
+    "logModelChange": "Log model change",
+    "logModelChangeHint": "Record a model or version change for the audit trail.",
+    "emptyModelChanges": "No model changes logged. Track deploys, rollbacks, and retrains.",
+    "cancel": "Cancel",
+    "saveFailed": "Save failed",
+    "deleteMetric": "Delete metric",
+    "deleteThreshold": "Delete threshold",
+    "deleteModelEvent": "Delete model event",
+    "fields": {
+      "metricKey": "Metric key",
+      "value": "Value",
+      "environment": "Environment",
+      "comparator": "Comparator",
+      "severity": "Severity",
+      "modelName": "Model name",
+      "fromVersion": "From version",
+      "toVersion": "To version",
+      "changeType": "Change type"
+    },
+    "placeholders": {
+      "metricKey": "hallucination_rate",
+      "value": "0.09",
+      "threshold": "0.05",
+      "modelName": "support-copilot",
+      "fromVersion": "gpt-4o-2024",
+      "toVersion": "gpt-4o-2025"
+    }
+  },
+  "ragAudit": {
+    "title": "RAG / Data Pipeline Audit",
+    "description": "Map your RAG sources and track data-hygiene findings — license, PII/secrets, poisoning, and retention.",
+    "sources": "Sources",
+    "addSource": "Add source",
+    "addRagSource": "Add RAG source",
+    "findings": "Data-hygiene findings",
+    "addFinding": "Add finding",
+    "addHygieneFinding": "Add data-hygiene finding",
+    "resolve": "Resolve",
+    "resolved": "Resolved",
+    "none": "None",
+    "cancel": "Cancel",
+    "saveFailed": "Save failed",
+    "deleteSource": "Delete source",
+    "deleteFinding": "Delete finding",
+    "fields": {
+      "name": "Name",
+      "pipelineIndex": "Pipeline / index",
+      "owner": "Owner",
+      "title": "Title",
+      "type": "Type",
+      "severity": "Severity",
+      "sourceOptional": "Source (optional)",
+      "description": "Description",
+      "dataClass": "Data class",
+      "license": "License",
+      "piiScan": "PII scan",
+      "retention": "Retention"
+    },
+    "placeholders": {
+      "name": "Support KB corpus",
+      "pipelineIndex": "support-index",
+      "findingTitle": "PII found in support KB export"
+    }
   }
 }

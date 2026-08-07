@@ -223,5 +223,109 @@
       "purpose": "このユースケースが存在する理由",
       "rejectReason": "却下の理由"
     }
+  },
+  "runtime": {
+    "title": "ランタイムリスクモニター",
+    "description": "AIシステムの評価結果とランタイム所見 — 評価ソースを接続するか、結果を手動で追加します。",
+    "evalRuns": "評価実行",
+    "addEvalRun": "評価実行を追加",
+    "addEvalRunHint": "AIシステムの評価実行結果を記録します。",
+    "runtimeFindings": "ランタイム所見",
+    "addFinding": "所見を追加",
+    "addRuntimeFinding": "ランタイム所見を追加",
+    "resolve": "解決",
+    "resolved": "解決済み",
+    "cancel": "キャンセル",
+    "saveFailed": "保存に失敗しました",
+    "deleteEvalRun": "評価実行を削除",
+    "deleteFinding": "所見を削除",
+    "fields": {
+      "name": "名称",
+      "type": "種別",
+      "status": "ステータス",
+      "environment": "環境",
+      "notes": "メモ",
+      "title": "タイトル",
+      "severity": "重大度",
+      "description": "説明"
+    },
+    "placeholders": {
+      "name": "例：夜間ハルシネーションスイート",
+      "environment": "production",
+      "findingTitle": "例：ハルシネーション率が5%のしきい値を超過"
+    }
+  },
+  "runtimeConfig": {
+    "metrics": "メトリクス",
+    "thresholds": "しきい値",
+    "modelChanges": "モデル変更",
+    "add": "追加",
+    "record": "記録",
+    "recordMetric": "メトリクスを記録",
+    "addThreshold": "しきい値を追加",
+    "logChange": "変更を記録",
+    "logModelChange": "モデル変更を記録",
+    "logModelChangeHint": "監査証跡のためにモデルまたはバージョンの変更を記録します。",
+    "emptyModelChanges": "モデル変更の記録はありません。デプロイ、ロールバック、再学習を追跡してください。",
+    "cancel": "キャンセル",
+    "saveFailed": "保存に失敗しました",
+    "deleteMetric": "メトリクスを削除",
+    "deleteThreshold": "しきい値を削除",
+    "deleteModelEvent": "モデルイベントを削除",
+    "fields": {
+      "metricKey": "メトリクスキー",
+      "value": "値",
+      "environment": "環境",
+      "comparator": "比較演算子",
+      "severity": "重大度",
+      "modelName": "モデル名",
+      "fromVersion": "変更前バージョン",
+      "toVersion": "変更後バージョン",
+      "changeType": "変更種別"
+    },
+    "placeholders": {
+      "metricKey": "hallucination_rate",
+      "value": "0.09",
+      "threshold": "0.05",
+      "modelName": "support-copilot",
+      "fromVersion": "gpt-4o-2024",
+      "toVersion": "gpt-4o-2025"
+    }
+  },
+  "ragAudit": {
+    "title": "RAG／データパイプライン監査",
+    "description": "RAGソースを整理し、データ健全性の所見 — ライセンス、PII／シークレット、汚染、保持期間 — を追跡します。",
+    "sources": "ソース",
+    "addSource": "ソースを追加",
+    "addRagSource": "RAGソースを追加",
+    "findings": "データ健全性の所見",
+    "addFinding": "所見を追加",
+    "addHygieneFinding": "データ健全性の所見を追加",
+    "resolve": "解決",
+    "resolved": "解決済み",
+    "none": "なし",
+    "cancel": "キャンセル",
+    "saveFailed": "保存に失敗しました",
+    "deleteSource": "ソースを削除",
+    "deleteFinding": "所見を削除",
+    "fields": {
+      "name": "名称",
+      "pipelineIndex": "パイプライン／インデックス",
+      "owner": "所有者",
+      "title": "タイトル",
+      "type": "種別",
+      "severity": "重大度",
+      "sourceOptional": "ソース（任意）",
+      "description": "説明",
+      "dataClass": "データ分類",
+      "license": "ライセンス",
+      "piiScan": "PIIスキャン",
+      "retention": "保持期間"
+    },
+    "placeholders": {
+      "name": "サポートKBコーパス",
+      "pipelineIndex": "support-index",
+      "findingTitle": "サポートKBエクスポートでPIIを検出"
+    }
   }
 }
