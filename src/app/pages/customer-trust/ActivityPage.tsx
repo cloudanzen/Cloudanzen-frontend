@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { RefreshCw, Sparkles } from 'lucide-react';
 import {
@@ -6,19 +7,21 @@ import {
   type TrustEventRow,
 } from '@/services/api/customerTrust';
 
-const ACTION_OPTIONS = [
-  { label: 'All actions', value: '' },
-  { label: 'Page view', value: 'PAGE_VIEW' },
-  { label: 'Download', value: 'DOC_DOWNLOAD' },
-  { label: 'Access request', value: 'ACCESS_REQUEST' },
-  { label: 'Questionnaire', value: 'QUESTIONNAIRE_REQUEST' },
-  { label: 'Subscribe', value: 'SUBSCRIBE' },
-  { label: 'NDA accepted', value: 'NDA_ACCEPTED' },
-];
+/** Values stay stable; labels resolve from `activity.actions.*` at render. */
+const ACTION_VALUES = [
+  '',
+  'PAGE_VIEW',
+  'DOC_DOWNLOAD',
+  'ACCESS_REQUEST',
+  'QUESTIONNAIRE_REQUEST',
+  'SUBSCRIBE',
+  'NDA_ACCEPTED',
+] as const;
 
 type Tab = 'events' | 'insights';
 
 export default function CustomerTrustActivityPage() {
+  const { t } = useTranslation('customerTrust');
   const [tab, setTab] = useState<Tab>('events');
   const [rows, setRows] = useState<TrustEventRow[]>([]);
   const [action, setAction] = useState('');
@@ -40,7 +43,7 @@ export default function CustomerTrustActivityPage() {
       })
       .catch((err: unknown) => {
         if (cancelled) return;
-        setError(err instanceof Error ? err.message : 'Failed to load');
+        setError(err instanceof Error ? err.message : t('common.failedToLoad'));
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -48,7 +51,7 @@ export default function CustomerTrustActivityPage() {
     return () => {
       cancelled = true;
     };
-  }, [action]);
+  }, [action, t]);
 
   async function loadMore() {
     if (!nextCursor) return;
@@ -62,7 +65,9 @@ export default function CustomerTrustActivityPage() {
       setRows((prev) => [...prev, ...res.data]);
       setNextCursor(res.nextCursor);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Load more failed');
+      setError(
+        err instanceof Error ? err.message : t('activity.loadMoreFailed'),
+      );
     } finally {
       setLoadingMore(false);
     }
@@ -72,7 +77,9 @@ export default function CustomerTrustActivityPage() {
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Activity</h1>
+          <h1 className="text-2xl font-bold text-foreground">
+            {t('activity.title')}
+          </h1>
           <p className="text-sm text-muted-foreground">
             Every page view, download, and access request on your public Trust
             Center.
@@ -84,9 +91,11 @@ export default function CustomerTrustActivityPage() {
             onChange={(e) => setAction(e.target.value)}
             className="rounded-md border border-slate-300 bg-card px-3 py-2 text-sm focus:border-fuchsia-400 focus:outline-none focus:ring-2 focus:ring-fuchsia-200"
           >
-            {ACTION_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
+            {ACTION_VALUES.map((value) => (
+              <option key={value} value={value}>
+                {value
+                  ? t(`activity.actions.${value}`)
+                  : t('activity.actions.all')}
               </option>
             ))}
           </select>
@@ -97,12 +106,12 @@ export default function CustomerTrustActivityPage() {
         <TabButton
           active={tab === 'events'}
           onClick={() => setTab('events')}
-          label="Events"
+          label={t('activity.tabs.events')}
         />
         <TabButton
           active={tab === 'insights'}
           onClick={() => setTab('insights')}
-          label="AI insights"
+          label={t('activity.tabs.aiInsights')}
           icon={<Sparkles className="h-3.5 w-3.5" />}
         />
       </div>
@@ -120,11 +129,11 @@ export default function CustomerTrustActivityPage() {
           <table className="min-w-full divide-y divide-slate-200 text-sm">
             <thead className="bg-slate-50">
               <tr>
-                <Th>Viewer</Th>
-                <Th>Location</Th>
-                <Th>Action</Th>
-                <Th>Resource</Th>
-                <Th>When</Th>
+                <Th>{t('activity.columns.viewer')}</Th>
+                <Th>{t('activity.columns.location')}</Th>
+                <Th>{t('activity.columns.action')}</Th>
+                <Th>{t('activity.columns.resource')}</Th>
+                <Th>{t('activity.columns.when')}</Th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -143,7 +152,9 @@ export default function CustomerTrustActivityPage() {
                         )}
                       </div>
                     ) : (
-                      <span className="text-muted-foreground">Public view</span>
+                      <span className="text-muted-foreground">
+                        {t('activity.publicView')}
+                      </span>
                     )}
                   </Td>
                   <Td>
@@ -200,7 +211,7 @@ export default function CustomerTrustActivityPage() {
             disabled={loadingMore}
             className="rounded-md border border-slate-300 bg-card px-4 py-2 text-sm font-medium text-foreground hover:bg-slate-50 disabled:opacity-50"
           >
-            {loadingMore ? 'Loading…' : 'Load more'}
+            {loadingMore ? 'Loading…' : t('activity.loadMore')}
           </button>
         </div>
       )}
@@ -248,6 +259,7 @@ function TabButton({
 }
 
 function InsightsPanel() {
+  const { t } = useTranslation('customerTrust');
   const [windowDays, setWindowDays] = useState(30);
   const [data, setData] = useState<TrustActivityInsights | null>(null);
   const [loading, setLoading] = useState(true);
@@ -270,7 +282,7 @@ function InsightsPanel() {
       .catch((err: unknown) => {
         if (cancelled) return;
         setError(
-          err instanceof Error ? err.message : 'Failed to load insights',
+          err instanceof Error ? err.message : t('activity.insightsFailed'),
         );
       })
       .finally(() => {
@@ -281,7 +293,7 @@ function InsightsPanel() {
     return () => {
       cancelled = true;
     };
-  }, [windowDays, refreshTick]);
+  }, [windowDays, refreshTick, t]);
 
   return (
     <div className="space-y-4">
@@ -321,7 +333,9 @@ function InsightsPanel() {
         </div>
       )}
       {loading && !data && (
-        <p className="text-sm text-muted-foreground">Generating insights…</p>
+        <p className="text-sm text-muted-foreground">
+          {t('activity.generatingInsights')}
+        </p>
       )}
 
       {data && (
@@ -360,10 +374,10 @@ function InsightsPanel() {
               <table className="min-w-full divide-y divide-slate-200 text-sm">
                 <thead className="bg-slate-50">
                   <tr>
-                    <Th>Account</Th>
-                    <Th>Visits</Th>
-                    <Th>Downloads</Th>
-                    <Th>Narrative</Th>
+                    <Th>{t('activity.columns.account')}</Th>
+                    <Th>{t('activity.columns.visits')}</Th>
+                    <Th>{t('activity.columns.downloads')}</Th>
+                    <Th>{t('activity.narrative')}</Th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">

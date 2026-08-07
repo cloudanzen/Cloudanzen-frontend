@@ -121,5 +121,101 @@
       "APPROVE_BYPASS_NDA": "Approve + bypass NDA",
       "DENY": "Deny"
     }
+  },
+  "commitments": {
+    "title": "Commitments",
+    "new": "New commitment",
+    "loading": "Loading commitments…",
+    "global": "Global",
+    "save": "Save commitment",
+    "cancel": "Cancel",
+    "saveFailed": "Save failed",
+    "kpi": {
+      "active": "Active",
+      "atRisk": "At risk",
+      "breached": "Breached",
+      "expired": "Expired"
+    },
+    "columns": {
+      "title": "Title",
+      "category": "Category",
+      "status": "Status",
+      "account": "Account",
+      "effectiveUntil": "Effective until",
+      "source": "Source"
+    },
+    "fields": {
+      "description": "Description (optional)",
+      "effectiveFrom": "Effective from",
+      "effectiveUntil": "Effective until (optional)"
+    },
+    "placeholders": {
+      "title": "99.9% uptime"
+    },
+    "category": {
+      "SLA": "SLA",
+      "SECURITY": "Security",
+      "PRIVACY": "Privacy",
+      "OPERATIONAL": "Operational"
+    },
+    "source": {
+      "CONTRACT": "Contract",
+      "POLICY": "Policy",
+      "MANUAL": "Manual"
+    }
+  },
+  "commitmentDetail": {
+    "allCommitments": "All commitments",
+    "viewSource": "View source document →",
+    "globalCommitment": "Global commitment",
+    "timeline": "Timeline",
+    "logEvent": "Log event",
+    "evidence": "Evidence →",
+    "cancel": "Cancel",
+    "labels": {
+      "source": "Source",
+      "account": "Account",
+      "effectiveWindow": "Effective window",
+      "linkedControls": "Linked controls",
+      "linkedPolicies": "Linked policies"
+    },
+    "placeholders": {
+      "notes": "Notes (optional)",
+      "evidenceUrl": "https://… (evidence link, optional)"
+    }
+  },
+  "activity": {
+    "title": "Activity",
+    "publicView": "Public view",
+    "refresh": "Refresh",
+    "generatingInsights": "Generating insights…",
+    "suggestedActions": "Suggested actions",
+    "narrative": "Narrative",
+    "loadMore": "Load more",
+    "loadMoreFailed": "Load more failed",
+    "insightsFailed": "Failed to load insights",
+    "tabs": {
+      "events": "Events",
+      "aiInsights": "AI insights"
+    },
+    "columns": {
+      "viewer": "Viewer",
+      "location": "Location",
+      "action": "Action",
+      "resource": "Resource",
+      "when": "When",
+      "account": "Account",
+      "visits": "Visits",
+      "downloads": "Downloads"
+    },
+    "actions": {
+      "all": "All actions",
+      "PAGE_VIEW": "Page view",
+      "DOC_DOWNLOAD": "Download",
+      "ACCESS_REQUEST": "Access request",
+      "QUESTIONNAIRE_REQUEST": "Questionnaire",
+      "SUBSCRIBE": "Subscribe",
+      "NDA_ACCEPTED": "NDA accepted"
+    }
   }
 }
