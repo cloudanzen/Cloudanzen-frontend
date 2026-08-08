@@ -86,7 +86,9 @@ export function ScheduleAuditModal({
   });
 
   const users: UserRecord[] = (usersData ?? []) as UserRecord[];
-  const controls: ControlRecord[] = ((controlsData as { data?: ControlRecord[] } | undefined)?.data ?? []) as ControlRecord[];
+  const controls: ControlRecord[] = ((
+    controlsData as { data?: ControlRecord[] } | undefined
+  )?.data ?? []) as ControlRecord[];
 
   const filteredControls = controls.filter(
     (c) =>
@@ -105,17 +107,9 @@ export function ScheduleAuditModal({
     if (!name.trim()) return setError(t('scheduleAudit.nameRequired'));
     if (!startDate) return setError(t('scheduleAudit.startRequired'));
     if (auditorType === 'internal' && !assignedAuditorId)
-      return setError(
-        t('scheduleAudit.internalAuditorRequired', {
-          defaultValue: 'Select an internal auditor.',
-        }),
-      );
+      return setError(t('scheduleAudit.internalAuditorRequired'));
     if (auditorType === 'external' && !externalAuditorEmail.trim())
-      return setError(
-        t('scheduleAudit.externalAuditorRequired', {
-          defaultValue: 'Provide an external auditor email.',
-        }),
-      );
+      return setError(t('scheduleAudit.externalAuditorRequired'));
     if (!scopeAll && selectedControlIds.length === 0)
       return setError(t('scheduleAudit.scopeRequired'));
 
@@ -145,7 +139,9 @@ export function ScheduleAuditModal({
       onCreated();
       onClose();
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : t('scheduleAudit.createFailed'));
+      setError(
+        e instanceof Error ? e.message : t('scheduleAudit.createFailed'),
+      );
     } finally {
       setSaving(false);
     }
@@ -166,7 +162,9 @@ export function ScheduleAuditModal({
             </h2>
             <p className="text-xs text-gray-400 mt-0.5">
               {t('scheduleAudit.stepOf', { step })} —{' '}
-              {step === 1 ? t('scheduleAudit.step1Label') : t('scheduleAudit.step2Label')}
+              {step === 1
+                ? t('scheduleAudit.step1Label')
+                : t('scheduleAudit.step2Label')}
             </p>
           </div>
           <button
@@ -203,10 +201,18 @@ export function ScheduleAuditModal({
                     value={type}
                     onChange={(e) => setType(e.target.value as AuditType)}
                   >
-                    <option value="INTERNAL">{t('scheduleAudit.internal')}</option>
-                    <option value="EXTERNAL">{t('scheduleAudit.external')}</option>
-                    <option value="SURVEILLANCE">{t('scheduleAudit.surveillance')}</option>
-                    <option value="RECERTIFICATION">{t('scheduleAudit.recertification')}</option>
+                    <option value="INTERNAL">
+                      {t('scheduleAudit.internal')}
+                    </option>
+                    <option value="EXTERNAL">
+                      {t('scheduleAudit.external')}
+                    </option>
+                    <option value="SURVEILLANCE">
+                      {t('scheduleAudit.surveillance')}
+                    </option>
+                    <option value="RECERTIFICATION">
+                      {t('scheduleAudit.recertification')}
+                    </option>
                   </select>
                 </Field>
                 <Field label={t('scheduleAudit.framework')}>
@@ -280,7 +286,9 @@ export function ScheduleAuditModal({
                       {t('scheduleAudit.entireFramework')}
                     </span>
                     <span className="text-xs text-gray-400 ml-auto">
-                      {t('scheduleAudit.allControls', { count: controls.length })}
+                      {t('scheduleAudit.allControls', {
+                        count: controls.length,
+                      })}
                     </span>
                   </label>
                   <label
@@ -376,7 +384,9 @@ export function ScheduleAuditModal({
                       value={assignedAuditorId}
                       onChange={(e) => setAssignedAuditorId(e.target.value)}
                     >
-                      <option value="">{t('scheduleAudit.noneAssigned')}</option>
+                      <option value="">
+                        {t('scheduleAudit.noneAssigned')}
+                      </option>
                       {users.map((u) => (
                         <option key={u.id} value={u.id}>
                           {u.name ?? u.email} ({u.role})
@@ -406,14 +416,18 @@ export function ScheduleAuditModal({
             onClick={step === 1 ? onClose : () => setStep(1)}
             className="text-sm text-gray-500 hover:text-gray-700"
           >
-            {step === 1 ? t('scheduleAudit.cancel') : t('scheduleAudit.backStep')}
+            {step === 1
+              ? t('scheduleAudit.cancel')
+              : t('scheduleAudit.backStep')}
           </button>
           <div className="flex gap-2">
             {step === 1 ? (
               <Button
                 onClick={() => {
-                  if (!name.trim()) return setError(t('scheduleAudit.nameRequired'));
-                  if (!startDate) return setError(t('scheduleAudit.startRequired'));
+                  if (!name.trim())
+                    return setError(t('scheduleAudit.nameRequired'));
+                  if (!startDate)
+                    return setError(t('scheduleAudit.startRequired'));
                   setError(null);
                   setStep(2);
                 }}
@@ -422,7 +436,9 @@ export function ScheduleAuditModal({
               </Button>
             ) : (
               <Button onClick={handleSubmit} disabled={saving}>
-                {saving ? t('scheduleAudit.creating') : t('scheduleAudit.createAudit')}
+                {saving
+                  ? t('scheduleAudit.creating')
+                  : t('scheduleAudit.createAudit')}
               </Button>
             )}
           </div>

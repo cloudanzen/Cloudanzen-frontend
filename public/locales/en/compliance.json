@@ -147,7 +147,144 @@
     "version": "Version",
     "owner": "Owner",
     "lastUpdated": "Last updated",
-    "noDescription": "No description provided"
+    "noDescription": "No description provided",
+    "status": {
+      "PUBLISHED": "OK",
+      "DRAFT": "DRAFT",
+      "REVIEW": "IN REVIEW",
+      "ARCHIVED": "ARCHIVED"
+    },
+    "cadence": {
+      "annually": "Renew annually",
+      "monthly": "Renew monthly",
+      "everyYears": "Renew every {{count}} years",
+      "everyMonths": "Renew every {{count}} months"
+    },
+    "loadingTitle": "Policy detail",
+    "pageDescription": "Policy lifecycle, approvals, versions, and acceptance tracking",
+    "help": {
+      "noSnapshot": "No published version snapshot is available yet.",
+      "publishFirst": "Publish this policy before adding Japanese content."
+    },
+    "actions": {
+      "back": "Back to Policies",
+      "more": "More actions",
+      "publish": "Publish",
+      "renew": "Renew",
+      "download": "Download",
+      "delete": "Delete",
+      "reassignOwner": "Reassign owner",
+      "ownerTitle": "Owner: {{name}}",
+      "editDetails": "Edit details"
+    },
+    "frameworksCount": "Frameworks ({{count}})",
+    "tabs": {
+      "versions": "Policy versions",
+      "controls": "Controls",
+      "audits": "Audits",
+      "comments": "Comments"
+    },
+    "renewal": {
+      "renewBefore": "Renew before {{date}}",
+      "lastRenewed": "Last renewed: {{date}}",
+      "reviewCadence": "Review cadence",
+      "months": "months",
+      "saving": "Saving…",
+      "setCadence": "Set cadence",
+      "renewNow": "Renew now"
+    },
+    "versions": {
+      "approvedVersion": "Approved version: {{date}}",
+      "currentDraft": "Current draft",
+      "lastEditedBy": "Last edited by {{name}}",
+      "noJapaneseVersion": "No Japanese version yet",
+      "view": "View",
+      "edit": "Edit",
+      "addJapanese": "Add Japanese",
+      "uploadJapaneseTitle": "Upload Japanese version",
+      "upload": "Upload",
+      "showApproval": "Show approval",
+      "approvers": "Approvers",
+      "requestApproval": "Request approval",
+      "noApprovalRequests": "No approval requests yet.",
+      "acceptances": "Acceptances",
+      "noAcceptanceRequests": "No acceptance requests for the current version.",
+      "history": "Version history ({{count}})",
+      "publishedByOn": "Published {{date}} by {{name}}",
+      "compareTo": "Compare to v{{version}}"
+    },
+    "controls": {
+      "linked": "Linked controls",
+      "add": "Add Controls",
+      "none": "No linked controls.",
+      "fallbackReference": "Control",
+      "remove": "Remove control",
+      "close": "Close",
+      "search": "Search controls",
+      "loading": "Loading controls…",
+      "noMatching": "No matching unlinked controls.",
+      "allLinked": "All visible controls are already linked.",
+      "unavailable": "No controls available."
+    },
+    "risks": {
+      "heading": "Risks treated by this policy",
+      "none": "No risks reference this policy yet.",
+      "meta": "{{status}} · impact {{impact}} · likelihood {{likelihood}} · score {{score}}"
+    },
+    "approval": {
+      "round": "Round {{round}} · {{status}}",
+      "rejectionReason": "Reason for rejection (required)",
+      "confirmRejection": "Confirm rejection",
+      "cancel": "Cancel",
+      "approve": "Approve",
+      "reject": "Reject"
+    },
+    "toast": {
+      "approvalRequested": "Approval requested",
+      "approvalRequestFailed": "Failed to request approval",
+      "approvalRecorded": "Approval recorded",
+      "rejectionRecorded": "Rejection recorded",
+      "approvalUpdateFailed": "Failed to update approval",
+      "cadenceUpdated": "Review cadence updated",
+      "cadenceUpdateFailed": "Failed to update review cadence",
+      "ownerUpdated": "Owner updated",
+      "ownerUpdateFailed": "Failed to update owner",
+      "controlLinked": "Control linked",
+      "controlLinkFailed": "Failed to link control",
+      "controlRemoved": "Control removed",
+      "controlRemoveFailed": "Failed to remove control",
+      "downloadFailed": "Failed to download policy",
+      "published": "Policy published",
+      "publishFailed": "Failed to publish policy",
+      "renewed": "Policy renewed",
+      "japaneseUnavailable": "Japanese version not available - showing English",
+      "skipped_one": "{{count}} user excluded (role exempt): {{names}}{{suffix}}",
+      "skipped_other": "{{count}} users excluded (role exempt): {{names}}{{suffix}}",
+      "skippedMore": ", +{{count}} more",
+      "skippedDescription": "Adjust the per-role onboarding matrix in Settings → Access → Roles if this is unexpected.",
+      "blockedByRejection": "Publish blocked: an approver rejected the latest round.",
+      "blockedByRejectionDescription": "Request a new approval round before publishing.",
+      "blockedByPending": "Publish blocked: approvals are still pending.",
+      "blockedByPendingDescription": "Publish unlocks once every approver in the latest round approves."
+    },
+    "audits": {
+      "loading": "Loading audits…",
+      "empty": "No audits yet reference this policy through its controls.",
+      "open": "Open",
+      "viaControls_one": "{{count}} control overlap",
+      "viaControls_other": "{{count}} controls overlap"
+    },
+    "comments": {
+      "postFailed": "Failed to post comment",
+      "deleteTitle": "Delete comment?",
+      "deleteConfirm": "This action cannot be undone.",
+      "delete": "Delete",
+      "deleteFailed": "Failed to delete comment",
+      "filterByVersion": "Filter by version",
+      "allComments": "All comments",
+      "noComments": "No comments yet.",
+      "placeholder": "Write a comment…"
+    }
   },
   "policiesPage": {
     "createModal": {
@@ -383,7 +520,11 @@
     "updateNotesEmpty": "No framework updates yet.",
     "overlapTooltip": "{{pct}}% of requirements already covered by your existing controls",
     "coverageTooltip": "{{pct}}% control coverage",
-    "headStart": "Your head start"
+    "headStart": "Your head start",
+    "requestPending": "Request pending",
+    "partialGrantTitle": "Grant incomplete — contact support",
+    "partialGrant": "Grant incomplete",
+    "requestAccess": "Request access"
   },
   "frameworkCatalog": {
     "pageTitle": "Framework Details",
@@ -700,7 +841,17 @@
       "notFound": "This audit request could not be loaded.",
       "backToAudit": "Back to audit",
       "changeStatus": "Change status",
-      "edit": "Edit",
+      "edit": {
+        "title": "Edit request",
+        "fieldTitle": "Title",
+        "fieldDescription": "Description",
+        "fieldEvidenceType": "Evidence type",
+        "evidenceTypeNone": "— Not specified —",
+        "fieldDueDate": "Due date",
+        "cancel": "Cancel",
+        "save": "Save",
+        "saving": "Saving…"
+      },
       "cancelEdit": "Cancel",
       "delete": "Delete",
       "confirmDelete": "Delete this audit request?",
@@ -723,17 +874,6 @@
         "empty": "No evidence attached yet.",
         "linkedAt": "Linked {{when}}",
         "unlink": "Unlink"
-      },
-      "edit": {
-        "title": "Edit request",
-        "fieldTitle": "Title",
-        "fieldDescription": "Description",
-        "fieldEvidenceType": "Evidence type",
-        "evidenceTypeNone": "— Not specified —",
-        "fieldDueDate": "Due date",
-        "cancel": "Cancel",
-        "save": "Save",
-        "saving": "Saving…"
       },
       "toasts": {
         "updated": "Request updated.",
@@ -1056,7 +1196,9 @@
     "scopeRequired": "Select at least one control, or choose \"Entire Framework\".",
     "createFailed": "Failed to create audit",
     "surveillance": "Surveillance",
-    "recertification": "Recertification"
+    "recertification": "Recertification",
+    "internalAuditorRequired": "Select an internal auditor.",
+    "externalAuditorRequired": "Provide an external auditor email."
   },
   "activationSummary": {
     "title": "Framework Activated",

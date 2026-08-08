@@ -517,7 +517,6 @@ function ProgressBanner({ status }: { status: OnboardingStatus }) {
           {t('onboardingTasks.progress.tasksComplete', {
             done,
             total,
-            defaultValue: '{{done}}/{{total}} tasks complete',
           })}
         </span>
       </div>
@@ -988,15 +987,10 @@ export function OnboardingTasksPage() {
           <div className="rounded-2xl bg-card border border-border px-6 py-8 flex flex-col items-center gap-3 text-center">
             <ShieldCheck className="w-10 h-10 text-muted-foreground" />
             <p className="text-sm font-semibold text-foreground">
-              {t('common:onboardingTasks.noTasksApplicable', {
-                defaultValue: 'No onboarding tasks apply to your role.',
-              })}
+              {t('common:onboardingTasks.noTasksApplicable')}
             </p>
             <p className="text-xs text-muted-foreground/70 max-w-sm">
-              {t('common:onboardingTasks.noTasksApplicableDescription', {
-                defaultValue:
-                  'Your role is exempt from policy acceptance, MDM enrollment, and security training. Reach out to an administrator if this looks wrong.',
-              })}
+              {t('common:onboardingTasks.noTasksApplicableDescription')}
             </p>
           </div>
         ) : (

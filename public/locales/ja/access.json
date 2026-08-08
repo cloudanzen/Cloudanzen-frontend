@@ -42,7 +42,8 @@
       "AUDITOR": "監査者",
       "CONTRIBUTOR": "コントリビューター",
       "VIEWER": "ビューアー"
-    }
+    },
+    "exempt": "該当なし"
   },
   "roles": {
     "title": "ロールと権限",
@@ -52,7 +53,8 @@
     "permissions": "権限",
     "tabs": {
       "roleCards": "ロールカード",
-      "permissionMatrix": "権限マトリクス"
+      "permissionMatrix": "権限マトリクス",
+      "onboarding": "オンボーディング"
     },
     "permissionsCount": "{{count}} 件の権限",
     "usersCount_one": "{{count}} ユーザー",
@@ -102,6 +104,14 @@
       "create": "作成",
       "settings": "管理",
       "billing": "請求"
+    },
+    "onboardingTaskCount_zero": "オンボーディングタスクなし",
+    "onboardingTaskCount_one": "オンボーディングタスク1件",
+    "onboardingTaskCount_other": "オンボーディングタスク{{count}}件",
+    "onboarding": {
+      "heading": "ロール別オンボーディングタスク",
+      "description": "各ロールに該当するオンボーディングタスクを選択してください。監査人などの外部ロールは既定で免除されます — 監査人は個人デバイスでのポリシー同意、MDM登録、セキュリティ研修を必要としません。",
+      "saveError": "保存に失敗しました。再試行してください。"
     }
   },
   "requests": {
@@ -218,6 +228,8 @@
       "completed": "完了 {{date}}",
       "inProgress": "進行中",
       "notStarted": "未開始"
-    }
+    },
+    "roleExempt": "該当なし — ロール免除",
+    "onboardingNotApplicable": "このロールにオンボーディングタスクは適用されません。誤りの場合はロール設定ページを更新してください。"
   }
 }

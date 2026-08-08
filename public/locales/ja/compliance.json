@@ -147,7 +147,144 @@
     "version": "バージョン",
     "owner": "オーナー",
     "lastUpdated": "最終更新",
-    "noDescription": "説明なし"
+    "noDescription": "説明なし",
+    "status": {
+      "PUBLISHED": "OK",
+      "DRAFT": "下書き",
+      "REVIEW": "レビュー中",
+      "ARCHIVED": "アーカイブ済み"
+    },
+    "cadence": {
+      "annually": "年次で更新",
+      "monthly": "毎月更新",
+      "everyYears": "{{count}}年ごとに更新",
+      "everyMonths": "{{count}}か月ごとに更新"
+    },
+    "loadingTitle": "ポリシー詳細",
+    "pageDescription": "ポリシーのライフサイクル、承認、バージョン、同意状況の管理",
+    "help": {
+      "noSnapshot": "公開済みバージョンのスナップショットがまだありません。",
+      "publishFirst": "日本語版を追加する前に、このポリシーを公開してください。"
+    },
+    "actions": {
+      "back": "ポリシー一覧へ戻る",
+      "more": "その他の操作",
+      "publish": "公開",
+      "renew": "更新",
+      "download": "ダウンロード",
+      "delete": "削除",
+      "reassignOwner": "オーナーを変更",
+      "ownerTitle": "オーナー：{{name}}",
+      "editDetails": "詳細を編集"
+    },
+    "frameworksCount": "フレームワーク（{{count}}）",
+    "tabs": {
+      "versions": "ポリシーバージョン",
+      "controls": "管理策",
+      "audits": "監査",
+      "comments": "コメント"
+    },
+    "renewal": {
+      "renewBefore": "{{date}}までに更新",
+      "lastRenewed": "最終更新日：{{date}}",
+      "reviewCadence": "レビュー周期",
+      "months": "か月",
+      "saving": "保存中…",
+      "setCadence": "周期を設定",
+      "renewNow": "今すぐ更新"
+    },
+    "versions": {
+      "approvedVersion": "承認済みバージョン：{{date}}",
+      "currentDraft": "現在の下書き",
+      "lastEditedBy": "最終編集者：{{name}}",
+      "noJapaneseVersion": "日本語版はまだありません",
+      "view": "表示",
+      "edit": "編集",
+      "addJapanese": "日本語版を追加",
+      "uploadJapaneseTitle": "日本語版をアップロード",
+      "upload": "アップロード",
+      "showApproval": "承認状況を表示",
+      "approvers": "承認者",
+      "requestApproval": "承認を依頼",
+      "noApprovalRequests": "承認依頼はまだありません。",
+      "acceptances": "同意状況",
+      "noAcceptanceRequests": "現在のバージョンに対する同意依頼はありません。",
+      "history": "バージョン履歴（{{count}}）",
+      "publishedByOn": "{{name}}が{{date}}に公開",
+      "compareTo": "v{{version}}と比較"
+    },
+    "controls": {
+      "linked": "関連付けられた管理策",
+      "add": "管理策を追加",
+      "none": "関連付けられた管理策はありません。",
+      "fallbackReference": "管理策",
+      "remove": "管理策の関連付けを解除",
+      "close": "閉じる",
+      "search": "管理策を検索",
+      "loading": "管理策を読み込み中…",
+      "noMatching": "未関連付けの管理策で該当するものがありません。",
+      "allLinked": "表示中の管理策はすべて関連付け済みです。",
+      "unavailable": "利用可能な管理策がありません。"
+    },
+    "risks": {
+      "heading": "このポリシーで対応するリスク",
+      "none": "このポリシーを参照するリスクはまだありません。",
+      "meta": "{{status}} · 影響度 {{impact}} · 発生可能性 {{likelihood}} · スコア {{score}}"
+    },
+    "approval": {
+      "round": "第{{round}}ラウンド · {{status}}",
+      "rejectionReason": "却下の理由（必須）",
+      "confirmRejection": "却下を確定",
+      "cancel": "キャンセル",
+      "approve": "承認",
+      "reject": "却下"
+    },
+    "toast": {
+      "approvalRequested": "承認を依頼しました",
+      "approvalRequestFailed": "承認の依頼に失敗しました",
+      "approvalRecorded": "承認を記録しました",
+      "rejectionRecorded": "却下を記録しました",
+      "approvalUpdateFailed": "承認の更新に失敗しました",
+      "cadenceUpdated": "レビュー周期を更新しました",
+      "cadenceUpdateFailed": "レビュー周期の更新に失敗しました",
+      "ownerUpdated": "オーナーを更新しました",
+      "ownerUpdateFailed": "オーナーの更新に失敗しました",
+      "controlLinked": "管理策を関連付けました",
+      "controlLinkFailed": "管理策の関連付けに失敗しました",
+      "controlRemoved": "管理策の関連付けを解除しました",
+      "controlRemoveFailed": "管理策の関連付け解除に失敗しました",
+      "downloadFailed": "ポリシーのダウンロードに失敗しました",
+      "published": "ポリシーを公開しました",
+      "publishFailed": "ポリシーの公開に失敗しました",
+      "renewed": "ポリシーを更新しました",
+      "japaneseUnavailable": "日本語版が利用できないため、英語版を表示しています",
+      "skipped_one": "{{count}}名のユーザーを除外しました（ロール免除）：{{names}}{{suffix}}",
+      "skipped_other": "{{count}}名のユーザーを除外しました（ロール免除）：{{names}}{{suffix}}",
+      "skippedMore": "、他{{count}}名",
+      "skippedDescription": "意図しない場合は、設定 → アクセス → ロールでロール別オンボーディング設定を調整してください。",
+      "blockedByRejection": "公開できません：承認者が最新ラウンドで却下しました。",
+      "blockedByRejectionDescription": "公開する前に、新しい承認ラウンドを依頼してください。",
+      "blockedByPending": "公開できません：承認が保留中です。",
+      "blockedByPendingDescription": "最新ラウンドのすべての承認者が承認すると公開できるようになります。"
+    },
+    "audits": {
+      "loading": "監査を読み込み中…",
+      "empty": "このポリシーを管理策経由で参照する監査はまだありません。",
+      "viaControls_one": "{{count}}件の管理策が重複",
+      "viaControls_other": "{{count}}件の管理策が重複",
+      "open": "開く"
+    },
+    "comments": {
+      "postFailed": "コメントの投稿に失敗しました",
+      "deleteTitle": "コメントを削除しますか？",
+      "deleteConfirm": "この操作は取り消せません。",
+      "delete": "削除",
+      "deleteFailed": "コメントの削除に失敗しました",
+      "filterByVersion": "バージョンで絞り込み",
+      "allComments": "すべてのコメント",
+      "noComments": "コメントはまだありません。",
+      "placeholder": "コメントを入力…"
+    }
   },
   "policiesPage": {
     "createModal": {
@@ -383,7 +520,11 @@
     "updateNotesEmpty": "フレームワークの更新はまだありません。",
     "overlapTooltip": "既存の管理策ですでに {{pct}}% の要件をカバーしています",
     "coverageTooltip": "管理策カバレッジ {{pct}}%",
-    "headStart": "現在の進捗"
+    "headStart": "現在の進捗",
+    "requestPending": "申請中",
+    "partialGrantTitle": "権限付与が未完了です — サポートにお問い合わせください",
+    "partialGrant": "権限付与が未完了",
+    "requestAccess": "アクセスを申請"
   },
   "frameworkCatalog": {
     "pageTitle": "フレームワーク詳細",
@@ -700,7 +841,17 @@
       "notFound": "この監査リクエストを読み込めませんでした。",
       "backToAudit": "監査に戻る",
       "changeStatus": "ステータスを変更",
-      "edit": "編集",
+      "edit": {
+        "title": "リクエストを編集",
+        "fieldTitle": "件名",
+        "fieldDescription": "説明",
+        "fieldEvidenceType": "証拠タイプ",
+        "evidenceTypeNone": "— 指定なし —",
+        "fieldDueDate": "期限日",
+        "cancel": "キャンセル",
+        "save": "保存",
+        "saving": "保存中…"
+      },
       "cancelEdit": "キャンセル",
       "delete": "削除",
       "confirmDelete": "この監査リクエストを削除しますか？",
@@ -723,17 +874,6 @@
         "empty": "まだ証拠は添付されていません。",
         "linkedAt": "{{when}} に紐付け",
         "unlink": "解除"
-      },
-      "edit": {
-        "title": "リクエストを編集",
-        "fieldTitle": "件名",
-        "fieldDescription": "説明",
-        "fieldEvidenceType": "証拠タイプ",
-        "evidenceTypeNone": "— 指定なし —",
-        "fieldDueDate": "期限日",
-        "cancel": "キャンセル",
-        "save": "保存",
-        "saving": "保存中…"
       },
       "toasts": {
         "updated": "リクエストを更新しました。",
@@ -1056,7 +1196,9 @@
     "scopeRequired": "少なくとも1つの管理策を選択するか、「フレームワーク全体」を選択してください。",
     "createFailed": "監査の作成に失敗しました",
     "surveillance": "サーベイランス",
-    "recertification": "再認証"
+    "recertification": "再認証",
+    "internalAuditorRequired": "内部監査人を選択してください。",
+    "externalAuditorRequired": "外部監査人のメールアドレスを入力してください。"
   },
   "activationSummary": {
     "title": "フレームワーク有効化完了",

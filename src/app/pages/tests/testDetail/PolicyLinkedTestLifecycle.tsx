@@ -261,9 +261,7 @@ export function PolicyLinkedTestLifecycle({
             />
             {isRunning
               ? t('testDetail.overview.running')
-              : t('testDetail.policyLifecycle.rerunCheck', {
-                  defaultValue: 'Re-run check',
-                })}
+              : t('testDetail.policyLifecycle.rerunCheck')}
           </button>
         ) : null}
       </div>

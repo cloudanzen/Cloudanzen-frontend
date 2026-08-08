@@ -317,7 +317,9 @@
         "readyForReview": "レビュー準備完了",
         "closed": "完了"
       }
-    }
+    },
+    "noTasksApplicable": "あなたのロールに該当するオンボーディングタスクはありません。",
+    "noTasksApplicableDescription": "あなたのロールは、ポリシーへの同意、MDM登録、セキュリティ研修が免除されています。誤りと思われる場合は管理者にお問い合わせください。"
   },
   "progress": {
     "title": "進捗",

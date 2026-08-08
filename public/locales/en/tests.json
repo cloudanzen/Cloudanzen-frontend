@@ -79,7 +79,8 @@
       "versionsFailed": "Version history could not be loaded.",
       "noVersions": "No published versions yet.",
       "versionNumber": "v{{version}}",
-      "publishedAt": "Published {{date}}"
+      "publishedAt": "Published {{date}}",
+      "rerunCheck": "Re-run check"
     },
     "overview": {
       "title": "Overview",

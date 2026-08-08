@@ -79,7 +79,8 @@
       "versionsFailed": "バージョン履歴を読み込めませんでした。",
       "noVersions": "公開済みバージョンはまだありません。",
       "versionNumber": "v{{version}}",
-      "publishedAt": "{{date}}に公開"
+      "publishedAt": "{{date}}に公開",
+      "rerunCheck": "チェックを再実行"
     },
     "overview": {
       "title": "概要",

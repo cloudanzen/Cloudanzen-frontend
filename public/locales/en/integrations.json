@@ -215,7 +215,13 @@
       "labelPlaceholder": "e.g. Production",
       "optional": "(optional)",
       "revoke": "Revoke",
-      "connectingEllipsis": "Connecting..."
+      "connectingEllipsis": "Connecting...",
+      "back": "Back",
+      "close": "Close",
+      "copy": "Copy",
+      "copied": "Copied",
+      "username": "Username",
+      "password": "Password"
     },
     "engineerA": {
       "activeAccount": "Active account",
@@ -1249,5 +1255,11 @@
       "tokenRevoked": "Token revoked",
       "failedToRevokeToken": "Failed to revoke token"
     }
+  },
+  "page": {
+    "githubConnected": "GitHub connected",
+    "googleDriveConnected": "Google Drive connected",
+    "slackConnected": "Slack connected",
+    "intercomConnected": "Intercom connected"
   }
 }

@@ -156,6 +156,7 @@
       "dueSoon": "Due Soon",
       "overdue": "Overdue",
       "needsRemediation": "Needs Remediation"
-    }
+    },
+    "notApplicable": "N/A"
   }
 }

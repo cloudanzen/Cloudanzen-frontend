@@ -11,6 +11,22 @@ function flattenKeys(value: unknown, prefix = ''): string[] {
   );
 }
 
+function flattenEntries(value: unknown, prefix = ''): [string, string][] {
+  if (typeof value === 'string') return [[prefix, value]];
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return [];
+
+  return Object.entries(value as Record<string, unknown>).flatMap(
+    ([key, child]) => flattenEntries(child, prefix ? `${prefix}.${key}` : key),
+  );
+}
+
+/** `{{name}}`, `{{count}}` — the values i18next substitutes at render time. */
+function placeholders(text: string): string[] {
+  return [...text.matchAll(/\{\{\s*([\w.]+)[^}]*\}\}/g)]
+    .map((m) => m[1]!)
+    .sort();
+}
+
 function localeDir(locale: 'en' | 'ja') {
   return resolve(process.cwd(), 'public', 'locales', locale);
 }
@@ -53,6 +69,34 @@ describe('i18n locale parity', () => {
       const jaKeys = flattenKeys(readLocale('ja', ns)).sort();
 
       expect(jaKeys).toEqual(enKeys);
+    },
+  );
+
+  /**
+   * Matching keys are not enough: a translation that drops `{{name}}` renders
+   * a sentence with a hole in it, and one that invents `{{naem}}` renders the
+   * literal braces. Neither shows up in a key diff, and neither is visible to
+   * anyone reviewing the English side.
+   */
+  it.each(namespaces)(
+    'keeps %s interpolation placeholders identical across locales',
+    (ns) => {
+      const ja = new Map(flattenEntries(readLocale('ja', ns)));
+
+      const mismatched = flattenEntries(readLocale('en', ns))
+        .filter(([key, en]) => {
+          const translated = ja.get(key);
+          return (
+            translated !== undefined &&
+            placeholders(en).join(',') !== placeholders(translated).join(',')
+          );
+        })
+        .map(
+          ([key, en]) =>
+            `${key}: en=[${placeholders(en)}] ja=[${placeholders(ja.get(key)!)}]`,
+        );
+
+      expect(mismatched).toEqual([]);
     },
   );
 });

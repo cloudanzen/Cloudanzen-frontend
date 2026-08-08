@@ -42,7 +42,8 @@
       "AUDITOR": "Auditor",
       "CONTRIBUTOR": "Contributor",
       "VIEWER": "Viewer"
-    }
+    },
+    "exempt": "N/A"
   },
   "roles": {
     "title": "Roles & Permissions",
@@ -52,7 +53,8 @@
     "permissions": "Permissions",
     "tabs": {
       "roleCards": "Role Cards",
-      "permissionMatrix": "Permission Matrix"
+      "permissionMatrix": "Permission Matrix",
+      "onboarding": "Onboarding"
     },
     "permissionsCount": "{{count}} permissions",
     "usersCount_one": "{{count}} user",
@@ -102,6 +104,14 @@
       "create": "Create",
       "settings": "Manage",
       "billing": "Billing"
+    },
+    "onboardingTaskCount_zero": "No onboarding tasks",
+    "onboardingTaskCount_one": "1 onboarding task",
+    "onboardingTaskCount_other": "{{count}} onboarding tasks",
+    "onboarding": {
+      "heading": "Onboarding tasks per role",
+      "description": "Choose which onboarding tasks apply to each role. External roles like Auditor are exempt by default — auditors do not need policy acceptance, MDM enrollment, or security training on their personal devices.",
+      "saveError": "Failed to save. Please retry."
     }
   },
   "requests": {
@@ -218,6 +228,8 @@
       "completed": "Completed {{date}}",
       "inProgress": "In progress",
       "notStarted": "Not started"
-    }
+    },
+    "roleExempt": "N/A — role exempt",
+    "onboardingNotApplicable": "Onboarding tasks do not apply to this role. Update the Roles page if this is incorrect."
   }
 }
