@@ -3,6 +3,7 @@
  * in Phase 4. Component body is unchanged.
  */
 
+import { useTranslation } from 'react-i18next';
 import { Clock, Wand2, ZapOff } from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
 import { FindingRecord } from '@/services/api/findings';
@@ -20,6 +21,7 @@ export function RemediationPanel({
   finding: FindingRecord;
   canApprove: boolean;
 }) {
+  const { t } = useTranslation('assets');
   const { actions, isLoading, actionError, doAction } = useRemediationActions(
     finding.id,
   );
@@ -30,7 +32,9 @@ export function RemediationPanel({
         <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
           Automated Remediation
         </p>
-        <p className="mt-2 text-sm text-gray-400">Loading...</p>
+        <p className="mt-2 text-sm text-gray-400">
+          {t('findings.remediation.loading')}
+        </p>
       </div>
     );
   }
@@ -82,7 +86,9 @@ export function RemediationPanel({
                 </summary>
                 <div className="mt-1 grid grid-cols-2 gap-2 rounded bg-gray-50 p-2 font-mono">
                   <div>
-                    <p className="font-semibold text-red-600 mb-1">Before</p>
+                    <p className="font-semibold text-red-600 mb-1">
+                      {t('findings.remediation.before')}
+                    </p>
                     <pre className="whitespace-pre-wrap text-gray-600 text-[11px]">
                       {JSON.stringify(
                         action.latestExecution.diffJson.before,
@@ -92,7 +98,9 @@ export function RemediationPanel({
                     </pre>
                   </div>
                   <div>
-                    <p className="font-semibold text-green-600 mb-1">After</p>
+                    <p className="font-semibold text-green-600 mb-1">
+                      {t('findings.remediation.after')}
+                    </p>
                     <pre className="whitespace-pre-wrap text-gray-600 text-[11px]">
                       {JSON.stringify(
                         action.latestExecution.diffJson.after,
