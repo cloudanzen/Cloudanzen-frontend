@@ -1,0 +1,110 @@
+{
+  "reports": {
+    "monthly-overview": "月次概要レポート",
+    "quarterly-overview": "四半期概要レポート",
+    "framework-progress": "フレームワーク進捗レポート",
+    "risk-register": "リスク登録簿レポート",
+    "test-effectiveness": "テスト有効性レポート",
+    "audit-status": "監査ステータスレポート",
+    "evidence-coverage": "証跡カバレッジレポート",
+    "personnel-compliance": "要員コンプライアンスレポート"
+  },
+  "unknownType": "不明な進捗レポート種別です。",
+  "backToProgress": "進捗一覧へ戻る",
+  "period": {
+    "label": "レポート対象期間",
+    "range": "期間：{{start}} — {{end}}",
+    "monthlyBuckets": "月次集計",
+    "weeklyBuckets": "週次集計",
+    "generate": "生成"
+  },
+  "selectPrompt": "レポート対象期間を選択し、<1>生成</1>をクリックしてレポートを表示してください。",
+  "empty": "この期間に該当するデータはありません。",
+  "framework": {
+    "totalControls": "管理策の総数",
+    "implemented": "実装済み",
+    "partial": "一部実装",
+    "notImplemented": "未実装",
+    "completion": "達成率",
+    "statusDistribution": "管理策ステータスの分布",
+    "completionOverPeriod": "期間内の達成率推移",
+    "snapshotPerBucket": "集計単位ごとのスナップショット",
+    "completionSeries": "達成率"
+  },
+  "risk": {
+    "totalRisks": "リスクの総数",
+    "critical": "重大",
+    "high": "高",
+    "medium": "中",
+    "low": "低",
+    "open": "未対応",
+    "distributionOverTime": "リスク分布の推移",
+    "newRisksPerPeriod": "期間ごとの新規リスク（深刻度別）"
+  },
+  "test": {
+    "totalValidations": "検証の総数",
+    "completed": "完了",
+    "overdue": "期限超過",
+    "passRate": "合格率",
+    "completionOverTime": "テスト完了の推移",
+    "completionsPerPeriod": "期間ごとの完了件数（期限別）",
+    "onTime": "期限内",
+    "pastDueDate": "期限超過",
+    "noDueDate": "期限なし"
+  },
+  "audit": {
+    "totalAudits": "監査の総数",
+    "completed": "完了",
+    "inProgress": "進行中",
+    "openFindings": "未解決の所見",
+    "closedFindings": "解決済みの所見",
+    "avgCompliance": "平均遵守率",
+    "list": "監査一覧",
+    "columns": {
+      "type": "種別",
+      "scope": "範囲",
+      "auditor": "監査人",
+      "start": "開始",
+      "end": "終了",
+      "status": "ステータス",
+      "compliancePct": "遵守率",
+      "major": "重大",
+      "minor": "軽微",
+      "observations": "所見"
+    },
+    "noAudits": "この期間に監査はありません。"
+  },
+  "evidence": {
+    "totalControls": "管理策の総数",
+    "withEvidence": "証跡あり",
+    "withoutEvidence": "証跡なし",
+    "coverage": "カバレッジ",
+    "columns": {
+      "reference": "参照番号",
+      "title": "タイトル",
+      "status": "ステータス",
+      "evidence": "証跡"
+    }
+  },
+  "personnel": {
+    "totalPersonnel": "要員の総数",
+    "fullyComplete": "全て完了",
+    "partial": "一部完了",
+    "notStarted": "未着手",
+    "columns": {
+      "name": "氏名",
+      "email": "メールアドレス",
+      "role": "ロール",
+      "policy": "ポリシー",
+      "mdm": "MDM",
+      "training": "研修",
+      "overall": "総合"
+    }
+  },
+  "overview": {
+    "section1": "セクション1 — フレームワーク進捗",
+    "section2": "セクション2 — リスク分布",
+    "section3": "セクション3 — テスト完了",
+    "section4": "セクション4 — 監査サマリー"
+  }
+}
