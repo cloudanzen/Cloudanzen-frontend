@@ -2,6 +2,7 @@
 // when the ProgressViewerPage is actually visited. Since this page is already
 // a lazy-loaded route, the Recharts chunk is deferred until first navigation.
 import React, { useState, useMemo } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 
 import { useParams, useNavigate } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
@@ -104,7 +105,9 @@ function periodToRange(
   value: string,
 ): { startDate: string; endDate: string } {
   if (type === 'monthly') {
-    const parts = value.split("-").map(Number); const year = parts[0]!; const month = parts[1]!;
+    const parts = value.split('-').map(Number);
+    const year = parts[0]!;
+    const month = parts[1]!;
     const start = new Date(year, month - 1, 1);
     const end = new Date(year, month, 0);
     return {
@@ -136,14 +139,16 @@ function defaultQuarterValue() {
   return `${now.getFullYear()}-Q${q}`;
 }
 
-// Generate month options (last 12 months)
-function monthOptions() {
+// Generate month options (last 12 months).
+// `locale` is threaded in rather than defaulted: the option *values* are the
+// wire format periodToRange parses, and only the labels follow the UI language.
+function monthOptions(locale: string) {
   const opts: { value: string; label: string }[] = [];
   const now = new Date();
   for (let i = 0; i < 12; i++) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const val = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-    const label = d.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+    const label = d.toLocaleString(locale, { month: 'long', year: 'numeric' });
     opts.push({ value: val, label });
   }
   return opts;
@@ -172,6 +177,7 @@ function FrameworkProgressView({
   startDate: string;
   endDate: string;
 }) {
+  const { t } = useTranslation('progress');
   const { data, isLoading } = useQuery({
     queryKey: ['reports', 'framework-progress', startDate, endDate],
     queryFn: async () => {
@@ -187,34 +193,37 @@ function FrameworkProgressView({
   if (!data) return <Empty />;
 
   const pieData = [
-    { name: 'Implemented', value: data.summary.implemented },
-    { name: 'Partial', value: data.summary.partial },
-    { name: 'Not Implemented', value: data.summary.notImpl },
+    { name: t('framework.implemented'), value: data.summary.implemented },
+    { name: t('framework.partial'), value: data.summary.partial },
+    { name: t('framework.notImplemented'), value: data.summary.notImpl },
   ];
 
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <KpiCard label="Total Controls" value={data.summary.total} />
         <KpiCard
-          label="Implemented"
+          label={t('framework.totalControls')}
+          value={data.summary.total}
+        />
+        <KpiCard
+          label={t('framework.implemented')}
           value={data.summary.implemented}
           color="text-green-600"
         />
         <KpiCard
-          label="Partial"
+          label={t('framework.partial')}
           value={data.summary.partial}
           color="text-amber-600"
         />
         <KpiCard
-          label="Completion"
+          label={t('framework.completion')}
           value={`${data.summary.pct}%`}
           color="text-blue-600"
         />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <ChartCard title="Control Status Distribution">
+        <ChartCard title={t('framework.statusDistribution')}>
           <ResponsiveContainer width="100%" height={260}>
             <PieChart>
               <Pie
@@ -224,8 +233,17 @@ function FrameworkProgressView({
                 cx="50%"
                 cy="50%"
                 outerRadius={90}
-                label={(({ name, percent = 0 }: { name: string; percent?: number }) =>
-                  `${name} ${Math.round(percent * 100)}%`) as (props: unknown) => string}
+                label={
+                  (({
+                    name,
+                    percent = 0,
+                  }: {
+                    name: string;
+                    percent?: number;
+                  }) => `${name} ${Math.round(percent * 100)}%`) as (
+                    props: unknown,
+                  ) => string
+                }
               >
                 {pieData.map((_, i) => (
                   <Cell key={i} fill={PIE_COLORS[i] ?? '#ccc'} />
@@ -237,22 +255,24 @@ function FrameworkProgressView({
         </ChartCard>
 
         <ChartCard
-          title="Completion % Over Period"
-          subtitle="Snapshot per bucket"
+          title={t('framework.completionOverPeriod')}
+          subtitle={t('framework.snapshotPerBucket')}
         >
           <ResponsiveContainer width="100%" height={260}>
             <AreaChart data={data.series}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis dataKey="label" tick={{ fontSize: 11 }} />
               <YAxis domain={[0, 100]} unit="%" tick={{ fontSize: 11 }} />
-              <Tooltip formatter={((v: number) => `${v}%`) as (v: unknown) => string} />
+              <Tooltip
+                formatter={((v: number) => `${v}%`) as (v: unknown) => string}
+              />
               <Area
                 type="monotone"
                 dataKey="pct"
                 stroke="#6366f1"
                 fill="#e0e7ff"
                 strokeWidth={2}
-                name="Completion %"
+                name={t('framework.completionSeries')}
               />
             </AreaChart>
           </ResponsiveContainer>
@@ -273,6 +293,7 @@ function RiskTrendView({
   endDate: string;
   granularity: 'week' | 'month';
 }) {
+  const { t } = useTranslation('progress');
   const { data, isLoading } = useQuery({
     queryKey: ['reports', 'risk-trend', startDate, endDate, granularity],
     queryFn: async () => {
@@ -291,27 +312,27 @@ function RiskTrendView({
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <KpiCard label="Total Risks" value={data.summary.total} />
+        <KpiCard label={t('risk.totalRisks')} value={data.summary.total} />
         <KpiCard
-          label="Critical"
+          label={t('risk.critical')}
           value={data.summary.CRITICAL}
           color="text-red-600"
         />
         <KpiCard
-          label="High"
+          label={t('risk.high')}
           value={data.summary.HIGH}
           color="text-orange-600"
         />
         <KpiCard
-          label="Open"
+          label={t('risk.open')}
           value={data.summary.open}
           color="text-amber-600"
         />
       </div>
 
       <ChartCard
-        title="Risk Distribution Over Time"
-        subtitle="New risks per period by severity"
+        title={t('risk.distributionOverTime')}
+        subtitle={t('risk.newRisksPerPeriod')}
       >
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={data.series}>
@@ -324,21 +345,26 @@ function RiskTrendView({
               dataKey="CRITICAL"
               stackId="a"
               fill={RISK_COLORS.CRITICAL}
-              name="Critical"
+              name={t('risk.critical')}
             />
             <Bar
               dataKey="HIGH"
               stackId="a"
               fill={RISK_COLORS.HIGH}
-              name="High"
+              name={t('risk.high')}
             />
             <Bar
               dataKey="MEDIUM"
               stackId="a"
               fill={RISK_COLORS.MEDIUM}
-              name="Medium"
+              name={t('risk.medium')}
             />
-            <Bar dataKey="LOW" stackId="a" fill={RISK_COLORS.LOW} name="Low" />
+            <Bar
+              dataKey="LOW"
+              stackId="a"
+              fill={RISK_COLORS.LOW}
+              name={t('risk.low')}
+            />
           </BarChart>
         </ResponsiveContainer>
       </ChartCard>
@@ -357,6 +383,7 @@ function TestCompletionView({
   endDate: string;
   granularity: 'week' | 'month';
 }) {
+  const { t } = useTranslation('progress');
   const { data, isLoading } = useQuery({
     queryKey: ['reports', 'test-completion', startDate, endDate, granularity],
     queryFn: async () => {
@@ -375,27 +402,30 @@ function TestCompletionView({
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <KpiCard label="Total Validations" value={data.summary.total} />
         <KpiCard
-          label="Completed"
+          label={t('test.totalValidations')}
+          value={data.summary.total}
+        />
+        <KpiCard
+          label={t('test.completed')}
           value={data.summary.completed}
           color="text-green-600"
         />
         <KpiCard
-          label="Overdue"
+          label={t('test.overdue')}
           value={data.summary.overdue}
           color="text-red-600"
         />
         <KpiCard
-          label="Pass Rate"
+          label={t('test.passRate')}
           value={`${data.summary.passRate}%`}
           color="text-blue-600"
         />
       </div>
 
       <ChartCard
-        title="Test Completion Over Time"
-        subtitle="Completions per period by timing"
+        title={t('test.completionOverTime')}
+        subtitle={t('test.completionsPerPeriod')}
       >
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={data.series}>
@@ -404,18 +434,23 @@ function TestCompletionView({
             <YAxis tick={{ fontSize: 11 }} />
             <Tooltip />
             <Legend />
-            <Bar dataKey="onTime" stackId="a" fill="#22c55e" name="On Time" />
+            <Bar
+              dataKey="onTime"
+              stackId="a"
+              fill="#22c55e"
+              name={t('test.onTime')}
+            />
             <Bar
               dataKey="late"
               stackId="a"
               fill="#ef4444"
-              name="Past Due Date"
+              name={t('test.pastDueDate')}
             />
             <Bar
               dataKey="noDue"
               stackId="a"
               fill="#94a3b8"
-              name="No Due Date"
+              name={t('test.noDueDate')}
             />
           </BarChart>
         </ResponsiveContainer>
@@ -433,6 +468,7 @@ function AuditSummaryView({
   startDate: string;
   endDate: string;
 }) {
+  const { t } = useTranslation('progress');
   const navigate = useNavigate();
   const { data, isLoading } = useQuery({
     queryKey: ['reports', 'audit-summary', startDate, endDate],
@@ -448,29 +484,32 @@ function AuditSummaryView({
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 sm:grid-cols-6 gap-3">
-        <KpiCard label="Total Audits" value={data.summary.totalAudits} />
         <KpiCard
-          label="Completed"
+          label={t('audit.totalAudits')}
+          value={data.summary.totalAudits}
+        />
+        <KpiCard
+          label={t('audit.completed')}
           value={data.summary.completed}
           color="text-green-600"
         />
         <KpiCard
-          label="In Progress"
+          label={t('audit.inProgress')}
           value={data.summary.inProgress}
           color="text-amber-600"
         />
         <KpiCard
-          label="Open Findings"
+          label={t('audit.openFindings')}
           value={data.summary.openFindings}
           color="text-red-600"
         />
         <KpiCard
-          label="Closed Findings"
+          label={t('audit.closedFindings')}
           value={data.summary.closedFindings}
           color="text-gray-600"
         />
         <KpiCard
-          label="Avg Compliance"
+          label={t('audit.avgCompliance')}
           value={
             data.summary.avgCompliancePct != null
               ? `${data.summary.avgCompliancePct}%`
@@ -483,30 +522,32 @@ function AuditSummaryView({
 
       <Card className="overflow-hidden">
         <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
-          <h2 className="text-sm font-semibold text-gray-800">Audit List</h2>
+          <h2 className="text-sm font-semibold text-gray-800">
+            {t('audit.list')}
+          </h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
                 {[
-                  'Type',
-                  'Scope',
-                  'Auditor',
-                  'Start',
-                  'End',
-                  'Status',
-                  'Compliance %',
-                  'Major',
-                  'Minor',
-                  'Obs.',
+                  'type',
+                  'scope',
+                  'auditor',
+                  'start',
+                  'end',
+                  'status',
+                  'compliancePct',
+                  'major',
+                  'minor',
+                  'observations',
                   '',
                 ].map((h) => (
                   <th
                     key={h}
                     className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase"
                   >
-                    {h}
+                    {h ? t(`audit.columns.${h}`) : ''}
                   </th>
                 ))}
               </tr>
@@ -518,7 +559,7 @@ function AuditSummaryView({
                     colSpan={11}
                     className="px-4 py-6 text-center text-sm text-gray-400"
                   >
-                    No audits in this period.
+                    {t('audit.noAudits')}
                   </td>
                 </tr>
               ) : (
@@ -577,6 +618,7 @@ function AuditSummaryView({
 // ─── Evidence Coverage view ───────────────────────────────────────────────────
 
 function EvidenceCoverageView() {
+  const { t } = useTranslation('progress');
   const { data, isLoading } = useQuery({
     queryKey: ['reports', 'evidence-coverage'],
     queryFn: async () => {
@@ -591,19 +633,22 @@ function EvidenceCoverageView() {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <KpiCard label="Total Controls" value={data.summary.total} />
         <KpiCard
-          label="With Evidence"
+          label={t('evidence.totalControls')}
+          value={data.summary.total}
+        />
+        <KpiCard
+          label={t('evidence.withEvidence')}
           value={data.summary.withEvidence}
           color="text-green-600"
         />
         <KpiCard
-          label="Without Evidence"
+          label={t('evidence.withoutEvidence')}
           value={data.summary.withoutEvidence}
           color="text-red-600"
         />
         <KpiCard
-          label="Coverage"
+          label={t('evidence.coverage')}
           value={`${data.summary.coveragePct}%`}
           color="text-blue-600"
         />
@@ -619,12 +664,12 @@ function EvidenceCoverageView() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b sticky top-0">
               <tr>
-                {['Reference', 'Title', 'Status', 'Evidence'].map((h) => (
+                {['reference', 'title', 'status', 'evidence'].map((h) => (
                   <th
                     key={h}
                     className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase"
                   >
-                    {h}
+                    {t(`evidence.columns.${h}`)}
                   </th>
                 ))}
               </tr>
@@ -675,6 +720,7 @@ function EvidenceCoverageView() {
 // ─── Personnel Compliance view ────────────────────────────────────────────────
 
 function PersonnelComplianceView() {
+  const { t } = useTranslation('progress');
   const { data, isLoading } = useQuery({
     queryKey: ['reports', 'personnel-compliance'],
     queryFn: async () => {
@@ -689,19 +735,22 @@ function PersonnelComplianceView() {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <KpiCard label="Total Personnel" value={data.summary.total} />
         <KpiCard
-          label="Fully Complete"
+          label={t('personnel.totalPersonnel')}
+          value={data.summary.total}
+        />
+        <KpiCard
+          label={t('personnel.fullyComplete')}
           value={data.summary.allComplete}
           color="text-green-600"
         />
         <KpiCard
-          label="Partial"
+          label={t('personnel.partial')}
           value={data.summary.partial}
           color="text-amber-600"
         />
         <KpiCard
-          label="Not Started"
+          label={t('personnel.notStarted')}
           value={data.summary.notStarted}
           color="text-red-600"
         />
@@ -718,19 +767,19 @@ function PersonnelComplianceView() {
             <thead className="bg-gray-50 border-b">
               <tr>
                 {[
-                  'Name',
-                  'Email',
-                  'Role',
-                  'Policy',
-                  'MDM',
-                  'Training',
-                  'Overall',
+                  'name',
+                  'email',
+                  'role',
+                  'policy',
+                  'mdm',
+                  'training',
+                  'overall',
                 ].map((h) => (
                   <th
                     key={h}
                     className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase"
                   >
-                    {h}
+                    {t(`personnel.columns.${h}`)}
                   </th>
                 ))}
               </tr>
@@ -798,17 +847,18 @@ function OverviewView({
   endDate: string;
   granularity: 'week' | 'month';
 }) {
+  const { t } = useTranslation('progress');
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">
-          Section 1 — Framework Progress
+          {t('overview.section1')}
         </h2>
         <FrameworkProgressView startDate={startDate} endDate={endDate} />
       </div>
       <div>
         <h2 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">
-          Section 2 — Risk Distribution
+          {t('overview.section2')}
         </h2>
         <RiskTrendView
           startDate={startDate}
@@ -818,7 +868,7 @@ function OverviewView({
       </div>
       <div>
         <h2 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">
-          Section 3 — Test Completion
+          {t('overview.section3')}
         </h2>
         <TestCompletionView
           startDate={startDate}
@@ -828,7 +878,7 @@ function OverviewView({
       </div>
       <div>
         <h2 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">
-          Section 4 — Audit Summary
+          {t('overview.section4')}
         </h2>
         <AuditSummaryView startDate={startDate} endDate={endDate} />
       </div>
@@ -849,10 +899,11 @@ function Skeleton() {
 }
 
 function Empty() {
+  const { t } = useTranslation('progress');
   return (
     <div className="py-12 text-center text-sm text-gray-400">
       <AlertTriangle className="w-8 h-8 mx-auto mb-2 text-gray-300" />
-      No data available for this period.
+      {t('empty')}
     </div>
   );
 }
@@ -869,54 +920,49 @@ type ViewerType =
   | 'evidence-coverage'
   | 'personnel-compliance';
 
+// `title` is gone: the report name is looked up as reports.<ViewerType> at
+// render time. The map key already *is* the wire id used in the route, so
+// there is nothing to keep in step.
 const VIEWER_META: Record<
   ViewerType,
   {
-    title: string;
     hasPeriod: boolean;
     periodType?: 'monthly' | 'quarterly';
     hasGranularity?: boolean;
   }
 > = {
   'monthly-overview': {
-    title: 'Monthly Overview Report',
     hasPeriod: true,
     periodType: 'monthly',
     hasGranularity: false,
   },
   'quarterly-overview': {
-    title: 'Quarterly Overview Report',
     hasPeriod: true,
     periodType: 'quarterly',
     hasGranularity: false,
   },
   'framework-progress': {
-    title: 'Framework Progress Report',
     hasPeriod: true,
     periodType: 'monthly',
     hasGranularity: false,
   },
   'risk-register': {
-    title: 'Risk Register Report',
     hasPeriod: true,
     periodType: 'monthly',
     hasGranularity: true,
   },
   'test-effectiveness': {
-    title: 'Test Effectiveness Report',
     hasPeriod: true,
     periodType: 'monthly',
     hasGranularity: true,
   },
   'audit-status': {
-    title: 'Audit Status Report',
     hasPeriod: true,
     periodType: 'monthly',
     hasGranularity: false,
   },
-  'evidence-coverage': { title: 'Evidence Coverage Report', hasPeriod: false },
+  'evidence-coverage': { hasPeriod: false },
   'personnel-compliance': {
-    title: 'Personnel Compliance Report',
     hasPeriod: false,
   },
 };
@@ -924,8 +970,10 @@ const VIEWER_META: Record<
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 export function ProgressViewerPage() {
+  const { t, i18n } = useTranslation('progress');
   const { reportId } = useParams<{ reportId: string }>();
   const navigate = useNavigate();
+  const dateLocale = i18n.language.startsWith('ja') ? 'ja-JP' : 'en-US';
 
   const meta = VIEWER_META[reportId as ViewerType];
 
@@ -981,9 +1029,9 @@ export function ProgressViewerPage() {
           onClick={() => navigate('/progress')}
           className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 mb-4"
         >
-          <ArrowLeft className="w-4 h-4" /> Back to Progress
+          <ArrowLeft className="w-4 h-4" /> {t('backToProgress')}
         </button>
-        <p className="text-gray-500">Unknown progress report type.</p>
+        <p className="text-gray-500">{t('unknownType')}</p>
       </div>
     );
   }
@@ -999,10 +1047,15 @@ export function ProgressViewerPage() {
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">{meta.title}</h1>
+          <h1 className="text-xl font-semibold text-gray-900">
+            {t(`reports.${reportId as ViewerType}`)}
+          </h1>
           {range && (
             <p className="text-xs text-gray-400 mt-0.5">
-              Period: {fmtDate(range.startDate)} — {fmtDate(range.endDate)}
+              {t('period.range', {
+                start: fmtDate(range.startDate),
+                end: fmtDate(range.endDate),
+              })}
             </p>
           )}
         </div>
@@ -1015,7 +1068,7 @@ export function ProgressViewerPage() {
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-gray-400" />
               <span className="text-sm font-medium text-gray-700">
-                Reporting Period
+                {t('period.label')}
               </span>
             </div>
 
@@ -1025,7 +1078,7 @@ export function ProgressViewerPage() {
                 onChange={(e) => setMonthValue(e.target.value)}
                 className="text-sm border border-gray-300 rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                {monthOptions().map((o) => (
+                {monthOptions(dateLocale).map((o) => (
                   <option key={o.value} value={o.value}>
                     {o.label}
                   </option>
@@ -1053,8 +1106,8 @@ export function ProgressViewerPage() {
                 }
                 className="text-sm border border-gray-300 rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="month">Monthly buckets</option>
-                <option value="week">Weekly buckets</option>
+                <option value="month">{t('period.monthlyBuckets')}</option>
+                <option value="week">{t('period.weeklyBuckets')}</option>
               </select>
             )}
 
@@ -1063,7 +1116,7 @@ export function ProgressViewerPage() {
               className="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg bg-gray-900 hover:bg-gray-700 text-white text-sm font-medium transition-colors"
             >
               <RefreshCw className="w-3.5 h-3.5" />
-              Generate
+              {t('period.generate')}
             </button>
           </div>
         </Card>
@@ -1114,8 +1167,10 @@ export function ProgressViewerPage() {
         !['audit-status'].includes(reportId!) && (
           <div className="py-16 text-center text-sm text-gray-400">
             <Calendar className="w-10 h-10 mx-auto mb-3 text-gray-300" />
-            Select a reporting period and click <strong>Generate</strong> to
-            view this report.
+            <Trans i18nKey="selectPrompt" ns="progress">
+              Select a reporting period and click <strong>Generate</strong> to
+              view this report.
+            </Trans>
           </div>
         )}
     </div>

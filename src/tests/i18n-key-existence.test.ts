@@ -157,6 +157,28 @@ describe('translation key existence', () => {
     expect([...new Set(missing)].sort()).toEqual([]);
   });
 
+  it('preloads exactly the namespaces that exist on disk', () => {
+    // i18n.ts lists the namespaces fetched up front. A file missing from that
+    // list still resolves — react-i18next lazy-loads it on first `useTranslation`
+    // — so the omission is invisible in behaviour and shows up only as a
+    // suspend on first visit to the page that needs it. `auditor.json` had
+    // been in that state, used by three pages and preloaded by none.
+    const configured = [
+      ...readFileSync(resolve(SRC, 'i18n.ts'), 'utf-8')
+        .match(/ns:\s*\[([^\]]*)\]/)![1]!
+        .matchAll(/'([^']+)'/g),
+    ]
+      .map((m) => m[1]!)
+      .sort();
+
+    const onDisk = readdirSync(LOCALES)
+      .filter((f) => f.endsWith('.json'))
+      .map((f) => f.replace(/\.json$/, ''))
+      .sort();
+
+    expect(configured).toEqual(onDisk);
+  });
+
   it('has no call site relying on defaultValue to paper over a missing key', () => {
     // Even when the key does exist, `defaultValue` is dead weight that hides
     // the next removal. Translate the string properly instead.

@@ -24,6 +24,8 @@ i18n
       'tests',
       'onboarding',
       'customerTrust',
+      'auditor',
+      'progress',
     ],
     defaultNS: 'common',
     backend: {

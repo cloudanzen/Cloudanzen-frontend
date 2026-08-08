@@ -1,0 +1,110 @@
+{
+  "reports": {
+    "monthly-overview": "Monthly Overview Report",
+    "quarterly-overview": "Quarterly Overview Report",
+    "framework-progress": "Framework Progress Report",
+    "risk-register": "Risk Register Report",
+    "test-effectiveness": "Test Effectiveness Report",
+    "audit-status": "Audit Status Report",
+    "evidence-coverage": "Evidence Coverage Report",
+    "personnel-compliance": "Personnel Compliance Report"
+  },
+  "unknownType": "Unknown progress report type.",
+  "backToProgress": "Back to Progress",
+  "period": {
+    "label": "Reporting Period",
+    "range": "Period: {{start}} — {{end}}",
+    "monthlyBuckets": "Monthly buckets",
+    "weeklyBuckets": "Weekly buckets",
+    "generate": "Generate"
+  },
+  "selectPrompt": "Select a reporting period and click <1>Generate</1> to view this report.",
+  "empty": "No data available for this period.",
+  "framework": {
+    "totalControls": "Total Controls",
+    "implemented": "Implemented",
+    "partial": "Partial",
+    "notImplemented": "Not Implemented",
+    "completion": "Completion",
+    "statusDistribution": "Control Status Distribution",
+    "completionOverPeriod": "Completion % Over Period",
+    "snapshotPerBucket": "Snapshot per bucket",
+    "completionSeries": "Completion %"
+  },
+  "risk": {
+    "totalRisks": "Total Risks",
+    "critical": "Critical",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low",
+    "open": "Open",
+    "distributionOverTime": "Risk Distribution Over Time",
+    "newRisksPerPeriod": "New risks per period by severity"
+  },
+  "test": {
+    "totalValidations": "Total Validations",
+    "completed": "Completed",
+    "overdue": "Overdue",
+    "passRate": "Pass Rate",
+    "completionOverTime": "Test Completion Over Time",
+    "completionsPerPeriod": "Completions per period by timing",
+    "onTime": "On Time",
+    "pastDueDate": "Past Due Date",
+    "noDueDate": "No Due Date"
+  },
+  "audit": {
+    "totalAudits": "Total Audits",
+    "completed": "Completed",
+    "inProgress": "In Progress",
+    "openFindings": "Open Findings",
+    "closedFindings": "Closed Findings",
+    "avgCompliance": "Avg Compliance",
+    "list": "Audit List",
+    "columns": {
+      "type": "Type",
+      "scope": "Scope",
+      "auditor": "Auditor",
+      "start": "Start",
+      "end": "End",
+      "status": "Status",
+      "compliancePct": "Compliance %",
+      "major": "Major",
+      "minor": "Minor",
+      "observations": "Obs."
+    },
+    "noAudits": "No audits in this period."
+  },
+  "evidence": {
+    "totalControls": "Total Controls",
+    "withEvidence": "With Evidence",
+    "withoutEvidence": "Without Evidence",
+    "coverage": "Coverage",
+    "columns": {
+      "reference": "Reference",
+      "title": "Title",
+      "status": "Status",
+      "evidence": "Evidence"
+    }
+  },
+  "personnel": {
+    "totalPersonnel": "Total Personnel",
+    "fullyComplete": "Fully Complete",
+    "partial": "Partial",
+    "notStarted": "Not Started",
+    "columns": {
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "policy": "Policy",
+      "mdm": "MDM",
+      "training": "Training",
+      "overall": "Overall"
+    }
+  },
+  "overview": {
+    "section1": "Section 1 — Framework Progress",
+    "section2": "Section 2 — Risk Distribution",
+    "section3": "Section 3 — Test Completion",
+    "section4": "Section 4 — Audit Summary"
+  }
+}
