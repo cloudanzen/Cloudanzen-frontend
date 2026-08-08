@@ -215,7 +215,13 @@
       "labelPlaceholder": "例: Production",
       "optional": "(任意)",
       "revoke": "失効",
-      "connectingEllipsis": "接続中..."
+      "connectingEllipsis": "接続中...",
+      "back": "戻る",
+      "close": "閉じる",
+      "copy": "コピー",
+      "copied": "コピーしました",
+      "username": "ユーザー名",
+      "password": "パスワード"
     },
     "engineerA": {
       "activeAccount": "有効なアカウント",
@@ -1249,5 +1255,11 @@
       "tokenRevoked": "トークンを失効しました",
       "failedToRevokeToken": "トークンの失効に失敗しました"
     }
+  },
+  "page": {
+    "githubConnected": "GitHubを接続しました",
+    "googleDriveConnected": "Google Driveを接続しました",
+    "slackConnected": "Slackを接続しました",
+    "intercomConnected": "Intercomを接続しました"
   }
 }

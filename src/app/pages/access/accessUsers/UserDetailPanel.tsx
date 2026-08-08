@@ -342,7 +342,7 @@ export function UserDetailPanel({
                         instead of a misleading 0/0 fraction or NaN% progress bar. */}
                     {ob.totalCount === 0 ? (
                       <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 border border-gray-200">
-                        {t('userDetail.roleExempt', { defaultValue: 'N/A — role exempt' })}
+                        {t('userDetail.roleExempt')}
                       </span>
                     ) : (
                       <span className="text-sm font-bold text-blue-700">
@@ -361,10 +361,7 @@ export function UserDetailPanel({
                     </div>
                   ) : (
                     <p className="text-xs text-gray-500 mb-4">
-                      {t('userDetail.onboardingNotApplicable', {
-                        defaultValue:
-                          'Onboarding tasks do not apply to this role. Update the Roles page if this is incorrect.',
-                      })}
+                      {t('userDetail.onboardingNotApplicable')}
                     </p>
                   )}
 
@@ -404,31 +401,33 @@ export function UserDetailPanel({
                           ? t('userDetail.onboardingDetail.inProgress')
                           : t('userDetail.onboardingDetail.notStarted'),
                     },
-                  ].filter((task) => task.show).map(({ icon: Icon, title, done, detail }) => (
-                    <div
-                      key={title}
-                      className={`flex items-center gap-3 p-3 rounded-xl border ${done ? 'border-green-200 bg-green-50/40' : 'border-gray-200 bg-white'}`}
-                    >
+                  ]
+                    .filter((task) => task.show)
+                    .map(({ icon: Icon, title, done, detail }) => (
                       <div
-                        className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${done ? 'bg-green-100' : 'bg-gray-100'}`}
+                        key={title}
+                        className={`flex items-center gap-3 p-3 rounded-xl border ${done ? 'border-green-200 bg-green-50/40' : 'border-gray-200 bg-white'}`}
                       >
-                        {done ? (
-                          <CheckCircle2 className="w-4 h-4 text-green-600" />
-                        ) : (
-                          <Circle className="w-4 h-4 text-gray-400" />
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Icon className="w-3.5 h-3.5 text-gray-400" />
-                        <span className="text-sm font-medium text-gray-800">
-                          {title}
+                        <div
+                          className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${done ? 'bg-green-100' : 'bg-gray-100'}`}
+                        >
+                          {done ? (
+                            <CheckCircle2 className="w-4 h-4 text-green-600" />
+                          ) : (
+                            <Circle className="w-4 h-4 text-gray-400" />
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Icon className="w-3.5 h-3.5 text-gray-400" />
+                          <span className="text-sm font-medium text-gray-800">
+                            {title}
+                          </span>
+                        </div>
+                        <span className="ml-auto text-xs text-gray-500">
+                          {detail}
                         </span>
                       </div>
-                      <span className="ml-auto text-xs text-gray-500">
-                        {detail}
-                      </span>
-                    </div>
-                  ))}
+                    ))}
                 </>
               )}
             </TabsContent>

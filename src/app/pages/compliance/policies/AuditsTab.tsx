@@ -20,7 +20,7 @@ export function PolicyAuditsTab({ policyId }: { policyId: string }) {
   if (isLoading) {
     return (
       <Card className="p-6 text-center text-sm text-muted-foreground">
-        {t('policyDetail.audits.loading', { defaultValue: 'Loading audits…' })}
+        {t('policyDetail.audits.loading')}
       </Card>
     );
   }
@@ -29,9 +29,7 @@ export function PolicyAuditsTab({ policyId }: { policyId: string }) {
     return (
       <Card className="p-6 text-center text-sm text-muted-foreground">
         <ClipboardCheck className="mx-auto mb-2 h-6 w-6 opacity-40" />
-        {t('policyDetail.audits.empty', {
-          defaultValue: 'No audits yet reference this policy through its controls.',
-        })}
+        {t('policyDetail.audits.empty')}
       </Card>
     );
   }
@@ -55,7 +53,6 @@ export function PolicyAuditsTab({ policyId }: { policyId: string }) {
               {a.endDate ? `– ${new Date(a.endDate).toLocaleDateString()}` : ''}
               {' · '}
               {t('policyDetail.audits.viaControls', {
-                defaultValue: '{{count}} control(s) overlap',
                 count: a.viaControlIds.length,
               })}
             </div>
@@ -64,7 +61,7 @@ export function PolicyAuditsTab({ policyId }: { policyId: string }) {
             to={`/compliance/audits/${a.id}`}
             className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
           >
-            {t('policyDetail.audits.open', { defaultValue: 'Open' })}
+            {t('policyDetail.audits.open')}
             <ExternalLink className="h-3 w-3" />
           </Link>
         </Card>

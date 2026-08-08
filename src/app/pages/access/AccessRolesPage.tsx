@@ -333,8 +333,11 @@ export function AccessRolesPage() {
   const onboardingMatrix: RoleOnboardingMatrix | undefined = matrixResp?.data;
 
   const updateReqMutation = useMutation({
-    mutationFn: (input: { role: AppRole; taskType: OnboardingTaskType; required: boolean }) =>
-      roleOnboardingService.updateRequirement(input),
+    mutationFn: (input: {
+      role: AppRole;
+      taskType: OnboardingTaskType;
+      required: boolean;
+    }) => roleOnboardingService.updateRequirement(input),
     onSuccess: (resp) => {
       queryClient.setQueryData(QK.roleOnboardingMatrix(), {
         success: true,
@@ -347,14 +350,18 @@ export function AccessRolesPage() {
     if (!onboardingMatrix) return 0;
     const row = onboardingMatrix[role];
     if (!row) return 0;
-    return (['POLICY_ACCEPTANCE', 'MDM_ENROLLMENT', 'SECURITY_TRAINING'] as OnboardingTaskType[])
-      .filter((t) => row[t])
-      .length;
+    return (
+      [
+        'POLICY_ACCEPTANCE',
+        'MDM_ENROLLMENT',
+        'SECURITY_TRAINING',
+      ] as OnboardingTaskType[]
+    ).filter((t) => row[t]).length;
   };
 
   const ONBOARDING_TASKS: { key: OnboardingTaskType; labelKey: string }[] = [
     { key: 'POLICY_ACCEPTANCE', labelKey: 'roles.onboarding.policyAcceptance' },
-    { key: 'MDM_ENROLLMENT',    labelKey: 'roles.onboarding.mdmEnrollment' },
+    { key: 'MDM_ENROLLMENT', labelKey: 'roles.onboarding.mdmEnrollment' },
     { key: 'SECURITY_TRAINING', labelKey: 'roles.onboarding.securityTraining' },
   ];
 
@@ -385,7 +392,7 @@ export function AccessRolesPage() {
             </TabsTrigger>
             {canEditOnboarding && (
               <TabsTrigger value="onboarding">
-                {t('roles.tabs.onboarding', { defaultValue: 'Onboarding' })}
+                {t('roles.tabs.onboarding')}
               </TabsTrigger>
             )}
           </TabsList>
@@ -442,9 +449,6 @@ export function AccessRolesPage() {
                           <ClipboardCheck className="w-3.5 h-3.5" />
                           {t('roles.onboardingTaskCount', {
                             count: requiredTaskCount(role),
-                            defaultValue_zero: 'No onboarding tasks',
-                            defaultValue_one:  '1 onboarding task',
-                            defaultValue_other:'{{count}} onboarding tasks',
                           })}
                         </div>
                       )}
@@ -493,16 +497,11 @@ export function AccessRolesPage() {
                 <div className="px-4 py-3 border-b border-gray-200 flex items-center gap-2">
                   <ClipboardCheck className="w-4 h-4 text-gray-500" />
                   <h2 className="text-sm font-semibold text-gray-900">
-                    {t('roles.onboarding.heading', {
-                      defaultValue: 'Onboarding tasks per role',
-                    })}
+                    {t('roles.onboarding.heading')}
                   </h2>
                 </div>
                 <p className="px-4 pt-3 text-xs text-gray-500">
-                  {t('roles.onboarding.description', {
-                    defaultValue:
-                      'Choose which onboarding tasks apply to each role. External roles like Auditor are exempt by default — auditors do not need policy acceptance, MDM enrollment, or security training on their personal devices.',
-                  })}
+                  {t('roles.onboarding.description')}
                 </p>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
@@ -544,7 +543,10 @@ export function AccessRolesPage() {
                                 updateReqMutation.isPending ||
                                 !onboardingMatrix;
                               return (
-                                <td key={task.key} className="px-4 py-3 text-center">
+                                <td
+                                  key={task.key}
+                                  className="px-4 py-3 text-center"
+                                >
                                   <label className="inline-flex items-center justify-center cursor-pointer">
                                     <input
                                       type="checkbox"
@@ -571,9 +573,7 @@ export function AccessRolesPage() {
                 </div>
                 {updateReqMutation.isError && (
                   <p className="px-4 py-2 text-xs text-red-600">
-                    {t('roles.onboarding.saveError', {
-                      defaultValue: 'Failed to save. Please retry.',
-                    })}
+                    {t('roles.onboarding.saveError')}
                   </p>
                 )}
               </div>

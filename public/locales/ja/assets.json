@@ -76,7 +76,8 @@
       "owner": "オーナー",
       "risks": "リスク",
       "createdAt": "追加日",
-      "lastSeen": "最終検知"
+      "lastSeen": "最終検知",
+      "status": "ステータス"
     }
   },
   "mergeReview": {

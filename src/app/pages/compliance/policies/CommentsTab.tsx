@@ -32,7 +32,8 @@ export function PolicyCommentsTab({
 
   const { data, refetch } = useQuery<ApiResponse<PolicyComment[]>>({
     queryKey: ['policy-comments', policyId, selectedVersionId || null],
-    queryFn: () => policiesService.listComments(policyId, selectedVersionId || undefined),
+    queryFn: () =>
+      policiesService.listComments(policyId, selectedVersionId || undefined),
   });
 
   const comments = data?.data ?? [];
@@ -48,7 +49,7 @@ export function PolicyCommentsTab({
       setText('');
       void refetch();
     } catch {
-      toast.error(t('policyDetail.comments.postFailed', { defaultValue: 'Failed to post comment' }));
+      toast.error(t('policyDetail.comments.postFailed'));
     } finally {
       setPosting(false);
     }
@@ -56,9 +57,9 @@ export function PolicyCommentsTab({
 
   async function handleDelete(commentId: string) {
     const ok = await confirm({
-      title: t('policyDetail.comments.deleteTitle', { defaultValue: 'Delete comment?' }),
-      description: t('policyDetail.comments.deleteConfirm', { defaultValue: 'This action cannot be undone.' }),
-      confirmLabel: t('policyDetail.comments.delete', { defaultValue: 'Delete' }),
+      title: t('policyDetail.comments.deleteTitle'),
+      description: t('policyDetail.comments.deleteConfirm'),
+      confirmLabel: t('policyDetail.comments.delete'),
       variant: 'destructive',
     });
     if (!ok) return;
@@ -66,12 +67,18 @@ export function PolicyCommentsTab({
       await policiesService.deleteComment(policyId, commentId);
       void refetch();
     } catch {
-      toast.error(t('policyDetail.comments.deleteFailed', { defaultValue: 'Failed to delete comment' }));
+      toast.error(t('policyDetail.comments.deleteFailed'));
     }
   }
 
   function initials(name: string | null | undefined, email: string): string {
-    if (name) return name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
+    if (name)
+      return name
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase();
     return email.slice(0, 2).toUpperCase();
   }
 
@@ -79,16 +86,14 @@ export function PolicyCommentsTab({
     <div className="space-y-4">
       <div className="flex items-center gap-2">
         <label className="text-xs font-medium text-muted-foreground">
-          {t('policyDetail.comments.filterByVersion', { defaultValue: 'Filter by version' })}
+          {t('policyDetail.comments.filterByVersion')}
         </label>
         <select
           value={selectedVersionId}
           onChange={(e) => setSelectedVersionId(e.target.value)}
           className="text-xs border border-border rounded px-2 py-1 bg-background text-foreground"
         >
-          <option value="">
-            {t('policyDetail.comments.allComments', { defaultValue: 'All comments' })}
-          </option>
+          <option value="">{t('policyDetail.comments.allComments')}</option>
           {versions.map((v) => (
             <option key={v.id} value={v.id}>
               v{v.versionNumber}
@@ -100,7 +105,7 @@ export function PolicyCommentsTab({
       <Card className="p-4 space-y-4 min-h-[200px]">
         {comments.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-8">
-            {t('policyDetail.comments.noComments', { defaultValue: 'No comments yet.' })}
+            {t('policyDetail.comments.noComments')}
           </p>
         ) : (
           comments.map((c) => (
@@ -114,7 +119,11 @@ export function PolicyCommentsTab({
                     {c.author?.name ?? c.author?.email}
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    {new Date(c.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    {new Date(c.createdAt).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                    })}
                   </span>
                   {me?.id === c.authorId && (
                     <button
@@ -125,10 +134,14 @@ export function PolicyCommentsTab({
                     </button>
                   )}
                 </div>
-                <p className="text-sm text-foreground whitespace-pre-wrap">{c.body ?? c.text}</p>
+                <p className="text-sm text-foreground whitespace-pre-wrap">
+                  {c.body ?? c.text}
+                </p>
                 {c.policyVersionId && (
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Re: v{versions.find((v) => v.id === c.policyVersionId)?.versionNumber ?? '?'}
+                    Re: v
+                    {versions.find((v) => v.id === c.policyVersionId)
+                      ?.versionNumber ?? '?'}
                   </p>
                 )}
               </div>
@@ -142,10 +155,15 @@ export function PolicyCommentsTab({
           rows={2}
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder={t('policyDetail.comments.placeholder', { defaultValue: 'Write a comment…' })}
+          placeholder={t('policyDetail.comments.placeholder')}
           className="flex-1 text-sm border border-border rounded-md px-3 py-2 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
         />
-        <Button size="sm" disabled={!text.trim() || posting} onClick={handlePost} className="self-end">
+        <Button
+          size="sm"
+          disabled={!text.trim() || posting}
+          onClick={handlePost}
+          className="self-end"
+        >
           <Send className="w-4 h-4" />
         </Button>
       </div>

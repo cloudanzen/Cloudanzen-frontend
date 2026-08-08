@@ -265,9 +265,7 @@ function FrameworkCatalogCard({
                   return (
                     <Button variant="outline" disabled>
                       <Lock className="mr-1 h-4 w-4" />{' '}
-                      {t('frameworks.requestPending', {
-                        defaultValue: 'Request pending',
-                      })}
+                      {t('frameworks.requestPending')}
                     </Button>
                   );
                 case 'PARTIAL_GRANT':
@@ -275,14 +273,10 @@ function FrameworkCatalogCard({
                     <Button
                       variant="outline"
                       disabled
-                      title={t('frameworks.partialGrantTitle', {
-                        defaultValue: 'Grant incomplete — contact support',
-                      })}
+                      title={t('frameworks.partialGrantTitle')}
                     >
                       <Lock className="mr-1 h-4 w-4" />{' '}
-                      {t('frameworks.partialGrant', {
-                        defaultValue: 'Grant incomplete',
-                      })}
+                      {t('frameworks.partialGrant')}
                     </Button>
                   );
                 case 'NOT_PURCHASED':
@@ -294,9 +288,7 @@ function FrameworkCatalogCard({
                         onClick={() => onRequestAccess(card.fw)}
                       >
                         <Lock className="mr-1 h-4 w-4" />{' '}
-                        {t('frameworks.requestAccess', {
-                          defaultValue: 'Request access',
-                        })}
+                        {t('frameworks.requestAccess')}
                       </Button>
                     );
                   }

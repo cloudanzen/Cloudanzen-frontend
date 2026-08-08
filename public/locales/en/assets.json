@@ -76,7 +76,8 @@
       "owner": "Owner",
       "risks": "Risks",
       "createdAt": "Added",
-      "lastSeen": "Last Seen"
+      "lastSeen": "Last Seen",
+      "status": "Status"
     }
   },
   "mergeReview": {

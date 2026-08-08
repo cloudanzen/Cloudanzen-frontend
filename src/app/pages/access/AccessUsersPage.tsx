@@ -407,7 +407,7 @@ export function AccessUsersPage() {
                           {ob ? (
                             ob.onboarding.totalCount === 0 ? (
                               <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-gray-100 text-gray-500 border border-gray-200">
-                                {t('users.exempt', { defaultValue: 'N/A' })}
+                                {t('users.exempt')}
                               </span>
                             ) : (
                               <div className="flex items-center gap-1.5">

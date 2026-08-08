@@ -317,7 +317,9 @@
         "readyForReview": "Ready for Review",
         "closed": "Closed"
       }
-    }
+    },
+    "noTasksApplicable": "No onboarding tasks apply to your role.",
+    "noTasksApplicableDescription": "Your role is exempt from policy acceptance, MDM enrollment, and security training. Reach out to an administrator if this looks wrong."
   },
   "progress": {
     "title": "Progress",

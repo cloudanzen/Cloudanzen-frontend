@@ -414,7 +414,7 @@ export function TodoPage() {
             value: onboardingLoading
               ? '…'
               : onboardingTotalCount === 0
-                ? t('todo.notApplicable', { defaultValue: 'N/A' })
+                ? t('todo.notApplicable')
                 : `${onboardingDoneCount}/${onboardingTotalCount}`,
             icon: <ShieldCheck className="w-4 h-4" />,
             cls:
