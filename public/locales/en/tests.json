@@ -510,5 +510,8 @@
       "success": "Validation reassigned",
       "error": "Failed to reassign validation"
     }
+  },
+  "validations": {
+    "unassigned": "Unassigned"
   }
 }

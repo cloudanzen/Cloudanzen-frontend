@@ -72,5 +72,51 @@
       "totalUsers": "ユーザー総数",
       "activeFrameworks": "アクティブなフレームワーク"
     }
+  },
+  "frameworkRequests": {
+    "title": "フレームワーク申請",
+    "superAdminOnly": "SUPER_ADMIN権限が必要です。",
+    "noPermission": "このページを表示する権限がありません。",
+    "description": "新しいフレームワークに対する顧客からの申請を確認して対応します。不完全な権限付与を検出して修復します。",
+    "filters": {
+      "PENDING": "保留中",
+      "APPROVED": "承認済み",
+      "REJECTED": "却下済み",
+      "CANCELLED": "取消済み",
+      "ALL": "すべて"
+    },
+    "accessRequests": "アクセス申請",
+    "noRequests": "このフィルターに該当する申請はありません。",
+    "columns": {
+      "org": "組織",
+      "framework": "フレームワーク",
+      "requestedBy": "申請者",
+      "note": "備考",
+      "submitted": "申請日時",
+      "status": "ステータス",
+      "actions": "操作",
+      "missing": "欠落",
+      "action": "操作"
+    },
+    "approve": "承認",
+    "reject": "却下",
+    "inconsistencies": "権限付与の不整合",
+    "allConsistent": "すべての権限付与に不整合はありません。修復は不要です。",
+    "repair": "修復",
+    "dialog": {
+      "approveTitle": "申請を承認",
+      "rejectTitle": "申請を却下",
+      "approveBody": "{{organization}}に{{framework}}を付与しますか？許可リストと利用権限が設定されます。有効化は顧客側で別途行います。",
+      "rejectBody": "{{framework}}の申請を却下しますか？申請者に通知されます。",
+      "notePlaceholder": "備考（任意・申請者に表示されます）",
+      "cancel": "キャンセル"
+    },
+    "toast": {
+      "approved": "申請を承認しました",
+      "rejected": "申請を却下しました",
+      "decisionFailed": "処理に失敗しました",
+      "repaired": "権限付与を修復しました",
+      "repairFailed": "修復に失敗しました"
+    }
   }
 }

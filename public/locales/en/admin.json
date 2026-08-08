@@ -72,5 +72,51 @@
       "totalUsers": "Total Users",
       "activeFrameworks": "Active Frameworks"
     }
+  },
+  "frameworkRequests": {
+    "title": "Framework Requests",
+    "superAdminOnly": "SUPER_ADMIN access required.",
+    "noPermission": "You do not have permission to view this page.",
+    "description": "Review and act on customer requests for new frameworks. Surface and repair partial grants.",
+    "filters": {
+      "PENDING": "Pending",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "CANCELLED": "Cancelled",
+      "ALL": "All"
+    },
+    "accessRequests": "Access Requests",
+    "noRequests": "No requests in this filter.",
+    "columns": {
+      "org": "Org",
+      "framework": "Framework",
+      "requestedBy": "Requested by",
+      "note": "Note",
+      "submitted": "Submitted",
+      "status": "Status",
+      "actions": "Actions",
+      "missing": "Missing",
+      "action": "Action"
+    },
+    "approve": "Approve",
+    "reject": "Reject",
+    "inconsistencies": "Grant Inconsistencies",
+    "allConsistent": "All grants are consistent. Nothing to repair.",
+    "repair": "Repair",
+    "dialog": {
+      "approveTitle": "Approve request",
+      "rejectTitle": "Reject request",
+      "approveBody": "Grant {{framework}} to {{organization}}? Allowlist + entitlement will be set; the customer activates separately.",
+      "rejectBody": "Reject the request for {{framework}}? The requester will be notified.",
+      "notePlaceholder": "Optional note (visible to the requester)",
+      "cancel": "Cancel"
+    },
+    "toast": {
+      "approved": "Request approved",
+      "rejected": "Request rejected",
+      "decisionFailed": "Decision failed",
+      "repaired": "Grant repaired",
+      "repairFailed": "Repair failed"
+    }
   }
 }
