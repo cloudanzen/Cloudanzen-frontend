@@ -188,7 +188,6 @@
     }
   },
   "grid": {
-    "comingSoon": "Coming Soon",
     "showMore": "Show more integrations ({{count}} remaining)"
   },
   "cards": {
