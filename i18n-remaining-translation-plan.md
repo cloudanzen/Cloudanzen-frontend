@@ -36,7 +36,7 @@ has neither a language switcher nor a `preferredLocale` for platform admins —
 both would have to be built before a translation could even be displayed.
 
 Scope is decided by **which host serves the page**, not by how internal it
-feels. `admin/FrameworkAccessRequestsPage` is SUPER_ADMIN-only and _is_
+feels. `admin/FrameworkAccessRequestsPage` is SUPER*ADMIN-only and \_is*
 translated, because it is served on the tenant host.
 
 Revisit this if the ops team stops being English-speaking. Nothing else about
@@ -76,7 +76,7 @@ moves, look at _which_ file moved.
 ## What the gates enforce now
 
 The metric above is the weak check — it only asks whether a file imports the
-hook. Four tests do the real work:
+hook. Six assertions do the real work:
 
 | Test                                             | Catches                                                                                                               |
 | ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- |
