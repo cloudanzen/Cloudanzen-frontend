@@ -738,5 +738,12 @@
         }
       }
     }
+  },
+  "supportSessionExchange": {
+    "missingCode": "URLに交換コードが含まれていません。",
+    "exchangeFailed": "サポートコードの交換に失敗しました。",
+    "heading": "サポートセッションを開始できませんでした",
+    "starting": "サポートセッションを開始しています…",
+    "waiting": "アクセスコードを交換しています。しばらくお待ちください。"
   }
 }

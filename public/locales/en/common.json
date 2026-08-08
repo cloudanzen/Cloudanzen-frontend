@@ -738,5 +738,12 @@
         }
       }
     }
+  },
+  "supportSessionExchange": {
+    "missingCode": "Missing exchange code in URL.",
+    "exchangeFailed": "Failed to exchange support code.",
+    "heading": "Could not start support session",
+    "starting": "Starting support session…",
+    "waiting": "Please wait while we exchange the access code."
   }
 }

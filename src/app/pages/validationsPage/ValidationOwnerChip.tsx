@@ -1,4 +1,5 @@
 import { User } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface ValidationOwnerChipProps {
   name?: string | null;
@@ -21,7 +22,8 @@ export function ValidationOwnerChip({
   maxWidthClassName = 'max-w-[120px]',
   className = '',
 }: ValidationOwnerChipProps) {
-  const label = name || email || fallback || 'Unassigned';
+  const { t } = useTranslation('tests');
+  const label = name || email || fallback || t('validations.unassigned');
   const title = email || label;
 
   const content = (

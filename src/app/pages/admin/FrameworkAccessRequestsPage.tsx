@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Loader2, CheckCircle2, XCircle, Wrench, Filter } from 'lucide-react';
 import { toast } from 'sonner';
@@ -24,12 +25,14 @@ import {
 
 type StatusFilter = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED' | 'ALL';
 
-const STATUS_CHIPS: { key: StatusFilter; label: string }[] = [
-  { key: 'PENDING', label: 'Pending' },
-  { key: 'APPROVED', label: 'Approved' },
-  { key: 'REJECTED', label: 'Rejected' },
-  { key: 'CANCELLED', label: 'Cancelled' },
-  { key: 'ALL', label: 'All' },
+// `key` is the wire value sent as ?status= — untouched. Only the chip caption
+// is display text, so it is looked up under filters.<key> at render time.
+const STATUS_CHIPS: StatusFilter[] = [
+  'PENDING',
+  'APPROVED',
+  'REJECTED',
+  'CANCELLED',
+  'ALL',
 ];
 
 function StatusBadge({ status }: { status: string }) {
@@ -41,10 +44,15 @@ function StatusBadge({ status }: { status: string }) {
         : status === 'REJECTED'
           ? 'bg-red-50 text-red-700 border-red-200'
           : 'bg-slate-100 text-slate-700 border-slate-200';
-  return <Badge variant="outline" className={cls}>{status}</Badge>;
+  return (
+    <Badge variant="outline" className={cls}>
+      {status}
+    </Badge>
+  );
 }
 
 export function FrameworkAccessRequestsPage() {
+  const { t } = useTranslation('admin');
   const isSuperAdmin = useHasRole('SUPER_ADMIN');
   const qc = useQueryClient();
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('PENDING');
@@ -56,7 +64,8 @@ export function FrameworkAccessRequestsPage() {
 
   const requestsQuery = useQuery({
     queryKey: ['admin', 'framework-access-requests', statusFilter],
-    queryFn: () => frameworksService.listFrameworkAccessRequests({ status: statusFilter }),
+    queryFn: () =>
+      frameworksService.listFrameworkAccessRequests({ status: statusFilter }),
     enabled: isSuperAdmin,
   });
 
@@ -73,19 +82,37 @@ export function FrameworkAccessRequestsPage() {
       note?: string;
     }) => {
       if (input.action === 'approve') {
-        return frameworksService.approveFrameworkAccessRequest(input.id, input.note);
+        return frameworksService.approveFrameworkAccessRequest(
+          input.id,
+          input.note,
+        );
       }
-      return frameworksService.rejectFrameworkAccessRequest(input.id, input.note);
+      return frameworksService.rejectFrameworkAccessRequest(
+        input.id,
+        input.note,
+      );
     },
     onSuccess: (_data, vars) => {
-      qc.invalidateQueries({ queryKey: ['admin', 'framework-access-requests'] });
-      qc.invalidateQueries({ queryKey: ['admin', 'framework-grant-inconsistencies'] });
-      toast.success(vars.action === 'approve' ? 'Request approved' : 'Request rejected');
+      qc.invalidateQueries({
+        queryKey: ['admin', 'framework-access-requests'],
+      });
+      qc.invalidateQueries({
+        queryKey: ['admin', 'framework-grant-inconsistencies'],
+      });
+      toast.success(
+        t(
+          vars.action === 'approve'
+            ? 'frameworkRequests.toast.approved'
+            : 'frameworkRequests.toast.rejected',
+        ),
+      );
       setDecisionTarget(null);
       setDecisionNote('');
     },
     onError: (err: unknown) => {
-      const message = (err as { message?: string })?.message ?? 'Decision failed';
+      const message =
+        (err as { message?: string })?.message ??
+        t('frameworkRequests.toast.decisionFailed');
       toast.error(message);
     },
   });
@@ -94,17 +121,26 @@ export function FrameworkAccessRequestsPage() {
     mutationFn: (input: { organizationId: string; frameworkSlug: string }) =>
       frameworksService.repairFrameworkGrant(input),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['admin', 'framework-grant-inconsistencies'] });
-      qc.invalidateQueries({ queryKey: ['admin', 'framework-access-requests'] });
-      toast.success('Grant repaired');
+      qc.invalidateQueries({
+        queryKey: ['admin', 'framework-grant-inconsistencies'],
+      });
+      qc.invalidateQueries({
+        queryKey: ['admin', 'framework-access-requests'],
+      });
+      toast.success(t('frameworkRequests.toast.repaired'));
     },
     onError: (err: unknown) => {
-      const message = (err as { message?: string })?.message ?? 'Repair failed';
+      const message =
+        (err as { message?: string })?.message ??
+        t('frameworkRequests.toast.repairFailed');
       toast.error(message);
     },
   });
 
-  const requests = useMemo(() => requestsQuery.data?.data ?? [], [requestsQuery.data]);
+  const requests = useMemo(
+    () => requestsQuery.data?.data ?? [],
+    [requestsQuery.data],
+  );
   const inconsistencies = useMemo(
     () => inconsistenciesQuery.data?.data ?? [],
     [inconsistenciesQuery.data],
@@ -112,34 +148,42 @@ export function FrameworkAccessRequestsPage() {
 
   if (!isSuperAdmin) {
     return (
-      <PageTemplate title="Framework Requests" description="SUPER_ADMIN access required.">
-        <Card><CardContent className="p-6 text-sm text-muted-foreground">You do not have permission to view this page.</CardContent></Card>
+      <PageTemplate
+        title={t('frameworkRequests.title')}
+        description={t('frameworkRequests.superAdminOnly')}
+      >
+        <Card>
+          <CardContent className="p-6 text-sm text-muted-foreground">
+            {t('frameworkRequests.noPermission')}
+          </CardContent>
+        </Card>
       </PageTemplate>
     );
   }
 
   return (
     <PageTemplate
-      title="Framework Requests"
-      description="Review and act on customer requests for new frameworks. Surface and repair partial grants."
+      title={t('frameworkRequests.title')}
+      description={t('frameworkRequests.description')}
     >
       <div className="space-y-8">
         <Card>
           <CardContent className="p-6">
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                <Filter className="h-4 w-4 text-muted-foreground" /> Access Requests
+                <Filter className="h-4 w-4 text-muted-foreground" />{' '}
+                {t('frameworkRequests.accessRequests')}
               </div>
               <div className="flex gap-1">
                 {STATUS_CHIPS.map((chip) => (
                   <Button
-                    key={chip.key}
+                    key={chip}
                     type="button"
                     size="sm"
-                    variant={statusFilter === chip.key ? 'default' : 'outline'}
-                    onClick={() => setStatusFilter(chip.key)}
+                    variant={statusFilter === chip ? 'default' : 'outline'}
+                    onClick={() => setStatusFilter(chip)}
                   >
-                    {chip.label}
+                    {t(`frameworkRequests.filters.${chip}`)}
                   </Button>
                 ))}
               </div>
@@ -150,42 +194,100 @@ export function FrameworkAccessRequestsPage() {
                 <Loader2 className="h-5 w-5 animate-spin" />
               </div>
             ) : requests.length === 0 ? (
-              <p className="py-6 text-sm text-muted-foreground">No requests in this filter.</p>
+              <p className="py-6 text-sm text-muted-foreground">
+                {t('frameworkRequests.noRequests')}
+              </p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="min-w-full text-sm">
                   <thead>
                     <tr className="border-b text-left text-xs uppercase tracking-wide text-muted-foreground">
-                      <th className="py-2 pr-3">Org</th>
-                      <th className="py-2 pr-3">Framework</th>
-                      <th className="py-2 pr-3">Requested by</th>
-                      <th className="py-2 pr-3">Note</th>
-                      <th className="py-2 pr-3">Submitted</th>
-                      <th className="py-2 pr-3">Status</th>
-                      <th className="py-2 pr-3 text-right">Actions</th>
+                      <th className="py-2 pr-3">
+                        {t('frameworkRequests.columns.org')}
+                      </th>
+                      <th className="py-2 pr-3">
+                        {t('frameworkRequests.columns.framework')}
+                      </th>
+                      <th className="py-2 pr-3">
+                        {t('frameworkRequests.columns.requestedBy')}
+                      </th>
+                      <th className="py-2 pr-3">
+                        {t('frameworkRequests.columns.note')}
+                      </th>
+                      <th className="py-2 pr-3">
+                        {t('frameworkRequests.columns.submitted')}
+                      </th>
+                      <th className="py-2 pr-3">
+                        {t('frameworkRequests.columns.status')}
+                      </th>
+                      <th className="py-2 pr-3 text-right">
+                        {t('frameworkRequests.columns.actions')}
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {requests.map((req) => (
                       <tr key={req.id} className="border-b last:border-b-0">
-                        <td className="py-2 pr-3 font-medium text-foreground">{req.organizationName ?? req.organizationId}</td>
-                        <td className="py-2 pr-3">{req.frameworkName ?? req.frameworkSlug}</td>
-                        <td className="py-2 pr-3">{req.requestedBy?.name ?? req.requestedBy?.email ?? req.requestedById}</td>
-                        <td className="py-2 pr-3 max-w-xs truncate text-muted-foreground" title={req.note ?? undefined}>{req.note ?? '—'}</td>
-                        <td className="py-2 pr-3 text-muted-foreground">{fmtDateTime(req.createdAt)}</td>
-                        <td className="py-2 pr-3"><StatusBadge status={req.status} /></td>
+                        <td className="py-2 pr-3 font-medium text-foreground">
+                          {req.organizationName ?? req.organizationId}
+                        </td>
+                        <td className="py-2 pr-3">
+                          {req.frameworkName ?? req.frameworkSlug}
+                        </td>
+                        <td className="py-2 pr-3">
+                          {req.requestedBy?.name ??
+                            req.requestedBy?.email ??
+                            req.requestedById}
+                        </td>
+                        <td
+                          className="py-2 pr-3 max-w-xs truncate text-muted-foreground"
+                          title={req.note ?? undefined}
+                        >
+                          {req.note ?? '—'}
+                        </td>
+                        <td className="py-2 pr-3 text-muted-foreground">
+                          {fmtDateTime(req.createdAt)}
+                        </td>
+                        <td className="py-2 pr-3">
+                          <StatusBadge status={req.status} />
+                        </td>
                         <td className="py-2 pr-3 text-right">
                           {req.status === 'PENDING' ? (
                             <div className="flex justify-end gap-2">
-                              <Button size="sm" onClick={() => { setDecisionTarget({ request: req, action: 'approve' }); setDecisionNote(''); }}>
-                                <CheckCircle2 className="mr-1 h-3.5 w-3.5" /> Approve
+                              <Button
+                                size="sm"
+                                onClick={() => {
+                                  setDecisionTarget({
+                                    request: req,
+                                    action: 'approve',
+                                  });
+                                  setDecisionNote('');
+                                }}
+                              >
+                                <CheckCircle2 className="mr-1 h-3.5 w-3.5" />{' '}
+                                {t('frameworkRequests.approve')}
                               </Button>
-                              <Button size="sm" variant="outline" onClick={() => { setDecisionTarget({ request: req, action: 'reject' }); setDecisionNote(''); }}>
-                                <XCircle className="mr-1 h-3.5 w-3.5" /> Reject
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  setDecisionTarget({
+                                    request: req,
+                                    action: 'reject',
+                                  });
+                                  setDecisionNote('');
+                                }}
+                              >
+                                <XCircle className="mr-1 h-3.5 w-3.5" />{' '}
+                                {t('frameworkRequests.reject')}
                               </Button>
                             </div>
                           ) : (
-                            <span className="text-xs text-muted-foreground">{req.decidedBy?.name ?? req.decidedBy?.email ?? '—'}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {req.decidedBy?.name ??
+                                req.decidedBy?.email ??
+                                '—'}
+                            </span>
                           )}
                         </td>
                       </tr>
@@ -200,42 +302,68 @@ export function FrameworkAccessRequestsPage() {
         <Card>
           <CardContent className="p-6">
             <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground">
-              <Wrench className="h-4 w-4 text-muted-foreground" /> Grant Inconsistencies
+              <Wrench className="h-4 w-4 text-muted-foreground" />{' '}
+              {t('frameworkRequests.inconsistencies')}
             </div>
             {inconsistenciesQuery.isLoading ? (
               <div className="flex h-24 items-center justify-center text-muted-foreground">
                 <Loader2 className="h-5 w-5 animate-spin" />
               </div>
             ) : inconsistencies.length === 0 ? (
-              <p className="py-6 text-sm text-muted-foreground">All grants are consistent. Nothing to repair.</p>
+              <p className="py-6 text-sm text-muted-foreground">
+                {t('frameworkRequests.allConsistent')}
+              </p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="min-w-full text-sm">
                   <thead>
                     <tr className="border-b text-left text-xs uppercase tracking-wide text-muted-foreground">
-                      <th className="py-2 pr-3">Org</th>
-                      <th className="py-2 pr-3">Framework</th>
-                      <th className="py-2 pr-3">Missing</th>
-                      <th className="py-2 pr-3 text-right">Action</th>
+                      <th className="py-2 pr-3">
+                        {t('frameworkRequests.columns.org')}
+                      </th>
+                      <th className="py-2 pr-3">
+                        {t('frameworkRequests.columns.framework')}
+                      </th>
+                      <th className="py-2 pr-3">
+                        {t('frameworkRequests.columns.missing')}
+                      </th>
+                      <th className="py-2 pr-3 text-right">
+                        {t('frameworkRequests.columns.action')}
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {inconsistencies.map((row: FrameworkGrantInconsistencyDto) => (
-                      <tr key={`${row.organizationId}-${row.frameworkSlug}`} className="border-b last:border-b-0">
-                        <td className="py-2 pr-3 font-medium text-foreground">{row.organizationName ?? row.organizationId}</td>
-                        <td className="py-2 pr-3">{row.frameworkName}</td>
-                        <td className="py-2 pr-3"><Badge variant="outline">{row.missing}</Badge></td>
-                        <td className="py-2 pr-3 text-right">
-                          <Button
-                            size="sm"
-                            disabled={repairMutation.isPending}
-                            onClick={() => repairMutation.mutate({ organizationId: row.organizationId, frameworkSlug: row.frameworkSlug })}
-                          >
-                            <Wrench className="mr-1 h-3.5 w-3.5" /> Repair
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
+                    {inconsistencies.map(
+                      (row: FrameworkGrantInconsistencyDto) => (
+                        <tr
+                          key={`${row.organizationId}-${row.frameworkSlug}`}
+                          className="border-b last:border-b-0"
+                        >
+                          <td className="py-2 pr-3 font-medium text-foreground">
+                            {row.organizationName ?? row.organizationId}
+                          </td>
+                          <td className="py-2 pr-3">{row.frameworkName}</td>
+                          <td className="py-2 pr-3">
+                            <Badge variant="outline">{row.missing}</Badge>
+                          </td>
+                          <td className="py-2 pr-3 text-right">
+                            <Button
+                              size="sm"
+                              disabled={repairMutation.isPending}
+                              onClick={() =>
+                                repairMutation.mutate({
+                                  organizationId: row.organizationId,
+                                  frameworkSlug: row.frameworkSlug,
+                                })
+                              }
+                            >
+                              <Wrench className="mr-1 h-3.5 w-3.5" />{' '}
+                              {t('frameworkRequests.repair')}
+                            </Button>
+                          </td>
+                        </tr>
+                      ),
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -244,37 +372,77 @@ export function FrameworkAccessRequestsPage() {
         </Card>
       </div>
 
-      <Dialog open={!!decisionTarget} onOpenChange={(open) => { if (!open) { setDecisionTarget(null); setDecisionNote(''); } }}>
+      <Dialog
+        open={!!decisionTarget}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDecisionTarget(null);
+            setDecisionNote('');
+          }
+        }}
+      >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{decisionTarget?.action === 'approve' ? 'Approve request' : 'Reject request'}</DialogTitle>
+            <DialogTitle>
+              {t(
+                decisionTarget?.action === 'approve'
+                  ? 'frameworkRequests.dialog.approveTitle'
+                  : 'frameworkRequests.dialog.rejectTitle',
+              )}
+            </DialogTitle>
           </DialogHeader>
           {decisionTarget ? (
             <div className="space-y-3">
               <p className="text-sm text-muted-foreground">
                 {decisionTarget.action === 'approve'
-                  ? `Grant ${decisionTarget.request.frameworkName ?? decisionTarget.request.frameworkSlug} to ${decisionTarget.request.organizationName ?? decisionTarget.request.organizationId}? Allowlist + entitlement will be set; the customer activates separately.`
-                  : `Reject the request for ${decisionTarget.request.frameworkName ?? decisionTarget.request.frameworkSlug}? The requester will be notified.`}
+                  ? t('frameworkRequests.dialog.approveBody', {
+                      framework:
+                        decisionTarget.request.frameworkName ??
+                        decisionTarget.request.frameworkSlug,
+                      organization:
+                        decisionTarget.request.organizationName ??
+                        decisionTarget.request.organizationId,
+                    })
+                  : t('frameworkRequests.dialog.rejectBody', {
+                      framework:
+                        decisionTarget.request.frameworkName ??
+                        decisionTarget.request.frameworkSlug,
+                    })}
               </p>
               <Textarea
                 value={decisionNote}
                 onChange={(e) => setDecisionNote(e.target.value)}
-                placeholder="Optional note (visible to the requester)"
+                placeholder={t('frameworkRequests.dialog.notePlaceholder')}
                 rows={3}
               />
             </div>
           ) : null}
           <DialogFooter>
-            <Button variant="outline" onClick={() => { setDecisionTarget(null); setDecisionNote(''); }}>Cancel</Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setDecisionTarget(null);
+                setDecisionNote('');
+              }}
+            >
+              {t('frameworkRequests.dialog.cancel')}
+            </Button>
             <Button
               disabled={decideMutation.isPending}
-              onClick={() => decisionTarget && decideMutation.mutate({
-                id: decisionTarget.request.id,
-                action: decisionTarget.action,
-                note: decisionNote.trim() ? decisionNote.trim() : undefined,
-              })}
+              onClick={() =>
+                decisionTarget &&
+                decideMutation.mutate({
+                  id: decisionTarget.request.id,
+                  action: decisionTarget.action,
+                  note: decisionNote.trim() ? decisionNote.trim() : undefined,
+                })
+              }
             >
-              {decisionTarget?.action === 'approve' ? 'Approve' : 'Reject'}
+              {t(
+                decisionTarget?.action === 'approve'
+                  ? 'frameworkRequests.approve'
+                  : 'frameworkRequests.reject',
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

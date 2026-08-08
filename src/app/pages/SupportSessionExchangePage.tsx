@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router';
 import { apiClient, ApiError } from '@/services/api/client';
 import { writeImpersonationSessionId } from '@/services/impersonationStorage';
@@ -22,9 +23,12 @@ interface ExchangeResponse {
 }
 
 export function SupportSessionExchangePage() {
+  const { t } = useTranslation('common');
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<{ key: string } | { text: string } | null>(
+    null,
+  );
   const [status, setStatus] = useState<'exchanging' | 'success' | 'error'>(
     'exchanging',
   );
@@ -32,7 +36,7 @@ export function SupportSessionExchangePage() {
   useEffect(() => {
     const code = searchParams.get('code');
     if (!code) {
-      setError('Missing exchange code in URL.');
+      setError({ key: 'supportSessionExchange.missingCode' });
       setStatus('error');
       return;
     }
@@ -52,11 +56,11 @@ export function SupportSessionExchangePage() {
         navigate('/', { replace: true });
       } catch (err) {
         if (cancelled) return;
-        const message =
+        setError(
           err instanceof ApiError
-            ? err.message
-            : 'Failed to exchange support code.';
-        setError(message);
+            ? { text: err.message }
+            : { key: 'supportSessionExchange.exchangeFailed' },
+        );
         setStatus('error');
       }
     })();
@@ -74,18 +78,20 @@ export function SupportSessionExchangePage() {
             <>
               <AlertCircle className="w-10 h-10 text-red-500 mb-3" />
               <h1 className="text-lg font-semibold text-gray-900 mb-2">
-                Could not start support session
+                {t('supportSessionExchange.heading')}
               </h1>
-              <p className="text-sm text-gray-600">{error}</p>
+              <p className="text-sm text-gray-600">
+                {error && ('key' in error ? t(error.key) : error.text)}
+              </p>
             </>
           ) : (
             <>
               <Shield className="w-10 h-10 text-blue-600 mb-3" />
               <h1 className="text-lg font-semibold text-gray-900 mb-2">
-                Starting support session…
+                {t('supportSessionExchange.starting')}
               </h1>
               <p className="text-sm text-gray-600">
-                Please wait while we exchange the access code.
+                {t('supportSessionExchange.waiting')}
               </p>
             </>
           )}
