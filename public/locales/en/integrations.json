@@ -1261,5 +1261,298 @@
     "googleDriveConnected": "Google Drive connected",
     "slackConnected": "Slack connected",
     "intercomConnected": "Intercom connected"
+  },
+  "engineerA": {
+    "addigy": {
+      "subtitle": "MDM · Device enrollment and compliance governance"
+    },
+    "adp-workforce-now": {
+      "subtitle": "HRIS · Payroll and PII access policy governance"
+    },
+    "aikido-security": {
+      "subtitle": "Vulnerability Scanner · Code and cloud findings governance"
+    },
+    "alexishr": {
+      "subtitle": "HRIS · Sensitive profile access and credential lifecycle controls"
+    },
+    "apollo": {
+      "subtitle": "Sales · Prospecting data access and workflow permissions"
+    },
+    "asana": {
+      "subtitle": "Project Management · Task & workspace governance"
+    },
+    "auth0": {
+      "subtitle": "Identity Provider · Authentication and authorization"
+    },
+    "azure-devops": {
+      "subtitle": "Version Control · CI/CD and project management"
+    },
+    "basecamp": {
+      "subtitle": "Task Management · Project access and collaboration controls"
+    },
+    "bitbucket": {
+      "subtitle": "DevOps · Repository & pipeline access controls"
+    },
+    "box": {
+      "subtitle": "Document Management · Sharing controls and sensitive file governance"
+    },
+    "brex": {
+      "subtitle": "Finance · Cardholder access and spend exception governance"
+    },
+    "buildkite": {
+      "subtitle": "CI/CD · Pipeline permissions and deployment gate controls"
+    },
+    "certn": {
+      "subtitle": "Background Checks · Screening policy and data access controls"
+    },
+    "checkr": {
+      "subtitle": "Background Checks · Candidate screening and access governance"
+    },
+    "circleci": {
+      "subtitle": "CI/CD · Workflow approvals and secret governance"
+    },
+    "comeet": {
+      "subtitle": "HR Recruiting · Candidate access and hiring workflow controls"
+    },
+    "confluence": {
+      "subtitle": "Knowledge Management · Space & content access"
+    },
+    "copper": {
+      "subtitle": "CRM · Workspace member governance and sharing controls"
+    },
+    "crowdstrike": {
+      "subtitle": "Endpoint Security · Sensor coverage & detections"
+    },
+    "cybeready": {
+      "subtitle": "Security Training · Participation and risk behavior governance"
+    },
+    "dashlane": {
+      "subtitle": "Password Manager · Vault permissions and credential hygiene"
+    },
+    "deel": {
+      "subtitle": "HRIS · Global payroll and contractor access governance"
+    },
+    "digitalocean": {
+      "subtitle": "Cloud Provider · Infrastructure access, network and encryption"
+    },
+    "docusign": {
+      "subtitle": "Document Management · Envelope security and audit retention"
+    },
+    "employment-hero": {
+      "subtitle": "HRIS · Employee record protection and admin access controls"
+    },
+    "envoy": {
+      "subtitle": "Other · Visitor access and credential lifecycle governance"
+    },
+    "factorial": {
+      "subtitle": "HRIS · HR permission boundaries and document access controls"
+    },
+    "fieldguide": {
+      "subtitle": "Audit Management · Engagement access and evidence sharing controls"
+    },
+    "github-actions": {
+      "subtitle": "CI/CD · Workflow permissions and environment protection"
+    },
+    "gitlab": {
+      "subtitle": "DevOps · Source control & CI/CD security"
+    },
+    "gitlab-self-managed": {
+      "subtitle": "Version Control · On-premise source code management"
+    },
+    "gong": {
+      "subtitle": "Sales · Recording access and external sharing governance"
+    },
+    "google-drive": {
+      "subtitle": "Document Management · External sharing and document access policy"
+    },
+    "grafana": {
+      "subtitle": "Observability · Metrics, logs & alerting"
+    },
+    "gusto": {
+      "subtitle": "HRIS · Payroll data access and admin governance controls"
+    },
+    "harness": {
+      "subtitle": "CI/CD · Pipeline roles, deployment freezes, and secrets"
+    },
+    "heroku": {
+      "subtitle": "Cloud Provider · App pipeline security and auditability"
+    },
+    "hibob": {
+      "subtitle": "HRIS · People ops lifecycle & PII controls"
+    },
+    "hook-security": {
+      "subtitle": "Security Training · Phishing participation and coaching governance"
+    },
+    "hostedscan": {
+      "subtitle": "Vulnerability Scanner · Attack surface and remediation tracking"
+    },
+    "hoxhunt": {
+      "subtitle": "Security Training · Behavioral risk and simulation governance"
+    },
+    "hubspot": {
+      "subtitle": "CRM · Customer data access and token governance"
+    },
+    "humaans": {
+      "subtitle": "HRIS · Lifecycle workflows and PII field access controls"
+    },
+    "huntress": {
+      "subtitle": "Endpoint Security · Managed detection and response posture"
+    },
+    "intruder": {
+      "subtitle": "Vulnerability Scanner · External surface and remediation SLA"
+    },
+    "intune": {
+      "subtitle": "Endpoint / MDM · Device compliance & conditional access"
+    },
+    "jamf": {
+      "subtitle": "Endpoint / MDM · Encryption, screen lock & EDR"
+    },
+    "jenkins": {
+      "subtitle": "CI/CD · Job permissions, approvals, and secret controls"
+    },
+    "jira": {
+      "subtitle": "Project Management · Workflow & access controls"
+    },
+    "jit": {
+      "subtitle": "Vulnerability Scanner · Alert triage and control baseline"
+    },
+    "justworks": {
+      "subtitle": "HRIS · Payroll export controls and SSO governance"
+    },
+    "kandji": {
+      "subtitle": "Endpoint / MDM · Encryption, blueprints & firewall"
+    },
+    "knowbe4": {
+      "subtitle": "Security Training · Phishing simulation and awareness cadence"
+    },
+    "launchdarkly": {
+      "subtitle": "DevOps · Feature flag change and token governance"
+    },
+    "lever": {
+      "subtitle": "HR Recruiting · Role assignments and candidate visibility controls"
+    },
+    "linear": {
+      "subtitle": "Project Management · Issue tracking & access"
+    },
+    "manageengine": {
+      "subtitle": "IT Management · Admin roles and policy compliance controls"
+    },
+    "microsoft-teams": {
+      "subtitle": "Communication · Messaging, collaboration and admin governance"
+    },
+    "mondaycom": {
+      "subtitle": "Task Management · Workspace sharing and member governance"
+    },
+    "mongodb-atlas": {
+      "subtitle": "Datastore · Network controls and database access governance"
+    },
+    "netlify": {
+      "subtitle": "Cloud Provider · Deploy controls and build security hygiene"
+    },
+    "netsuite": {
+      "subtitle": "Finance · Role permissions and financial approval controls"
+    },
+    "onelogin": {
+      "subtitle": "Identity & SSO · MFA, stale accounts & app hygiene"
+    },
+    "onepassword": {
+      "subtitle": "Password Manager · Team credential security"
+    },
+    "orca-security": {
+      "subtitle": "Vulnerability Scanner · Cloud asset and misconfiguration risk"
+    },
+    "personio": {
+      "subtitle": "HRIS · Role-based access and document permission governance"
+    },
+    "pingone": {
+      "subtitle": "Identity Provider · Cloud identity management"
+    },
+    "pipedrive": {
+      "subtitle": "CRM · Deal pipeline governance and API token hygiene"
+    },
+    "qualys": {
+      "subtitle": "Vulnerability Management · Compliance & scanning"
+    },
+    "ramp": {
+      "subtitle": "Finance · Spend policies and approval hierarchy controls"
+    },
+    "render": {
+      "subtitle": "Cloud Provider · Service access and deployment governance"
+    },
+    "rippling": {
+      "subtitle": "HRIS · Onboarding, offboarding & HR data retention"
+    },
+    "rockset": {
+      "subtitle": "Datastore · Workspace access and query governance"
+    },
+    "salesforce": {
+      "subtitle": "CRM · Permission model, session controls and data governance"
+    },
+    "scaleway": {
+      "subtitle": "Cloud Provider · European cloud infrastructure"
+    },
+    "sentinelone": {
+      "subtitle": "Endpoint Security · AI-powered EDR & XDR"
+    },
+    "sentry": {
+      "subtitle": "Observability · Error tracking & performance"
+    },
+    "sharepoint": {
+      "subtitle": "Content Management · Document & site permissions"
+    },
+    "smartsheet": {
+      "subtitle": "Task Management · Sheet sharing and admin permission controls"
+    },
+    "snowflake": {
+      "subtitle": "Data Warehouse · Cloud data platform"
+    },
+    "splunk": {
+      "subtitle": "SIEM · Log management & security monitoring"
+    },
+    "sumologic": {
+      "subtitle": "SIEM · Cloud-native log analytics & security"
+    },
+    "supabase": {
+      "subtitle": "Datastore · RLS policy and project membership governance"
+    },
+    "tailscale": {
+      "subtitle": "Identity Provider · Network identity and access controls"
+    },
+    "teamwork": {
+      "subtitle": "Project Management · Member roles and sharing governance"
+    },
+    "tenable": {
+      "subtitle": "Vulnerability Management · Asset scanning & risk"
+    },
+    "trinet": {
+      "subtitle": "HRIS · Role assignment, data export, and admin audit controls"
+    },
+    "vercel": {
+      "subtitle": "Cloud Provider · Deployment protection and access monitoring"
+    },
+    "webex": {
+      "subtitle": "Communication · Meeting governance and external access controls"
+    },
+    "workday": {
+      "subtitle": "HRIS · Employee lifecycle & HR access governance"
+    },
+    "workspace-directory": {
+      "subtitle": "Identity · MFA, stale accounts & external sharing"
+    },
+    "workspace-one": {
+      "subtitle": "MDM · Device ownership, baseline policy, and admin controls"
+    },
+    "xero": {
+      "subtitle": "Finance · Advisor access and payment approval governance"
+    },
+    "zendesk": {
+      "subtitle": "Task Management · Support access and ticket data governance"
+    },
+    "zoom": {
+      "subtitle": "Communication · Meeting security and host control posture"
+    },
+    "zoominfo": {
+      "subtitle": "Sales · Data access, export policy, and admin controls"
+    }
   }
 }

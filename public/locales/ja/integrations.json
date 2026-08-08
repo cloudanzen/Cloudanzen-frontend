@@ -1261,5 +1261,298 @@
     "googleDriveConnected": "Google Driveを接続しました",
     "slackConnected": "Slackを接続しました",
     "intercomConnected": "Intercomを接続しました"
+  },
+  "engineerA": {
+    "addigy": {
+      "subtitle": "MDM · デバイス登録と準拠状況の統制"
+    },
+    "adp-workforce-now": {
+      "subtitle": "人事システム · 給与・個人情報のアクセス方針統制"
+    },
+    "aikido-security": {
+      "subtitle": "脆弱性スキャナー · コードとクラウドの検出事項の統制"
+    },
+    "alexishr": {
+      "subtitle": "人事システム · 機微なプロフィールへのアクセスと資格情報のライフサイクル制御"
+    },
+    "apollo": {
+      "subtitle": "営業 · 見込み客データのアクセスとワークフロー権限"
+    },
+    "asana": {
+      "subtitle": "プロジェクト管理 · タスクとワークスペースの統制"
+    },
+    "auth0": {
+      "subtitle": "IDプロバイダー · 認証と認可"
+    },
+    "azure-devops": {
+      "subtitle": "バージョン管理 · CI/CDとプロジェクト管理"
+    },
+    "basecamp": {
+      "subtitle": "タスク管理 · プロジェクトアクセスと共同作業の制御"
+    },
+    "bitbucket": {
+      "subtitle": "DevOps · リポジトリとパイプラインのアクセス制御"
+    },
+    "box": {
+      "subtitle": "文書管理 · 共有制御と機微ファイルの統制"
+    },
+    "brex": {
+      "subtitle": "財務 · カード保有者アクセスと支出例外の統制"
+    },
+    "buildkite": {
+      "subtitle": "CI/CD · パイプライン権限とデプロイゲートの制御"
+    },
+    "certn": {
+      "subtitle": "バックグラウンドチェック · スクリーニング方針とデータアクセス制御"
+    },
+    "checkr": {
+      "subtitle": "バックグラウンドチェック · 候補者スクリーニングとアクセス統制"
+    },
+    "circleci": {
+      "subtitle": "CI/CD · ワークフロー承認とシークレットの統制"
+    },
+    "comeet": {
+      "subtitle": "採用 · 候補者アクセスと採用ワークフローの制御"
+    },
+    "confluence": {
+      "subtitle": "ナレッジ管理 · スペースとコンテンツのアクセス"
+    },
+    "copper": {
+      "subtitle": "CRM · ワークスペースメンバー統制と共有制御"
+    },
+    "crowdstrike": {
+      "subtitle": "エンドポイントセキュリティ · センサー適用範囲と検知"
+    },
+    "cybeready": {
+      "subtitle": "セキュリティ研修 · 受講状況とリスク行動の統制"
+    },
+    "dashlane": {
+      "subtitle": "パスワード管理 · 保管庫の権限と資格情報の衛生"
+    },
+    "deel": {
+      "subtitle": "人事システム · グローバル給与と業務委託先アクセスの統制"
+    },
+    "digitalocean": {
+      "subtitle": "クラウド事業者 · インフラのアクセス、ネットワーク、暗号化"
+    },
+    "docusign": {
+      "subtitle": "文書管理 · エンベロープのセキュリティと監査証跡の保持"
+    },
+    "employment-hero": {
+      "subtitle": "人事システム · 従業員記録の保護と管理者アクセス制御"
+    },
+    "envoy": {
+      "subtitle": "その他 · 来訪者アクセスと資格情報ライフサイクルの統制"
+    },
+    "factorial": {
+      "subtitle": "人事システム · 人事権限の境界と文書アクセス制御"
+    },
+    "fieldguide": {
+      "subtitle": "監査管理 · 業務アクセスと証跡共有の制御"
+    },
+    "github-actions": {
+      "subtitle": "CI/CD · ワークフロー権限と環境保護"
+    },
+    "gitlab": {
+      "subtitle": "DevOps · ソース管理とCI/CDセキュリティ"
+    },
+    "gitlab-self-managed": {
+      "subtitle": "バージョン管理 · オンプレミスのソースコード管理"
+    },
+    "gong": {
+      "subtitle": "営業 · 録画へのアクセスと外部共有の統制"
+    },
+    "google-drive": {
+      "subtitle": "文書管理 · 外部共有と文書アクセス方針"
+    },
+    "grafana": {
+      "subtitle": "オブザーバビリティ · メトリクス、ログ、アラート"
+    },
+    "gusto": {
+      "subtitle": "人事システム · 給与データのアクセスと管理者統制"
+    },
+    "harness": {
+      "subtitle": "CI/CD · パイプラインのロール、デプロイ凍結、シークレット"
+    },
+    "heroku": {
+      "subtitle": "クラウド事業者 · アプリのパイプラインセキュリティと監査可能性"
+    },
+    "hibob": {
+      "subtitle": "人事システム · 人事オペレーションと個人情報の管理"
+    },
+    "hook-security": {
+      "subtitle": "セキュリティ研修 · フィッシング訓練の受講とコーチングの統制"
+    },
+    "hostedscan": {
+      "subtitle": "脆弱性スキャナー · 攻撃面と是正の追跡"
+    },
+    "hoxhunt": {
+      "subtitle": "セキュリティ研修 · 行動リスクと訓練の統制"
+    },
+    "hubspot": {
+      "subtitle": "CRM · 顧客データのアクセスとトークン統制"
+    },
+    "humaans": {
+      "subtitle": "人事システム · ライフサイクルワークフローと個人情報項目のアクセス制御"
+    },
+    "huntress": {
+      "subtitle": "エンドポイントセキュリティ · マネージド検知・対応の態勢"
+    },
+    "intruder": {
+      "subtitle": "脆弱性スキャナー · 外部攻撃面と是正SLA"
+    },
+    "intune": {
+      "subtitle": "エンドポイント／MDM · デバイス準拠状況と条件付きアクセス"
+    },
+    "jamf": {
+      "subtitle": "エンドポイント／MDM · 暗号化、画面ロック、EDR"
+    },
+    "jenkins": {
+      "subtitle": "CI/CD · ジョブ権限、承認、シークレット制御"
+    },
+    "jira": {
+      "subtitle": "プロジェクト管理 · ワークフローとアクセス制御"
+    },
+    "jit": {
+      "subtitle": "脆弱性スキャナー · アラートのトリアージと管理策の基準"
+    },
+    "justworks": {
+      "subtitle": "人事システム · 給与エクスポート制御とSSO統制"
+    },
+    "kandji": {
+      "subtitle": "エンドポイント／MDM · 暗号化、ブループリント、ファイアウォール"
+    },
+    "knowbe4": {
+      "subtitle": "セキュリティ研修 · フィッシング訓練と啓発の実施頻度"
+    },
+    "launchdarkly": {
+      "subtitle": "DevOps · フィーチャーフラグ変更とトークンの統制"
+    },
+    "lever": {
+      "subtitle": "採用 · ロール割当と候補者の可視性制御"
+    },
+    "linear": {
+      "subtitle": "プロジェクト管理 · 課題管理とアクセス"
+    },
+    "manageengine": {
+      "subtitle": "IT管理 · 管理者ロールとポリシー準拠の制御"
+    },
+    "microsoft-teams": {
+      "subtitle": "コミュニケーション · メッセージング、共同作業、管理者統制"
+    },
+    "mondaycom": {
+      "subtitle": "タスク管理 · ワークスペース共有とメンバー統制"
+    },
+    "mongodb-atlas": {
+      "subtitle": "データストア · ネットワーク制御とデータベースアクセスの統制"
+    },
+    "netlify": {
+      "subtitle": "クラウド事業者 · デプロイ制御とビルドのセキュリティ衛生"
+    },
+    "netsuite": {
+      "subtitle": "財務 · ロール権限と財務承認の制御"
+    },
+    "onelogin": {
+      "subtitle": "ID管理・SSO · MFA、休眠アカウント、アプリ衛生"
+    },
+    "onepassword": {
+      "subtitle": "パスワード管理 · チームの資格情報セキュリティ"
+    },
+    "orca-security": {
+      "subtitle": "脆弱性スキャナー · クラウド資産と設定不備のリスク"
+    },
+    "personio": {
+      "subtitle": "人事システム · ロールベースアクセスと文書権限の統制"
+    },
+    "pingone": {
+      "subtitle": "IDプロバイダー · クラウドID管理"
+    },
+    "pipedrive": {
+      "subtitle": "CRM · 商談パイプライン統制とAPIトークン衛生"
+    },
+    "qualys": {
+      "subtitle": "脆弱性管理 · コンプライアンスとスキャン"
+    },
+    "ramp": {
+      "subtitle": "財務 · 支出ポリシーと承認階層の制御"
+    },
+    "render": {
+      "subtitle": "クラウド事業者 · サービスアクセスとデプロイ統制"
+    },
+    "rippling": {
+      "subtitle": "人事システム · 入社・退社処理と人事データ保持"
+    },
+    "rockset": {
+      "subtitle": "データストア · ワークスペースアクセスとクエリの統制"
+    },
+    "salesforce": {
+      "subtitle": "CRM · 権限モデル、セッション制御、データ統制"
+    },
+    "scaleway": {
+      "subtitle": "クラウド事業者 · 欧州のクラウドインフラ"
+    },
+    "sentinelone": {
+      "subtitle": "エンドポイントセキュリティ · AIによるEDR・XDR"
+    },
+    "sentry": {
+      "subtitle": "オブザーバビリティ · エラー追跡とパフォーマンス"
+    },
+    "sharepoint": {
+      "subtitle": "コンテンツ管理 · ドキュメントとサイトの権限"
+    },
+    "smartsheet": {
+      "subtitle": "タスク管理 · シート共有と管理者権限の制御"
+    },
+    "snowflake": {
+      "subtitle": "データウェアハウス · クラウドデータプラットフォーム"
+    },
+    "splunk": {
+      "subtitle": "SIEM · ログ管理とセキュリティ監視"
+    },
+    "sumologic": {
+      "subtitle": "SIEM · クラウドネイティブなログ分析とセキュリティ"
+    },
+    "supabase": {
+      "subtitle": "データストア · RLSポリシーとプロジェクトメンバーの統制"
+    },
+    "tailscale": {
+      "subtitle": "IDプロバイダー · ネットワークIDとアクセス制御"
+    },
+    "teamwork": {
+      "subtitle": "プロジェクト管理 · メンバーロールと共有の統制"
+    },
+    "tenable": {
+      "subtitle": "脆弱性管理 · 資産スキャンとリスク"
+    },
+    "trinet": {
+      "subtitle": "人事システム · ロール割当、データエクスポート、管理者監査"
+    },
+    "vercel": {
+      "subtitle": "クラウド事業者 · デプロイ保護とアクセス監視"
+    },
+    "webex": {
+      "subtitle": "コミュニケーション · 会議統制と外部アクセス制御"
+    },
+    "workday": {
+      "subtitle": "人事システム · 従業員ライフサイクルと人事アクセス統制"
+    },
+    "workspace-directory": {
+      "subtitle": "ID管理 · MFA、休眠アカウント、外部共有"
+    },
+    "workspace-one": {
+      "subtitle": "MDM · デバイス所有区分、基準ポリシー、管理者制御"
+    },
+    "xero": {
+      "subtitle": "財務 · アドバイザーアクセスと支払承認の統制"
+    },
+    "zendesk": {
+      "subtitle": "タスク管理 · サポートアクセスとチケットデータの統制"
+    },
+    "zoom": {
+      "subtitle": "コミュニケーション · 会議セキュリティとホスト権限の状態"
+    },
+    "zoominfo": {
+      "subtitle": "営業 · データアクセス、エクスポート方針、管理者制御"
+    }
   }
 }
