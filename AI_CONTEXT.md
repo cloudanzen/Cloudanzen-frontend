@@ -61,7 +61,11 @@ main.tsx
   (`src/app/authGuard.ts`). A tab is "authenticated" if it has a token **or** an
   impersonation session marker.
 - **Platform (super-admin) routes** live in `src/app/platform-routes.ts` behind
-  `platformAuthGuard.ts`.
+  `platformAuthGuard.ts`. `routes.ts` picks the whole tree by hostname —
+  `PLATFORM_HOSTS` (from `VITE_PLATFORM_HOSTS`) decides between `platformRoutes`
+  and `tenantRoutes`, and the env allowlist is the trust boundary: an unknown
+  host falls through to the tenant tree. The two trees never mix in one page
+  load, which is why §5 can treat them as separate i18n scopes.
 
 ---
 
@@ -108,8 +112,36 @@ mutations also invalidate `['ai-trust', 'dashboard']` so the dashboard reflects
 changes.
 
 **i18n.** User-facing strings go through `react-i18next` (`useTranslation`).
-See `i18n-translation-plan.md`. Newer AI TrustOps pages use inline English copy;
-follow the surrounding page's convention.
+No exceptions on the tenant tree — the "follow the surrounding page" escape
+hatch is gone, because every tenant page now has the hook.
+
+**The platform console is English-only. This is a decision, not a gap.**
+`src/app/pages/platform/*` is served on its own hostname (see §3) to
+CloudAnzen's own operators, gated by `PlatformAdminEmailAllowlist` and a JWT
+with `aud: 'platform'`. No tenant can reach it. The operators are
+English-speaking, and the console has no language switcher and no
+`preferredLocale` for platform admins — those would have to be built first.
+Do not "finish" i18n there without revisiting this.
+
+Three things follow from it:
+
+- Adding `useTranslation` to a platform page is not an improvement. Leave it.
+- The "pages without `useTranslation`" count will never reach zero, and that is
+  correct. Roughly half the remainder is platform; the rest are `shared.tsx` /
+  `KpiCard` / icon modules that hold no translatable strings at all.
+- Anything reachable from a tenant hostname is in scope, no matter how internal
+  it feels. `admin/FrameworkAccessRequestsPage` is SUPER_ADMIN-only and _is_
+  translated, because it is served on the tenant host.
+
+**Adding a namespace.** New locale file under `public/locales/{en,ja}/`, plus
+the `ns` array in `src/i18n.ts`. Both, or `i18n-key-existence.test.ts` fails —
+an unlisted namespace still resolves via lazy load, so nothing else notices.
+
+**`defaultValue` is not translation.** `t('a.b', { defaultValue: 'Text' })` on
+a literal key renders English forever and passes every key-parity check. The
+gate rejects it. It stays legal only for genuinely dynamic keys
+(``t(`roles.${role}`, { defaultValue: fallback })``), where the key space is
+open-ended.
 
 **Status-style rendering.** Backend cards/records may carry a `label` + `tone`
 (`positive|warning|critical|neutral`) instead of a numeric value — render the
@@ -122,7 +154,8 @@ colored label (see `AiTrustDashboardPage` `MetricCard`).
 - **Unit:** Vitest, tests in `src/tests/`. Mock `apiClient` with `vi.mock` to
   test service methods; render components with Testing Library where useful.
 - **E2E:** Playwright in `e2e/` (`npm run test:e2e`).
-- **The 17% global statement gate is real.** When you add a large page, its
+- **The global statement gate is real** (16% at the time of writing; it only
+  ratchets up — check `vite.config.ts` rather than trusting this number). When you add a large page, its
   untested lines can push coverage under the threshold. Mitigation used across
   this repo: extract pure logic (parsers, mappers) into a plain module and unit
   test it, and add a service-client test. Example: CSV parsing lives in
