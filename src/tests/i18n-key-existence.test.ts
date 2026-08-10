@@ -179,6 +179,34 @@ describe('translation key existence', () => {
     expect(configured).toEqual(onDisk);
   });
 
+  it('gives every integration card a translated subtitle', () => {
+    // EngineerAIntegrationCard renders the subtitle as
+    //   t(`engineerA.${config.key}.subtitle`, { defaultValue: config.subtitle })
+    // — a dynamic key, so the scanner above cannot see it, and the fallback
+    // means a missing entry shows English rather than failing. The catalogue
+    // shipped 97 cards and zero entries.
+    //
+    // Keys are read from the source text rather than imported: the data module
+    // pulls in ~100 service adapters, and none of them are needed to answer
+    // "does this key have a translation".
+    const source = readFileSync(
+      resolve(SRC, 'app/pages/integrations/engineerACards.data.tsx'),
+      'utf-8',
+    );
+    const keys = [...source.matchAll(/^ {4}key: '([^']+)',$/gm)].map(
+      (m) => m[1]!,
+    );
+
+    expect(keys.length).toBeGreaterThan(90);
+
+    const bundle = bundles.get('integrations');
+    const missing = keys.filter(
+      (key) => !keyExists(bundle, `engineerA.${key}.subtitle`),
+    );
+
+    expect(missing).toEqual([]);
+  });
+
   it('has no call site relying on defaultValue to paper over a missing key', () => {
     // Even when the key does exist, `defaultValue` is dead weight that hides
     // the next removal. Translate the string properly instead.
