@@ -32,7 +32,6 @@ export { ServiceNowIncidentCard } from './ServiceNowCard';
 export { SlackCard } from './SlackCard';
 export { SnykCard } from './SnykCard';
 export { SonarQubeCard } from './SonarQubeCard';
-export { STATIC_INTEGRATIONS, StaticIcon, redactConfigKeyLabel } from './staticCatalog';
 export { VaultCard } from './VaultCard';
 export { VeracodeCard } from './VeracodeCard';
 export { WizCard } from './WizCard';

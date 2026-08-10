@@ -11,7 +11,6 @@ import { frameworksService } from '@/services/api/frameworks';
 import { RequestToolModal } from '@/app/pages/integrations/integrations';
 import { useIntegrationsData } from '@/app/pages/integrations/useIntegrationsData';
 import { ENGINEER_A_CARDS } from '@/app/pages/integrations/engineerACards';
-import { STATIC_INTEGRATIONS } from '@/app/pages/integrations/integrations';
 import { IntegrationsCardGrid } from '@/app/pages/integrations/IntegrationsCardGrid';
 
 const PAGE_SIZE = 24;
@@ -160,8 +159,7 @@ export function IntegrationsPage() {
     [engineerAConnectionCounts],
   );
   const connectedCount = baseConnectedCount + engineerAConnectedCount;
-  const totalToolCount =
-    32 + ENGINEER_A_CARDS.length + STATIC_INTEGRATIONS.length;
+  const totalToolCount = 32 + ENGINEER_A_CARDS.length;
   const availableCount = Math.max(totalToolCount - connectedCount, 0);
 
   const shouldShowTile = useCallback(

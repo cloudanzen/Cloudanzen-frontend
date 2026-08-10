@@ -1,6 +1,4 @@
-import { Badge } from '@/app/components/ui/badge';
 import { Button } from '@/app/components/ui/button';
-import { Card } from '@/app/components/ui/card';
 import { useTranslation } from 'react-i18next';
 import {
   AwsCard,
@@ -32,8 +30,6 @@ import {
   SlackCard,
   SnykCard,
   SonarQubeCard,
-  STATIC_INTEGRATIONS,
-  StaticIcon,
   VaultCard,
   VeracodeCard,
   WizCard,
@@ -735,35 +731,6 @@ export function IntegrationsCardGrid({
             }
           />
         ))}
-
-        {/* ── Static coming-soon cards ─────────────────────────────────────── */}
-        {activeTab === 'available' &&
-          STATIC_INTEGRATIONS.map((integration) => (
-            <Card key={integration.name} className="p-6 opacity-60 select-none">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center flex-shrink-0 p-1 overflow-hidden">
-                    <StaticIcon name={integration.name} className="w-7 h-7" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      {integration.name}
-                    </h3>
-                    <p className="text-sm text-gray-500">
-                      {integration.category}
-                    </p>
-                  </div>
-                </div>
-                <Badge variant="outline">{t('grid.comingSoon')}</Badge>
-              </div>
-              <p className="text-sm text-gray-600 mb-4">
-                {integration.description}
-              </p>
-              <Button variant="outline" size="sm" disabled>
-                {t('grid.comingSoon')}
-              </Button>
-            </Card>
-          ))}
       </div>
 
       {/* ── Show more (pagination for engineer-a cards) ──────────────────────── */}
