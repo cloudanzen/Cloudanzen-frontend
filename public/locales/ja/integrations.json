@@ -188,7 +188,6 @@
     }
   },
   "grid": {
-    "comingSoon": "近日公開",
     "showMore": "さらに表示 (残り {{count}} 件)"
   },
   "cards": {
